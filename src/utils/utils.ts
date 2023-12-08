@@ -4,8 +4,8 @@ import type { Parts } from "src/types/ast";
 
 export function getWhitespace(ctx: Rule.RuleContext, classes: string) {
 
-  const leadingWhitespace = classes.at(0) === " " ? " " : "";
-  const trailingWhitespace = classes.at(-1) === " " ? " " : "";
+  const leadingWhitespace = classes.match(/^\s*/)?.[0];
+  const trailingWhitespace = classes.match(/\s*$/)?.[0];
 
   return { leadingWhitespace, trailingWhitespace };
 
@@ -17,6 +17,10 @@ export function splitClasses(ctx: Rule.RuleContext, classes: string): string[] {
     .split(/\s+/);
 }
 
+export function splitWhitespace(ctx: Rule.RuleContext, classes: string): string[] {
+  return classes.split(/[^\s\\]+/);
+}
+
 export function combineClasses(
   ctx: Rule.RuleContext,
   classes: string[],
@@ -26,7 +30,7 @@ export function combineClasses(
     parts.leadingQuote ?? "",
     parts.leadingBraces ?? "",
     parts.leadingWhitespace ?? "",
-    classes.join(" "),
+    ...classes,
     parts.trailingWhitespace ?? "",
     parts.trailingBraces ?? "",
     parts.trailingQuote ?? ""

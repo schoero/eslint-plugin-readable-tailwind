@@ -2,7 +2,7 @@ import { tsx } from "src/utils/template.js";
 import { lint } from "tests/utils.js";
 import { describe, expect, it } from "vitest";
 
-import { readableTailwind } from "eptm:rules:readable-tailwind.js";
+import { readableTailwind } from "eptm:rules:tailwind-multiline.js";
 
 
 describe(`${readableTailwind.name}`, () => {

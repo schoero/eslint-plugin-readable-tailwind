@@ -7,6 +7,13 @@ import { jsxAttributeExpression } from "eptm:rules:jsx-attribute-expression.js";
 
 describe(`${jsxAttributeExpression.name}`, () => {
 
+  it("should not change the quotes", () => expect(void lint(jsxAttributeExpression, {
+    valid: [
+      { code: tsx`const Test = () => <div class="b a" />;` },
+      { code: tsx`const Test = () => <div class='b a' />;` }
+    ]
+  })).toBeUndefined());
+
   it("should not allow useless attribute expressions by default", () => expect(void lint(jsxAttributeExpression, {
     invalid: [
       {
@@ -79,6 +86,5 @@ describe(`${jsxAttributeExpression.name}`, () => {
       options: ["always"]
     }]
   })).toBeUndefined());
-
 
 });

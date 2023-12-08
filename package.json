@@ -38,6 +38,7 @@
     "eslint": "^8.55.0",
     "eslint-doc-generator": "^1.6.1",
     "eslint-plugin-eslint-plugin": "^5.1.1",
+    "proper-tags": "^2.0.2",
     "typescript": "^5.3.3",
     "vite": "^5.0.7",
     "vite-plugin-dts": "^3.6.4",
