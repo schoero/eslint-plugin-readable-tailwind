@@ -4,77 +4,82 @@ import type { Rule } from "eslint";
 import type { Node } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { QuoteParts } from "src/types/ast.js";
-import type { JSXNoAttributeExpressionOptions } from "src/types/options.js";
+import type { ESLintRule } from "src/types/rule.js";
 
 
-export default {
-  create(ctx) {
+type Options = ["always" | "as-needed"];
 
-    return {
+export const jsxAttributeExpression: ESLintRule<Options> = {
+  name: "jsx-attribute-expression" as const,
+  rule: {
+    create(ctx) {
 
-      JSXOpeningElement(node: Node) {
+      return {
 
-        const jsxNode = node as JSXOpeningElement;
+        JSXOpeningElement(node: Node) {
 
-        for(const attribute of jsxNode.attributes){
+          const jsxNode = node as JSXOpeningElement;
 
-          if(!isJSXAttribute(attribute)){ continue; }
+          for(const attribute of jsxNode.attributes){
 
-          const literals = getClassAttributeLiterals(ctx, attribute);
+            if(!isJSXAttribute(attribute)){ continue; }
 
-          if(literals.length !== 1){ continue; }
+            const literals = getClassAttributeLiterals(ctx, attribute);
 
-          const literal = literals[0]!;
+            if(literals.length !== 1){ continue; }
 
-          const attributeValue = attribute.value;
-          const attributeName = attribute.name.name;
+            const literal = literals[0]!;
 
-          if(!attributeValue){ continue; }
-          if(typeof attributeName !== "string"){ continue; }
-          if(literal.content.includes("\n")){ continue; }
+            const attributeValue = attribute.value;
+            const attributeName = attribute.name.name;
 
-          const { expression } = getOptions(ctx);
-          const { leadingQuote, trailingQuote } = getAllowedQuotes(ctx, { leadingQuote: literal.leadingQuote, trailingQuote: literal.trailingQuote });
+            if(!attributeValue){ continue; }
+            if(typeof attributeName !== "string"){ continue; }
+            if(literal.content.includes("\n")){ continue; }
 
-          const rawAttribute = attributeValue.type === "JSXExpressionContainer"
-            ? `{${literal.raw}}`
-            : literal.raw;
+            const { expression } = getOptions(ctx);
+            const { leadingQuote, trailingQuote } = getAllowedQuotes(ctx, { leadingQuote: literal.leadingQuote, trailingQuote: literal.trailingQuote });
 
-          const fixedAttribute = expression === "always"
-            ? `{${literal.leadingQuote}${literal.content}${literal.trailingQuote}}`
-            : `${leadingQuote}${literal.content}${trailingQuote}`;
+            const rawAttribute = attributeValue.type === "JSXExpressionContainer"
+              ? `{${literal.raw}}`
+              : literal.raw;
 
-          if(rawAttribute === fixedAttribute){
-            return;
+            const fixedAttribute = expression === "always"
+              ? `{${literal.leadingQuote}${literal.content}${literal.trailingQuote}}`
+              : `${leadingQuote}${literal.content}${trailingQuote}`;
+
+            if(rawAttribute === fixedAttribute){
+              return;
+            }
+
+            ctx.report({
+              data: {
+                attributeName,
+                rawAttribute
+              },
+              fix(fixer) {
+                return fixer.replaceText(attributeValue, fixedAttribute);
+              },
+              message: "Invalid jsx attribute expression: {{ attributeName }}={{ rawAttribute }}.",
+              node
+            });
+
           }
-
-          ctx.report({
-            data: {
-              attributeName,
-              rawAttribute
-            },
-            fix(fixer) {
-              return fixer.replaceText(attributeValue, fixedAttribute);
-            },
-            message: "Invalid jsx attribute expression: {{ attributeName }}={{ rawAttribute }}.",
-            node
-          });
-
         }
-      }
 
-    };
-  },
-  meta: {
-    docs: {
-      category: "Stylistic Issues",
-      description: "Auto-wrap Tailwind CSS classes based on specified width and formatting rules",
-      recommended: true
+      };
     },
-    fixable: "code",
-    type: "layout"
+    meta: {
+      docs: {
+        category: "Stylistic Issues",
+        description: "Auto-wrap Tailwind CSS classes based on specified width and formatting rules",
+        recommended: true
+      },
+      fixable: "code",
+      type: "layout"
+    }
   }
-} satisfies Rule.RuleModule;
+};
 
 function getAllowedQuotes(ctx: Rule.RuleContext, preferredQuotes: QuoteParts): QuoteParts {
   const { leadingQuote, trailingQuote } = preferredQuotes;
@@ -86,7 +91,7 @@ function getAllowedQuotes(ctx: Rule.RuleContext, preferredQuotes: QuoteParts): Q
   return { leadingQuote: '"', trailingQuote: '"' };
 }
 
-export function getOptions(ctx: Rule.RuleContext): { expression: JSXNoAttributeExpressionOptions; } {
+function getOptions(ctx: Rule.RuleContext): { expression: Options[0]; } {
   const expression = ctx.options[0] ?? "as-needed";
   return { expression };
 }

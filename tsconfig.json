@@ -2,11 +2,10 @@
   "extends": "@schoero/ts-config",
   "compilerOptions": {
     "baseUrl": ".",
-    "declaration": false,
-    "declarationMap": false,
-    "lib": ["ESNext", "DOM"],
+    "lib": ["ESNext"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "noImplicitAny": false,
     "paths": {
       "eptm:rules:*": ["src/rules/*"],
       "eptm:tests:": ["src/tests/*"],

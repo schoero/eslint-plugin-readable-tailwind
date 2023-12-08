@@ -44,9 +44,9 @@
 
   // VSCode
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true,
-    "source.fixAll.markdownlint": true,
-    "source.organizeImports": false
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.markdownlint": "explicit",
+    "source.organizeImports": "never"
   },
   "editor.rulers": [
     119

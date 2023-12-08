@@ -4,10 +4,12 @@ import { combineClasses, splitClasses } from "eptm:utils:utils.js";
 import type { Rule } from "eslint";
 import type { Node } from "estree";
 import type { JSXAttribute, JSXOpeningElement } from "estree-jsx";
-import type { ReadableTailwindOptions } from "src/types/options.js";
+import type { ReadableTailwindOptions } from "src/types/rule.js";
 
 
-export default {
+export const name = "readable-tailwind" as const;
+
+export const rule = {
   create(ctx) {
 
     return {

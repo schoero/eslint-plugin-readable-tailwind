@@ -8,7 +8,9 @@
   "exports": "./lib/index.js",
   "main": "./lib/index.js",
   "scripts": {
-    "docs": "eslint-doc-generator"
+    "build": "vite build",
+    "docs": "eslint-doc-generator",
+    "test": "vitest -c ./vite.config.ts"
   },
   "peerDependencies": {
     "eslint": ">=7"
@@ -34,7 +36,19 @@
   "keywords": [
     "eslint",
     "eslintplugin",
-    "eslint-plugin"
+    "eslint-plugin",
+    "tailwind",
+    "readable",
+    "multiline",
+    "multi",
+    "line",
+    "template",
+    "literal",
+    "template-literal",
+    "template-literals",
+    "tailwindcss",
+    "tailwind-css",
+    "tailwind-classes"
   ],
   "directories": {
     "lib": "lib"

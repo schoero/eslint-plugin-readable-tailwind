@@ -1,3 +1,6 @@
+import type { Rule } from "eslint";
+
+
 export interface ReadableTailwindOptions {
   classAttributes?: string[];
   classesPerLine?: number;
@@ -8,10 +11,8 @@ export interface ReadableTailwindOptions {
 }
 
 
-export type JSXNoAttributeExpressionOptions = "always" | "as-needed";
-
-
-export type RuleOptions = {
-  "jsx-attribute-expression": [JSXNoAttributeExpressionOptions];
-  "readable-tailwind": [ReadableTailwindOptions];
-};
+export interface ESLintRule<Options extends any[] = [any]> {
+  name: string;
+  rule: Rule.RuleModule;
+  options?: Options;
+}

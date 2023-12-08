@@ -1,6 +1,6 @@
 import { RuleTester } from "eslint";
 
-import type { RuleOptions } from "src/types/options.js";
+import type { ESLintRule } from "src/types/rule.js";
 
 
 type RuleTesterParameters = Parameters<RuleTester["run"]>;
@@ -13,20 +13,19 @@ type Test = RuleTesterParameters[2] & {
 
 };
 
-export function lint<const Name extends keyof RuleOptions>(
-  name: Name,
-  rule: RuleTesterParameters[1],
+export function lint<Rule extends ESLintRule>(
+  eslintRule: Rule,
   tests: Omit<RuleTesterParameters[2], "invalid" | "valid"> & {
     invalid?: (Omit<RuleTester.InvalidTestCase, "options"> & {
-      options?: RuleOptions[Name];
+      options?: Rule["options"];
     })[];
     valid?: (Omit<RuleTester.ValidTestCase, "options"> & {
-      options?: RuleOptions[Name];
+      options?: Rule["options"];
     })[];
   }
 ) {
 
-  ruleTester.run(name, rule, {
+  ruleTester.run(eslintRule.name, eslintRule.rule, {
     ...tests,
     invalid: tests.invalid ?? [],
     valid: tests.valid ?? []

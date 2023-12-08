@@ -42,7 +42,13 @@ Then configure the rules you want to use under the rules section.
 ## Rules
 
 <!-- begin auto-generated rules list -->
-TODO: Run eslint-doc-generator to generate the rules list.
+
+🔧 Automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/user-guide/command-line-interface#--fix).
+
+| Name                                                               | Description                                                                  | 🔧 |
+| :----------------------------------------------------------------- | :--------------------------------------------------------------------------- | :- |
+| [jsx-attribute-expression](docs/rules/jsx-attribute-expression.md) | Auto-wrap Tailwind CSS classes based on specified width and formatting rules | 🔧 |
+
 <!-- end auto-generated rules list -->
 
 

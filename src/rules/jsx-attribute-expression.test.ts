@@ -2,12 +2,12 @@ import { tsx } from "src/utils/template.js";
 import { lint } from "tests/utils.js";
 import { describe, expect, it } from "vitest";
 
-import jsxNoAttributeExpression from "eptm:rules:jsx-attribute-expression.js";
+import { jsxAttributeExpression } from "eptm:rules:jsx-attribute-expression.js";
 
 
-describe("jsx-attribute-expression", () => {
+describe(`${jsxAttributeExpression.name}`, () => {
 
-  it("should not allow useless attribute expressions by default", () => expect(void lint("jsx-attribute-expression", jsxNoAttributeExpression, {
+  it("should not allow useless attribute expressions by default", () => expect(void lint(jsxAttributeExpression, {
     invalid: [
       {
         code: tsx`const Test = () => <div class={"class"} />;`,
@@ -27,7 +27,7 @@ describe("jsx-attribute-expression", () => {
     ]
   })).toBeUndefined());
 
-  it("should not change useful attribute expressions by default", () => expect(void lint("jsx-attribute-expression", jsxNoAttributeExpression, {
+  it("should not change useful attribute expressions by default", () => expect(void lint(jsxAttributeExpression, {
     valid: [
       {
         code: tsx`const Test = () => <div class={"class" + " other " + " class"} />;`
@@ -49,7 +49,7 @@ describe("jsx-attribute-expression", () => {
       class
     `;
 
-    expect(void lint("jsx-attribute-expression", jsxNoAttributeExpression, {
+    expect(void lint(jsxAttributeExpression, {
       valid: [
         {
           code: `const Test = () => <div class={\`${multilineTemplateLiteral}\`} />;`
@@ -59,7 +59,7 @@ describe("jsx-attribute-expression", () => {
 
   });
 
-  it("should allow useless attribute expressions if preferred", () => expect(void lint("jsx-attribute-expression", jsxNoAttributeExpression, {
+  it("should allow useless attribute expressions if preferred", () => expect(void lint(jsxAttributeExpression, {
     invalid: [
       {
         code: tsx`const Test = () => <div class="class" />;`,
