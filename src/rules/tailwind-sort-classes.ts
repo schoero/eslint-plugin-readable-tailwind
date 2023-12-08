@@ -86,9 +86,14 @@ export const tailwindSortClasses: ESLintRule<Options> = {
 };
 
 
-function sortClasses(ctx: Rule.RuleContext, classes: string[]): string[] {
-  // const classChunks = classes.map(className => unwrapClass(ctx, className));
-  return classes.toSorted();
+function sortClasses(ctx: Rule.RuleContext, classes: string[], order: "asc" | "desc" = "asc"): string[] {
+  return classes.toSorted((a, b) => {
+    if(order === "asc"){
+      return a.localeCompare(b);
+    } else {
+      return b.localeCompare(a);
+    }
+  });
 }
 
 

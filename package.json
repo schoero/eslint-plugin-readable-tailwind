@@ -21,7 +21,8 @@
     "markdownlint:fix": "markdownlint-cli2-fix '**/*.md' '#node_modules'",
     "spellcheck": "cspell lint",
     "spellcheck:ci": "npm run spellcheck -- --no-progress",
-    "test": "vitest -c ./vite.config.ts"
+    "test": "vitest -c ./vite.config.ts",
+    "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
     "eslint": ">=7"
@@ -62,10 +63,10 @@
     "tailwind-css",
     "tailwind-classes"
   ],
-  "directories": {
-    "lib": "lib"
-  },
   "volta": {
     "node": "21.4.0"
+  },
+  "directories": {
+    "lib": "lib"
   }
 }

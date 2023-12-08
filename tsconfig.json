@@ -11,6 +11,7 @@
       "eptm:tests:": ["src/tests/*"],
       "eptm:utils:*": ["src/utils/*"]
     },
-    "rootDir": "."
+    "rootDir": ".",
+    "skipLibCheck": true
   }
 }

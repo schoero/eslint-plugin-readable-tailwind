@@ -72,7 +72,7 @@ export const jsxAttributeExpression: ESLintRule<Options> = {
     meta: {
       docs: {
         category: "Stylistic Issues",
-        description: "Enforce consistent jsx attribute expressions.",
+        description: "Enforce consistent jsx attribute expressions",
         recommended: true
       },
       fixable: "code",
