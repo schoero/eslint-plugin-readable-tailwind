@@ -16,5 +16,4 @@ export interface WhitespaceParts {
 }
 
 export interface Parts extends QuoteParts, BracesParts, WhitespaceParts {
-  raw: string;
 }

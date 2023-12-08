@@ -4,67 +4,80 @@ import { combineClasses, splitClasses } from "eptm:utils:utils.js";
 import type { Rule } from "eslint";
 import type { Node } from "estree";
 import type { JSXAttribute, JSXOpeningElement } from "estree-jsx";
-import type { ReadableTailwindOptions } from "src/types/rule.js";
+import type { Parts } from "src/types/ast.js";
+import type { ESLintRule } from "src/types/rule.js";
 
 
-export const name = "readable-tailwind" as const;
+export type Options = [
+  {
+    classAttributes?: string[];
+    classesPerLine?: number;
+    group?: "emptyLine" | "never" | "newLine" | false;
+    printWidth?: number;
+    sort?: "asc" | "desc" | "never" | false;
+    trim?: boolean;
+  }
+];
 
-export const rule = {
-  create(ctx) {
+export const readableTailwind: ESLintRule<Options> = {
+  name: "readable-tailwind" as const,
+  rule: {
+    create(ctx) {
 
-    return {
+      return {
 
-      JSXOpeningElement(node: Node) {
+        JSXOpeningElement(node: Node) {
 
-        const jsxNode = node as JSXOpeningElement;
+          const jsxNode = node as JSXOpeningElement;
 
-        const attributes = getClassAttributes(ctx, jsxNode);
+          const options = getOptions(ctx);
+          const attributes = getClassAttributes(ctx, jsxNode);
 
-        const options = getOptions(ctx);
+          for(const attribute of attributes){
 
-        for(const attribute of attributes){
+            const literals = getClassAttributeLiterals(ctx, attribute);
 
-          const literals = getClassAttributeLiterals(ctx, attribute);
+            for(const literal of literals){
 
-          for(const literal of literals){
+              if(literal === undefined){ continue; }
 
-            if(literal === undefined){ continue; }
+              const parts = createParts(ctx, literal);
+              const classes = splitClasses(ctx, literal.content);
+              const sortedClasses = sortClasses(ctx, classes);
+              const combinedClasses = combineClasses(ctx, sortedClasses, parts);
 
-            const classes = splitClasses(ctx, literal.content);
-            const sortedClasses = sortClasses(ctx, classes);
-            const combinedClasses = combineClasses(ctx, sortedClasses, literal);
+              if(literal.raw === combinedClasses){
+                return;
+              }
 
-            if(literal.raw === combinedClasses){
-              return;
+              ctx.report({
+                data: {
+                  notSorted: literal.content
+                },
+                fix(fixer) {
+                  return fixer.replaceText(literal, combinedClasses);
+                },
+                message: "Invalid class order: {{ notSorted }}.",
+                node
+              });
+
             }
-
-            ctx.report({
-              data: {
-                notSorted: literal.content
-              },
-              fix(fixer) {
-                return fixer.replaceText(literal, combinedClasses);
-              },
-              message: "Invalid class order: {{ notSorted }}.",
-              node
-            });
-
           }
         }
-      }
 
-    };
-  },
-  meta: {
-    docs: {
-      category: "Stylistic Issues",
-      description: "Auto-wrap Tailwind CSS classes based on specified width and formatting rules",
-      recommended: true
+      };
     },
-    fixable: "code",
-    type: "layout"
+    meta: {
+      docs: {
+        category: "Stylistic Issues",
+        description: "Auto-wrap Tailwind CSS classes based on specified width and formatting rules",
+        recommended: true
+      },
+      fixable: "code",
+      type: "layout"
+    }
   }
-} satisfies Rule.RuleModule;
+};
 
 
 function sortClasses(ctx: Rule.RuleContext, classes: string[]): string[] {
@@ -78,7 +91,7 @@ export function getClassAttributes(ctx: Rule.RuleContext, node: JSXOpeningElemen
   const { classAttributes } = getOptions(ctx);
 
   return node.attributes.reduce<JSXAttribute[]>((acc, attribute) => {
-    if(isJSXAttribute(attribute) && classAttributes.includes(attribute.name.name)){
+    if(isJSXAttribute(attribute) && classAttributes.includes(attribute.name.name as string)){
       acc.push(attribute);
     }
     return acc;
@@ -86,20 +99,51 @@ export function getClassAttributes(ctx: Rule.RuleContext, node: JSXOpeningElemen
 
 }
 
-function getOptions(ctx: Rule.RuleContext): ReadableTailwindOptions {
+function createParts(ctx: Rule.RuleContext, literal: Parts): Parts {
 
-  const options = ctx.options[0] ?? {};
+  const options = getOptions(ctx);
+
+  const parts: Parts = {};
+
+  if(!options.trim){
+    parts.leadingWhitespace = literal.leadingWhitespace;
+    parts.trailingWhitespace = literal.trailingWhitespace;
+  }
+
+  if("leadingQuote" in literal){
+    parts.leadingQuote = literal.leadingQuote;
+    parts.trailingQuote = literal.trailingQuote;
+  }
+
+  if("leadingBraces" in literal){
+    parts.leadingBraces = literal.leadingBraces;
+    parts.trailingBraces = literal.trailingBraces;
+    if(literal.leadingBraces){ parts.leadingWhitespace = literal.leadingWhitespace; }
+    if(literal.trailingBraces){ parts.trailingWhitespace = literal.trailingWhitespace; }
+  }
+
+  return parts;
+
+}
+
+function getOptions(ctx: Rule.RuleContext) {
+
+  const options: Options[0] = ctx.options[0] ?? {};
 
   const printWidth = options.printWidth ?? 80;
-  const classesPerLine = options.classesPerLine ?? 5;
+  const classesPerLine = options.classesPerLine ?? Infinity;
   const classAttributes = options.classAttributes ?? ["class", "className"];
-  const sortByModifiers = options.sort ?? true;
-  const sortByPseudoElements = options.sortByPseudoElements ?? true;
+  const sort = options.sort ?? "asc";
+  const group = options.group ?? true;
+  const trim = options.trim ?? true;
 
   return {
     classAttributes,
     classesPerLine,
-    printWidth
+    group,
+    printWidth,
+    sort,
+    trim
   };
 
 }

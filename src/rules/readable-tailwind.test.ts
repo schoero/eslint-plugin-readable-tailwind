@@ -2,12 +2,12 @@ import { tsx } from "src/utils/template.js";
 import { lint } from "tests/utils.js";
 import { describe, expect, it } from "vitest";
 
-import readableTailwind from "eptm:rules:readable-tailwind.js";
+import { readableTailwind } from "eptm:rules:readable-tailwind.js";
 
 
-describe("readable-tailwind", () => {
+describe(`${readableTailwind.name}`, () => {
 
-  it("should sort simple class names alphabetically", () => expect(void lint("readable-tailwind", readableTailwind, {
+  it("should sort simple class names alphabetically", () => expect(void lint(readableTailwind, {
     invalid: [
       {
         code: tsx`const Test = () => <div class="b a" />;`,
@@ -20,7 +20,7 @@ describe("readable-tailwind", () => {
     ]
   })).toBeUndefined());
 
-  it("should trim leading and trailing white space in simple literals", () => expect(void lint("readable-tailwind", readableTailwind, {
+  it("should trim leading and trailing white space in simple literals", () => expect(void lint(readableTailwind, {
     invalid: [
       {
         code: tsx`const Test = () => <div class=" b a " />;`,
@@ -40,7 +40,7 @@ describe("readable-tailwind", () => {
     ]
   })).toBeUndefined());
 
-  it("should not change the quotes", () => expect(void lint("readable-tailwind", readableTailwind, {
+  it("should not change the quotes", () => expect(void lint(readableTailwind, {
     invalid: [
       {
         code: tsx`const Test = () => <div class="b a" />;`,
@@ -63,7 +63,7 @@ describe("readable-tailwind", () => {
     ]
   })).toBeUndefined());
 
-  it("should sort class names with modifiers alphabetically", () => expect(void lint("readable-tailwind", readableTailwind, {
+  it("should sort class names with modifiers alphabetically", () => expect(void lint(readableTailwind, {
     invalid: [
       {
         code: tsx`const Test = () => <div class="b:class a:class" />;`,
@@ -76,13 +76,13 @@ describe("readable-tailwind", () => {
     ]
   })).toBeUndefined());
 
-  it("should keep expressions as they are", () => expect(void lint("readable-tailwind", readableTailwind, {
+  it("should keep expressions as they are", () => expect(void lint(readableTailwind, {
     valid: [
       { code: tsx`const Test = () => <div class={true ? "a" : "b"} />;` }
     ]
   })).toBeUndefined());
 
-  it("should keep expressions where they are", () => expect(void lint("readable-tailwind", readableTailwind, {
+  it.only("should keep expressions where they are", () => expect(void lint(readableTailwind, {
     invalid: [
       {
         code: "const Test = () => <div class={`c a ${true ? 'e' : 'f'} b `} />;",
@@ -95,7 +95,7 @@ describe("readable-tailwind", () => {
     ]
   })).toBeUndefined());
 
-  it.only("should keep multiline strings where they are", () => {
+  it("should keep multiline strings where they are", () => {
     const unsortedMultilineString = `
       d c
       b a
@@ -103,7 +103,7 @@ describe("readable-tailwind", () => {
 
     const sortedMultilineString = "a b c d";
 
-    expect(void lint("readable-tailwind", readableTailwind, {
+    expect(void lint(readableTailwind, {
       invalid: [
         {
           code: `const Test = () => <div class={\`${unsortedMultilineString}\`}} />;`,

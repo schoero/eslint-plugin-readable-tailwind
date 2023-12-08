@@ -72,17 +72,22 @@ export const jsxAttributeExpression: ESLintRule<Options> = {
     meta: {
       docs: {
         category: "Stylistic Issues",
-        description: "Auto-wrap Tailwind CSS classes based on specified width and formatting rules",
+        description: "Enforce consistent jsx attribute expressions.",
         recommended: true
       },
       fixable: "code",
+      schema: [
+        {
+          enum: ["always", "as-needed"]
+        }
+      ],
       type: "layout"
     }
   }
 };
 
 function getAllowedQuotes(ctx: Rule.RuleContext, preferredQuotes: QuoteParts): QuoteParts {
-  const { leadingQuote, trailingQuote } = preferredQuotes;
+  const { leadingQuote } = preferredQuotes;
 
   if(leadingQuote === "'" || leadingQuote === '"'){
     return { leadingQuote, trailingQuote: leadingQuote };

@@ -29,7 +29,6 @@ export function getClassAttributeLiterals(ctx: Rule.RuleContext, attribute: JSXA
     return [{
       ...value,
       ...quotes,
-      // Remove whitespace from simple literals
       ...whitespaces,
       content,
       raw
@@ -51,7 +50,6 @@ export function getClassAttributeLiterals(ctx: Rule.RuleContext, attribute: JSXA
     return [{
       ...value.expression,
       ...quotes,
-      // Remove whitespace from simple literals
       ...whitespaces,
       content,
       raw
@@ -103,16 +101,14 @@ export function getClassAttributeLiterals(ctx: Rule.RuleContext, attribute: JSXA
         const content = quasi.value.raw;
 
         const quotes = getTemplateTokenQuotes(ctx, token);
-        // const braces = getTemplateTokenBraces(ctx, token);
+        const braces = getTemplateTokenBraces(ctx, token);
         const whitespaces = getWhitespace(ctx, content);
 
         return {
           ...quasi,
-          // Remove whitespace from simple literals
           ...whitespaces,
           ...quotes,
-          // Simple literals don't have braces
-          // ...braces,
+          ...braces,
           content,
           raw
         };

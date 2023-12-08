@@ -22,9 +22,9 @@ Add `tailwind-multiline` to the plugins section of your `.eslintrc` configuratio
 
 ```json
 {
-    "plugins": [
-        "tailwind-multiline"
-    ]
+  "plugins": [
+    "tailwind-multiline"
+  ]
 }
 ```
 
@@ -33,9 +33,9 @@ Then configure the rules you want to use under the rules section.
 
 ```json
 {
-    "rules": {
-        "tailwind-multiline/rule-name": 2
-    }
+  "rules": {
+    "tailwind-multiline/rule-name": 2
+  }
 }
 ```
 

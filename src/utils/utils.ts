@@ -4,8 +4,8 @@ import type { Parts } from "src/types/ast";
 
 export function getWhitespace(ctx: Rule.RuleContext, classes: string) {
 
-  const leadingWhitespace = classes.match(/^\s*/)?.[0];
-  const trailingWhitespace = classes.match(/\s*$/)?.[0];
+  const leadingWhitespace = classes.at(0) === " " ? " " : "";
+  const trailingWhitespace = classes.at(-1) === " " ? " " : "";
 
   return { leadingWhitespace, trailingWhitespace };
 

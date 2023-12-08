@@ -10,6 +10,17 @@
   "scripts": {
     "build": "vite build",
     "docs": "eslint-doc-generator",
+    "eslint": "eslint --ext .ts,.tsx,.js,.jsx,.json,.jsonc,.yml,.md ./",
+    "eslint:ci": "npm run eslint -- --max-warnings 0",
+    "eslint:fix": "npm run eslint -- --fix",
+    "lint": "npm run eslint && npm run markdownlint",
+    "lint:ci": "npm run eslint:ci && npm run markdownlint:ci",
+    "lint:fix": "npm run eslint:fix && npm run markdownlint:fix",
+    "markdownlint": "markdownlint-cli2 '**/*.md' '#node_modules'",
+    "markdownlint:ci": "npm run markdownlint",
+    "markdownlint:fix": "markdownlint-cli2-fix '**/*.md' '#node_modules'",
+    "spellcheck": "cspell lint",
+    "spellcheck:ci": "npm run spellcheck -- --no-progress",
     "test": "vitest -c ./vite.config.ts"
   },
   "peerDependencies": {
@@ -52,5 +63,8 @@
   ],
   "directories": {
     "lib": "lib"
+  },
+  "volta": {
+    "node": "21.4.0"
   }
 }
