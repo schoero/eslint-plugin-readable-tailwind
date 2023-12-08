@@ -1,0 +1,42 @@
+{
+  "version": "0.0.0",
+  "type": "module",
+  "name": "eslint-plugin-readable-tailwind",
+  "description": "auto-wraps tailwind classes after a certain width using template literals.",
+  "license": "MIT",
+  "author": "Roger Schönbächler",
+  "exports": "./lib/index.js",
+  "main": "./lib/index.js",
+  "scripts": {
+    "docs": "eslint-doc-generator"
+  },
+  "peerDependencies": {
+    "eslint": ">=7"
+  },
+  "devDependencies": {
+    "@schoero/changelog-config": "^0.0.3",
+    "@schoero/cspell-config": "^1.9.0",
+    "@schoero/eslint-config": "^1.42.0",
+    "@schoero/markdownlint-config": "^1.1.7",
+    "@schoero/ts-config": "^0.3.8",
+    "@schoero/vite-config": "^0.0.29",
+    "@types/eslint": "^8.44.8",
+    "@types/estree-jsx": "^1.0.3",
+    "eslint": "^8.55.0",
+    "eslint-doc-generator": "^1.6.1",
+    "eslint-plugin-eslint-plugin": "^5.1.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.6",
+    "vite-plugin-dts": "^3.6.4",
+    "vite-plugin-no-bundle": "^3.0.0",
+    "vitest": "^1.0.2"
+  },
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin"
+  ],
+  "directories": {
+    "lib": "lib"
+  }
+}

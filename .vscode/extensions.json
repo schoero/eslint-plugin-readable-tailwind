@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "streetsidesoftware.code-spell-checker",
+    "davidanson.vscode-markdownlint",
+    "dnek.auto-region-folder",
+    "schoero.tagged-template-syntax-highlighting"
+  ]
+}

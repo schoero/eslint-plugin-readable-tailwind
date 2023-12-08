@@ -1,0 +1,17 @@
+{
+  "extends": "@schoero/ts-config",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "declaration": false,
+    "declarationMap": false,
+    "lib": ["ESNext", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "paths": {
+      "eptm:rules:*": ["src/rules/*"],
+      "eptm:tests:": ["src/tests/*"],
+      "eptm:utils:*": ["src/utils/*"]
+    },
+    "rootDir": "."
+  }
+}

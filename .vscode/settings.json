@@ -1,0 +1,58 @@
+{
+
+  // ESLint
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[json5]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "eslint.validate": ["javascript", "typescript", "json", "jsonc", "json5", "yaml"],
+  "editor.formatOnSave": false,
+
+  // Prettier
+  "prettier.enable": false,
+
+  // File nesting
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "*.ts": "$(capture).test.ts,$(capture).test.snap,$(capture).test-d.ts"
+  },
+
+  // ES module import
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.preferences.importModuleSpecifierEnding": "js",
+  "typescript.preferences.useAliasesForRenames": true,
+  "typescript.preferences.autoImportFileExcludePatterns": [
+    "@types/node/test.d.ts"
+  ],
+
+  // Markdown
+  "[markdown]": {
+    "editor.defaultFormatter": "DavidAnson.vscode-markdownlint",
+  },
+
+  // VSCode
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+    "source.fixAll.markdownlint": true,
+    "source.organizeImports": false
+  },
+  "editor.rulers": [
+    119
+  ],
+  "search.exclude": {
+    "lib": true
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+}

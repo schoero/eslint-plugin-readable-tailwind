@@ -1,0 +1,33 @@
+{
+  "configurations": [
+    {
+      "args": [
+        "run",
+        "${relativeFileDirname}/${fileBasenameNoExtension}"
+      ],
+      "autoAttachChildProcesses": true,
+      "console": "integratedTerminal",
+      "name": "debug current test file",
+      "program": "${workspaceRoot}/node_modules/vitest/vitest.mjs",
+      "request": "launch",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "smartStep": true,
+      "type": "node"
+    },
+    {
+      "args": [
+        "run",
+        "${relativeFileDirname}/${fileBasenameNoExtension}"
+      ],
+      "autoAttachChildProcesses": true,
+      "console": "integratedTerminal",
+      "name": "debug current test file with node internals",
+      "program": "${workspaceRoot}/node_modules/vitest/vitest.mjs",
+      "request": "launch",
+      "skipFiles": [],
+      "smartStep": true,
+      "type": "node"
+    }
+  ],
+  "version": "0.2.0"
+}

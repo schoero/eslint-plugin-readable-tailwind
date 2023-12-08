@@ -1,0 +1,13 @@
+{
+  "import": [
+    "@schoero/cspell-config"
+  ],
+  "ignorePaths": [
+    "node_modules/**",
+    "lib/**"
+  ],
+  "words": [
+    "eptm",
+    "quasis"
+  ]
+}
