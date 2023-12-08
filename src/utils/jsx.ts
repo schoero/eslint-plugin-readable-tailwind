@@ -1,23 +1,8 @@
-import { getOptions, getWhitespace } from "eptm:utils:utils.js";
+import { getWhitespace } from "eptm:utils:utils.js";
 
 import type { AST, Rule } from "eslint";
-import type { BaseNode, JSXAttribute, JSXOpeningElement, SimpleLiteral, TemplateElement } from "estree-jsx";
-
-import type { BracesParts, QuoteParts, WhitespaceParts } from "eptm:utils:utils.js";
-
-
-export function getClassAttributes(ctx: Rule.RuleContext, node: JSXOpeningElement): JSXAttribute[] {
-
-  const { classAttributes } = getOptions(ctx);
-
-  return node.attributes.reduce<JSXAttribute[]>((acc, attr) => {
-    if(attr.type === "JSXAttribute" && classAttributes.includes(attr.name.name)){
-      acc.push(attr);
-    }
-    return acc;
-  }, []);
-
-}
+import type { BaseNode, JSXAttribute, SimpleLiteral, TemplateElement } from "estree-jsx";
+import type { BracesParts, QuoteParts, WhitespaceParts } from "src/types/ast";
 
 
 export function getClassAttributeLiterals(ctx: Rule.RuleContext, attribute: JSXAttribute): (StringLiteral | TemplateLiteralString | undefined)[] {
@@ -45,13 +30,13 @@ export function getClassAttributeLiterals(ctx: Rule.RuleContext, attribute: JSXA
       ...value,
       ...quotes,
       // Remove whitespace from simple literals
-      // ...whitespaces,
+      ...whitespaces,
       content,
       raw
     }];
   }
 
-  // class={`a b`}
+  // class={"a b"}
   if(value.type === "JSXExpressionContainer" && isSimpleStringLiteral(value.expression)){
     const token = getTokenByNode(ctx, value.expression);
 
@@ -66,43 +51,82 @@ export function getClassAttributeLiterals(ctx: Rule.RuleContext, attribute: JSXA
     return [{
       ...value.expression,
       ...quotes,
+      // Remove whitespace from simple literals
       ...whitespaces,
       content,
       raw
     }];
   }
 
-  // class={`a b ${someExpression} c`}
+  // class={`a b ... c`}
   if(value.type === "JSXExpressionContainer" && value.expression.type === "TemplateLiteral"){
-    return value.expression.quasis.map(quasi => {
 
-      const token = getTokenByNode(ctx, quasi);
+    // class={`a b ${someExpression} c`}
+    if(value.expression.expressions.length > 0){
 
-      if(!token){ return; }
+      return value.expression.quasis.map(quasi => {
 
-      const raw = token.value;
-      const content = quasi.value.raw;
+        const token = getTokenByNode(ctx, quasi);
 
-      const quotes = getTemplateTokenQuotes(ctx, token);
-      const braces = getTemplateTokenBraces(ctx, token);
-      const whitespaces = getWhitespace(ctx, content);
+        if(!token){ return; }
 
-      return {
-        ...quasi,
-        ...whitespaces,
-        ...quotes,
-        ...braces,
-        content,
-        raw
-      };
+        const raw = token.value;
+        const content = quasi.value.raw;
 
-    });
+        const quotes = getTemplateTokenQuotes(ctx, token);
+        const braces = getTemplateTokenBraces(ctx, token);
+        const whitespaces = getWhitespace(ctx, content);
+
+        return {
+          ...quasi,
+          ...whitespaces,
+          ...quotes,
+          ...braces,
+          content,
+          raw
+        };
+
+      });
+
+    }
+
+    // class={`a b`}
+    if(value.expression.quasis.length === 1 && value.expression.expressions.length === 0){
+
+      return value.expression.quasis.map(quasi => {
+
+        const token = getTokenByNode(ctx, quasi);
+
+        if(!token){ return; }
+
+        const raw = token.value;
+        const content = quasi.value.raw;
+
+        const quotes = getTemplateTokenQuotes(ctx, token);
+        // const braces = getTemplateTokenBraces(ctx, token);
+        const whitespaces = getWhitespace(ctx, content);
+
+        return {
+          ...quasi,
+          // Remove whitespace from simple literals
+          ...whitespaces,
+          ...quotes,
+          // Simple literals don't have braces
+          // ...braces,
+          content,
+          raw
+        };
+
+      });
+
+    }
+
   }
 
   return [];
 }
 
-function getTokenByNode(ctx: Rule.RuleContext, node: BaseNode) {
+export function getTokenByNode(ctx: Rule.RuleContext, node: BaseNode) {
   return node.range?.[0]
     ? ctx.sourceCode.getTokenByRangeStart(node.range[0])
     : undefined;
@@ -173,6 +197,10 @@ interface StringLiteral extends SimpleStringLiteral, QuoteParts, WhitespaceParts
 interface TemplateLiteralString extends TemplateElement, QuoteParts, WhitespaceParts, BracesParts {
   content: string;
   raw: string;
+}
+
+export function isJSXAttribute(node: BaseNode): node is JSXAttribute {
+  return node.type === "JSXAttribute";
 }
 
 function isSimpleStringLiteral(node: BaseNode): node is SimpleStringLiteral {
