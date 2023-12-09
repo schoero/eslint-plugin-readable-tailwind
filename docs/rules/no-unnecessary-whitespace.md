@@ -8,9 +8,10 @@
 
 <!-- begin auto-generated rule options list -->
 
-| Name              | Type     |
-| :---------------- | :------- |
-| `allowMultiline`  | Boolean  |
-| `classAttributes` | String[] |
+| Name              | Description                                                                                                                                              | Type     | Default                           |
+| :---------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- | :------- | :-------------------------------- |
+| `allowMultiline`  | Allow multi-line class declarations. If this option is disabled, template literal strings will be collapsed into a single line string wherever possible. | Boolean  | `true`                            |
+| `callees`         | List of function names whose arguments should also be considered.                                                                                        | String[] | [`clsx`, `cva`, `ctl`, `twMerge`] |
+| `classAttributes` |                                                                                                                                                          | String[] |                                   |
 
 <!-- end auto-generated rule options list -->

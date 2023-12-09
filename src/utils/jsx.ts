@@ -1,3 +1,4 @@
+import { getOptions } from "eptm:rules:tailwind-sort-classes";
 import { getWhitespace } from "eptm:utils:utils.js";
 
 import type { AST, Rule } from "eslint";
@@ -5,6 +6,7 @@ import type {
   BaseNode,
   Expression,
   JSXAttribute,
+  JSXOpeningElement,
   SimpleLiteral,
   SpreadElement,
   TemplateElement,
@@ -76,7 +78,7 @@ function getLiteralBySimpleStringLiteral(ctx: Rule.RuleContext, node: SimpleStri
   const content = node.value;
 
   const quotes = getTextTokenQuotes(ctx, token);
-  const whitespaces = getWhitespace(ctx, content);
+  const whitespaces = getWhitespace(content);
 
   return {
     ...node,
@@ -99,7 +101,7 @@ function getLiteralByTemplateElement(ctx: Rule.RuleContext, node: TemplateElemen
 
   const quotes = getTemplateTokenQuotes(ctx, token);
   const braces = getTemplateTokenBraces(ctx, token);
-  const whitespaces = getWhitespace(ctx, content);
+  const whitespaces = getWhitespace(content);
 
   return {
     ...node,
@@ -199,4 +201,15 @@ function isSimpleStringLiteral(node: BaseNode): node is SimpleStringLiteral {
   return node.type === "Literal" &&
     "value" in node &&
     typeof node.value === "string";
+} export function getClassAttributes(ctx: Rule.RuleContext, node: JSXOpeningElement): JSXAttribute[] {
+
+  const { classAttributes } = getOptions(ctx);
+
+  return node.attributes.reduce<JSXAttribute[]>((acc, attribute) => {
+    if(isJSXAttribute(attribute) && classAttributes.includes(attribute.name.name as string)){
+      acc.push(attribute);
+    }
+    return acc;
+  }, []);
+
 }

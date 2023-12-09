@@ -1,8 +1,9 @@
 <div align="center">
-  <img alt="eslint-plugin-readable-tailwind" src="https://raw.githubusercontent.com/schoero/eslint-plugin-readable-tailwind/main/assets/eslint-plugin-readable-tailwind-logo.svg">
+  <img alt="eslint-plugin-readable-tailwind" src="https://raw.githubusercontent.com/schoero/eslint-plugin-readable-tailwind/main/assets/eslint-plugin-readable-tailwind-logo.svg?token=AKCR54TFQSHIUXAOXY46JLTFOQ3CU">
 </div>
 
 ---
+
 <div align="center">
 
   [![GitHub license](https://img.shields.io/github/license/schoero/eslint-plugin-readable-tailwind?style=flat-square&labelColor=454c5c&color=00AD51)](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/LICENSE)
@@ -19,7 +20,8 @@
 <br/>
 <br/>
 
-auto-wraps tailwind classes after a certain width using template literals.
+ESLint plugin to automatically break up long tailwind class strings into multiple lines for better readability.
+Also sorts the classes logically, removes unnecessary whitespaces and groups the classes by their prefix.
 
 <br/>
 <br/>
@@ -40,12 +42,12 @@ npm install eslint-plugin-readable-tailwind --save-dev
 
 ## Usage
 
-Add `tailwind-multiline` to the plugins section of your `.eslintrc` configuration file. You can omit the `eslint-plugin-` prefix:
+Add `readable-tailwind` to the plugins section of your `.eslintrc` configuration file. You can omit the `eslint-plugin-` prefix:
 
 ```json
 {
   "plugins": [
-    "tailwind-multiline"
+    "readable-tailwind"
   ]
 }
 ```
@@ -68,7 +70,7 @@ Then configure the rules you want to use under the rules section.
 
 | Name                                                                 | Description                                          | 🔧 |
 | :------------------------------------------------------------------- | :--------------------------------------------------- | :- |
-| [jsx-attribute-expression](docs/rules/jsx-attribute-expression.md)   | Enforce consistent jsx attribute expressions.        | 🔧 |
+| [jsx-attribute-expression](docs/rules/jsx-attribute-expression.md)   | Enforce consistent jsx attribute expressions         | 🔧 |
 | [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | 🔧 |
 | [sort-classes](docs/rules/sort-classes.md)                           | Enforce a consistent order for tailwind classes.     | 🔧 |
 

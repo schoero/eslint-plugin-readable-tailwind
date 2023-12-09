@@ -6,13 +6,14 @@ import loadConfig from "tailwindcss/loadConfig.js";
 import resolveConfig from "tailwindcss/resolveConfig.js";
 
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "eptm:utils:config.js";
-import { getCallExpressionLiterals, getClassAttributeLiterals, isJSXAttribute } from "eptm:utils:jsx.js";
+import { getClassAttributes } from "eptm:utils:jsx";
+import { getCallExpressionLiterals, getClassAttributeLiterals } from "eptm:utils:jsx.js";
+import { createParts } from "eptm:utils:utils";
 import { combineClasses, splitClasses, splitWhitespace } from "eptm:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { Node } from "estree";
-import type { JSXAttribute, JSXOpeningElement } from "estree-jsx";
-import type { Parts } from "src/types/ast.js";
+import type { JSXOpeningElement } from "estree-jsx";
 import type { ESLintRule } from "src/types/rule.js";
 import type { Config } from "tailwindcss/types/config.js";
 
@@ -45,10 +46,9 @@ export const tailwindSortClasses: ESLintRule<Options> = {
 
           if(literal === undefined){ continue; }
 
-          const parts = createParts(ctx, literal);
-          const classChunks = splitClasses(ctx, literal.content);
-          const whitespaceChunks = splitWhitespace(ctx, literal.content);
-
+          const parts = createParts(literal);
+          const classChunks = splitClasses(literal.content);
+          const whitespaceChunks = splitWhitespace(literal.content);
           const sortedClassChunks = sortClasses(ctx, tailwindContext, classChunks);
 
           const classes: string[] = [];
@@ -58,7 +58,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
             sortedClassChunks[i] && classes.push(sortedClassChunks[i]);
           }
 
-          const combinedClasses = combineClasses(ctx, classes, parts);
+          const combinedClasses = combineClasses(classes, parts);
 
           if(literal.raw === combinedClasses){
             return;
@@ -121,6 +121,8 @@ export const tailwindSortClasses: ESLintRule<Options> = {
           additionalProperties: false,
           properties: {
             callees: {
+              default: getOptions().callees,
+              description: "List of function names whose arguments should also be considered.",
               items: {
                 type: "string"
               },
@@ -128,11 +130,15 @@ export const tailwindSortClasses: ESLintRule<Options> = {
             },
             classAttributes: {
               items: {
+                default: getOptions().classAttributes,
+                description: "The name of the attribute that contains the tailwind classes.",
                 type: "string"
               },
               type: "array"
             },
             order: {
+              default: getOptions().order,
+              description: "The algorithm to use when sorting classes.",
               enum: [
                 "asc",
                 "desc",
@@ -141,6 +147,8 @@ export const tailwindSortClasses: ESLintRule<Options> = {
               type: "string"
             },
             tailwindConfig: {
+              default: getOptions().tailwindConfig,
+              description: "The path to the tailwind config file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.",
               type: "string"
             }
           },
@@ -206,43 +214,9 @@ function loadTailwindConfig(path: string) {
   } catch (error){}
 }
 
-export function getClassAttributes(ctx: Rule.RuleContext, node: JSXOpeningElement): JSXAttribute[] {
+export function getOptions(ctx?: Rule.RuleContext) {
 
-  const { classAttributes } = getOptions(ctx);
-
-  return node.attributes.reduce<JSXAttribute[]>((acc, attribute) => {
-    if(isJSXAttribute(attribute) && classAttributes.includes(attribute.name.name as string)){
-      acc.push(attribute);
-    }
-    return acc;
-  }, []);
-
-}
-
-function createParts(ctx: Rule.RuleContext, literal: Parts): Parts {
-
-  const parts: Parts = {};
-
-  // parts.leadingWhitespace = literal.leadingWhitespace;
-  // parts.trailingWhitespace = literal.trailingWhitespace;
-
-  if("leadingQuote" in literal){
-    parts.leadingQuote = literal.leadingQuote;
-    parts.trailingQuote = literal.trailingQuote;
-  }
-
-  if("leadingBraces" in literal){
-    parts.leadingBraces = literal.leadingBraces;
-    parts.trailingBraces = literal.trailingBraces;
-  }
-
-  return parts;
-
-}
-
-function getOptions(ctx: Rule.RuleContext) {
-
-  const options: Options[0] = ctx.options[0] ?? {};
+  const options: Options[0] = ctx?.options[0] ?? {};
 
   const order = options.order ?? "official";
   const classAttributes = options.classAttributes ?? DEFAULT_CLASS_NAMES;

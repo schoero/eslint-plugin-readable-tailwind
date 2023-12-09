@@ -1,8 +1,7 @@
-import type { Rule } from "eslint";
 import type { Parts } from "src/types/ast";
 
 
-export function getWhitespace(ctx: Rule.RuleContext, classes: string) {
+export function getWhitespace(classes: string) {
 
   const leadingWhitespace = classes.match(/^\s*/)?.[0];
   const trailingWhitespace = classes.match(/\s*$/)?.[0];
@@ -11,18 +10,21 @@ export function getWhitespace(ctx: Rule.RuleContext, classes: string) {
 
 }
 
-export function splitClasses(ctx: Rule.RuleContext, classes: string): string[] {
+export function splitClasses(classes: string): string[] {
   return classes
     .trim()
     .split(/\s+/);
 }
 
-export function splitWhitespace(ctx: Rule.RuleContext, classes: string): string[] {
+export function splitWhitespace(classes: string): string[] {
   return classes.split(/[^\s\\]+/);
 }
 
+export function indent(start: number): string {
+  return " ".repeat(start);
+}
+
 export function combineClasses(
-  ctx: Rule.RuleContext,
   classes: string[],
   parts: Parts
 ): string {
@@ -35,6 +37,26 @@ export function combineClasses(
     parts.trailingBraces ?? "",
     parts.trailingQuote ?? ""
   ].join("");
+}
+
+export function createParts(literal: Parts): Parts {
+
+  const parts: Parts = {};
+
+  // parts.leadingWhitespace = literal.leadingWhitespace;
+  // parts.trailingWhitespace = literal.trailingWhitespace;
+  if("leadingQuote" in literal){
+    parts.leadingQuote = literal.leadingQuote;
+    parts.trailingQuote = literal.trailingQuote;
+  }
+
+  if("leadingBraces" in literal){
+    parts.leadingBraces = literal.leadingBraces;
+    parts.trailingBraces = literal.trailingBraces;
+  }
+
+  return parts;
+
 }
 
 interface TailwindGroup {

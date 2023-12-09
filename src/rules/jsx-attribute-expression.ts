@@ -72,13 +72,22 @@ export const jsxAttributeExpression: ESLintRule<Options> = {
     meta: {
       docs: {
         category: "Stylistic Issues",
-        description: "Enforce consistent jsx attribute expressions",
+        description: "Enforce consistent jsx attribute expressions.",
         recommended: true
       },
       fixable: "code",
       schema: [
         {
-          enum: ["always", "as-needed"]
+          additionalItems: false,
+          items: [
+            {
+              default: getOptions().expression,
+              description: "Collapse jsx class attribute expressions to a literal string if possible.",
+              enum: ["always", "as-needed"],
+              type: "string"
+            }
+          ],
+          type: "array"
         }
       ],
       type: "layout"
@@ -96,7 +105,7 @@ function getAllowedQuotes(ctx: Rule.RuleContext, preferredQuotes: QuoteParts): Q
   return { leadingQuote: '"', trailingQuote: '"' };
 }
 
-function getOptions(ctx: Rule.RuleContext): { expression: Options[0]; } {
-  const expression = ctx.options[0] ?? "as-needed";
+function getOptions(ctx?: Rule.RuleContext): { expression: Options[0]; } {
+  const expression = ctx?.options[0] ?? "as-needed";
   return { expression };
 }

@@ -1,11 +1,10 @@
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "eptm:utils:config.js";
-import { getCallExpressionLiterals, getClassAttributeLiterals, isJSXAttribute } from "eptm:utils:jsx.js";
-import { combineClasses, splitClasses, splitWhitespace } from "eptm:utils:utils.js";
+import { getCallExpressionLiterals, getClassAttributeLiterals, getClassAttributes } from "eptm:utils:jsx.js";
+import { combineClasses, createParts, splitClasses, splitWhitespace } from "eptm:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { Node } from "estree";
-import type { JSXAttribute, JSXOpeningElement } from "estree-jsx";
-import type { Parts } from "src/types/ast.js";
+import type { JSXOpeningElement } from "estree-jsx";
 import type { ESLintRule } from "src/types/rule.js";
 
 import type { Literals } from "eptm:utils:jsx.js";
@@ -33,9 +32,9 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
 
           if(literal === undefined){ continue; }
 
-          const parts = createParts(ctx, literal);
-          const classChunks = splitClasses(ctx, literal.content);
-          const whitespaceChunks = splitWhitespace(ctx, literal.content);
+          const parts = createParts(literal);
+          const classChunks = splitClasses(literal.content);
+          const whitespaceChunks = splitWhitespace(literal.content);
 
           const classes: string[] = [];
 
@@ -56,7 +55,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
             }
           }
 
-          const combinedClasses = combineClasses(ctx, classes, parts);
+          const combinedClasses = combineClasses(classes, parts);
 
           if(literal.raw === combinedClasses){
             return;
@@ -120,9 +119,13 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
           additionalProperties: false,
           properties: {
             allowMultiline: {
+              default: getOptions().allowMultiline,
+              description: "Allow multi-line class declarations. If this option is disabled, template literal strings will be collapsed into a single line string wherever possible.",
               type: "boolean"
             },
             callees: {
+              default: getOptions().callees,
+              description: "List of function names whose arguments should also be considered.",
               items: {
                 type: "string"
               },
@@ -130,6 +133,8 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
             },
             classAttributes: {
               items: {
+                default: getOptions().classAttributes,
+                description: "The name of the attribute that contains the tailwind classes.",
                 type: "string"
               },
               type: "array"
@@ -143,42 +148,10 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
   }
 };
 
-export function getClassAttributes(ctx: Rule.RuleContext, node: JSXOpeningElement): JSXAttribute[] {
 
-  const { classAttributes } = getOptions(ctx);
+function getOptions(ctx?: Rule.RuleContext) {
 
-  return node.attributes.reduce<JSXAttribute[]>((acc, attribute) => {
-    if(isJSXAttribute(attribute) && classAttributes.includes(attribute.name.name as string)){
-      acc.push(attribute);
-    }
-    return acc;
-  }, []);
-
-}
-
-function createParts(ctx: Rule.RuleContext, literal: Parts): Parts {
-
-  const parts: Parts = {};
-
-  if("leadingQuote" in literal){
-    parts.leadingQuote = literal.leadingQuote;
-    parts.trailingQuote = literal.trailingQuote;
-  }
-
-  if("leadingBraces" in literal){
-    parts.leadingBraces = literal.leadingBraces;
-    parts.trailingBraces = literal.trailingBraces;
-    if(literal.leadingBraces){ parts.leadingWhitespace = literal.leadingWhitespace; }
-    if(literal.trailingBraces){ parts.trailingWhitespace = literal.trailingWhitespace; }
-  }
-
-  return parts;
-
-}
-
-function getOptions(ctx: Rule.RuleContext) {
-
-  const options: Options[0] = ctx.options[0] ?? {};
+  const options: Options[0] = ctx?.options[0] ?? {};
 
   const classAttributes = options.classAttributes ?? DEFAULT_CLASS_NAMES;
   const allowMultiline = options.allowMultiline ?? true;
