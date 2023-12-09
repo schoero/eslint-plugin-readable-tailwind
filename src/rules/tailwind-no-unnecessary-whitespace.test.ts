@@ -62,4 +62,38 @@ describe(`${tailwindNoUnnecessaryWhitespace.name}`, () => {
     })).toBeUndefined();
   });
 
+  it("should also work in defined call signature arguments", () => {
+
+    const uncleanedNestedCallExpression = tsx`test(" f  e ");`;
+    const cleanedNestedCallExpression = tsx`test(" f e ");`;
+
+    const uncleanedMultilineTemplateLiteralWithNestedCallExpression = `
+      b  a
+      d  c  ${uncleanedNestedCallExpression}  h  g
+      j  i
+    `;
+    const cleanedMultilineTemplateLiteralWithNestedCallExpression = `
+      b a
+      d c ${cleanedNestedCallExpression} h g
+      j i
+    `;
+
+    expect(void lint(tailwindNoUnnecessaryWhitespace, {
+      invalid: [
+        {
+          code: tsx`test(" b  a ");`,
+          errors: 1,
+          options: [{ callees: ["test"] }],
+          output: tsx`test("b a");`
+        },
+        {
+          code: `const Test = () => <div class={\`${uncleanedMultilineTemplateLiteralWithNestedCallExpression}\`} />;`,
+          errors: 1,
+          options: [{ callees: ["test"] }],
+          output: `const Test = () => <div class={\`${cleanedMultilineTemplateLiteralWithNestedCallExpression}\`} />;`
+        }
+      ]
+    })).toBeUndefined();
+  });
+
 });

@@ -1,11 +1,19 @@
 import { getWhitespace } from "eptm:utils:utils.js";
 
 import type { AST, Rule } from "eslint";
-import type { BaseNode, JSXAttribute, SimpleLiteral, TemplateElement } from "estree-jsx";
+import type {
+  BaseNode,
+  Expression,
+  JSXAttribute,
+  SimpleLiteral,
+  SpreadElement,
+  TemplateElement,
+  TemplateLiteral
+} from "estree-jsx";
 import type { BracesParts, QuoteParts, WhitespaceParts } from "src/types/ast";
 
 
-export function getClassAttributeLiterals(ctx: Rule.RuleContext, attribute: JSXAttribute): (StringLiteral | TemplateLiteralString | undefined)[] {
+export function getClassAttributeLiterals(ctx: Rule.RuleContext, attribute: JSXAttribute): Literals {
 
   const value = attribute.value;
 
@@ -15,111 +23,97 @@ export function getClassAttributeLiterals(ctx: Rule.RuleContext, attribute: JSXA
 
   // class="a b"
   if(isSimpleStringLiteral(value)){
-
-    const token = getTokenByNode(ctx, value);
-
-    if(!token){ return []; }
-
-    const raw = token.value;
-    const content = value.value;
-
-    const quotes = getTextTokenQuotes(ctx, token);
-    const whitespaces = getWhitespace(ctx, content);
-
-    return [{
-      ...value,
-      ...quotes,
-      ...whitespaces,
-      content,
-      raw
-    }];
+    const simpleStringLiteral = getLiteralBySimpleStringLiteral(ctx, value);
+    return [simpleStringLiteral];
   }
 
   // class={"a b"}
   if(value.type === "JSXExpressionContainer" && isSimpleStringLiteral(value.expression)){
-    const token = getTokenByNode(ctx, value.expression);
-
-    if(!token){ return []; }
-
-    const raw = token.value;
-    const content = value.expression.value;
-
-    const quotes = getTextTokenQuotes(ctx, token);
-    const whitespaces = getWhitespace(ctx, content);
-
-    return [{
-      ...value.expression,
-      ...quotes,
-      ...whitespaces,
-      content,
-      raw
-    }];
+    const simpleStringLiteral = getLiteralBySimpleStringLiteral(ctx, value.expression);
+    return [simpleStringLiteral];
   }
 
   // class={`a b ... c`}
   if(value.type === "JSXExpressionContainer" && value.expression.type === "TemplateLiteral"){
-
-    // class={`a b ${someExpression} c`}
-    if(value.expression.expressions.length > 0){
-
-      return value.expression.quasis.map(quasi => {
-
-        const token = getTokenByNode(ctx, quasi);
-
-        if(!token){ return; }
-
-        const raw = token.value;
-        const content = quasi.value.raw;
-
-        const quotes = getTemplateTokenQuotes(ctx, token);
-        const braces = getTemplateTokenBraces(ctx, token);
-        const whitespaces = getWhitespace(ctx, content);
-
-        return {
-          ...quasi,
-          ...whitespaces,
-          ...quotes,
-          ...braces,
-          content,
-          raw
-        };
-
-      });
-
-    }
-
-    // class={`a b`}
-    if(value.expression.quasis.length === 1 && value.expression.expressions.length === 0){
-
-      return value.expression.quasis.map(quasi => {
-
-        const token = getTokenByNode(ctx, quasi);
-
-        if(!token){ return; }
-
-        const raw = token.value;
-        const content = quasi.value.raw;
-
-        const quotes = getTemplateTokenQuotes(ctx, token);
-        const braces = getTemplateTokenBraces(ctx, token);
-        const whitespaces = getWhitespace(ctx, content);
-
-        return {
-          ...quasi,
-          ...whitespaces,
-          ...quotes,
-          ...braces,
-          content,
-          raw
-        };
-
-      });
-
-    }
-
+    return getLiteralsByTemplateLiteral(ctx, value.expression);
   }
 
   return [];
+}
+
+export function getCallExpressionLiterals(ctx: Rule.RuleContext, args: (Expression | SpreadElement)[]): Literals {
+  return args.reduce<Literals>((acc, arg) => {
+    if(arg.type === "SpreadElement"){ return acc; }
+    const literals = getLiteralsByExpression(ctx, arg);
+    return [...acc, ...literals];
+  }, []);
+}
+
+export function getLiteralsByExpression(ctx: Rule.RuleContext, node: Expression): Literals {
+
+  // "a b"
+  if(isSimpleStringLiteral(node)){
+    const simpleStringLiteral = getLiteralBySimpleStringLiteral(ctx, node);
+    return [simpleStringLiteral];
+  }
+
+  // `a b ... c`
+  if(node.type === "TemplateLiteral"){
+    return getLiteralsByTemplateLiteral(ctx, node);
+  }
+
+  return [];
+}
+
+
+function getLiteralBySimpleStringLiteral(ctx: Rule.RuleContext, node: SimpleStringLiteral): StringLiteral | undefined {
+
+  const token = getTokenByNode(ctx, node);
+
+  if(!token){ return; }
+
+  const raw = token.value;
+  const content = node.value;
+
+  const quotes = getTextTokenQuotes(ctx, token);
+  const whitespaces = getWhitespace(ctx, content);
+
+  return {
+    ...node,
+    ...quotes,
+    ...whitespaces,
+    content,
+    raw
+  };
+
+}
+
+function getLiteralByTemplateElement(ctx: Rule.RuleContext, node: TemplateElement): TemplateLiteralString | undefined {
+
+  const token = getTokenByNode(ctx, node);
+
+  if(!token){ return; }
+
+  const raw = token.value;
+  const content = node.value.raw;
+
+  const quotes = getTemplateTokenQuotes(ctx, token);
+  const braces = getTemplateTokenBraces(ctx, token);
+  const whitespaces = getWhitespace(ctx, content);
+
+  return {
+    ...node,
+    ...whitespaces,
+    ...quotes,
+    ...braces,
+    content,
+    raw
+  };
+
+}
+
+function getLiteralsByTemplateLiteral(ctx: Rule.RuleContext, node: TemplateLiteral): (TemplateLiteralString | undefined)[] {
+  return node.quasis.map(quasi => getLiteralByTemplateElement(ctx, quasi));
 }
 
 export function getTokenByNode(ctx: Rule.RuleContext, node: BaseNode) {
@@ -194,6 +188,8 @@ interface TemplateLiteralString extends TemplateElement, QuoteParts, WhitespaceP
   content: string;
   raw: string;
 }
+
+export type Literals = (StringLiteral | TemplateLiteralString | undefined)[];
 
 export function isJSXAttribute(node: BaseNode): node is JSXAttribute {
   return node.type === "JSXAttribute";

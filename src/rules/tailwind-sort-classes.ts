@@ -5,8 +5,8 @@ import setupContextUtils from "tailwindcss/lib/lib/setupContextUtils.js";
 import loadConfig from "tailwindcss/loadConfig.js";
 import resolveConfig from "tailwindcss/resolveConfig.js";
 
-import { DEFAULT_CLASS_NAMES } from "eptm:utils:config.js";
-import { getClassAttributeLiterals, isJSXAttribute } from "eptm:utils:jsx.js";
+import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "eptm:utils:config.js";
+import { getCallExpressionLiterals, getClassAttributeLiterals, isJSXAttribute } from "eptm:utils:jsx.js";
 import { combineClasses, splitClasses, splitWhitespace } from "eptm:utils:utils.js";
 
 import type { Rule } from "eslint";
@@ -16,9 +16,12 @@ import type { Parts } from "src/types/ast.js";
 import type { ESLintRule } from "src/types/rule.js";
 import type { Config } from "tailwindcss/types/config.js";
 
+import type { Literals } from "eptm:utils:jsx.js";
+
 
 export type Options = [
   {
+    callees?: string[];
     classAttributes?: string[];
     order?: "asc" | "desc" | "official" ;
     tailwindConfig?: string;
@@ -30,10 +33,66 @@ export const tailwindSortClasses: ESLintRule<Options> = {
   rule: {
     create(ctx) {
 
+      const { callees } = getOptions(ctx);
+
       const tailwindConfig = findTailwindConfig(ctx);
       const tailwindContext = createTailwindContext(tailwindConfig);
 
+
+      const lintLiterals = (ctx: Rule.RuleContext, literals: Literals, node: Node) => {
+
+        for(const literal of literals){
+
+          if(literal === undefined){ continue; }
+
+          const parts = createParts(ctx, literal);
+          const classChunks = splitClasses(ctx, literal.content);
+          const whitespaceChunks = splitWhitespace(ctx, literal.content);
+
+          const sortedClassChunks = sortClasses(ctx, tailwindContext, classChunks);
+
+          const classes: string[] = [];
+
+          for(let i = 0; i < Math.max(sortedClassChunks.length, whitespaceChunks.length); i++){
+            whitespaceChunks[i] && classes.push(whitespaceChunks[i]);
+            sortedClassChunks[i] && classes.push(sortedClassChunks[i]);
+          }
+
+          const combinedClasses = combineClasses(ctx, classes, parts);
+
+          if(literal.raw === combinedClasses){
+            return;
+          }
+
+          ctx.report({
+            data: {
+              notSorted: literal.content
+            },
+            fix(fixer) {
+              return fixer.replaceText(literal, combinedClasses);
+            },
+            message: "Invalid class order: {{ notSorted }}.",
+            node
+          });
+
+        }
+      };
+
+
       return {
+
+        CallExpression(node) {
+
+          const { callee } = node;
+
+          if(callee.type !== "Identifier"){ return; }
+          if(!callees.includes(callee.name)){ return; }
+
+          const literals = getCallExpressionLiterals(ctx, node.arguments);
+
+          lintLiterals(ctx, literals, node);
+
+        },
 
         JSXOpeningElement(node: Node) {
 
@@ -42,45 +101,10 @@ export const tailwindSortClasses: ESLintRule<Options> = {
           const attributes = getClassAttributes(ctx, jsxNode);
 
           for(const attribute of attributes){
-
             const literals = getClassAttributeLiterals(ctx, attribute);
-
-            for(const literal of literals){
-
-              if(literal === undefined){ continue; }
-
-              const parts = createParts(ctx, literal);
-              const classChunks = splitClasses(ctx, literal.content);
-              const whitespaceChunks = splitWhitespace(ctx, literal.content);
-
-              const sortedClassChunks = sortClasses(ctx, tailwindContext, classChunks);
-
-              const classes: string[] = [];
-
-              for(let i = 0; i < Math.max(sortedClassChunks.length, whitespaceChunks.length); i++){
-                whitespaceChunks[i] && classes.push(whitespaceChunks[i]);
-                sortedClassChunks[i] && classes.push(sortedClassChunks[i]);
-              }
-
-              const combinedClasses = combineClasses(ctx, classes, parts);
-
-              if(literal.raw === combinedClasses){
-                return;
-              }
-
-              ctx.report({
-                data: {
-                  notSorted: literal.content
-                },
-                fix(fixer) {
-                  return fixer.replaceText(literal, combinedClasses);
-                },
-                message: "Invalid class order: {{ notSorted }}.",
-                node
-              });
-
-            }
+            lintLiterals(ctx, literals, node);
           }
+
         }
 
       };
@@ -96,6 +120,12 @@ export const tailwindSortClasses: ESLintRule<Options> = {
         {
           additionalProperties: false,
           properties: {
+            callees: {
+              items: {
+                type: "string"
+              },
+              type: "array"
+            },
             classAttributes: {
               items: {
                 type: "string"
@@ -214,12 +244,14 @@ function getOptions(ctx: Rule.RuleContext) {
 
   const options: Options[0] = ctx.options[0] ?? {};
 
-  const classAttributes = options.classAttributes ?? DEFAULT_CLASS_NAMES;
   const order = options.order ?? "official";
+  const classAttributes = options.classAttributes ?? DEFAULT_CLASS_NAMES;
+  const callees = options.callees ?? DEFAULT_CALLEE_NAMES;
 
   const tailwindConfig = options.tailwindConfig;
 
   return {
+    callees,
     classAttributes,
     order,
     tailwindConfig
