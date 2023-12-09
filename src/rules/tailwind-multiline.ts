@@ -43,8 +43,7 @@ export const readableTailwind: ESLintRule<Options> = {
 
               const parts = createParts(ctx, literal);
               const classes = splitClasses(ctx, literal.content);
-              const sortedClasses = sortClasses(ctx, classes);
-              const combinedClasses = combineClasses(ctx, sortedClasses, parts);
+              const combinedClasses = combineClasses(ctx, classes, parts);
 
               if(literal.raw === combinedClasses){
                 return;
@@ -78,12 +77,6 @@ export const readableTailwind: ESLintRule<Options> = {
     }
   }
 };
-
-
-function sortClasses(ctx: Rule.RuleContext, classes: string[]): string[] {
-  // const classChunks = classes.map(className => unwrapClass(ctx, className));
-  return classes.toSorted();
-}
 
 
 export function getClassAttributes(ctx: Rule.RuleContext, node: JSXOpeningElement): JSXAttribute[] {

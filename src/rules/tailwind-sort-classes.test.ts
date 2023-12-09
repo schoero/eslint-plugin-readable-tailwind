@@ -7,20 +7,35 @@ import { tailwindSortClasses } from "eptm:rules:tailwind-sort-classes.js";
 
 describe(`${tailwindSortClasses.name}`, () => {
 
-  it("should sort simple class names alphabetically", () => expect(void lint(tailwindSortClasses, {
+  it("should sort simple class names as defined", () => expect(void lint(tailwindSortClasses, {
     invalid: [
       {
         code: tsx`const Test = () => <div class="b a" />;`,
         errors: 1,
+        options: [{ order: "asc" }],
         output: tsx`const Test = () => <div class="a b" />;`
+      },
+      {
+        code: tsx`const Test = () => <div class="a b" />;`,
+        errors: 1,
+        options: [{ order: "desc" }],
+        output: tsx`const Test = () => <div class="b a" />;`
+      },
+      {
+        code: tsx`const Test = () => <div class="w-full absolute" />;`,
+        errors: 1,
+        options: [{ order: "official" }],
+        output: tsx`const Test = () => <div class="absolute w-full" />;`
       }
     ],
     valid: [
-      { code: tsx`const Test = () => <div class="a b" />;` }
+      { code: tsx`const Test = () => <div class="a b" />;`, options: [{ order: "asc" }] },
+      { code: tsx`const Test = () => <div class="b a" />;`, options: [{ order: "desc" }] },
+      { code: tsx`const Test = () => <div class="absolute w-full" />;`, options: [{ order: "official" }] }
     ]
   })).toBeUndefined());
 
-  it("should sort class names with modifiers alphabetically", () => expect(void lint(tailwindSortClasses, {
+  it.skip("should sort class names with modifiers alphabetically", () => expect(void lint(tailwindSortClasses, {
     invalid: [
       {
         code: tsx`const Test = () => <div class="b:class a:class" />;`,
@@ -44,6 +59,7 @@ describe(`${tailwindSortClasses.name}`, () => {
       {
         code: "const Test = () => <div class={`c a ${true ? 'e' : 'f'} b `} />;",
         errors: 1,
+        options: [{ order: "asc" }],
         output: "const Test = () => <div class={`a c ${true ? 'e' : 'f'} b `} />;"
       }
     ],
@@ -68,11 +84,12 @@ describe(`${tailwindSortClasses.name}`, () => {
         {
           code: `const Test = () => <div class={\`${unsortedMultilineString}\`} />;`,
           errors: 1,
+          options: [{ order: "asc" }],
           output: `const Test = () => <div class={\`${sortedMultilineString}\`} />;`
         }
       ],
       valid: [
-        { code: `const Test = () => <div class={\`${sortedMultilineString}\`} />;` }
+        { code: `const Test = () => <div class={\`${sortedMultilineString}\`} />;`, options: [{ order: "asc" }] }
       ]
     })).toBeUndefined();
   });

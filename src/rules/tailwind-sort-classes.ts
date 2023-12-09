@@ -1,3 +1,10 @@
+import { resolve } from "node:path";
+
+import defaultConfig from "tailwindcss/defaultConfig.js";
+import setupContextUtils from "tailwindcss/lib/lib/setupContextUtils.js";
+import loadConfig from "tailwindcss/loadConfig.js";
+import resolveConfig from "tailwindcss/resolveConfig.js";
+
 import { DEFAULT_CLASS_NAMES } from "eptm:utils:config.js";
 import { getClassAttributeLiterals, isJSXAttribute } from "eptm:utils:jsx.js";
 import { combineClasses, splitClasses, splitWhitespace } from "eptm:utils:utils.js";
@@ -7,12 +14,14 @@ import type { Node } from "estree";
 import type { JSXAttribute, JSXOpeningElement } from "estree-jsx";
 import type { Parts } from "src/types/ast.js";
 import type { ESLintRule } from "src/types/rule.js";
+import type { Config } from "tailwindcss/types/config.js";
 
 
 export type Options = [
   {
     classAttributes?: string[];
-    sort?: "asc" | "desc" | "never" | false;
+    order?: "asc" | "desc" | "official" ;
+    tailwindConfig?: string;
   }
 ];
 
@@ -20,6 +29,9 @@ export const tailwindSortClasses: ESLintRule<Options> = {
   name: "sort-classes" as const,
   rule: {
     create(ctx) {
+
+      const tailwindConfig = findTailwindConfig(ctx);
+      const tailwindContext = createTailwindContext(tailwindConfig);
 
       return {
 
@@ -41,7 +53,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
               const classChunks = splitClasses(ctx, literal.content);
               const whitespaceChunks = splitWhitespace(ctx, literal.content);
 
-              const sortedClassChunks = sortClasses(ctx, classChunks);
+              const sortedClassChunks = sortClasses(ctx, tailwindContext, classChunks);
 
               const classes: string[] = [];
 
@@ -80,22 +92,89 @@ export const tailwindSortClasses: ESLintRule<Options> = {
         recommended: true
       },
       fixable: "code",
+      schema: [
+        {
+          additionalProperties: false,
+          properties: {
+            classAttributes: {
+              items: {
+                type: "string"
+              },
+              type: "array"
+            },
+            order: {
+              enum: [
+                "asc",
+                "desc",
+                "official"
+              ],
+              type: "string"
+            },
+            tailwindConfig: {
+              type: "string"
+            }
+          },
+          type: "object"
+        }
+      ],
       type: "layout"
     }
   }
 };
 
 
-function sortClasses(ctx: Rule.RuleContext, classes: string[], order: "asc" | "desc" = "asc"): string[] {
-  return classes.toSorted((a, b) => {
+function sortClasses(ctx: Rule.RuleContext, tailwindContext: TailwindContext, classes: string[]): string[] {
+
+  const { order } = getOptions(ctx);
+
+  if(order === "official"){
+
+    const sortedClasses = tailwindContext.getClassOrder(classes) as [string, bigint | null][];
+
+    return sortedClasses
+      .sort(([, a], [, z]) => {
+        if(a === z){return 0;}
+        if(a === null){return -1;}
+        if(z === null){return 1; }
+        return +(a - z > 0n) - +(a - z < 0n);
+      })
+      .map(([className]) => className);
+  }
+
+  return [...classes].sort((a, b) => {
     if(order === "asc"){
       return a.localeCompare(b);
     } else {
       return b.localeCompare(a);
     }
   });
+
 }
 
+function findTailwindConfig(ctx: Rule.RuleContext) {
+
+  const { tailwindConfig } = getOptions(ctx);
+
+  let userConfig: Config | undefined;
+
+  userConfig = tailwindConfig
+    ? loadTailwindConfig(resolve(ctx.cwd, tailwindConfig))
+    : undefined;
+
+  userConfig ??= loadTailwindConfig(resolve(ctx.cwd, "tailwind.config.js"));
+  userConfig ??= loadTailwindConfig(resolve(ctx.cwd, "tailwind.config.ts"));
+
+  return userConfig
+    ? resolveConfig(userConfig)
+    : resolveConfig(defaultConfig);
+
+}
+
+function loadTailwindConfig(path: string) {
+  try {
+    return loadConfig(path);
+  } catch (error){}
+}
 
 export function getClassAttributes(ctx: Rule.RuleContext, node: JSXOpeningElement): JSXAttribute[] {
 
@@ -136,11 +215,23 @@ function getOptions(ctx: Rule.RuleContext) {
   const options: Options[0] = ctx.options[0] ?? {};
 
   const classAttributes = options.classAttributes ?? DEFAULT_CLASS_NAMES;
-  const sort = options.sort ?? "asc";
+  const order = options.order ?? "official";
+
+  const tailwindConfig = options.tailwindConfig;
 
   return {
     classAttributes,
-    sort
+    order,
+    tailwindConfig
   };
 
+}
+
+interface TailwindContext {
+  getClassOrder(classes: string[]): [className: string, order: bigint | null][];
+  tailwindConfig: Config;
+}
+
+function createTailwindContext(tailwindConfig: ReturnType<typeof resolveConfig>): TailwindContext {
+  return setupContextUtils.createContext(tailwindConfig);
 }

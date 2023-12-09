@@ -12,6 +12,7 @@
       "eptm:utils:*": ["src/utils/*"]
     },
     "rootDir": ".",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "target": "ES2020"
   }
 }

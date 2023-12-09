@@ -28,7 +28,6 @@ Add `tailwind-multiline` to the plugins section of your `.eslintrc` configuratio
 }
 ```
 
-
 Then configure the rules you want to use under the rules section.
 
 ```json
@@ -52,5 +51,3 @@ Then configure the rules you want to use under the rules section.
 | [sort-classes](docs/rules/sort-classes.md)                           | Enforce a consistent order for tailwind classes.     | 🔧 |
 
 <!-- end auto-generated rules list -->
-
-
