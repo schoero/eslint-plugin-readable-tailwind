@@ -5,6 +5,13 @@
   "description": "auto-wraps tailwind classes after a certain width using template literals.",
   "license": "MIT",
   "author": "Roger Schönbächler",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/schoero/eslint-plugin-readable-tailwind.git"
+  },
+  "bugs": {
+    "url": "https://github.com/schoero/eslint-plugin-readable-tailwind/issues"
+  },
   "exports": "./lib/index.js",
   "main": "./lib/index.js",
   "scripts": {
