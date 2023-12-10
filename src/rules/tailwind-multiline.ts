@@ -42,7 +42,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
         const groupedClasses = groupClasses(ctx, classChunks);
 
         if(groupedClasses.length === 1){
-          return [groupClasses];
+          return groupedClasses;
         }
 
         for(let i = 0, l = 0; i < groupedClasses.length; i++){
@@ -102,7 +102,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
             const startPosition = findStartPosition(ctx, literal) + getIndentation(ctx, indentation);
             const lines = splitLines(ctx, literal, startPosition);
 
-            if(lines.length === 3){ continue; }
+            if(lines.length === 1){ continue; }
 
             const joinedLines = lines.join("\n");
 
@@ -116,7 +116,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
                   rawLiteral: literal.raw
                 },
                 fix(fixer) {
-                  return fixer.replaceText(literal, `{\`${combinedClasses}\`}`);
+                  return fixer.replaceText(literal, `\`${combinedClasses}\``);
                 },
                 message: "Invalid literal string: {{ rawLiteral }}.",
                 node
