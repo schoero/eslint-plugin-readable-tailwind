@@ -46,24 +46,21 @@ npm install eslint-plugin-readable-tailwind --save-dev
 
 ## Usage
 
-Add `readable-tailwind` to the plugins section of your `.eslintrc` configuration file. You can omit the `eslint-plugin-` prefix:
+Add `readable-tailwind` to your flat eslint config:
 
-```json
-{
-  "plugins": [
-    "readable-tailwind"
-  ]
-}
-```
+```js
+import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
 
-Then configure the rules you want to use under the rules section.
-
-```json
-{
-  "rules": {
-    "tailwind-multiline/rule-name": 2
+export default [
+  {
+    plugins: {
+      "readable-tailwind": eslintPluginReadableTailwind
+    },
+    rules: {
+      ...eslintPluginReadableTailwind.configs["recommended/warn"]
+    }
   }
-}
+];
 ```
 
 ## Rules
