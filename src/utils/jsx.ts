@@ -13,7 +13,7 @@ import type {
   TemplateElement,
   TemplateLiteral
 } from "estree-jsx";
-import type { BracesParts, QuoteParts, WhitespaceParts } from "src/types/ast";
+import type { BracesParts, QuoteParts } from "src/types/ast";
 
 
 export function findStartPosition(ctx: Rule.RuleContext, node: Node) {
@@ -168,12 +168,12 @@ interface SimpleStringLiteral extends SimpleLiteral {
   value: string;
 }
 
-export interface StringLiteral extends SimpleStringLiteral, QuoteParts, WhitespaceParts {
+export interface StringLiteral extends SimpleStringLiteral, QuoteParts {
   content: string;
   raw: string;
 }
 
-export interface TemplateLiteralString extends TemplateElement, QuoteParts, WhitespaceParts, BracesParts {
+export interface TemplateLiteralString extends TemplateElement, QuoteParts, BracesParts {
   content: string;
   raw: string;
 }

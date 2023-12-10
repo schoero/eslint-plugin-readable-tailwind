@@ -27,9 +27,7 @@ export function combineClasses(
   return [
     parts.leadingQuote ?? "",
     parts.leadingBraces ?? "",
-    parts.leadingWhitespace ?? "",
     ...classes,
-    parts.trailingWhitespace ?? "",
     parts.trailingBraces ?? "",
     parts.trailingQuote ?? ""
   ].join("");
