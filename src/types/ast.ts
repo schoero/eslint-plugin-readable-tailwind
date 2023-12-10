@@ -10,10 +10,5 @@ export interface BracesParts {
   trailingBraces?: string;
 }
 
-export interface WhitespaceParts {
-  leadingWhitespace?: string;
-  trailingWhitespace?: string;
-}
-
-export interface Parts extends QuoteParts, BracesParts, WhitespaceParts {
+export interface Parts extends QuoteParts, BracesParts {
 }

@@ -21,7 +21,7 @@
 <br/>
 
 ESLint plugin to automatically break up long tailwind class strings into multiple lines for better readability.
-Also sorts the classes logically, removes unnecessary whitespaces and groups the classes by their prefix.
+Also sorts the classes logically, removes unnecessary whitespaces and groups the classes by their modifiers.
 
 <br/>
 <br/>

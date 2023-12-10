@@ -41,11 +41,23 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
           if(allowMultiline){
             for(let i = 0; i < Math.max(classChunks.length, whitespaceChunks.length); i++){
               if(whitespaceChunks[i] && whitespaceChunks[i].includes("\n")){
+
+                if(parts.leadingBraces && i === 0 && whitespaceChunks[i].length === 0){ classes.push(" "); }
                 classes.push(whitespaceChunks[i]);
+
                 classChunks[i] && classes.push(classChunks[i]);
+
+                if(parts.trailingBraces && i === classChunks.length - 1){ classes.push(" "); }
+
               } else {
+
+                if(parts.leadingBraces && i === 0){ classes.push(" "); }
                 if(classChunks[i] && i > 0){ classes.push(" "); }
+
                 classChunks[i] && classes.push(classChunks[i]);
+
+                if(parts.trailingBraces && i === classChunks.length - 1){ classes.push(" "); }
+
               }
             }
           } else {

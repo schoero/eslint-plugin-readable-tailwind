@@ -27,6 +27,15 @@ describe(`${tailwindNoUnnecessaryWhitespace.name}`, () => {
     ]
   })).toBeUndefined());
 
+  it("should not remove whitespace around and inside template elements", () => expect(void lint(tailwindNoUnnecessaryWhitespace, {
+    invalid: [
+      {
+        code: "const Test = () => <div class={` b  a  ${' c '}  d `} />;",
+        errors: 2,
+        output: "const Test = () => <div class={`b a ${' c '} d`} />;"
+      }
+    ]
+  })).toBeUndefined());
 
   it("should remove newlines whenever possible", () => {
     const uncleanedMultilineString = `

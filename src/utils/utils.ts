@@ -20,7 +20,6 @@ export function splitWhitespace(classes: string): string[] {
   return classes.split(/[^\s\\]+/);
 }
 
-
 export function combineClasses(
   classes: string[],
   parts: Parts
@@ -40,8 +39,6 @@ export function createParts(literal: Parts): Parts {
 
   const parts: Parts = {};
 
-  // parts.leadingWhitespace = literal.leadingWhitespace;
-  // parts.trailingWhitespace = literal.trailingWhitespace;
   if("leadingQuote" in literal){
     parts.leadingQuote = literal.leadingQuote;
     parts.trailingQuote = literal.trailingQuote;
@@ -55,21 +52,3 @@ export function createParts(literal: Parts): Parts {
   return parts;
 
 }
-
-interface TailwindGroup {
-  kind: "group";
-  value: string;
-  name?: string;
-}
-
-interface TailwindModifier {
-  kind: "modifier";
-  value: string;
-}
-
-interface TailwindClass {
-  kind: "class";
-  value: string;
-}
-
-type TailwindChunk = TailwindClass | TailwindGroup | TailwindModifier;

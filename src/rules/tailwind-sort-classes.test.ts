@@ -35,19 +35,6 @@ describe(`${tailwindSortClasses.name}`, () => {
     ]
   })).toBeUndefined());
 
-  it.skip("should sort class names with modifiers alphabetically", () => expect(void lint(tailwindSortClasses, {
-    invalid: [
-      {
-        code: tsx`const Test = () => <div class="b:class a:class" />;`,
-        errors: 1,
-        output: tsx`const Test = () => <div class="a:class b:class" />;`
-      }
-    ],
-    valid: [
-      { code: tsx`const Test = () => <div class="a:class b:class" />;` }
-    ]
-  })).toBeUndefined());
-
   it("should keep expressions as they are", () => expect(void lint(tailwindSortClasses, {
     valid: [
       { code: tsx`const Test = () => <div class={true ? "a" : "b"} />;` }
@@ -57,10 +44,10 @@ describe(`${tailwindSortClasses.name}`, () => {
   it("should keep expressions where they are", () => expect(void lint(tailwindSortClasses, {
     invalid: [
       {
-        code: "const Test = () => <div class={`c a ${true ? 'e' : 'f'} b `} />;",
-        errors: 1,
+        code: "const Test = () => <div class={`c a ${true ? 'e' : 'f'} d b `} />;",
+        errors: 2,
         options: [{ order: "asc" }],
-        output: "const Test = () => <div class={`a c ${true ? 'e' : 'f'} b `} />;"
+        output: "const Test = () => <div class={`a c ${true ? 'e' : 'f'} b d `} />;"
       }
     ],
     valid: [

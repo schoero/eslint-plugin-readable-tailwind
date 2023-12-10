@@ -1,5 +1,10 @@
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "eptm:utils:config.js";
-import { getCallExpressionLiterals, getClassAttributeLiterals, getClassAttributes } from "eptm:utils:jsx.js";
+import {
+  findStartPosition,
+  getCallExpressionLiterals,
+  getClassAttributeLiterals,
+  getClassAttributes
+} from "eptm:utils:jsx.js";
 import { combineClasses, createParts, splitClasses } from "eptm:utils:utils.js";
 
 import type { Rule } from "eslint";
@@ -36,6 +41,10 @@ export const tailwindMultiline: ESLintRule<Options> = {
         const classChunks = splitClasses(literal.content);
         const groupedClasses = groupClasses(ctx, classChunks);
 
+        if(groupedClasses.length === 1){
+          return [groupClasses];
+        }
+
         for(let i = 0, l = 0; i < groupedClasses.length; i++){
 
           if(groupedClasses[i] === ""){
@@ -63,6 +72,10 @@ export const tailwindMultiline: ESLintRule<Options> = {
 
         }
 
+        if(lines.length === 1){
+          return lines;
+        }
+
         return [
           "",
           ...lines.map(line => line.join(" ")),
@@ -81,13 +94,12 @@ export const tailwindMultiline: ESLintRule<Options> = {
           if(callee.type !== "Identifier"){ return; }
           if(!callees.includes(callee.name)){ return; }
 
-          const startPosition = (callee.loc?.start.column ?? 0) + getIndentation(ctx, indentation);
-
           const literals = getCallExpressionLiterals(ctx, node.arguments);
 
           for(const literal of literals){
             if(literal === undefined){ continue; }
 
+            const startPosition = findStartPosition(ctx, literal) + getIndentation(ctx, indentation);
             const lines = splitLines(ctx, literal, startPosition);
 
             if(lines.length === 3){ continue; }
@@ -147,10 +159,8 @@ export const tailwindMultiline: ESLintRule<Options> = {
             if(!attributeValue){ continue; }
             if(typeof attributeName !== "string"){ continue; }
 
-            const startPosition = (attribute.loc?.start.column ?? 0) + getIndentation(ctx, indentation);
-
+            const startPosition = findStartPosition(ctx, attribute) + getIndentation(ctx, indentation);
             const literals = getClassAttributeLiterals(ctx, attribute);
-
 
             for(const literal of literals){
 
@@ -158,7 +168,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
 
               const lines = splitLines(ctx, literal, startPosition);
 
-              if(lines.length === 3){ continue; }
+              if(lines.length === 1){ continue; }
 
               const joinedLines = lines.join("\n");
 

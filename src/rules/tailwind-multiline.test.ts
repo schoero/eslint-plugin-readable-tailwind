@@ -1,4 +1,4 @@
-import { tsx } from "src/utils/template.js";
+import { createTrimTag, tsx } from "src/utils/template.js";
 import { lint } from "tests/utils.js";
 import { describe, expect, it } from "vitest";
 
@@ -7,9 +7,12 @@ import { tailwindMultiline } from "eptm:rules:tailwind-multiline.js";
 
 describe(`${tailwindMultiline.name}`, () => {
 
+
   it("should wrap long lines on to multiple lines", () => {
 
-    const fixedMultilineStringLiteral = `
+    const trim = createTrimTag(4);
+
+    const fixedMultilineStringLiteral = trim`
       a b c
       d e f
       g h
@@ -19,28 +22,20 @@ describe(`${tailwindMultiline.name}`, () => {
       invalid: [
         {
           code: tsx`const Test = () => <div class=" a b c d e f g h " />;`,
-          errors: 1,
-          options: [{ classesPerLine: 3 }],
+          errors: 2,
+          options: [{ classesPerLine: 3, indent: 2 }],
           output: `const Test = () => <div class={\`${fixedMultilineStringLiteral}\`} />;`
         }
       ]
     })).toBeUndefined();
   });
 
-  it.only("should test", () => {
-
-    const fixedMultilineStringLiteral = `
-      relative inline-block break-all
-     
-      after:absolute after:left-[0] after:top-[0]
-    `;
+  it("should not wrap until it is necessary", () => {
 
     expect(void lint(tailwindMultiline, {
-      invalid: [
+      valid: [
         {
-          code: tsx`const Test = () => <div class=" relative inline-block break-all after:absolute after:left-[0] after:top-[0] " />;`,
-          errors: 1,
-          output: `const Test = () => <div class={\`${fixedMultilineStringLiteral}\`} />;`
+          code: "const Test = () => <div class={` b  a  ${' c '}`} />;"
         }
       ]
     })).toBeUndefined();

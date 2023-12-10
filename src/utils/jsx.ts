@@ -7,6 +7,7 @@ import type {
   Expression,
   JSXAttribute,
   JSXOpeningElement,
+  Node,
   SimpleLiteral,
   SpreadElement,
   TemplateElement,
@@ -14,6 +15,14 @@ import type {
 } from "estree-jsx";
 import type { BracesParts, QuoteParts, WhitespaceParts } from "src/types/ast";
 
+
+export function findStartPosition(ctx: Rule.RuleContext, node: Node) {
+  const line = node.loc?.start.line;
+
+  if(line === undefined){ return 0; }
+
+  return ctx.sourceCode.lines[line - 1].match(/^\s*/)?.[0]?.length ?? node.loc?.start.column ?? 0;
+}
 
 export function getClassAttributeLiterals(ctx: Rule.RuleContext, attribute: JSXAttribute): Literals {
 
@@ -39,6 +48,8 @@ export function getClassAttributeLiterals(ctx: Rule.RuleContext, attribute: JSXA
   if(value.type === "JSXExpressionContainer" && value.expression.type === "TemplateLiteral"){
     return getLiteralsByTemplateLiteral(ctx, value.expression);
   }
+
+  // TODO: Handle class={" a " + " b "} // Create a new rule 'no-unnecessary-concat'
 
   return [];
 }
@@ -66,7 +77,6 @@ export function getLiteralsByExpression(ctx: Rule.RuleContext, node: Expression)
 
   return [];
 }
-
 
 function getLiteralBySimpleStringLiteral(ctx: Rule.RuleContext, node: SimpleStringLiteral): StringLiteral | undefined {
 
@@ -124,7 +134,6 @@ export function getTokenByNode(ctx: Rule.RuleContext, node: BaseNode) {
     : undefined;
 }
 
-
 export function getTextTokenQuotes(ctx: Rule.RuleContext, token: AST.Token): QuoteParts {
   const leadingQuote = token.value.at(0);
   const trailingQuote = token.value.at(-1);
@@ -144,28 +153,6 @@ export function getTemplateTokenQuotes(ctx: Rule.RuleContext, token: AST.Token):
     trailingQuote: trailingQuote === "`" ? trailingQuote : undefined
   };
 }
-
-// export function getTemplateTokenWhitespace(ctx: Rule.RuleContext, token: AST.Token): WhitespaceParts {
-
-//   const { leadingQuote, trailingQuote } = getTemplateTokenQuotes(ctx, token);
-//   const { leadingBraces, trailingBraces } = getTemplateTokenBraces(ctx, token);
-
-//   const leadingWhitespace = token.value.at(
-//     (leadingQuote?.length ?? 0) + (leadingBraces?.length ?? 0)
-//   ) === " "
-//     ? " "
-//     : undefined;
-//   const trailingWhitespace = token.value.at(
-//     -((trailingQuote?.length ?? 0) + (trailingBraces?.length ?? 0) + 1)
-//   ) === " "
-//     ? " "
-//     : undefined;
-
-//   return {
-//     leadingWhitespace,
-//     trailingWhitespace
-//   };
-// }
 
 export function getTemplateTokenBraces(ctx: Rule.RuleContext, token: AST.Token): BracesParts {
   const leadingBraces = token.value.startsWith("}") ? "}" : undefined;
