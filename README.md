@@ -1,5 +1,5 @@
 <div align="center">
-  <img alt="eslint-plugin-readable-tailwind" src="https://raw.githubusercontent.com/schoero/eslint-plugin-readable-tailwind/main/assets/eslint-plugin-readable-tailwind-logo.svg?token=AKCR54TFQSHIUXAOXY46JLTFOQ3CU">
+  <img alt="eslint-plugin-readable-tailwind logo" src="https://raw.githubusercontent.com/schoero/eslint-plugin-readable-tailwind/main/assets/eslint-plugin-readable-tailwind-logo.svg">
 </div>
 
 ---
@@ -25,6 +25,10 @@ Also sorts the classes logically, removes unnecessary whitespaces and groups the
 
 <br/>
 <br/>
+
+<div align="center">
+  <img alt="eslint-plugin-readable-tailwind example" src="https://raw.githubusercontent.com/schoero/eslint-plugin-readable-tailwind/main/assets/eslint-plugin-readable-tailwind-example.svg">
+</div>
 
 ## Installation
 
