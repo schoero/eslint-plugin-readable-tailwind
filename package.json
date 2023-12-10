@@ -10,11 +10,10 @@
   "scripts": {
     "build": "vite build",
     "docs": "eslint-doc-generator",
-    "docs:lint": "npm run update:eslint-docs -- --check",
     "eslint": "eslint --ext .ts,.tsx,.js,.jsx,.json,.jsonc,.yml,.md ./",
     "eslint:ci": "npm run eslint -- --max-warnings 0",
     "eslint:fix": "npm run eslint -- --fix",
-    "lint": "npm run eslint && npm run markdownlint && npm run docs:lint",
+    "lint": "npm run eslint && npm run markdownlint",
     "lint:ci": "npm run eslint:ci && npm run markdownlint:ci",
     "lint:fix": "npm run eslint:fix && npm run markdownlint:fix",
     "markdownlint": "markdownlint-cli2 '**/*.md' '#node_modules'",
