@@ -27,4 +27,23 @@ describe(`${tailwindMultiline.name}`, () => {
     })).toBeUndefined();
   });
 
+  it.only("should test", () => {
+
+    const fixedMultilineStringLiteral = `
+      relative inline-block break-all
+     
+      after:absolute after:left-[0] after:top-[0]
+    `;
+
+    expect(void lint(tailwindMultiline, {
+      invalid: [
+        {
+          code: tsx`const Test = () => <div class=" relative inline-block break-all after:absolute after:left-[0] after:top-[0] " />;`,
+          errors: 1,
+          output: `const Test = () => <div class={\`${fixedMultilineStringLiteral}\`} />;`
+        }
+      ]
+    })).toBeUndefined();
+  });
+
 });

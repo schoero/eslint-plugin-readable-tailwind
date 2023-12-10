@@ -78,16 +78,10 @@ export const jsxAttributeExpression: ESLintRule<Options> = {
       fixable: "code",
       schema: [
         {
-          additionalItems: false,
-          items: [
-            {
-              default: getOptions().expression,
-              description: "Collapse jsx class attribute expressions to a literal string if possible.",
-              enum: ["always", "as-needed"],
-              type: "string"
-            }
-          ],
-          type: "array"
+          default: getOptions().expression,
+          description: "Collapse jsx class attribute expressions to a literal string if possible.",
+          enum: ["always", "as-needed"],
+          type: "string"
         }
       ],
       type: "layout"

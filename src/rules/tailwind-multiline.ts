@@ -1,13 +1,13 @@
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "eptm:utils:config.js";
 import { getCallExpressionLiterals, getClassAttributeLiterals, getClassAttributes } from "eptm:utils:jsx.js";
-import { combineClasses, createParts, indent, splitClasses } from "eptm:utils:utils.js";
+import { combineClasses, createParts, splitClasses } from "eptm:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { Node } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { ESLintRule } from "src/types/rule.js";
 
-import type { Literals } from "eptm:utils:jsx.js";
+import type { StringLiteral, TemplateLiteralString } from "eptm:utils:jsx.js";
 
 
 export type Options = [
@@ -16,8 +16,8 @@ export type Options = [
     classAttributes?: string[];
     classesPerLine?: number;
     group?: "emptyLine" | "never" | "newLine";
+    indent?: number | "tab";
     printWidth?: number;
-    tabWidth?: number;
     trim?: boolean;
   }
 ];
@@ -27,39 +27,48 @@ export const tailwindMultiline: ESLintRule<Options> = {
   rule: {
     create(ctx) {
 
-      const { callees, classesPerLine, printWidth, tabWidth } = getOptions(ctx);
+      const { callees, classesPerLine, indent: indentation, printWidth } = getOptions(ctx);
 
-      const splitLiterals = (ctx: Rule.RuleContext, literals: Literals, startPosition: number) => {
+      const splitLines = (ctx: Rule.RuleContext, literal: StringLiteral | TemplateLiteralString, startPosition: number) => {
 
-        return literals.map(literal => {
+        const lines: string[][] = [];
 
-          if(literal === undefined){ return; }
+        const classChunks = splitClasses(literal.content);
+        const groupedClasses = groupClasses(ctx, classChunks);
 
-          const lines: string[][] = [];
+        for(let i = 0, l = 0; i < groupedClasses.length; i++){
 
-          const classChunks = splitClasses(literal.content);
-
-          for(let i = 0, l = 0; i < classChunks.length; i++){
-            const newClasses = [...lines[l] ?? [], classChunks[i]];
-            const newLine = combineClasses(newClasses, {});
-
-            if(newClasses.length > classesPerLine || newLine.length > printWidth){
-              l++;
-              lines[l] = [indent(startPosition) + classChunks[i]];
-              continue;
-            }
-
-            if(l === 0 && i === 0){
-              lines[l] = [indent(startPosition) + classChunks[i]];
-            } else {
-              lines[l].push(classChunks[i]);
-            }
-
+          if(groupedClasses[i] === ""){
+            l++;
+            lines[l] = [groupedClasses[i]];
+            continue;
           }
 
-          return lines.join("\n");
+          const newClasses = [...lines[l] ?? [], groupedClasses[i]];
+          const newLine = combineClasses(newClasses, {});
 
-        });
+          if(newClasses.length > classesPerLine || newLine.length > printWidth){
+            l++;
+            lines[l] = [indent(ctx, startPosition) + groupedClasses[i]];
+            continue;
+          }
+
+          if(l === 0 && i === 0){
+            lines[l] = [indent(ctx, startPosition) + groupedClasses[i]];
+          } else if(lines[l].length === 1 && lines[l][0] === ""){
+            lines[l] = [indent(ctx, startPosition) + groupedClasses[i]];
+          } else {
+            lines[l].push(groupedClasses[i]);
+          }
+
+        }
+
+        return [
+          "",
+          ...lines.map(line => line.join(" ")),
+          indent(ctx, startPosition - getIndentation(ctx, indentation))
+        ];
+
       };
 
 
@@ -72,11 +81,55 @@ export const tailwindMultiline: ESLintRule<Options> = {
           if(callee.type !== "Identifier"){ return; }
           if(!callees.includes(callee.name)){ return; }
 
-          const startPosition = (callee.loc?.start.column ?? 0) + tabWidth;
+          const startPosition = (callee.loc?.start.column ?? 0) + getIndentation(ctx, indentation);
 
           const literals = getCallExpressionLiterals(ctx, node.arguments);
 
-          splitLiterals(ctx, literals, startPosition);
+          for(const literal of literals){
+            if(literal === undefined){ continue; }
+
+            const lines = splitLines(ctx, literal, startPosition);
+
+            if(lines.length === 3){ continue; }
+
+            const joinedLines = lines.join("\n");
+
+            if(literal.type === "Literal"){
+
+              const { leadingQuote, trailingQuote, ...parts } = createParts(literal);
+              const combinedClasses = combineClasses([joinedLines], parts);
+
+              ctx.report({
+                data: {
+                  rawLiteral: literal.raw
+                },
+                fix(fixer) {
+                  return fixer.replaceText(literal, `{\`${combinedClasses}\`}`);
+                },
+                message: "Invalid literal string: {{ rawLiteral }}.",
+                node
+              });
+            }
+
+            const parts = createParts(literal);
+            const combinedClasses = combineClasses([joinedLines], parts);
+
+            if(literal.raw === combinedClasses){
+              return;
+            }
+
+            ctx.report({
+              data: {
+                notReadable: literal.content
+              },
+              fix(fixer) {
+                return fixer.replaceText(literal, combinedClasses);
+              },
+              message: "Invalid line wrapping: {{ notReadable }}.",
+              node
+            });
+
+          }
 
         },
 
@@ -94,35 +147,41 @@ export const tailwindMultiline: ESLintRule<Options> = {
             if(!attributeValue){ continue; }
             if(typeof attributeName !== "string"){ continue; }
 
-            const startPosition = (attribute.loc?.start.column ?? 0) + tabWidth;
+            const startPosition = (attribute.loc?.start.column ?? 0) + getIndentation(ctx, indentation);
 
             const literals = getClassAttributeLiterals(ctx, attribute);
-            const literalsWithLines = splitLiterals(ctx, literals, startPosition);
 
-            for(let i = 0; i < literalsWithLines.length; i++){
 
-              const literal = literals[i];
-              const lines = literalsWithLines[i];
+            for(const literal of literals){
 
               if(literal === undefined){ continue; }
-              if(lines === undefined){ continue; }
 
-              const parts = createParts(literal);
-              const combinedClasses = combineClasses([lines], parts);
+              const lines = splitLines(ctx, literal, startPosition);
+
+              if(lines.length === 3){ continue; }
+
+              const joinedLines = lines.join("\n");
 
               if(attributeValue.type === "Literal"){
+
+                const { leadingQuote, trailingQuote, ...parts } = createParts(literal);
+                const combinedClasses = combineClasses([joinedLines], parts);
+
                 ctx.report({
                   data: {
                     attributeName,
                     rawAttribute: attributeValue.raw ?? ""
                   },
                   fix(fixer) {
-                    return fixer.replaceText(attributeValue, `{${combinedClasses}}`);
+                    return fixer.replaceText(attributeValue, `{\`${combinedClasses}\`}`);
                   },
-                  message: "Invalid jsx attribute expression: {{ attributeName }}={{ rawAttribute }}.",
+                  message: "Invalid jsx attribute quotes: {{ attributeName }}={{ rawAttribute }}.",
                   node
                 });
               }
+
+              const parts = createParts(literal);
+              const combinedClasses = combineClasses([joinedLines], parts);
 
               if(literal.raw === combinedClasses){
                 return;
@@ -150,7 +209,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
     meta: {
       docs: {
         category: "Stylistic Issues",
-        description: "Enforce a consistent order for tailwind classes.",
+        description: "Enforce consistent line wrapping for tailwind classes.",
         recommended: true
       },
       fixable: "code",
@@ -180,20 +239,30 @@ export const tailwindMultiline: ESLintRule<Options> = {
               type: "integer"
             },
             group: {
-              default: "emptyLine",
+              default: getOptions().group,
               description: "The group separator.",
               enum: ["emptyLine", "never", "newLine"],
               type: "string"
             },
+            indent: {
+              default: getOptions().indent,
+              description: "Determines how the code should be indented.",
+              oneOf: [
+                {
+                  enum: ["tab"],
+                  type: "string"
+                },
+                {
+                  minimum: 0,
+                  type: "integer"
+                }
+              ],
+              type: "integer"
+
+            },
             printWidth: {
               default: getOptions().printWidth,
-              description: "The maximum line length. Lines are wrapped appropriately to stay within this limit or within the limit provided by the classesPerLine option.",
-              type: "integer"
-            },
-            tabWidth: {
-              default: getOptions().tabWidth,
-              description: "The number of spaces per indentation-level.",
-              type: "integer"
+              description: "The maximum line length. Lines are wrapped appropriately to stay within this limit or within the limit provided by the classesPerLine option."
             }
           },
           type: "object"
@@ -204,14 +273,63 @@ export const tailwindMultiline: ESLintRule<Options> = {
   }
 };
 
+function groupClasses(ctx: Rule.RuleContext, classChunks: string[]) {
+
+  const { group } = getOptions(ctx);
+
+  if(group === "never"){
+    return classChunks;
+  }
+
+  return classChunks.reduce<string[]>((acc, chunk) => {
+
+    if(acc.length === 0){
+      acc.push(chunk);
+      return acc;
+    }
+
+    const lastChunk = acc[acc.length - 1];
+    const lastModifier = lastChunk.match(/^.*?:/)?.[0];
+    const modifier = chunk.match(/^.*?:/)?.[0];
+
+    if(lastModifier !== modifier){
+      if(group === "emptyLine"){
+        acc.push("", "");
+      } else {
+        acc.push("");
+      }
+    }
+
+    acc.push(chunk);
+
+    return acc;
+
+  }, []);
+
+}
+
+function indent(ctx: Rule.RuleContext, start: number): string {
+  const indent = getOptions(ctx).indent;
+
+  if(indent === "tab"){
+    return "\t".repeat(start);
+  } else {
+    return " ".repeat(start);
+  }
+}
+
+function getIndentation(ctx: Rule.RuleContext, indentation: Options[0]["indent"]): number {
+  return indentation === "tab" ? 1 : indentation ?? 0;
+}
 
 function getOptions(ctx?: Rule.RuleContext) {
 
   const options: Options[0] = ctx?.options[0] ?? {};
 
   const printWidth = options.printWidth ?? 80;
-  const classesPerLine = options.classesPerLine ?? Infinity;
-  const tabWidth = options.tabWidth ?? 4;
+  const classesPerLine = options.classesPerLine ?? 100_000;
+  const indent = options.indent ?? 4;
+  const group = options.group ?? "emptyLine";
 
   const classAttributes = options.classAttributes ?? DEFAULT_CLASS_NAMES;
   const callees = options.callees ?? DEFAULT_CALLEE_NAMES;
@@ -220,8 +338,9 @@ function getOptions(ctx?: Rule.RuleContext) {
     callees,
     classAttributes,
     classesPerLine,
-    printWidth,
-    tabWidth
+    group,
+    indent,
+    printWidth
   };
 
 }

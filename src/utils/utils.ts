@@ -20,9 +20,6 @@ export function splitWhitespace(classes: string): string[] {
   return classes.split(/[^\s\\]+/);
 }
 
-export function indent(start: number): string {
-  return " ".repeat(start);
-}
 
 export function combineClasses(
   classes: string[],

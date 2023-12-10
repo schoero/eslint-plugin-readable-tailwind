@@ -181,12 +181,12 @@ interface SimpleStringLiteral extends SimpleLiteral {
   value: string;
 }
 
-interface StringLiteral extends SimpleStringLiteral, QuoteParts, WhitespaceParts {
+export interface StringLiteral extends SimpleStringLiteral, QuoteParts, WhitespaceParts {
   content: string;
   raw: string;
 }
 
-interface TemplateLiteralString extends TemplateElement, QuoteParts, WhitespaceParts, BracesParts {
+export interface TemplateLiteralString extends TemplateElement, QuoteParts, WhitespaceParts, BracesParts {
   content: string;
   raw: string;
 }
