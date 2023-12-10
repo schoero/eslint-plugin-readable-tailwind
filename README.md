@@ -27,7 +27,7 @@ Also sorts the classes logically, removes unnecessary whitespaces and groups the
 <br/>
 
 <div align="center">
-  <img alt="eslint-plugin-readable-tailwind example" src="https://raw.githubusercontent.com/schoero/eslint-plugin-readable-tailwind/main/assets/eslint-plugin-readable-tailwind-example.svg">
+  <img alt="eslint-plugin-readable-tailwind example" src="https://raw.githubusercontent.com/schoero/eslint-plugin-readable-tailwind/main/assets/eslint-plugin-readable-tailwind-example.png">
 </div>
 
 ## Installation
