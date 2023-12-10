@@ -72,10 +72,11 @@ Then configure the rules you want to use under the rules section.
 
 🔧 Automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/user-guide/command-line-interface#--fix).
 
-| Name                                                                 | Description                                          | 🔧 |
-| :------------------------------------------------------------------- | :--------------------------------------------------- | :- |
-| [jsx-attribute-expression](docs/rules/jsx-attribute-expression.md)   | Enforce consistent jsx attribute expressions         | 🔧 |
-| [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | 🔧 |
-| [sort-classes](docs/rules/sort-classes.md)                           | Enforce a consistent order for tailwind classes.     | 🔧 |
+| Name                                                                 | Description                                            | 🔧 |
+| :------------------------------------------------------------------- | :----------------------------------------------------- | :- |
+| [jsx-attribute-expression](docs/rules/jsx-attribute-expression.md)   | Enforce consistent jsx attribute expressions.          | 🔧 |
+| [multiline](docs/rules/multiline.md)                                 | Enforce consistent line wrapping for tailwind classes. | 🔧 |
+| [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes.   | 🔧 |
+| [sort-classes](docs/rules/sort-classes.md)                           | Enforce a consistent order for tailwind classes.       | 🔧 |
 
 <!-- end auto-generated rules list -->
