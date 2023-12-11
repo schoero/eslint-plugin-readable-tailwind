@@ -1,13 +1,14 @@
 export type LiteralValueQuotes = "'" | "\"" | "`";
 
-export interface QuoteParts {
+export interface QuoteMeta {
   closingQuote?: LiteralValueQuotes;
   openingQuote?: LiteralValueQuotes;
 }
-export interface BracesParts {
+export interface BracesMeta {
   closingBraces?: string;
   openingBraces?: string;
 }
 
-export interface Parts extends QuoteParts, BracesParts {
+export interface Meta extends QuoteMeta, BracesMeta {
+  indentation?: string;
 }

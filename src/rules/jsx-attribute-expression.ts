@@ -3,7 +3,7 @@ import { getClassAttributeLiterals, isJSXAttribute } from "eptm:utils:jsx.js";
 import type { Rule } from "eslint";
 import type { Node } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
-import type { QuoteParts } from "src/types/ast.js";
+import type { QuoteMeta } from "src/types/ast.js";
 import type { ESLintRule } from "src/types/rule.js";
 
 
@@ -89,7 +89,7 @@ export const jsxAttributeExpression: ESLintRule<Options> = {
   }
 };
 
-function getAllowedQuotes(ctx: Rule.RuleContext, preferredQuotes: QuoteParts): QuoteParts {
+function getAllowedQuotes(ctx: Rule.RuleContext, preferredQuotes: QuoteMeta): QuoteMeta {
   const { openingQuote } = preferredQuotes;
 
   if(openingQuote === "'" || openingQuote === '"'){

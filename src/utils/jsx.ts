@@ -13,7 +13,7 @@ import type {
   TemplateElement,
   TemplateLiteral
 } from "estree-jsx";
-import type { BracesParts, QuoteParts } from "src/types/ast";
+import type { BracesMeta, QuoteMeta } from "src/types/ast";
 
 
 export function findStartPosition(ctx: Rule.RuleContext, node: Node) {
@@ -134,7 +134,7 @@ export function getTokenByNode(ctx: Rule.RuleContext, node: BaseNode) {
     : undefined;
 }
 
-export function getTextTokenQuotes(ctx: Rule.RuleContext, token: AST.Token): QuoteParts {
+export function getTextTokenQuotes(ctx: Rule.RuleContext, token: AST.Token): QuoteMeta {
   const openingQuote = token.value.at(0);
   const closingQuote = token.value.at(-1);
 
@@ -144,7 +144,7 @@ export function getTextTokenQuotes(ctx: Rule.RuleContext, token: AST.Token): Quo
   };
 }
 
-export function getTemplateTokenQuotes(ctx: Rule.RuleContext, token: AST.Token): QuoteParts {
+export function getTemplateTokenQuotes(ctx: Rule.RuleContext, token: AST.Token): QuoteMeta {
   const openingQuote = token.value.startsWith("`") ? "`" : undefined;
   const closingQuote = token.value.endsWith("`") ? "`" : undefined;
 
@@ -154,7 +154,7 @@ export function getTemplateTokenQuotes(ctx: Rule.RuleContext, token: AST.Token):
   };
 }
 
-export function getTemplateTokenBraces(ctx: Rule.RuleContext, token: AST.Token): BracesParts {
+export function getTemplateTokenBraces(ctx: Rule.RuleContext, token: AST.Token): BracesMeta {
   const closingBraces = token.value.startsWith("}") ? "}" : undefined;
   const openingBraces = token.value.endsWith("${") ? "${" : undefined;
 
@@ -168,12 +168,12 @@ interface SimpleStringLiteral extends SimpleLiteral {
   value: string;
 }
 
-export interface StringLiteral extends SimpleStringLiteral, QuoteParts {
+export interface StringLiteral extends SimpleStringLiteral, QuoteMeta {
   content: string;
   raw: string;
 }
 
-export interface TemplateLiteralString extends TemplateElement, QuoteParts, BracesParts {
+export interface TemplateLiteralString extends TemplateElement, QuoteMeta, BracesMeta {
   content: string;
   raw: string;
 }
