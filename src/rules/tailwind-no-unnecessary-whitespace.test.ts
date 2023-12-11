@@ -10,49 +10,42 @@ describe(`${tailwindNoUnnecessaryWhitespace.name}`, () => {
   it("should trim leading and trailing white space in literals", () => expect(void lint(tailwindNoUnnecessaryWhitespace, {
     invalid: [
       {
-        code: tsx`const Test = () => <div class=" b  a " />;`,
+        code: tsx`const Test = () => <div class="  b  a  " />;`,
         errors: 1,
         output: tsx`const Test = () => <div class="b a" />;`
       },
       {
-        code: tsx`const Test = () => <div class=' b  a ' />;`,
+        code: tsx`const Test = () => <div class='  b  a  ' />;`,
         errors: 1,
         output: tsx`const Test = () => <div class='b a' />;`
       },
       {
-        code: "const Test = () => <div class={` b  a `} />;",
+        code: "const Test = () => <div class={`  b  a  `} />;",
         errors: 1,
         output: "const Test = () => <div class={`b a`} />;"
       }
     ]
   })).toBeUndefined());
 
-  it("should not remove whitespace around template elements if they are in the center", () => expect(void lint(tailwindNoUnnecessaryWhitespace, {
+  it("should keep one whitespace around template elements", () => expect(void lint(tailwindNoUnnecessaryWhitespace, {
     invalid: [
       {
-        code: "const Test = () => <div class={` b  a  ${' c '}  d `} />;",
+        code: "const Test = () => <div class={`  b  a  ${'  c  '}  d  `} />;",
         errors: 2,
-        output: "const Test = () => <div class={`b a ${' c '} d`} />;"
+        output: "const Test = () => <div class={`b a ${'  c  '} d`} />;"
       }
-    ],
-    valid: [
-      { code: "const Test = () => <div class={`b a ${' c '} d`} />;" }
     ]
   })).toBeUndefined());
 
   it("should remove whitespace around template elements if they are at the beginning or end", () => expect(void lint(tailwindNoUnnecessaryWhitespace, {
     invalid: [
       {
-        code: "const Test = () => <div class={`  ${' b '}  a  d  ${' c '}  `} />;",
+        code: "const Test = () => <div class={`  ${' b '}  a  d  ${'  c  '}  `} />;",
         errors: 3,
-        output: "const Test = () => <div class={`${' b '} a d ${' c '}`} />;"
+        output: "const Test = () => <div class={`${' b '} a d ${'  c  '}`} />;"
       }
-    ],
-    valid: [
-      { code: "const Test = () => <div class={`${' b '} a d ${' c '}`} />;" }
     ]
   })).toBeUndefined());
-
 
   it("should remove newlines whenever possible", () => {
     const uncleanedMultilineString = `
@@ -90,36 +83,62 @@ describe(`${tailwindNoUnnecessaryWhitespace.name}`, () => {
 
   it("should also work in defined call signature arguments", () => {
 
-    const uncleanedNestedCallExpression = tsx`test(" f  e ");`;
-    const cleanedNestedCallExpression = tsx`test(" f e ");`;
+    const dirtyDefined = tsx`defined('  f  e  ');`;
+    const cleanDefined = tsx`defined('f e');`;
+    const dirtyUndefined = tsx`notDefined("  f  e  ");`;
 
-    const uncleanedMultilineTemplateLiteralWithNestedCallExpression = `
-      b  a
-      d  c  ${uncleanedNestedCallExpression}  h  g
-      j  i
-    `;
-    const cleanedMultilineTemplateLiteralWithNestedCallExpression = `
+    expect(void lint(tailwindNoUnnecessaryWhitespace, {
+      invalid: [
+        {
+          code: `${dirtyDefined}`,
+          errors: 1,
+          options: [{ callees: ["defined"] }],
+          output: `${cleanDefined}`
+        }
+      ],
+      valid: [
+        { code: `${dirtyUndefined}` }
+      ]
+    })).toBeUndefined();
+
+  });
+
+  it("should also work in defined call signature arguments in template literals", () => {
+
+    const dirtyDefined = "${defined('  f  e  ')}";
+    const cleanDefined = "${defined('f e')}";
+    const dirtyUndefined = "${notDefined('  f  e  ')}";
+
+    const dirtyDefinedMultiline = `
       b a
-      d c ${cleanedNestedCallExpression} h g
+      d c ${dirtyDefined} h g
+      j i
+    `;
+    const cleanDefinedMultiline = `
+      b a
+      d c ${cleanDefined} h g
+      j i
+    `;
+    const dirtyUndefinedMultiline = `
+      b a
+      d c ${dirtyUndefined} h g
       j i
     `;
 
     expect(void lint(tailwindNoUnnecessaryWhitespace, {
       invalid: [
         {
-          code: tsx`test(" b  a ");`,
+          code: `const Test = () => <div class={\`${dirtyDefinedMultiline}\`} />;`,
           errors: 1,
-          options: [{ callees: ["test"] }],
-          output: tsx`test("b a");`
-        },
-        {
-          code: `const Test = () => <div class={\`${uncleanedMultilineTemplateLiteralWithNestedCallExpression}\`} />;`,
-          errors: 1,
-          options: [{ callees: ["test"] }],
-          output: `const Test = () => <div class={\`${cleanedMultilineTemplateLiteralWithNestedCallExpression}\`} />;`
+          options: [{ callees: ["defined"] }],
+          output: `const Test = () => <div class={\`${cleanDefinedMultiline}\`} />;`
         }
+      ],
+      valid: [
+        { code: `const Test = () => <div class={\`${dirtyUndefinedMultiline}\`} />;` }
       ]
     })).toBeUndefined();
+
   });
 
 });
