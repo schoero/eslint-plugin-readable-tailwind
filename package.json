@@ -1,5 +1,5 @@
 {
-  "version": "0.0.1",
+  "version": "0.0.3",
   "type": "module",
   "name": "eslint-plugin-readable-tailwind",
   "description": "auto-wraps tailwind classes after a certain width using template literals.",
@@ -44,6 +44,9 @@
     "test": "vitest -c ./vite.config.ts",
     "typecheck": "tsc --noEmit"
   },
+  "files": [
+    "lib"
+  ],
   "peerDependencies": {
     "eslint": ">=7",
     "tailwindcss": ">=3.3.0"
@@ -88,8 +91,5 @@
   ],
   "volta": {
     "node": "21.4.0"
-  },
-  "directories": {
-    "lib": "lib"
   }
 }
