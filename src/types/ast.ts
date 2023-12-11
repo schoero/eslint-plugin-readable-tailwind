@@ -1,13 +1,12 @@
 export type LiteralValueQuotes = "'" | "\"" | "`";
 
 export interface QuoteParts {
-  leadingQuote?: LiteralValueQuotes;
-  trailingQuote?: LiteralValueQuotes;
+  closingQuote?: LiteralValueQuotes;
+  openingQuote?: LiteralValueQuotes;
 }
-
 export interface BracesParts {
-  leadingBraces?: string;
-  trailingBraces?: string;
+  closingBraces?: string;
+  openingBraces?: string;
 }
 
 export interface Parts extends QuoteParts, BracesParts {

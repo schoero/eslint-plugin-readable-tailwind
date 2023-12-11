@@ -64,13 +64,13 @@ export function getCallExpressionLiterals(ctx: Rule.RuleContext, args: (Expressi
 
 export function getLiteralsByExpression(ctx: Rule.RuleContext, node: Expression): Literals {
 
-  // "a b"
+  // {"a b"}
   if(isSimpleStringLiteral(node)){
     const simpleStringLiteral = getLiteralBySimpleStringLiteral(ctx, node);
     return [simpleStringLiteral];
   }
 
-  // `a b ... c`
+  // {`a b ... c`}
   if(node.type === "TemplateLiteral"){
     return getLiteralsByTemplateLiteral(ctx, node);
   }
@@ -135,32 +135,32 @@ export function getTokenByNode(ctx: Rule.RuleContext, node: BaseNode) {
 }
 
 export function getTextTokenQuotes(ctx: Rule.RuleContext, token: AST.Token): QuoteParts {
-  const leadingQuote = token.value.at(0);
-  const trailingQuote = token.value.at(-1);
+  const openingQuote = token.value.at(0);
+  const closingQuote = token.value.at(-1);
 
   return {
-    leadingQuote: leadingQuote === "'" || leadingQuote === '"' ? leadingQuote : undefined,
-    trailingQuote: trailingQuote === "'" || trailingQuote === '"' ? trailingQuote : undefined
+    closingQuote: closingQuote === "'" || closingQuote === '"' ? closingQuote : undefined,
+    openingQuote: openingQuote === "'" || openingQuote === '"' ? openingQuote : undefined
   };
 }
 
 export function getTemplateTokenQuotes(ctx: Rule.RuleContext, token: AST.Token): QuoteParts {
-  const leadingQuote = token.value.startsWith("`") ? "`" : undefined;
-  const trailingQuote = token.value.endsWith("`") ? "`" : undefined;
+  const openingQuote = token.value.startsWith("`") ? "`" : undefined;
+  const closingQuote = token.value.endsWith("`") ? "`" : undefined;
 
   return {
-    leadingQuote: leadingQuote === "`" ? leadingQuote : undefined,
-    trailingQuote: trailingQuote === "`" ? trailingQuote : undefined
+    closingQuote: closingQuote === "`" ? closingQuote : undefined,
+    openingQuote: openingQuote === "`" ? openingQuote : undefined
   };
 }
 
 export function getTemplateTokenBraces(ctx: Rule.RuleContext, token: AST.Token): BracesParts {
-  const leadingBraces = token.value.startsWith("}") ? "}" : undefined;
-  const trailingBraces = token.value.endsWith("${") ? "${" : undefined;
+  const closingBraces = token.value.startsWith("}") ? "}" : undefined;
+  const openingBraces = token.value.endsWith("${") ? "${" : undefined;
 
   return {
-    leadingBraces,
-    trailingBraces
+    closingBraces,
+    openingBraces
   };
 }
 

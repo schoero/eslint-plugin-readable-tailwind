@@ -42,11 +42,30 @@ export const tailwindMultiline: ESLintRule<Options> = {
         const groupedClasses = groupClasses(ctx, classChunks);
 
         if(groupedClasses.length === 1){
-          return groupedClasses;
+          if(literal.type === "TemplateElement"){
+
+            // class={``}
+            if(!literal.closingBraces && !literal.openingBraces){
+              return groupedClasses;
+            }
+
+            // class={`${`} || class={`}`}
+            if(literal.openingBraces || literal.closingBraces){
+              return [
+                "",
+                indent(ctx, startPosition)
+              ];
+            }
+
+          } else {
+            // class=""
+            return groupedClasses;
+          }
         }
 
         for(let i = 0, l = 0; i < groupedClasses.length; i++){
 
+          // `${` || `}`
           if(groupedClasses[i] === ""){
             l++;
             lines[l] = [groupedClasses[i]];
@@ -56,6 +75,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
           const newClasses = [...lines[l] ?? [], groupedClasses[i]];
           const newLine = combineClasses(newClasses, {});
 
+          // overflow
           if(newClasses.length > classesPerLine || newLine.length > printWidth){
             l++;
             lines[l] = [indent(ctx, startPosition) + groupedClasses[i]];
@@ -72,6 +92,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
 
         }
 
+        // Don't wrap a single line
         if(lines.length === 1){
           return lines;
         }
@@ -108,7 +129,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
 
             if(literal.type === "Literal"){
 
-              const { leadingQuote, trailingQuote, ...parts } = createParts(literal);
+              const { closingQuote: trailingQuote, openingQuote, ...parts } = createParts(literal);
               const combinedClasses = combineClasses([joinedLines], parts);
 
               ctx.report({
@@ -174,7 +195,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
 
               if(attributeValue.type === "Literal"){
 
-                const { leadingQuote, trailingQuote, ...parts } = createParts(literal);
+                const { closingQuote: trailingQuote, openingQuote, ...parts } = createParts(literal);
                 const combinedClasses = combineClasses([joinedLines], parts);
 
                 ctx.report({

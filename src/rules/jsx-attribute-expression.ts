@@ -38,15 +38,15 @@ export const jsxAttributeExpression: ESLintRule<Options> = {
             if(literal.content.includes("\n")){ continue; }
 
             const { expression } = getOptions(ctx);
-            const { leadingQuote, trailingQuote } = getAllowedQuotes(ctx, { leadingQuote: literal.leadingQuote, trailingQuote: literal.trailingQuote });
+            const { closingQuote, openingQuote } = getAllowedQuotes(ctx, { closingQuote: literal.closingQuote, openingQuote: literal.openingQuote });
 
             const rawAttribute = attributeValue.type === "JSXExpressionContainer"
               ? `{${literal.raw}}`
               : literal.raw;
 
             const fixedAttribute = expression === "always"
-              ? `{${literal.leadingQuote}${literal.content}${literal.trailingQuote}}`
-              : `${leadingQuote}${literal.content}${trailingQuote}`;
+              ? `{${literal.openingQuote}${literal.content}${literal.closingQuote}}`
+              : `${openingQuote}${literal.content}${closingQuote}`;
 
             if(rawAttribute === fixedAttribute){
               return;
@@ -90,13 +90,13 @@ export const jsxAttributeExpression: ESLintRule<Options> = {
 };
 
 function getAllowedQuotes(ctx: Rule.RuleContext, preferredQuotes: QuoteParts): QuoteParts {
-  const { leadingQuote } = preferredQuotes;
+  const { openingQuote } = preferredQuotes;
 
-  if(leadingQuote === "'" || leadingQuote === '"'){
-    return { leadingQuote, trailingQuote: leadingQuote };
+  if(openingQuote === "'" || openingQuote === '"'){
+    return { closingQuote: openingQuote, openingQuote };
   }
 
-  return { leadingQuote: '"', trailingQuote: '"' };
+  return { closingQuote: '"', openingQuote: '"' };
 }
 
 function getOptions(ctx?: Rule.RuleContext): { expression: Options[0]; } {

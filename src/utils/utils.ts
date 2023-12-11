@@ -25,11 +25,11 @@ export function combineClasses(
   parts: Parts
 ): string {
   return [
-    parts.leadingQuote ?? "",
-    parts.leadingBraces ?? "",
+    parts.openingQuote ?? "",
+    parts.closingBraces ?? "",
     ...classes,
-    parts.trailingBraces ?? "",
-    parts.trailingQuote ?? ""
+    parts.openingBraces ?? "",
+    parts.closingQuote ?? ""
   ].join("");
 }
 
@@ -37,14 +37,14 @@ export function createParts(literal: Parts): Parts {
 
   const parts: Parts = {};
 
-  if("leadingQuote" in literal){
-    parts.leadingQuote = literal.leadingQuote;
-    parts.trailingQuote = literal.trailingQuote;
+  if("openingQuote" in literal || "closingQuote" in literal){
+    parts.openingQuote = literal.openingQuote;
+    parts.closingQuote = literal.closingQuote;
   }
 
-  if("leadingBraces" in literal){
-    parts.leadingBraces = literal.leadingBraces;
-    parts.trailingBraces = literal.trailingBraces;
+  if("openingBraces" in literal || "closingBraces" in literal){
+    parts.closingBraces = literal.closingBraces;
+    parts.openingBraces = literal.openingBraces;
   }
 
   return parts;
