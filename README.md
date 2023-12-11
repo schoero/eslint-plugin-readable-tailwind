@@ -1,5 +1,9 @@
 <div align="center">
-  <img alt="eslint-plugin-readable-tailwind logo" src="https://raw.githubusercontent.com/schoero/eslint-plugin-readable-tailwind/main/assets/eslint-plugin-readable-tailwind-logo.svg">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/schoero/eslint-plugin-readable-tailwind/main/assets/eslint-plugin-readable-tailwind-logo.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/schoero/eslint-plugin-readable-tailwind/main/assets/eslint-plugin-readable-tailwind-logo-light.svg">
+    <img alt="eslint-plugin-readable-tailwind logo" src="https://raw.githubusercontent.com/schoero/eslint-plugin-readable-tailwind/main/assets/eslint-plugin-readable-tailwind-logo.svg">
+  </picture>
 </div>
 
 ---
@@ -30,6 +34,9 @@ Also sorts the classes logically, removes unnecessary whitespaces and groups the
   <img alt="eslint-plugin-readable-tailwind example" width="640px" src="https://raw.githubusercontent.com/schoero/eslint-plugin-readable-tailwind/main/assets/eslint-plugin-readable-tailwind-example.png">
 </div>
 
+<br/>
+<br/>
+
 ## Installation
 
 You'll first need to install [ESLint](https://eslint.org/):
@@ -46,7 +53,9 @@ npm install eslint-plugin-readable-tailwind --save-dev
 
 ## Usage
 
-Add `readable-tailwind` to your flat eslint config:
+### Flat config
+
+Add `readable-tailwind` to your [flat eslint config](https://eslint.org/docs/latest/use/configure/configuration-files-new):
 
 ```js
 import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
@@ -62,6 +71,27 @@ export default [
   }
 ];
 ```
+
+#### VSCode
+
+To enable the new flat config format in VSCode, add the following to your `.vscode/settings.json`:
+
+```jsonc
+{
+  "eslint.experimental.useFlatConfig": true
+}
+```
+
+### Still on the old config format?
+
+This plugin ships as a pure ES Module which is not supported by the old config format. I would highly recommend to [switch to the new config](https://eslint.org/docs/latest/use/configure/migration-guide) format, but if you can't, you can use [eslint-ts-patch](https://github.com/antfu/eslint-ts-patch) to patch ESLint to support cjs config files.
+
+```sh
+npm i -D eslint-ts-patch eslint@npm:eslint-ts-patch
+```
+
+<br/>
+<br/>
 
 ## Rules
 
