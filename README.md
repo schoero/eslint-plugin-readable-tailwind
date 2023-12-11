@@ -51,6 +51,8 @@ Next, install `eslint-plugin-readable-tailwind`:
 npm install eslint-plugin-readable-tailwind --save-dev
 ```
 
+<br/>
+
 ## Usage
 
 ### Flat config
@@ -72,6 +74,8 @@ export default [
 ];
 ```
 
+<br/>
+
 #### VSCode
 
 To enable the new flat config format in VSCode, add the following to your `.vscode/settings.json`:
@@ -81,6 +85,8 @@ To enable the new flat config format in VSCode, add the following to your `.vsco
   "eslint.experimental.useFlatConfig": true
 }
 ```
+
+<br/>
 
 ### Still on the old config format?
 
