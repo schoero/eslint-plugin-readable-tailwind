@@ -9,6 +9,13 @@ import type { ESLint } from "eslint";
 
 const pluginName = "readable-tailwind";
 
+const rules = {
+  [`${pluginName}/${jsxAttributeExpression.name}`]: jsxAttributeExpression.rule,
+  [`${pluginName}/${tailwindNoUnnecessaryWhitespace.name}`]: tailwindNoUnnecessaryWhitespace.rule,
+  [`${pluginName}/${tailwindSortClasses.name}`]: tailwindSortClasses.rule,
+  [`${pluginName}/${tailwindMultiline.name}`]: tailwindMultiline.rule
+};
+
 export default {
   configs: {
     "recommended/error": {
@@ -31,9 +38,9 @@ export default {
     }
   },
   rules: {
-    [`${pluginName}/${jsxAttributeExpression.name}`]: jsxAttributeExpression.rule,
-    [`${pluginName}/${tailwindNoUnnecessaryWhitespace.name}`]: tailwindNoUnnecessaryWhitespace.rule,
-    [`${pluginName}/${tailwindSortClasses.name}`]: tailwindSortClasses.rule,
-    [`${pluginName}/${tailwindMultiline.name}`]: tailwindMultiline.rule
+    [jsxAttributeExpression.name]: jsxAttributeExpression.rule,
+    [tailwindNoUnnecessaryWhitespace.name]: tailwindNoUnnecessaryWhitespace.rule,
+    [tailwindSortClasses.name]: tailwindSortClasses.rule,
+    [tailwindMultiline.name]: tailwindMultiline.rule
   }
 } satisfies ESLint.Plugin;
