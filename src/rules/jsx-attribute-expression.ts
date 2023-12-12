@@ -49,7 +49,7 @@ export const jsxAttributeExpression: ESLintRule<Options> = {
               : `${openingQuote}${literal.content}${closingQuote}`;
 
             if(rawAttribute === fixedAttribute){
-              return;
+              continue;
             }
 
             ctx.report({

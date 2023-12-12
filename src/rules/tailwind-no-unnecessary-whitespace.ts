@@ -76,7 +76,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
           ].join("");
 
           if(literal.raw === fixedClasses){
-            return;
+            continue;
           }
 
           ctx.report({

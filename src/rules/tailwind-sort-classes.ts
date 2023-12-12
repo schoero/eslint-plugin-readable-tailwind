@@ -65,7 +65,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
           ].join("");
 
           if(literal.raw === fixedClasses){
-            return;
+            continue;
           }
 
           ctx.report({

@@ -137,7 +137,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
             }
 
             if(literal.raw === fixedClasses){
-              return;
+              continue;
             }
 
             ctx.report({
@@ -202,7 +202,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
               }
 
               if(literal.raw === fixedClasses){
-                return;
+                continue;
               }
 
               ctx.report({
