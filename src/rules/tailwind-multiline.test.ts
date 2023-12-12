@@ -108,4 +108,30 @@ describe(`${tailwindMultiline.name}`, () => {
 
   });
 
+  it("should group correctly", () => {
+
+    const trim = createTrimTag(4);
+
+    const singleLine = "g-1:a g-1:b g-2:a g-2:b g-3:a g-3:b";
+    const multiline = trim`
+      g-1:a g-1:b
+
+      g-2:a g-2:b
+
+      g-3:a g-3:b
+    `;
+
+    expect(void lint(tailwindMultiline, {
+      invalid: [
+        {
+          code: `const Test = () => <div class={\`${singleLine}\`} />;`,
+          errors: 1,
+          options: [{ classesPerLine: 3, indent: 2 }],
+          output: `const Test = () => <div class={\`${multiline}\`} />;`
+        }
+      ]
+    })).toBeUndefined();
+
+  });
+
 });

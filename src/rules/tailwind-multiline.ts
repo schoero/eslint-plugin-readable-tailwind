@@ -50,23 +50,33 @@ export const tailwindMultiline: ESLintRule<Options> = {
           lines.line.addMeta({ closingBraces: literal.closingBraces });
         }
 
-        if(groupedClasses.length > 0){
-          lines.addLine();
-          lines.line.indent();
-        }
+        if(groupedClasses){
+          for(const group of groupedClasses.groups){
 
-        for(const groupedClass of groupedClasses){
-          const simulatedLine = lines.line
-            .clone()
-            .addClass(groupedClass)
-            .toString();
-
-          if(simulatedLine.length > printWidth || lines.line.classCount >= classesPerLine){
             lines.addLine();
-            lines.line.indent();
-          }
 
-          lines.line.addClass(groupedClass);
+            if(group.classCount === 0){
+              continue;
+            }
+
+            lines.line.indent();
+
+            for(const className of group.classes){
+
+              const simulatedLine = lines.line
+                .clone()
+                .addClass(className)
+                .toString();
+
+              if(simulatedLine.length > printWidth || lines.line.classCount >= classesPerLine){
+                lines.addLine();
+                lines.line.indent();
+              }
+
+              lines.line.addClass(className);
+
+            }
+          }
         }
 
         if(literal.type === "TemplateElement" && literal.openingBraces){
@@ -392,39 +402,86 @@ class Line {
   }
 }
 
-function groupClasses(ctx: Rule.RuleContext, classChunks: string[]) {
+function groupClasses(ctx: Rule.RuleContext, classes: string[]) {
+
+  if(classes.length === 0){
+    return;
+  }
 
   const { group } = getOptions(ctx);
 
-  if(group === "never"){
-    return classChunks;
-  }
+  const groups = new Groups();
 
-  return classChunks.reduce<string[]>((acc, chunk) => {
+  for(const className of classes){
 
-    if(acc.length === 0){
-      acc.push(chunk);
-      return acc;
-    }
+    const isFirstClass = classes.indexOf(className) === 0;
+    const lastGroup = groups.at(-1);
+    const lastClass = lastGroup?.at(-1);
+    const lastModifier = lastClass?.match(/^.*?:/)?.[0];
+    const modifier = className.match(/^.*?:/)?.[0];
 
-    const lastChunk = acc[acc.length - 1];
-    const lastModifier = lastChunk.match(/^.*?:/)?.[0];
-    const modifier = chunk.match(/^.*?:/)?.[0];
-
-    if(lastModifier !== modifier){
+    if(lastModifier !== modifier && !isFirstClass){
       if(group === "emptyLine"){
-        acc.push("", "");
-      } else {
-        acc.push("");
+        groups.addGroup();
+        groups.addGroup();
+      } else if(group === "newLine"){
+        groups.addGroup();
       }
     }
 
-    acc.push(chunk);
+    groups.group.addClass(className);
 
-    return acc;
+  }
 
-  }, []);
+  return groups;
 
+}
+
+class Groups {
+
+  public readonly groups: Group[] = [];
+  private currentGroup: Group | undefined;
+
+  constructor() {
+    this.addGroup();
+  }
+
+  public get group() {
+    return this.currentGroup!;
+  }
+
+  public at(index: number) {
+    return this.groups.at(index);
+  }
+
+  public get length() {
+    return this.groups.length;
+  }
+
+  public addGroup() {
+    const group = new Group();
+    this.currentGroup = group;
+    this.groups.push(this.currentGroup);
+    return this;
+  }
+}
+
+class Group {
+
+  public readonly classes: string[] = [];
+
+  public get classCount() {
+    return this.classes.length;
+  }
+
+  public at(index: number) {
+    return this.classes.at(index);
+  }
+
+  public addClass(className: string) {
+    this.classes.push(className);
+    return this;
+  }
 }
 
 function getIndentation(ctx: Rule.RuleContext, indentation: Options[0]["indent"]): number {
