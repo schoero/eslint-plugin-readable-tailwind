@@ -43,7 +43,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
         const lines = new Lines(ctx, startPosition);
 
         if(literal.openingQuote){
-          lines.line.addMeta({ openingQuote: literal.openingQuote });
+          lines.line.addMeta({ openingQuote: "`" });
         }
 
         if(literal.type === "TemplateElement" && literal.closingBraces){
@@ -88,7 +88,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
         if(literal.closingQuote){
           lines.addLine();
           lines.line.indent(startPosition - getIndentation(ctx, indent));
-          lines.line.addMeta({ closingQuote: literal.closingQuote });
+          lines.line.addMeta({ closingQuote: "`" });
         }
 
         return lines;
@@ -194,7 +194,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
                     rawAttribute: attributeValue.raw ?? ""
                   },
                   fix(fixer) {
-                    return fixer.replaceText(attributeValue, `{\`${fixedClasses}\`}`);
+                    return fixer.replaceText(attributeValue, `{${fixedClasses}}`);
                   },
                   message: "Invalid jsx attribute quotes: {{ attributeName }}={{ rawAttribute }}.",
                   node

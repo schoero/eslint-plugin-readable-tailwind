@@ -17,6 +17,47 @@ describe(`${tailwindMultiline.name}`, () => {
     })).toBeUndefined();
   });
 
+  it("should change to a jsx expression correctly", () => {
+
+    const trim = createTrimTag(4);
+
+    const singleLine = " a b c d e f g h ";
+    const multiline = trim`
+      a b c
+      d e f
+      g h
+    `;
+
+    expect(void lint(tailwindMultiline, {
+      invalid: [
+        {
+          code: `const Test = () => <div class="${singleLine}" />;`,
+          errors: 2,
+          options: [{ classesPerLine: 3, indent: 2 }],
+          output: `const Test = () => <div class={\`${multiline}\`} />;`
+        },
+        {
+          code: `const Test = () => <div class='${singleLine}' />;`,
+          errors: 2,
+          options: [{ classesPerLine: 3, indent: 2 }],
+          output: `const Test = () => <div class={\`${multiline}\`} />;`
+        },
+        {
+          code: `const Test = () => <div class={"${singleLine}"} />;`,
+          errors: 1,
+          options: [{ classesPerLine: 3, indent: 2 }],
+          output: `const Test = () => <div class={\`${multiline}\`} />;`
+        },
+        {
+          code: `const Test = () => <div class={'${singleLine}'} />;`,
+          errors: 1,
+          options: [{ classesPerLine: 3, indent: 2 }],
+          output: `const Test = () => <div class={\`${multiline}\`} />;`
+        }
+      ]
+    })).toBeUndefined();
+  });
+
   it("should wrap long lines on to multiple lines", () => {
 
     const trim = createTrimTag(4);
