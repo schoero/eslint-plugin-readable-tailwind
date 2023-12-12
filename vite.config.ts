@@ -18,6 +18,7 @@ export default defineConfig(<UserConfig>{
     rollupOptions: {
       external: [
         /node_modules/,
+        /tailwindcss/,
         /^node:.*/
       ]
     },
