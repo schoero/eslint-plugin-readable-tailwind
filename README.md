@@ -1,8 +1,8 @@
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/schoero/eslint-plugin-readable-tailwind/main/assets/eslint-plugin-readable-tailwind-logo.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/schoero/eslint-plugin-readable-tailwind/main/assets/eslint-plugin-readable-tailwind-logo-light.svg">
-    <img alt="eslint-plugin-readable-tailwind logo" src="https://raw.githubusercontent.com/schoero/eslint-plugin-readable-tailwind/main/assets/eslint-plugin-readable-tailwind-logo.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/eslint-plugin-readable-tailwind-logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="./eslint-plugin-readable-tailwind-logo-light.svg">
+    <img alt="eslint-plugin-readable-tailwind logo" src="./eslint-plugin-readable-tailwind-logo.svg">
   </picture>
 </div>
 
