@@ -129,7 +129,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
                   rawLiteral: literal.raw
                 },
                 fix(fixer) {
-                  return fixer.replaceText(literal, `\`${fixedClasses}\``);
+                  return fixer.replaceText(literal, `${fixedClasses}`);
                 },
                 message: "Invalid literal string: {{ rawLiteral }}.",
                 node
