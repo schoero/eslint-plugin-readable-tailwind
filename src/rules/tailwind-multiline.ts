@@ -415,12 +415,14 @@ function groupClasses(ctx: Rule.RuleContext, classes: string[]) {
   for(const className of classes){
 
     const isFirstClass = classes.indexOf(className) === 0;
+    const isFirstGroup = groups.length === 1;
+
     const lastGroup = groups.at(-1);
     const lastClass = lastGroup?.at(-1);
     const lastModifier = lastClass?.match(/^.*?:/)?.[0];
     const modifier = className.match(/^.*?:/)?.[0];
 
-    if(lastModifier !== modifier && !isFirstClass){
+    if(lastModifier !== modifier && !(isFirstClass && isFirstGroup)){
       if(group === "emptyLine"){
         groups.addGroup();
         groups.addGroup();
