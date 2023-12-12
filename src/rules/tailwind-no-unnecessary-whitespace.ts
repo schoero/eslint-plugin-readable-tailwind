@@ -1,6 +1,6 @@
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "eptm:utils:config.js";
 import { getCallExpressionLiterals, getClassAttributeLiterals, getClassAttributes } from "eptm:utils:jsx.js";
-import { combineClasses, createParts, splitClasses, splitWhitespace } from "eptm:utils:utils.js";
+import { splitClasses, splitWhitespace } from "eptm:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { Node } from "estree";
@@ -32,7 +32,6 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
 
           if(literal === undefined){ continue; }
 
-          const parts = createParts(literal);
           const classChunks = splitClasses(literal.content);
           const whitespaceChunks = splitWhitespace(literal.content);
 
@@ -42,22 +41,22 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
             for(let i = 0; i < Math.max(classChunks.length, whitespaceChunks.length); i++){
               if(whitespaceChunks[i] && whitespaceChunks[i].includes("\n")){
 
-                if(parts.closingBraces && i === 0 && whitespaceChunks[i].length === 0 && classChunks[i]){ classes.push(" "); }
+                if("closingBraces" in literal && literal.closingBraces && i === 0 && whitespaceChunks[i].length === 0 && classChunks[i]){ classes.push(" "); }
                 classes.push(whitespaceChunks[i]);
 
                 classChunks[i] && classes.push(classChunks[i]);
 
-                if(parts.openingBraces && i === classChunks.length - 1 && classChunks[i]){ classes.push(" "); }
+                if("openingBraces" in literal && literal.openingBraces && i === classChunks.length - 1 && classChunks[i]){ classes.push(" "); }
 
               } else {
 
-                if(parts.closingBraces && i === 0 && classChunks[i]){ classes.push(" "); }
+                if("closingBraces" in literal && literal.closingBraces && i === 0 && classChunks[i]){ classes.push(" "); }
 
                 if(classChunks[i] && i > 0){ classes.push(" "); }
 
                 classChunks[i] && classes.push(classChunks[i]);
 
-                if(parts.openingBraces && i === classChunks.length - 1 && classChunks[i]){ classes.push(" "); }
+                if("openingBraces" in literal && literal.openingBraces && i === classChunks.length - 1 && classChunks[i]){ classes.push(" "); }
 
               }
             }
@@ -68,9 +67,15 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
             }
           }
 
-          const combinedClasses = combineClasses(classes, parts);
+          const fixedClasses = [
+            literal.openingQuote ?? "",
+            literal.type === "TemplateElement" && literal.closingBraces ? literal.closingBraces : "",
+            ...classes,
+            literal.type === "TemplateElement" && literal.openingBraces ? literal.openingBraces : "",
+            literal.closingQuote ?? ""
+          ].join("");
 
-          if(literal.raw === combinedClasses){
+          if(literal.raw === fixedClasses){
             return;
           }
 
@@ -79,7 +84,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
               unnecessaryWhitespace: literal.content
             },
             fix(fixer) {
-              return fixer.replaceText(literal, combinedClasses);
+              return fixer.replaceText(literal, fixedClasses);
             },
             message: "Unnecessary whitespace: {{ unnecessaryWhitespace }}.",
             node

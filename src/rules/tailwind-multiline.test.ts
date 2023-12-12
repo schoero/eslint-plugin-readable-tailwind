@@ -7,7 +7,6 @@ import { tailwindMultiline } from "eptm:rules:tailwind-multiline.js";
 
 describe(`${tailwindMultiline.name}`, () => {
 
-
   it("should not wrap short lines", () => {
     expect(void lint(tailwindMultiline, {
       valid: [

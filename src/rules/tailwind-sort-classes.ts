@@ -8,8 +8,7 @@ import resolveConfig from "tailwindcss/resolveConfig.js";
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "eptm:utils:config.js";
 import { getClassAttributes } from "eptm:utils:jsx";
 import { getCallExpressionLiterals, getClassAttributeLiterals } from "eptm:utils:jsx.js";
-import { createParts } from "eptm:utils:utils";
-import { combineClasses, splitClasses, splitWhitespace } from "eptm:utils:utils.js";
+import { splitClasses, splitWhitespace } from "eptm:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { Node } from "estree";
@@ -46,7 +45,6 @@ export const tailwindSortClasses: ESLintRule<Options> = {
 
           if(literal === undefined){ continue; }
 
-          const parts = createParts(literal);
           const classChunks = splitClasses(literal.content);
           const whitespaceChunks = splitWhitespace(literal.content);
           const sortedClassChunks = sortClasses(ctx, tailwindContext, classChunks);
@@ -58,9 +56,15 @@ export const tailwindSortClasses: ESLintRule<Options> = {
             sortedClassChunks[i] && classes.push(sortedClassChunks[i]);
           }
 
-          const combinedClasses = combineClasses(classes, parts);
+          const fixedClasses = [
+            literal.openingQuote ?? "",
+            literal.type === "TemplateElement" && literal.closingBraces ? literal.closingBraces : "",
+            ...classes,
+            literal.type === "TemplateElement" && literal.openingBraces ? literal.openingBraces : "",
+            literal.closingQuote ?? ""
+          ].join("");
 
-          if(literal.raw === combinedClasses){
+          if(literal.raw === fixedClasses){
             return;
           }
 
@@ -69,7 +73,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
               notSorted: literal.content
             },
             fix(fixer) {
-              return fixer.replaceText(literal, combinedClasses);
+              return fixer.replaceText(literal, fixedClasses);
             },
             message: "Invalid class order: {{ notSorted }}.",
             node
