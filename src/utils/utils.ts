@@ -9,7 +9,7 @@ export function getWhitespace(classes: string) {
 
 export function splitClasses(classes: string): string[] {
 
-  if(classes === ""){
+  if(classes.trim() === ""){
     return [];
   }
 
