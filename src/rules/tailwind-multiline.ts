@@ -13,7 +13,7 @@ import type { JSXOpeningElement } from "estree-jsx";
 import type { Meta } from "src/types/ast.js";
 import type { ESLintRule } from "src/types/rule.js";
 
-import type { StringLiteral, TemplateLiteralString } from "eptm:utils:jsx.js";
+import type { Literals } from "eptm:utils:jsx.js";
 
 
 export type Options = [
@@ -33,65 +33,138 @@ export const tailwindMultiline: ESLintRule<Options> = {
   rule: {
     create(ctx) {
 
-      const { callees, classesPerLine, indent, printWidth } = getOptions(ctx);
+      const { callees, classesPerLine, group: groupSeparator, indent, printWidth } = getOptions(ctx);
 
-      const splitLines = (ctx: Rule.RuleContext, literal: StringLiteral | TemplateLiteralString, startPosition: number): Lines => {
+      const lintLiterals = (ctx: Rule.RuleContext, literals: Literals): void => {
 
-        const classChunks = splitClasses(literal.content);
-        const groupedClasses = groupClasses(ctx, classChunks);
+        for(const literal of literals){
 
-        const lines = new Lines(ctx, startPosition);
+          if(literal === undefined){ continue; }
 
-        if(literal.openingQuote){
-          lines.line.addMeta({ openingQuote: "`" });
-        }
+          const startPosition = findStartPosition(ctx, literal) + getIndentation(ctx, indent);
 
-        if(literal.type === "TemplateElement" && literal.closingBraces){
-          lines.line.addMeta({ closingBraces: literal.closingBraces });
-        }
+          const classChunks = splitClasses(literal.content);
+          const groupedClasses = groupClasses(ctx, classChunks);
 
-        if(groupedClasses){
-          for(const group of groupedClasses.groups){
+          const lines = new Lines(ctx, startPosition);
 
-            lines.addLine();
+          if(literal.openingQuote){
+            lines.line.addMeta({ openingQuote: "`" });
+          }
 
-            if(group.classCount === 0){
-              continue;
-            }
+          if(literal.type === "TemplateElement" && literal.closingBraces){
+            lines.line.addMeta({ closingBraces: literal.closingBraces });
+          }
 
-            lines.line.indent();
+          if(groupedClasses){
 
-            for(const className of group.classes){
+            for(const group of groupedClasses.groups){
 
-              const simulatedLine = lines.line
-                .clone()
-                .addClass(className)
-                .toString();
+              const isFirstGroup = groupedClasses.groups.indexOf(group) === 0;
 
-              if(simulatedLine.length > printWidth || lines.line.classCount >= classesPerLine){
+              if(group.classCount === 0){
+                continue;
+              }
+
+              if((
+                literal.type === "TemplateElement" && !literal.closingBraces ||
+                literal.type !== "TemplateElement"
+              ) && isFirstGroup){
                 lines.addLine();
                 lines.line.indent();
               }
 
-              lines.line.addClass(className);
+              if((
+                isFirstGroup && literal.type === "TemplateElement" && literal.closingBraces ||
+                !isFirstGroup
+              ) && groupSeparator === "emptyLine"){
+                lines.addLine();
+                lines.addLine();
+                lines.line.indent();
+              }
 
+              if((
+                isFirstGroup && literal.type === "TemplateElement" && literal.closingBraces ||
+                !isFirstGroup
+              ) && groupSeparator === "newLine"){
+                lines.addLine();
+                lines.line.indent();
+              }
+
+
+              for(const className of group.classes){
+
+                const simulatedLine = lines.line
+                  .clone()
+                  .addClass(className)
+                  .toString();
+
+                if(simulatedLine.length > printWidth || lines.line.classCount >= classesPerLine){
+                  lines.addLine();
+                  lines.line.indent();
+                }
+
+                lines.line.addClass(className);
+
+              }
             }
           }
-        }
 
-        if(literal.type === "TemplateElement" && literal.openingBraces){
-          lines.addLine();
-          lines.line.indent();
-          lines.line.addMeta({ openingBraces: literal.openingBraces });
-        }
+          if(literal.type === "TemplateElement" && literal.openingBraces){
 
-        if(literal.closingQuote){
-          lines.addLine();
-          lines.line.indent(startPosition - getIndentation(ctx, indent));
-          lines.line.addMeta({ closingQuote: "`" });
-        }
+            if(groupSeparator === "emptyLine" && groupedClasses){ lines.addLine(); }
 
-        return lines;
+            lines.addLine();
+            lines.line.indent();
+            lines.line.addMeta({ openingBraces: literal.openingBraces });
+
+          }
+
+          if(literal.closingQuote){
+            lines.addLine();
+            lines.line.indent(startPosition - getIndentation(ctx, indent));
+            lines.line.addMeta({ closingQuote: "`" });
+          }
+
+          if(lines.length === 3 && (
+            literal.type === "TemplateElement" && !literal.openingBraces && !literal.closingBraces ||
+              literal.type === "Literal"
+          )){
+            continue;
+          }
+
+          const fixedClasses = lines.toString();
+
+          if(literal.raw === fixedClasses){
+            continue;
+          }
+
+          if(literal.parent.type === "JSXAttribute" && literal.parent.value?.type === "Literal"){
+            const attributeValue = literal.parent.value;
+            ctx.report({
+              data: {
+                rawLiteral: literal.raw
+              },
+              fix(fixer) {
+                return fixer.replaceText(attributeValue, `{${literal.raw}}`);
+              },
+              message: "Invalid literal string: {{ rawLiteral }}.",
+              node: attributeValue
+            });
+          }
+
+          ctx.report({
+            data: {
+              notReadable: literal.content
+            },
+            fix(fixer) {
+              return fixer.replaceText(literal, fixedClasses);
+            },
+            message: "Invalid line wrapping: {{ notReadable }}.",
+            node: literal
+          });
+
+        }
 
       };
 
@@ -107,51 +180,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
 
           const literals = getCallExpressionLiterals(ctx, node.arguments);
 
-          for(const literal of literals){
-            if(literal === undefined){ continue; }
-
-            const startPosition = findStartPosition(ctx, literal) + getIndentation(ctx, indent);
-            const lines = splitLines(ctx, literal, startPosition);
-
-            if(lines.length === 3 && (
-              literal.type === "TemplateElement" && !literal.openingBraces && !literal.closingBraces ||
-              literal.type === "Literal"
-            )){
-              continue;
-            }
-
-            const fixedClasses = lines.toString();
-
-            if(literal.type === "Literal"){
-
-              ctx.report({
-                data: {
-                  rawLiteral: literal.raw
-                },
-                fix(fixer) {
-                  return fixer.replaceText(literal, `${fixedClasses}`);
-                },
-                message: "Invalid literal string: {{ rawLiteral }}.",
-                node
-              });
-            }
-
-            if(literal.raw === fixedClasses){
-              continue;
-            }
-
-            ctx.report({
-              data: {
-                notReadable: literal.content
-              },
-              fix(fixer) {
-                return fixer.replaceText(literal, fixedClasses);
-              },
-              message: "Invalid line wrapping: {{ notReadable }}.",
-              node
-            });
-
-          }
+          lintLiterals(ctx, literals);
 
         },
 
@@ -169,54 +198,9 @@ export const tailwindMultiline: ESLintRule<Options> = {
             if(!attributeValue){ continue; }
             if(typeof attributeName !== "string"){ continue; }
 
-            const startPosition = findStartPosition(ctx, attribute) + getIndentation(ctx, indent);
             const literals = getClassAttributeLiterals(ctx, attribute);
 
-            for(const literal of literals){
-
-              if(literal === undefined){ continue; }
-
-              const lines = splitLines(ctx, literal, startPosition);
-
-              if(lines.length === 3 && (
-                literal.type === "TemplateElement" && !literal.openingBraces && !literal.closingBraces ||
-                literal.type === "Literal"
-              )){
-                continue;
-              }
-
-              const fixedClasses = lines.toString();
-
-              if(attributeValue.type === "Literal"){
-                ctx.report({
-                  data: {
-                    attributeName,
-                    rawAttribute: attributeValue.raw ?? ""
-                  },
-                  fix(fixer) {
-                    return fixer.replaceText(attributeValue, `{${fixedClasses}}`);
-                  },
-                  message: "Invalid jsx attribute quotes: {{ attributeName }}={{ rawAttribute }}.",
-                  node
-                });
-              }
-
-              if(literal.raw === fixedClasses){
-                continue;
-              }
-
-              ctx.report({
-                data: {
-                  notReadable: literal.content
-                },
-                fix(fixer) {
-                  return fixer.replaceText(literal, fixedClasses);
-                },
-                message: "Invalid line wrapping: {{ notReadable }}.",
-                node
-              });
-
-            }
+            lintLiterals(ctx, literals);
 
           }
 
@@ -408,8 +392,6 @@ function groupClasses(ctx: Rule.RuleContext, classes: string[]) {
     return;
   }
 
-  const { group } = getOptions(ctx);
-
   const groups = new Groups();
 
   for(const className of classes){
@@ -423,12 +405,7 @@ function groupClasses(ctx: Rule.RuleContext, classes: string[]) {
     const modifier = className.match(/^.*?:/)?.[0];
 
     if(lastModifier !== modifier && !(isFirstClass && isFirstGroup)){
-      if(group === "emptyLine"){
-        groups.addGroup();
-        groups.addGroup();
-      } else if(group === "newLine"){
-        groups.addGroup();
-      }
+      groups.addGroup();
     }
 
     groups.group.addClass(className);

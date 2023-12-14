@@ -34,13 +34,13 @@ describe(`${tailwindMultiline.name}`, () => {
           code: `const Test = () => <div class="${singleLine}" />;`,
           errors: 2,
           options: [{ classesPerLine: 3, indent: 2 }],
-          output: `const Test = () => <div class={\`${multiline}\`} />;`
+          output: `const Test = () => <div class={"${singleLine}"} />;`
         },
         {
           code: `const Test = () => <div class='${singleLine}' />;`,
           errors: 2,
           options: [{ classesPerLine: 3, indent: 2 }],
-          output: `const Test = () => <div class={\`${multiline}\`} />;`
+          output: `const Test = () => <div class={'${singleLine}'} />;`
         },
         {
           code: `const Test = () => <div class={"${singleLine}"} />;`,
@@ -54,6 +54,9 @@ describe(`${tailwindMultiline.name}`, () => {
           options: [{ classesPerLine: 3, indent: 2 }],
           output: `const Test = () => <div class={\`${multiline}\`} />;`
         }
+      ],
+      valid: [
+        { code: `const Test = () => <div class={\`${multiline}\`} />;` }
       ]
     })).toBeUndefined();
   });
@@ -89,6 +92,7 @@ describe(`${tailwindMultiline.name}`, () => {
     const singleLineWithExpressionAtBeginning = `${expression} a b c d e f g h `;
     const multilineWithExpressionAtBeginning = trim`
       ${expression}
+
       a b c
       d e f
       g h
@@ -97,7 +101,9 @@ describe(`${tailwindMultiline.name}`, () => {
     const singleLineWithExpressionInCenter = `a b c ${expression} d e f g h `;
     const multilineWithExpressionInCenter = trim`
       a b c
+
       ${expression}
+
       d e f
       g h
     `;
@@ -107,13 +113,16 @@ describe(`${tailwindMultiline.name}`, () => {
       a b c
       d e f
       g h
+
       ${expression}
     `;
 
     const singleLineWithClassesAroundExpression = `a b ${expression} c d e f g h `;
     const multilineWithClassesAroundExpression = trim`
       a b
+
       ${expression}
+
       c d e f
       g h
     `;
@@ -127,16 +136,16 @@ describe(`${tailwindMultiline.name}`, () => {
           output: `const Test = () => <div class={\`${multilineWithExpressionAtBeginning}\`} />;`
         },
         {
-          code: `const Test = () => <div class={\`${singleLineWithExpressionAtEnd}\`} />;`,
-          errors: 2,
-          options: [{ classesPerLine: 3, indent: 2 }],
-          output: `const Test = () => <div class={\`${multilineWithExpressionAtEnd}\`} />;`
-        },
-        {
           code: `const Test = () => <div class={\`${singleLineWithExpressionInCenter}\`} />;`,
           errors: 2,
           options: [{ classesPerLine: 3, indent: 2 }],
           output: `const Test = () => <div class={\`${multilineWithExpressionInCenter}\`} />;`
+        },
+        {
+          code: `const Test = () => <div class={\`${singleLineWithExpressionAtEnd}\`} />;`,
+          errors: 2,
+          options: [{ classesPerLine: 3, indent: 2 }],
+          output: `const Test = () => <div class={\`${multilineWithExpressionAtEnd}\`} />;`
         },
         {
           code: `const Test = () => <div class={\`${singleLineWithClassesAroundExpression}\`} />;`,

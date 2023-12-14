@@ -100,7 +100,7 @@ function getLiteralBySimpleStringLiteral(ctx: Rule.RuleContext, node: SimpleStri
 
 }
 
-function getLiteralByTemplateElement(ctx: Rule.RuleContext, node: TemplateElement): TemplateLiteralString | undefined {
+function getLiteralByTemplateElement(ctx: Rule.RuleContext, node: Rule.Node & TemplateElement): TemplateLiteralString | undefined {
 
   const token = getTokenByNode(ctx, node);
 
@@ -125,7 +125,13 @@ function getLiteralByTemplateElement(ctx: Rule.RuleContext, node: TemplateElemen
 }
 
 function getLiteralsByTemplateLiteral(ctx: Rule.RuleContext, node: TemplateLiteral): (TemplateLiteralString | undefined)[] {
-  return node.quasis.map(quasi => getLiteralByTemplateElement(ctx, quasi));
+  return node.quasis.map(quasi => {
+    if(!hasNodeParentExtension(quasi)){
+      throw new Error("TemplateElement has no parent");
+    }
+
+    return getLiteralByTemplateElement(ctx, quasi);
+  });
 }
 
 export function getTokenByNode(ctx: Rule.RuleContext, node: BaseNode) {
@@ -164,16 +170,16 @@ export function getTemplateTokenBraces(ctx: Rule.RuleContext, token: AST.Token):
   };
 }
 
-interface SimpleStringLiteral extends SimpleLiteral {
+interface SimpleStringLiteral extends Rule.NodeParentExtension, SimpleLiteral {
   value: string;
 }
 
-export interface StringLiteral extends SimpleStringLiteral, QuoteMeta {
+export interface StringLiteral extends Rule.NodeParentExtension, SimpleStringLiteral, QuoteMeta {
   content: string;
   raw: string;
 }
 
-export interface TemplateLiteralString extends TemplateElement, QuoteMeta, BracesMeta {
+export interface TemplateLiteralString extends Rule.NodeParentExtension, TemplateElement, QuoteMeta, BracesMeta {
   content: string;
   raw: string;
 }
@@ -199,4 +205,8 @@ function isSimpleStringLiteral(node: BaseNode): node is SimpleStringLiteral {
     return acc;
   }, []);
 
+}
+
+function hasNodeParentExtension(node: Node): node is Rule.Node {
+  return "parent" in node;
 }
