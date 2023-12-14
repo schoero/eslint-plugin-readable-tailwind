@@ -30,6 +30,7 @@
     "postrelease:beta": "npm run postrelease",
     "postrelease:latest": "eslint --fix package.json &&  markdownlint-cli2-fix 'CHANGELOG.md'",
     "prebuild": "npm run typecheck && npm run lint && npm run spellcheck",
+    "prepare": "npm run build",
     "prerelease:alpha": "npm run test -- --run && npm run build",
     "prerelease:beta": "npm run test -- --run && npm run build",
     "prerelease:latest": "npm run test -- --run && npm run build",
