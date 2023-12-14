@@ -8,7 +8,7 @@ import resolveConfig from "tailwindcss/resolveConfig.js";
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "eptm:utils:config.js";
 import { getClassAttributes } from "eptm:utils:jsx";
 import { getCallExpressionLiterals, getClassAttributeLiterals } from "eptm:utils:jsx.js";
-import { splitClasses, splitWhitespace } from "eptm:utils:utils.js";
+import { splitClasses, splitWhitespaces } from "eptm:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { Node } from "estree";
@@ -46,7 +46,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
           if(literal === undefined){ continue; }
 
           const classChunks = splitClasses(literal.content);
-          const whitespaceChunks = splitWhitespace(literal.content);
+          const whitespaceChunks = splitWhitespaces(literal.content);
           const sortedClassChunks = sortClasses(ctx, tailwindContext, classChunks);
 
           const classes: string[] = [];
