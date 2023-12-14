@@ -16,8 +16,9 @@ export function splitClasses(classes: string): string[] {
   return classes
     .trim()
     .split(/\s+/);
+
 }
 
-export function splitWhitespace(classes: string): string[] {
+export function splitWhitespaces(classes: string): string[] {
   return classes.split(/[^\s\\]+/);
 }

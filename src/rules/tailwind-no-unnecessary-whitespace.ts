@@ -1,13 +1,13 @@
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "eptm:utils:config.js";
 import { getCallExpressionLiterals, getClassAttributeLiterals, getClassAttributes } from "eptm:utils:jsx.js";
-import { splitClasses, splitWhitespace } from "eptm:utils:utils.js";
+import { splitClasses, splitWhitespaces } from "eptm:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { Node } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { ESLintRule } from "src/types/rule.js";
 
-import type { Literals } from "eptm:utils:jsx.js";
+import type { Literal, Literals } from "eptm:utils:jsx.js";
 
 
 export type Options = [
@@ -32,40 +32,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
 
           if(literal === undefined){ continue; }
 
-          const classChunks = splitClasses(literal.content);
-          const whitespaceChunks = splitWhitespace(literal.content);
-
-          const classes: string[] = [];
-
-          if(allowMultiline){
-            for(let i = 0; i < Math.max(classChunks.length, whitespaceChunks.length); i++){
-              if(whitespaceChunks[i] && whitespaceChunks[i].includes("\n")){
-
-                if("closingBraces" in literal && literal.closingBraces && i === 0 && whitespaceChunks[i].length === 0 && classChunks[i]){ classes.push(" "); }
-                classes.push(whitespaceChunks[i]);
-
-                classChunks[i] && classes.push(classChunks[i]);
-
-                if("openingBraces" in literal && literal.openingBraces && i === classChunks.length - 1 && classChunks[i]){ classes.push(" "); }
-
-              } else {
-
-                if("closingBraces" in literal && literal.closingBraces && i === 0 && classChunks[i]){ classes.push(" "); }
-
-                if(classChunks[i] && i > 0){ classes.push(" "); }
-
-                classChunks[i] && classes.push(classChunks[i]);
-
-                if("openingBraces" in literal && literal.openingBraces && i === classChunks.length - 1 && classChunks[i]){ classes.push(" "); }
-
-              }
-            }
-          } else {
-            for(let i = 0; i < classChunks.length; i++){
-              if(i > 0){ classes.push(" "); }
-              classes.push(classChunks[i]);
-            }
-          }
+          const classes = splitClassesKeepWhitespace(literal, allowMultiline);
 
           const fixedClasses = [
             literal.openingQuote ?? "",
@@ -78,6 +45,8 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
           if(literal.raw === fixedClasses){
             continue;
           }
+          // `\n  a b c\n\n  ${
+          // `\n  a b c \n\n   ${
 
           ctx.report({
             data: {
@@ -165,6 +134,45 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
     }
   }
 };
+
+function splitClassesKeepWhitespace(literal: Literal, allowMultiline: boolean): string[] {
+
+  const classes = literal.content;
+
+  const classChunks = splitClasses(classes);
+  const whitespaceChunks = splitWhitespaces(classes);
+
+  const mixedChunks: string[] = [];
+
+  while(whitespaceChunks.length > 0 || classChunks.length > 0){
+
+    const whitespaceChunk = whitespaceChunks.shift();
+    const classChunk = classChunks.shift();
+
+    const isFirstChunk = mixedChunks.length === 0;
+    const isLastChunk = whitespaceChunks.length === 0 && classChunks.length === 0;
+
+    if(whitespaceChunk){
+      if(whitespaceChunk.includes("\n") && allowMultiline === true){
+        mixedChunks.push(whitespaceChunk);
+      } else {
+        if(!isFirstChunk && !isLastChunk ||
+          literal.type === "TemplateElement" && literal.closingBraces && isFirstChunk && !isLastChunk ||
+          literal.type === "TemplateElement" && literal.openingBraces && isLastChunk && !isFirstChunk){
+          mixedChunks.push(" ");
+        }
+      }
+    }
+
+    if(classChunk){
+      mixedChunks.push(classChunk);
+    }
+
+  }
+
+  return mixedChunks;
+
+}
 
 
 function getOptions(ctx?: Rule.RuleContext) {

@@ -184,7 +184,9 @@ export interface TemplateLiteralString extends Rule.NodeParentExtension, Templat
   raw: string;
 }
 
-export type Literals = (StringLiteral | TemplateLiteralString | undefined)[];
+export type Literal = StringLiteral | TemplateLiteralString;
+
+export type Literals = (Literal | undefined)[];
 
 export function isJSXAttribute(node: BaseNode): node is JSXAttribute {
   return node.type === "JSXAttribute";
