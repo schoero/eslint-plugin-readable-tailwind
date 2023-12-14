@@ -33,141 +33,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
   rule: {
     create(ctx) {
 
-      const { callees, classesPerLine, group: groupSeparator, indent, printWidth } = getOptions(ctx);
-
-      const lintLiterals = (ctx: Rule.RuleContext, literals: Literals): void => {
-
-        for(const literal of literals){
-
-          if(literal === undefined){ continue; }
-
-          const startPosition = findStartPosition(ctx, literal) + getIndentation(ctx, indent);
-
-          const classChunks = splitClasses(literal.content);
-          const groupedClasses = groupClasses(ctx, classChunks);
-
-          const lines = new Lines(ctx, startPosition);
-
-          if(literal.openingQuote){
-            lines.line.addMeta({ openingQuote: "`" });
-          }
-
-          if(literal.type === "TemplateElement" && literal.closingBraces){
-            lines.line.addMeta({ closingBraces: literal.closingBraces });
-          }
-
-          if(groupedClasses){
-
-            for(const group of groupedClasses.groups){
-
-              const isFirstGroup = groupedClasses.groups.indexOf(group) === 0;
-
-              if(group.classCount === 0){
-                continue;
-              }
-
-              if((
-                literal.type === "TemplateElement" && !literal.closingBraces ||
-                literal.type !== "TemplateElement"
-              ) && isFirstGroup){
-                lines.addLine();
-                lines.line.indent();
-              }
-
-              if((
-                isFirstGroup && literal.type === "TemplateElement" && literal.closingBraces ||
-                !isFirstGroup
-              ) && groupSeparator === "emptyLine"){
-                lines.addLine();
-                lines.addLine();
-                lines.line.indent();
-              }
-
-              if((
-                isFirstGroup && literal.type === "TemplateElement" && literal.closingBraces ||
-                !isFirstGroup
-              ) && groupSeparator === "newLine"){
-                lines.addLine();
-                lines.line.indent();
-              }
-
-
-              for(const className of group.classes){
-
-                const simulatedLine = lines.line
-                  .clone()
-                  .addClass(className)
-                  .toString();
-
-                if(simulatedLine.length > printWidth || lines.line.classCount >= classesPerLine){
-                  lines.addLine();
-                  lines.line.indent();
-                }
-
-                lines.line.addClass(className);
-
-              }
-            }
-          }
-
-          if(literal.type === "TemplateElement" && literal.openingBraces){
-
-            if(groupSeparator === "emptyLine" && groupedClasses){ lines.addLine(); }
-
-            lines.addLine();
-            lines.line.indent();
-            lines.line.addMeta({ openingBraces: literal.openingBraces });
-
-          }
-
-          if(literal.closingQuote){
-            lines.addLine();
-            lines.line.indent(startPosition - getIndentation(ctx, indent));
-            lines.line.addMeta({ closingQuote: "`" });
-          }
-
-          if(lines.length === 3 && (
-            literal.type === "TemplateElement" && !literal.openingBraces && !literal.closingBraces ||
-              literal.type === "Literal"
-          )){
-            continue;
-          }
-
-          const fixedClasses = lines.toString();
-
-          if(literal.raw === fixedClasses){
-            continue;
-          }
-
-          if(literal.parent.type === "JSXAttribute" && literal.parent.value?.type === "Literal"){
-            const attributeValue = literal.parent.value;
-            ctx.report({
-              data: {
-                rawLiteral: literal.raw
-              },
-              fix(fixer) {
-                return fixer.replaceText(attributeValue, `{${literal.raw}}`);
-              },
-              message: "Invalid literal string: {{ rawLiteral }}.",
-              node: attributeValue
-            });
-          }
-
-          ctx.report({
-            data: {
-              notReadable: literal.content
-            },
-            fix(fixer) {
-              return fixer.replaceText(literal, fixedClasses);
-            },
-            message: "Invalid line wrapping: {{ notReadable }}.",
-            node: literal
-          });
-
-        }
-
-      };
-
+      const { callees } = getOptions(ctx);
 
       return {
 
@@ -274,6 +140,163 @@ export const tailwindMultiline: ESLintRule<Options> = {
     }
   }
 };
+
+function lintLiterals(ctx: Rule.RuleContext, literals: Literals): void {
+
+  const { classesPerLine, group: groupSeparator, indent, printWidth } = getOptions(ctx);
+
+  for(const literal of literals){
+
+    if(literal === undefined){ continue; }
+
+    const startPosition = findStartPosition(ctx, literal) + getIndentation(ctx, indent);
+
+    const classChunks = splitClasses(literal.content);
+    const groupedClasses = groupClasses(ctx, classChunks);
+
+    const lines = new Lines(ctx, startPosition);
+
+    if(literal.openingQuote){
+      lines.line.addMeta({ openingQuote: "`" });
+    }
+
+    if(literal.type === "TemplateElement" && literal.closingBraces){
+      lines.line.addMeta({ closingBraces: literal.closingBraces });
+    }
+
+    if(groupedClasses){
+
+      for(const group of groupedClasses.groups){
+
+        const isFirstGroup = groupedClasses.groups.indexOf(group) === 0;
+
+        if(group.classCount === 0){
+          continue;
+        }
+
+        if((
+          literal.type === "TemplateElement" && !literal.closingBraces ||
+          literal.type !== "TemplateElement"
+        ) && isFirstGroup){
+          lines.addLine();
+          lines.line.indent();
+        }
+
+        if(isFirstGroup && literal.type === "TemplateElement" && literal.closingBraces || !isFirstGroup){
+
+          if(groupSeparator === "emptyLine"){
+            lines.addLine();
+          }
+
+          if(groupSeparator === "emptyLine" || groupSeparator === "newLine"){
+            lines.addLine();
+            lines.line.indent();
+          }
+
+        }
+
+        for(const className of group.classes){
+
+          const simulatedLine = lines.line
+            .clone()
+            .addClass(className)
+            .toString();
+
+          if(simulatedLine.length > printWidth || lines.line.classCount >= classesPerLine){
+            lines.addLine();
+            lines.line.indent();
+          }
+
+          lines.line.addClass(className);
+
+        }
+      }
+    }
+
+    if(literal.type === "TemplateElement" && literal.openingBraces){
+
+      if(groupSeparator === "emptyLine" && groupedClasses){ lines.addLine(); }
+
+      lines.addLine();
+      lines.line.indent();
+      lines.line.addMeta({ openingBraces: literal.openingBraces });
+
+    }
+
+    if(literal.closingQuote){
+      lines.addLine();
+      lines.line.indent(startPosition - getIndentation(ctx, indent));
+      lines.line.addMeta({ closingQuote: "`" });
+    }
+
+    if(lines.length === 3 && (
+      literal.type === "TemplateElement" && !literal.openingBraces && !literal.closingBraces ||
+        literal.type === "Literal"
+    )){
+      continue;
+    }
+
+    const fixedClasses = lines.toString();
+
+    if(literal.raw === fixedClasses){
+      continue;
+    }
+
+    if(literal.parent.type === "JSXAttribute" && literal.parent.value?.type === "Literal"){
+      const attributeValue = literal.parent.value;
+      ctx.report({
+        data: {
+          rawLiteral: literal.raw
+        },
+        fix(fixer) {
+          return fixer.replaceText(attributeValue, `{${literal.raw}}`);
+        },
+        message: "Invalid literal string: {{ rawLiteral }}.",
+        node: attributeValue
+      });
+    }
+
+    ctx.report({
+      data: {
+        notReadable: literal.content
+      },
+      fix(fixer) {
+        return fixer.replaceText(literal, fixedClasses);
+      },
+      message: "Invalid line wrapping: {{ notReadable }}.",
+      node: literal
+    });
+
+  }
+
+}
+
+function getIndentation(ctx: Rule.RuleContext, indentation: Options[0]["indent"]): number {
+  return indentation === "tab" ? 1 : indentation ?? 0;
+}
+
+function getOptions(ctx?: Rule.RuleContext) {
+
+  const options: Options[0] = ctx?.options[0] ?? {};
+
+  const printWidth = options.printWidth ?? 80;
+  const classesPerLine = options.classesPerLine ?? 100_000;
+  const indent = options.indent ?? 4;
+  const group = options.group ?? "emptyLine";
+
+  const classAttributes = options.classAttributes ?? DEFAULT_CLASS_NAMES;
+  const callees = options.callees ?? DEFAULT_CALLEE_NAMES;
+
+  return {
+    callees,
+    classAttributes,
+    classesPerLine,
+    group,
+    indent,
+    printWidth
+  };
+
+}
 
 
 class Lines {
@@ -461,31 +484,4 @@ class Group {
     this.classes.push(className);
     return this;
   }
-}
-
-function getIndentation(ctx: Rule.RuleContext, indentation: Options[0]["indent"]): number {
-  return indentation === "tab" ? 1 : indentation ?? 0;
-}
-
-function getOptions(ctx?: Rule.RuleContext) {
-
-  const options: Options[0] = ctx?.options[0] ?? {};
-
-  const printWidth = options.printWidth ?? 80;
-  const classesPerLine = options.classesPerLine ?? 100_000;
-  const indent = options.indent ?? 4;
-  const group = options.group ?? "emptyLine";
-
-  const classAttributes = options.classAttributes ?? DEFAULT_CLASS_NAMES;
-  const callees = options.callees ?? DEFAULT_CALLEE_NAMES;
-
-  return {
-    callees,
-    classAttributes,
-    classesPerLine,
-    group,
-    indent,
-    printWidth
-  };
-
 }
