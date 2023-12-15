@@ -88,12 +88,25 @@ To enable the new flat config format in VSCode, add the following to your `.vsco
 
 <br/>
 
-### Still on the old config format?
+### Legacy config
 
-This plugin ships as a pure ES Module which is not supported by the old config format. I would highly recommend to [switch to the new config](https://eslint.org/docs/latest/use/configure/migration-guide) format, but if you can't, you can use [eslint-ts-patch](https://github.com/antfu/eslint-ts-patch) to patch ESLint to support cjs config files.
+Add `readable-tailwind` to your eslint config:
 
-```sh
-npm i -D eslint-ts-patch eslint@npm:eslint-ts-patch
+```jsonc
+{
+  // enable all recommended rules
+  "extends": [
+    // enable errors on violations
+    "plugin:readable-tailwind/recommended-error",
+    // or warn on violations
+    "plugin:readable-tailwind/recommended-warn"
+  ],
+  "plugins": ["readable-tailwind"],
+  "rules": {
+    // or enable rules individually
+    "readable-tailwind/jsx-attribute-expression": "warn"
+  }
+}
 ```
 
 <br/>
