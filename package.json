@@ -18,7 +18,7 @@
       "require": "./lib/index.cjs"
     }
   },
-  "main": "./lib/index.js",
+  "main": "./lib/index.cjs",
   "scripts": {
     "build": "vite build",
     "docs": "eslint-doc-generator",
