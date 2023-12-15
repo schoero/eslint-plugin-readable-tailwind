@@ -32,15 +32,15 @@ describe(`${tailwindMultiline.name}`, () => {
       invalid: [
         {
           code: `const Test = () => <div class="${singleLine}" />;`,
-          errors: 2,
+          errors: 1,
           options: [{ classesPerLine: 3, indent: 2 }],
-          output: `const Test = () => <div class={"${singleLine}"} />;`
+          output: `const Test = () => <div class={\`${multiline}\`} />;`
         },
         {
           code: `const Test = () => <div class='${singleLine}' />;`,
-          errors: 2,
+          errors: 1,
           options: [{ classesPerLine: 3, indent: 2 }],
-          output: `const Test = () => <div class={'${singleLine}'} />;`
+          output: `const Test = () => <div class={\`${multiline}\`} />;`
         },
         {
           code: `const Test = () => <div class={"${singleLine}"} />;`,

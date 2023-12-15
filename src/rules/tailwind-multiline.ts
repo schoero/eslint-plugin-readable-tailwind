@@ -249,23 +249,23 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literals): void {
           rawLiteral: literal.raw
         },
         fix(fixer) {
-          return fixer.replaceText(attributeValue, `{${literal.raw}}`);
+          return fixer.replaceText(attributeValue, `{${fixedClasses}}`);
         },
-        message: "Invalid literal string: {{ rawLiteral }}.",
+        message: "Invalid line wrapping: {{ rawLiteral }}.",
         node: attributeValue
       });
+    } else {
+      ctx.report({
+        data: {
+          notReadable: literal.content
+        },
+        fix(fixer) {
+          return fixer.replaceText(literal, fixedClasses);
+        },
+        message: "Invalid line wrapping: {{ notReadable }}.",
+        node: literal
+      });
     }
-
-    ctx.report({
-      data: {
-        notReadable: literal.content
-      },
-      fix(fixer) {
-        return fixer.replaceText(literal, fixedClasses);
-      },
-      message: "Invalid line wrapping: {{ notReadable }}.",
-      node: literal
-    });
 
   }
 
