@@ -1,6 +1,4 @@
 {
   "extends": "@schoero/markdownlint-config",
-  "rules": {
-    "no-empty-links": false
-  }
+  "reference-links-images": false
 }
