@@ -1,3 +1,6 @@
 {
-  "extends": "@schoero/markdownlint-config"
+  "extends": "@schoero/markdownlint-config",
+  "rules": {
+    "no-empty-links": false
+  }
 }
