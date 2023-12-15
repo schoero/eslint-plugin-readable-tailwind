@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { jsxAttributeExpression } from "eptm:rules:jsx-attribute-expression.js";
 import { tailwindMultiline } from "eptm:rules:tailwind-multiline.js";
 import { tailwindNoUnnecessaryWhitespace } from "eptm:rules:tailwind-no-unnecessary-whitespace.js";
@@ -11,7 +10,7 @@ const pluginName = "readable-tailwind";
 
 export default {
   configs: {
-    "recommended-error": {
+    error: {
       plugins: [pluginName],
       rules: {
         [`${pluginName}/${tailwindNoUnnecessaryWhitespace.name}`]: "error",
@@ -20,7 +19,7 @@ export default {
         [`${pluginName}/${tailwindMultiline.name}`]: "error"
       }
     },
-    "recommended-warn": {
+    warning: {
       plugins: [pluginName],
       rules: {
         [`${pluginName}/${tailwindNoUnnecessaryWhitespace.name}`]: "warn",
