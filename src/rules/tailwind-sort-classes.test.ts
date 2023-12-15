@@ -81,7 +81,6 @@ describe(`${tailwindSortClasses.name}`, () => {
     })).toBeUndefined();
   });
 
-
   it("should sort improve the sorting by grouping all classes with the same modifier together", () => {
     expect(void lint(tailwindSortClasses, {
       invalid: [

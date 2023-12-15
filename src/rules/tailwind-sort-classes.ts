@@ -179,11 +179,11 @@ export function sortClasses(ctx: Rule.RuleContext, tailwindContext: TailwindCont
   }
 
   const officialClassOrder = tailwindContext.getClassOrder(classes) as [string, bigint | null][];
-  const officiallySortedClasses = officialClassOrder
+  const officiallySortedClasses = [...officialClassOrder]
     .sort(([, a], [, z]) => {
-      if(a === z){return 0;}
-      if(a === null){return -1;}
-      if(z === null){return 1; }
+      if(a === z){ return 0; }
+      if(a === null){ return 1; }
+      if(z === null){ return 1; }
       return +(a - z > 0n) - +(a - z < 0n);
     })
     .map(([className]) => className);
@@ -199,6 +199,13 @@ export function sortClasses(ctx: Rule.RuleContext, tailwindContext: TailwindCont
 
     if(aModifier && bModifier && aModifier !== bModifier){
       return aModifier.localeCompare(bModifier);
+    }
+
+    if(aModifier && !bModifier){
+      return 1;
+    }
+    if(!aModifier && bModifier){
+      return -1;
     }
 
     return 0;
