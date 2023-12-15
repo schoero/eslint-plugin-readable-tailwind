@@ -7,7 +7,9 @@ import type { QuoteMeta } from "src/types/ast.js";
 import type { ESLintRule } from "src/types/rule.js";
 
 
-type Options = ["always" | "as-needed"];
+type Options = [{
+  expression?: "always" | "as-needed";
+}];
 
 export const jsxAttributeExpression: ESLintRule<Options> = {
   name: "jsx-attribute-expression" as const,
@@ -69,6 +71,7 @@ export const jsxAttributeExpression: ESLintRule<Options> = {
 
       };
     },
+
     meta: {
       docs: {
         category: "Stylistic Issues",
@@ -78,10 +81,16 @@ export const jsxAttributeExpression: ESLintRule<Options> = {
       fixable: "code",
       schema: [
         {
-          default: getOptions().expression,
-          description: "Collapse jsx class attribute expressions to a literal string if possible.",
-          enum: ["always", "as-needed"],
-          type: "string"
+          additionalProperties: false,
+          properties: {
+            expression: {
+              default: getOptions().expression,
+              description: "List of function names whose arguments should also be considered.",
+              enum: ["always", "as-needed"],
+              type: "string"
+            }
+          },
+          type: "object"
         }
       ],
       type: "layout"
@@ -99,7 +108,10 @@ function getAllowedQuotes(ctx: Rule.RuleContext, preferredQuotes: QuoteMeta): Qu
   return { closingQuote: '"', openingQuote: '"' };
 }
 
-function getOptions(ctx?: Rule.RuleContext): { expression: Options[0]; } {
-  const expression = ctx?.options[0] ?? "as-needed";
+function getOptions(ctx?: Rule.RuleContext) {
+  const options: Options[0] = ctx?.options[0] ?? {};
+
+  const expression = options.expression ?? "as-needed";
+
   return { expression };
 }

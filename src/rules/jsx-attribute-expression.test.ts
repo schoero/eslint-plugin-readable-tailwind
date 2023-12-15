@@ -71,19 +71,19 @@ describe(`${jsxAttributeExpression.name}`, () => {
       {
         code: tsx`const Test = () => <div class="class" />;`,
         errors: 1,
-        options: ["always"],
+        options: [{ expression: "always" }],
         output: tsx`const Test = () => <div class={"class"} />;`
       },
       {
         code: tsx`const Test = () => <div class='class' />;`,
         errors: 1,
-        options: ["always"],
+        options: [{ expression: "always" }],
         output: tsx`const Test = () => <div class={'class'} />;`
       }
     ],
     valid: [{
       code: "const Test = () => <div class={`class`} />;",
-      options: ["always"]
+      options: [{ expression: "always" }]
     }]
   })).toBeUndefined());
 

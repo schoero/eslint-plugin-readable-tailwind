@@ -10,4 +10,8 @@
 
 <!-- begin auto-generated rule options list -->
 
+| Name         | Description                                                       | Type   | Choices               | Default     |
+| :----------- | :---------------------------------------------------------------- | :----- | :-------------------- | :---------- |
+| `expression` | List of function names whose arguments should also be considered. | String | `always`, `as-needed` | `as-needed` |
+
 <!-- end auto-generated rule options list -->

@@ -14,8 +14,8 @@ export default {
     "recommended-error": {
       plugins: [pluginName],
       rules: {
-        [`${pluginName}/${jsxAttributeExpression.name}`]: "error",
         [`${pluginName}/${tailwindNoUnnecessaryWhitespace.name}`]: "error",
+        [`${pluginName}/${jsxAttributeExpression.name}`]: "error",
         [`${pluginName}/${tailwindSortClasses.name}`]: "error",
         [`${pluginName}/${tailwindMultiline.name}`]: "error"
       }
@@ -23,16 +23,16 @@ export default {
     "recommended-warn": {
       plugins: [pluginName],
       rules: {
-        [`${pluginName}/${jsxAttributeExpression.name}`]: "warn",
         [`${pluginName}/${tailwindNoUnnecessaryWhitespace.name}`]: "warn",
+        [`${pluginName}/${jsxAttributeExpression.name}`]: "warn",
         [`${pluginName}/${tailwindSortClasses.name}`]: "warn",
         [`${pluginName}/${tailwindMultiline.name}`]: "warn"
       }
     }
   },
   rules: {
-    [jsxAttributeExpression.name]: jsxAttributeExpression.rule,
     [tailwindNoUnnecessaryWhitespace.name]: tailwindNoUnnecessaryWhitespace.rule,
+    [jsxAttributeExpression.name]: jsxAttributeExpression.rule,
     [tailwindSortClasses.name]: tailwindSortClasses.rule,
     [tailwindMultiline.name]: tailwindMultiline.rule
   }
