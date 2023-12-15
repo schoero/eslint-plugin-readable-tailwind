@@ -1,3 +1,4 @@
+import dts from "vite-plugin-dts";
 import noBundlePlugin from "vite-plugin-no-bundle";
 
 import { config, defineConfig } from "@schoero/vite-config";
@@ -11,7 +12,7 @@ export default defineConfig(<UserConfig>{
     emptyOutDir: true,
     lib: {
       entry: ["/src/index.ts"],
-      formats: ["es"]
+      formats: ["es", "cjs"]
     },
     minify: false,
     outDir: "lib/",
@@ -26,6 +27,12 @@ export default defineConfig(<UserConfig>{
   },
   plugins: [
     ...config.plugins ?? [],
-    noBundlePlugin()
+    noBundlePlugin(),
+    dts({
+      entryRoot: "./src",
+      exclude: ["src/**/*.test.ts", "test/**"],
+      pathsToAliases: true,
+      strictOutput: true
+    })
   ]
 });

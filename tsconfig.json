@@ -5,6 +5,7 @@
     "lib": ["ESNext"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "noEmit": true,
     "noImplicitAny": false,
     "paths": {
       "eptm:rules:*": ["src/rules/*"],

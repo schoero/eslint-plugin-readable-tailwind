@@ -12,7 +12,12 @@
   "bugs": {
     "url": "https://github.com/schoero/eslint-plugin-readable-tailwind/issues"
   },
-  "exports": "./lib/index.js",
+  "exports": {
+    ".": {
+      "import": "./lib/index.js",
+      "require": "./lib/index.cjs"
+    }
+  },
   "main": "./lib/index.js",
   "scripts": {
     "build": "vite build",

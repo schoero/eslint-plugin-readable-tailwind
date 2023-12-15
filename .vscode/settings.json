@@ -26,7 +26,8 @@
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.expand": false,
   "explorer.fileNesting.patterns": {
-    "*.ts": "$(capture).test.ts,$(capture).test.snap,$(capture).test-d.ts"
+    "*.ts": "$(capture).test.ts,$(capture).test.snap,$(capture).test-d.ts",
+    "*.js": "$(capture).test.js,$(capture).cjs,$(capture).mjs,$(capture).d.ts,$(capture).d.ts.map",
   },
 
   // ES module import
