@@ -23,7 +23,7 @@ export type Options = [
   {
     callees?: string[];
     classAttributes?: string[];
-    order?: "asc" | "desc" | "official" ;
+    order?: "asc" | "desc" | "improved" | "official" ;
     tailwindConfig?: string;
   }
 ];
@@ -146,7 +146,8 @@ export const tailwindSortClasses: ESLintRule<Options> = {
               enum: [
                 "asc",
                 "desc",
-                "official"
+                "official",
+                "improved"
               ],
               type: "string"
             },
@@ -165,30 +166,43 @@ export const tailwindSortClasses: ESLintRule<Options> = {
 };
 
 
-function sortClasses(ctx: Rule.RuleContext, tailwindContext: TailwindContext, classes: string[]): string[] {
+export function sortClasses(ctx: Rule.RuleContext, tailwindContext: TailwindContext, classes: string[]): string[] {
 
   const { order } = getOptions(ctx);
 
-  if(order === "official"){
-
-    const sortedClasses = tailwindContext.getClassOrder(classes) as [string, bigint | null][];
-
-    return sortedClasses
-      .sort(([, a], [, z]) => {
-        if(a === z){return 0;}
-        if(a === null){return -1;}
-        if(z === null){return 1; }
-        return +(a - z > 0n) - +(a - z < 0n);
-      })
-      .map(([className]) => className);
+  if(order === "asc"){
+    return [...classes].sort((a, b) => a.localeCompare(b));
   }
 
-  return [...classes].sort((a, b) => {
-    if(order === "asc"){
-      return a.localeCompare(b);
-    } else {
-      return b.localeCompare(a);
+  if(order === "desc"){
+    return [...classes].sort((a, b) => b.localeCompare(a));
+  }
+
+  const officialClassOrder = tailwindContext.getClassOrder(classes) as [string, bigint | null][];
+  const officiallySortedClasses = officialClassOrder
+    .sort(([, a], [, z]) => {
+      if(a === z){return 0;}
+      if(a === null){return -1;}
+      if(z === null){return 1; }
+      return +(a - z > 0n) - +(a - z < 0n);
+    })
+    .map(([className]) => className);
+
+  if(order === "official"){
+    return officiallySortedClasses;
+  }
+
+  return [...officiallySortedClasses].sort((a, b) => {
+
+    const aModifier = a.match(/^.*?:/)?.[0];
+    const bModifier = b.match(/^.*?:/)?.[0];
+
+    if(aModifier && bModifier && aModifier !== bModifier){
+      return aModifier.localeCompare(bModifier);
     }
+
+    return 0;
+
   });
 
 }
@@ -222,7 +236,7 @@ export function getOptions(ctx?: Rule.RuleContext) {
 
   const options: Options[0] = ctx?.options[0] ?? {};
 
-  const order = options.order ?? "official";
+  const order = options.order ?? "improved";
   const classAttributes = options.classAttributes ?? DEFAULT_CLASS_NAMES;
   const callees = options.callees ?? DEFAULT_CALLEE_NAMES;
 

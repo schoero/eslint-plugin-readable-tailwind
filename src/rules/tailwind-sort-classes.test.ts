@@ -81,4 +81,18 @@ describe(`${tailwindSortClasses.name}`, () => {
     })).toBeUndefined();
   });
 
+
+  it("should sort improve the sorting by grouping all classes with the same modifier together", () => {
+    expect(void lint(tailwindSortClasses, {
+      invalid: [
+        {
+          code: tsx`const Test = () => <div class="c:a a:a b:a a:b c:b b:b" />;`,
+          errors: 1,
+          options: [{ order: "improved" }],
+          output: tsx`const Test = () => <div class="a:a a:b b:a b:b c:a c:b" />;`
+        }
+      ]
+    })).toBeUndefined();
+  });
+
 });
