@@ -30,7 +30,7 @@
     "lint:fix": "npm run eslint:fix && npm run markdownlint:fix",
     "markdownlint": "markdownlint-cli2 '**/*.md' '#node_modules'",
     "markdownlint:ci": "npm run markdownlint",
-    "markdownlint:fix": "markdownlint-cli2-fix '**/*.md' '#node_modules'",
+    "markdownlint:fix": "npm run markdownlint -- --fix",
     "postrelease:alpha": "npm run postrelease",
     "postrelease:beta": "npm run postrelease",
     "postrelease:latest": "eslint --fix package.json &&  markdownlint-cli2-fix 'CHANGELOG.md'",
