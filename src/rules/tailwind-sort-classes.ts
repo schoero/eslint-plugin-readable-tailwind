@@ -133,9 +133,9 @@ export const tailwindSortClasses: ESLintRule<Options> = {
               type: "array"
             },
             classAttributes: {
+              default: getOptions().classAttributes,
+              description: "The name of the attribute that contains the tailwind classes.",
               items: {
-                default: getOptions().classAttributes,
-                description: "The name of the attribute that contains the tailwind classes.",
                 type: "string"
               },
               type: "array"

@@ -15,10 +15,10 @@
 | Name              | Description                                                                                                                                   | Type     | Choices                         | Default                           |
 | :---------------- | :-------------------------------------------------------------------------------------------------------------------------------------------- | :------- | :------------------------------ | :-------------------------------- |
 | `callees`         | List of function names whose arguments should also be considered.                                                                             | String[] |                                 | [`clsx`, `cva`, `ctl`, `twMerge`] |
-| `classAttributes` |                                                                                                                                               | String[] |                                 |                                   |
+| `classAttributes` | The name of the attribute that contains the tailwind classes.                                                                                 | String[] |                                 | [`class`, `className`]            |
 | `classesPerLine`  | The maximum number of classes per line.                                                                                                       | Integer  |                                 | `100000`                          |
 | `group`           | The group separator.                                                                                                                          | String   | `emptyLine`, `never`, `newLine` | `emptyLine`                       |
 | `indent`          | Determines how the code should be indented.                                                                                                   | Integer  |                                 | `4`                               |
-| `printWidth`      | The maximum line length. Lines are wrapped appropriately to stay within this limit or within the limit provided by the classesPerLine option. |          |                                 | `80`                              |
+| `printWidth`      | The maximum line length. Lines are wrapped appropriately to stay within this limit or within the limit provided by the classesPerLine option. | Integer  |                                 | `80`                              |
 
 <!-- end auto-generated rule options list -->

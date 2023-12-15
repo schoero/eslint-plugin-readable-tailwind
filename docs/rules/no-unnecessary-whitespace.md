@@ -16,6 +16,6 @@
 | :---------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- | :------- | :-------------------------------- |
 | `allowMultiline`  | Allow multi-line class declarations. If this option is disabled, template literal strings will be collapsed into a single line string wherever possible. | Boolean  | `true`                            |
 | `callees`         | List of function names whose arguments should also be considered.                                                                                        | String[] | [`clsx`, `cva`, `ctl`, `twMerge`] |
-| `classAttributes` |                                                                                                                                                          | String[] |                                   |
+| `classAttributes` | The name of the attribute that contains the tailwind classes.                                                                                            | String[] | [`class`, `className`]            |
 
 <!-- end auto-generated rule options list -->

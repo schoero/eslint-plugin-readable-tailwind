@@ -94,9 +94,9 @@ export const tailwindMultiline: ESLintRule<Options> = {
               type: "array"
             },
             classAttributes: {
+              default: getOptions().classAttributes,
+              description: "The name of the attribute that contains the tailwind classes.",
               items: {
-                default: getOptions().classAttributes,
-                description: "The name of the attribute that contains the tailwind classes.",
                 type: "string"
               },
               type: "array"
@@ -130,7 +130,8 @@ export const tailwindMultiline: ESLintRule<Options> = {
             },
             printWidth: {
               default: getOptions().printWidth,
-              description: "The maximum line length. Lines are wrapped appropriately to stay within this limit or within the limit provided by the classesPerLine option."
+              description: "The maximum line length. Lines are wrapped appropriately to stay within this limit or within the limit provided by the classesPerLine option.",
+              type: "integer"
             }
           },
           type: "object"
