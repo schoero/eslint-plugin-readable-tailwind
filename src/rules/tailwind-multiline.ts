@@ -150,7 +150,9 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literals): void {
 
     if(literal === undefined){ continue; }
 
-    const startPosition = findStartPosition(ctx, literal) + getIndentation(ctx, indent);
+    const startPosition = literal.type === "TemplateElement"
+      ? findLineStartPosition(ctx, literal.parent) + getIndentation(ctx, indent)
+      : findLineStartPosition(ctx, literal) + getIndentation(ctx, indent);
 
     const classChunks = splitClasses(literal.content);
     const groupedClasses = groupClasses(ctx, classChunks);
