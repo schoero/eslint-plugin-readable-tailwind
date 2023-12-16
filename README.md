@@ -69,7 +69,7 @@ export default [
     },
     rules: {
       // enable all recommended rules
-      ...eslintPluginReadableTailwind.configs["recommended-warn"],
+      ...eslintPluginReadableTailwind.configs.warning,
       // or enable rules individually
       "readable-tailwind/jsx-attribute-expression": "warn"
     }
