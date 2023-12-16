@@ -16,7 +16,7 @@ import type {
 import type { BracesMeta, QuoteMeta } from "src/types/ast";
 
 
-export function findStartPosition(ctx: Rule.RuleContext, node: Node) {
+export function findLineStartPosition(ctx: Rule.RuleContext, node: Node) {
   const line = node.loc?.start.line;
 
   if(line === undefined){ return 0; }

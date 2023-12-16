@@ -1,6 +1,6 @@
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "eptm:utils:config.js";
 import {
-  findStartPosition,
+  findLineStartPosition,
   getCallExpressionLiterals,
   getClassAttributeLiterals,
   getClassAttributes
