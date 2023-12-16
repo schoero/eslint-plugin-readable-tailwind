@@ -10,9 +10,9 @@ const config = {
     "fixable",
     "options"
   ],
-  ruleDocSectionInclude: ['Examples'],
-  ruleDocTitleFormat: 'prefix-name',
-  ruleListSplit: 'meta.docs.category',
+  ruleDocSectionInclude: ["Description", "Examples"],
+  ruleDocTitleFormat: "prefix-name",
+  ruleListSplit: "meta.docs.category",
 }
 
 module.exports = config;

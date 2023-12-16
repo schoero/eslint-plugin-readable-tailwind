@@ -6,7 +6,28 @@
 
 <!-- end auto-generated rule header -->
 
+## Description
+
+Enforce the order of tailwind classes. It is possible to sort classes alphabetically or logically.
+
+Order:
+
+- `asc`: Sort classes alphabetically in ascending order.
+- `desc`: Sort classes alphabetically in descending order.
+- `official`: Sort classes according to the official sorting order from tailwindcss.
+- `improved`: Same as `official` but also sorts by data-attributes.
+
 ## Examples
+
+```tsx
+// ❌ BAD
+const Test = () => <div className="text-blue underline hover:text-opacity-70"/>;
+```
+
+```tsx
+// ✅ GOOD
+const Test = () => <div className="text-blue underline hover:text-opacity-70"/>;
+```
 
 ## Options
 

@@ -6,7 +6,21 @@
 
 <!-- end auto-generated rule header -->
 
+## Description
+
+Enforce the use of normal quotes in JSX attributes if the value is a string literal.
+
 ## Examples
+
+```tsx
+// ❌ BAD
+const Test = () => <div className={"text-black"} />;
+```
+
+```tsx
+// ✅ GOOD
+const Test = () => <div className="text-black" />;
+```
 
 ## Options
 

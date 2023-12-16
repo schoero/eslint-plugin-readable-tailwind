@@ -6,7 +6,27 @@
 
 <!-- end auto-generated rule header -->
 
+## Description
+
+Enforce tailwind classes to be broken up into multiple lines. It is possible to break at a certain print width or a certain number of classes per line.
+
 ## Examples
+
+With the default options, a class name will be broken up into multiple lines and grouped by their modifiers. Groups are separated by an empty line
+
+```tsx
+// ❌ BAD
+const Test = () => <div className="text-blue underline hover:text-opacity-70" />;
+```
+
+```tsx
+// ✅ GOOD
+const Test = () => <div class={`
+  text-blue underline
+
+  hover:text-opacity-70
+`} />;
+```
 
 ## Options
 

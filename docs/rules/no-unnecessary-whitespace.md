@@ -6,7 +6,21 @@
 
 <!-- end auto-generated rule header -->
 
+## Description
+
+Disallow unnecessary whitespace in between and around tailwind classes.
+
 ## Examples
+
+```tsx
+// ❌ BAD
+const Test = () => <div className=" text-blue  underline hover:text-opacity-70 " />;
+```
+
+```tsx
+// ✅ GOOD
+const Test = () => <div className="text-blue underline hover:text-opacity-70"/>;
+```
 
 ## Options
 
