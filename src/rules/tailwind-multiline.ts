@@ -284,7 +284,7 @@ function getOptions(ctx?: Rule.RuleContext) {
 
   const printWidth = options.printWidth ?? 80;
   const classesPerLine = options.classesPerLine ?? 100_000;
-  const indent = options.indent ?? 4;
+  const indent = options.indent ?? 2;
   const group = options.group ?? "emptyLine";
 
   const classAttributes = options.classAttributes ?? DEFAULT_CLASS_NAMES;
