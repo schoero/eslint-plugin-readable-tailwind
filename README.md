@@ -100,9 +100,9 @@ Add `readable-tailwind` to your eslint config:
   // enable all recommended rules
   "extends": [
     // enable errors on violations
-    "plugin:readable-tailwind/recommended-error",
+    "plugin:readable-tailwind/error",
     // or warn on violations
-    "plugin:readable-tailwind/recommended-warn"
+    "plugin:readable-tailwind/warning"
   ],
   "plugins": ["readable-tailwind"],
   "rules": {
