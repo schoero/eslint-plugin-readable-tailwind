@@ -1,8 +1,8 @@
 <div align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./assets/eslint-plugin-readable-tailwind-logo-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="./eslint-plugin-readable-tailwind-logo-light.svg">
-    <img alt="eslint-plugin-readable-tailwind logo" src="./eslint-plugin-readable-tailwind-logo.svg">
+    <source media="(prefers-color-scheme: light)" srcset="./assets/eslint-plugin-readable-tailwind-logo-light.svg">
+    <img alt="eslint-plugin-readable-tailwind logo" src="./assets/eslint-plugin-readable-tailwind-logo.svg">
   </picture>
 </div>
 
