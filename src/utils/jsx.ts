@@ -49,8 +49,6 @@ export function getClassAttributeLiterals(ctx: Rule.RuleContext, attribute: JSXA
     return getLiteralsByTemplateLiteral(ctx, value.expression);
   }
 
-  // TODO: Handle class={" a " + " b "} // Create a new rule 'no-unnecessary-concat'
-
   return [];
 }
 
