@@ -1,4 +1,3 @@
-import { jsxAttributeExpression } from "eptm:rules:jsx-attribute-expression.js";
 import { tailwindMultiline } from "eptm:rules:tailwind-multiline.js";
 import { tailwindNoUnnecessaryWhitespace } from "eptm:rules:tailwind-no-unnecessary-whitespace.js";
 import { tailwindSortClasses } from "eptm:rules:tailwind-sort-classes.js";
@@ -14,7 +13,6 @@ export default {
       plugins: [pluginName],
       rules: {
         [`${pluginName}/${tailwindNoUnnecessaryWhitespace.name}`]: "error",
-        [`${pluginName}/${jsxAttributeExpression.name}`]: "error",
         [`${pluginName}/${tailwindSortClasses.name}`]: "error",
         [`${pluginName}/${tailwindMultiline.name}`]: "error"
       }
@@ -23,7 +21,6 @@ export default {
       plugins: [pluginName],
       rules: {
         [`${pluginName}/${tailwindNoUnnecessaryWhitespace.name}`]: "warn",
-        [`${pluginName}/${jsxAttributeExpression.name}`]: "warn",
         [`${pluginName}/${tailwindSortClasses.name}`]: "warn",
         [`${pluginName}/${tailwindMultiline.name}`]: "warn"
       }
@@ -31,7 +28,6 @@ export default {
   },
   rules: {
     [tailwindNoUnnecessaryWhitespace.name]: tailwindNoUnnecessaryWhitespace.rule,
-    [jsxAttributeExpression.name]: jsxAttributeExpression.rule,
     [tailwindSortClasses.name]: tailwindSortClasses.rule,
     [tailwindMultiline.name]: tailwindMultiline.rule
   }

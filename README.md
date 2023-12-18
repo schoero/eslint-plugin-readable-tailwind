@@ -71,7 +71,7 @@ export default [
       // enable all recommended rules
       ...eslintPluginReadableTailwind.configs.warning,
       // or enable rules individually
-      "readable-tailwind/jsx-attribute-expression": "warn"
+      "readable-tailwind/multiline": "warn"
     }
   }
 ];
@@ -107,7 +107,7 @@ Add `readable-tailwind` to your eslint config:
   "plugins": ["readable-tailwind"],
   "rules": {
     // or enable rules individually
-    "readable-tailwind/jsx-attribute-expression": "warn"
+    "readable-tailwind/multiline": "warn"
   }
 }
 ```
@@ -130,7 +130,6 @@ Add `readable-tailwind` to your eslint config:
 
 | Name                                                                 | Description                                            | 💼 | ⚠️ | 🔧 | ⚙️ |
 | :------------------------------------------------------------------- | :----------------------------------------------------- | :- | :- | :- | :- |
-| [jsx-attribute-expression](docs/rules/jsx-attribute-expression.md)   | Enforce consistent jsx attribute expressions.          | ❗  | 🚸 | 🔧 | ⚙️ |
 | [multiline](docs/rules/multiline.md)                                 | Enforce consistent line wrapping for tailwind classes. | ❗  | 🚸 | 🔧 | ⚙️ |
 | [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes.   | ❗  | 🚸 | 🔧 | ⚙️ |
 | [sort-classes](docs/rules/sort-classes.md)                           | Enforce a consistent order for tailwind classes.       | ❗  | 🚸 | 🔧 | ⚙️ |
