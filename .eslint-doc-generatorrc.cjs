@@ -8,13 +8,11 @@ const config = {
     "configsError",
     "configsWarn",
     "fixable",
-  ],
-  configEmoji: [
-    ["warning", "✅"],
-    ["error", "✅"],
+    "options"
   ],
   ruleDocSectionInclude: ["Description", "Examples"],
   ruleDocTitleFormat: "prefix-name",
+  ruleListSplit: "meta.docs.category",
 }
 
 module.exports = config;
