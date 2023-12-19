@@ -121,14 +121,14 @@ Add `readable-tailwind` to your eslint config:
 
 💼 Configurations enabled in.\
 ⚠️ Configurations set to warn in.\
-✅ Set in the `error` configuration.\
-✅ Set in the `warning` configuration.\
+![error](./assets/checkmark-error.svg) Set in the `error` configuration.\
+![warning](./assets/checkmark-warning.svg) Set in the `warning` configuration.\
 🔧 Automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/user-guide/command-line-interface#--fix).
 
-| Name                                                                 | Description                                            | 💼 | ⚠️ | 🔧 |
-| :------------------------------------------------------------------- | :----------------------------------------------------- | :- | :- | :- |
-| [multiline](docs/rules/multiline.md)                                 | Enforce consistent line wrapping for tailwind classes. | ✅  | ✅  | 🔧 |
-| [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes.   | ✅  | ✅  | 🔧 |
-| [sort-classes](docs/rules/sort-classes.md)                           | Enforce a consistent order for tailwind classes.       | ✅  | ✅  | 🔧 |
+| Name                                                                 | Description                                            | 💼                                     | ⚠️                                         | 🔧 |
+| :------------------------------------------------------------------- | :----------------------------------------------------- | :------------------------------------- | :----------------------------------------- | :- |
+| [multiline](docs/rules/multiline.md)                                 | Enforce consistent line wrapping for tailwind classes. | ![error](./assets/checkmark-error.svg) | ![warning](./assets/checkmark-warning.svg) | 🔧 |
+| [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes.   | ![error](./assets/checkmark-error.svg) | ![warning](./assets/checkmark-warning.svg) | 🔧 |
+| [sort-classes](docs/rules/sort-classes.md)                           | Enforce a consistent order for tailwind classes.       | ![error](./assets/checkmark-error.svg) | ![warning](./assets/checkmark-warning.svg) | 🔧 |
 
 <!-- end auto-generated rules list -->

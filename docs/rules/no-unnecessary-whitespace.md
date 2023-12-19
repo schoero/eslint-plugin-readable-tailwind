@@ -1,6 +1,6 @@
 # readable-tailwind/no-unnecessary-whitespace
 
-💼⚠️ This rule is enabled in the ✅ `error` config. This rule _warns_ in the ✅ `warning` config.
+💼⚠️ This rule is enabled in the ![error](./assets/checkmark-error.svg) `error` config. This rule _warns_ in the ![warning](./assets/checkmark-warning.svg) `warning` config.
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 

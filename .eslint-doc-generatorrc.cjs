@@ -10,8 +10,8 @@ const config = {
     "fixable",
   ],
   configEmoji: [
-    ["warning", "✅"],
-    ["error", "✅"],
+    ["warning", "![warning](./assets/checkmark-warning.svg)"],
+    ["error", "![error](./assets/checkmark-error.svg)"],
   ],
   ruleDocSectionInclude: ["Description", "Examples"],
   ruleDocTitleFormat: "prefix-name",
