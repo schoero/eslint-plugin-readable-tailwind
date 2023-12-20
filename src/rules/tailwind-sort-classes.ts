@@ -118,7 +118,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
         category: "Stylistic Issues",
         description: "Enforce a consistent order for tailwind classes.",
         recommended: true,
-        url: "https://github.com/schoero/eslint-plugin-readable-tailwind/docs/rules/sort-classes.md"
+        url: "https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/sort-classes.md"
       },
       fixable: "code",
       schema: [

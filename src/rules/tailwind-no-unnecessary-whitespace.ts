@@ -99,7 +99,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
         category: "Stylistic Issues",
         description: "Disallow unnecessary whitespace in tailwind classes.",
         recommended: true,
-        url: "https://github.com/schoero/eslint-plugin-readable-tailwind/docs/rules/no-unnecessary-whitespace.md"
+        url: "https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/no-unnecessary-whitespace.md"
       },
       fixable: "whitespace",
       schema: [

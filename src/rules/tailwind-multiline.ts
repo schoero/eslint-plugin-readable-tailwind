@@ -79,7 +79,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
         category: "Stylistic Issues",
         description: "Enforce consistent line wrapping for tailwind classes.",
         recommended: true,
-        url: "https://github.com/schoero/eslint-plugin-readable-tailwind/docs/rules/multiline.md"
+        url: "https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/multiline.md"
       },
       fixable: "code",
       schema: [
