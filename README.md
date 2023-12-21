@@ -64,6 +64,13 @@ import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
 
 export default [
   {
+    languageOptions: {
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true
+        }
+      }
+    },
     plugins: {
       "readable-tailwind": eslintPluginReadableTailwind
     },
@@ -104,6 +111,12 @@ Add `readable-tailwind` to your eslint config:
     // or warn on violations
     "plugin:readable-tailwind/warning"
   ],
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": "latest"
+  },
   "plugins": ["readable-tailwind"],
   "rules": {
     // or enable rules individually
