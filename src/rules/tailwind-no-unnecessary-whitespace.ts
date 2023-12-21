@@ -1,13 +1,12 @@
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "eptm:utils:config.js";
-import { getCallExpressionLiterals, getClassAttributeLiterals, getClassAttributes } from "eptm:utils:jsx.js";
+import { getJSXAttributes, getJSXClassAttributeLiterals, getLiteralsByJSXCallExpression } from "eptm:utils:jsx.js";
 import { splitClasses, splitWhitespaces } from "eptm:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { Node } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
+import type { Literal } from "src/types/ast.js";
 import type { ESLintRule } from "src/types/rule.js";
-
-import type { Literal, Literals } from "eptm:utils:jsx.js";
 
 
 export type Options = [
@@ -23,22 +22,20 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
   rule: {
     create(ctx) {
 
-      const { allowMultiline, callees } = getOptions(ctx);
+      const { allowMultiline, callees, classAttributes } = getOptions(ctx);
 
 
-      const lintLiterals = (ctx: Rule.RuleContext, literals: Literals, node: Node) => {
+      const lintLiterals = (ctx: Rule.RuleContext, literals: Literal[]) => {
 
         for(const literal of literals){
-
-          if(literal === undefined){ continue; }
 
           const classes = splitClassesKeepWhitespace(literal, allowMultiline);
 
           const fixedClasses = [
             literal.openingQuote ?? "",
-            literal.type === "TemplateElement" && literal.closingBraces ? literal.closingBraces : "",
+            literal.type === "TemplateLiteral" && literal.closingBraces ? literal.closingBraces : "",
             ...classes,
-            literal.type === "TemplateElement" && literal.openingBraces ? literal.openingBraces : "",
+            literal.type === "TemplateLiteral" && literal.openingBraces ? literal.openingBraces : "",
             literal.closingQuote ?? ""
           ].join("");
 
@@ -53,10 +50,10 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
               unnecessaryWhitespace: literal.content
             },
             fix(fixer) {
-              return fixer.replaceText(literal, fixedClasses);
+              return fixer.replaceTextRange(literal.range, fixedClasses);
             },
-            message: "Unnecessary whitespace: {{ unnecessaryWhitespace }}.",
-            node
+            loc: literal.loc,
+            message: "Unnecessary whitespace: {{ unnecessaryWhitespace }}."
           });
 
         }
@@ -73,9 +70,9 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
           if(callee.type !== "Identifier"){ return; }
           if(!callees.includes(callee.name)){ return; }
 
-          const literals = getCallExpressionLiterals(ctx, node.arguments);
+          const literals = getLiteralsByJSXCallExpression(ctx, node.arguments);
 
-          lintLiterals(ctx, literals, node);
+          lintLiterals(ctx, literals);
 
         },
 
@@ -83,11 +80,12 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
 
           const jsxNode = node as JSXOpeningElement;
 
-          const attributes = getClassAttributes(ctx, jsxNode);
+          const jsxAttributes = getJSXAttributes(ctx, classAttributes, jsxNode);
 
-          for(const attribute of attributes){
-            const literals = getClassAttributeLiterals(ctx, attribute);
-            lintLiterals(ctx, literals, node);
+          for(const attribute of jsxAttributes){
+            const literals = getJSXClassAttributeLiterals(ctx, attribute);
+
+            lintLiterals(ctx, literals);
           }
 
         }
@@ -158,8 +156,8 @@ function splitClassesKeepWhitespace(literal: Literal, allowMultiline: boolean): 
         mixedChunks.push(whitespaceChunk);
       } else {
         if(!isFirstChunk && !isLastChunk ||
-          literal.type === "TemplateElement" && literal.closingBraces && isFirstChunk && !isLastChunk ||
-          literal.type === "TemplateElement" && literal.openingBraces && isLastChunk && !isFirstChunk){
+          literal.type === "TemplateLiteral" && literal.closingBraces && isFirstChunk && !isLastChunk ||
+          literal.type === "TemplateLiteral" && literal.openingBraces && isLastChunk && !isFirstChunk){
           mixedChunks.push(" ");
         }
       }

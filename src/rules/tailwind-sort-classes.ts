@@ -6,17 +6,16 @@ import loadConfig from "tailwindcss/loadConfig.js";
 import resolveConfig from "tailwindcss/resolveConfig.js";
 
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "eptm:utils:config.js";
-import { getClassAttributes } from "eptm:utils:jsx";
-import { getCallExpressionLiterals, getClassAttributeLiterals } from "eptm:utils:jsx.js";
+import { getJSXAttributes } from "eptm:utils:jsx";
+import { getJSXClassAttributeLiterals, getLiteralsByJSXCallExpression } from "eptm:utils:jsx.js";
 import { splitClasses, splitWhitespaces } from "eptm:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { Node } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
+import type { Literal } from "src/types/ast.js";
 import type { ESLintRule } from "src/types/rule.js";
 import type { Config } from "tailwindcss/types/config.js";
-
-import type { Literals } from "eptm:utils:jsx.js";
 
 
 export type Options = [
@@ -33,17 +32,15 @@ export const tailwindSortClasses: ESLintRule<Options> = {
   rule: {
     create(ctx) {
 
-      const { callees } = getOptions(ctx);
+      const { callees, classAttributes } = getOptions(ctx);
 
       const tailwindConfig = findTailwindConfig(ctx);
       const tailwindContext = createTailwindContext(tailwindConfig);
 
 
-      const lintLiterals = (ctx: Rule.RuleContext, literals: Literals, node: Node) => {
+      const lintLiterals = (ctx: Rule.RuleContext, literals: Literal[]) => {
 
         for(const literal of literals){
-
-          if(literal === undefined){ continue; }
 
           const classChunks = splitClasses(literal.content);
           const whitespaceChunks = splitWhitespaces(literal.content);
@@ -58,9 +55,9 @@ export const tailwindSortClasses: ESLintRule<Options> = {
 
           const fixedClasses = [
             literal.openingQuote ?? "",
-            literal.type === "TemplateElement" && literal.closingBraces ? literal.closingBraces : "",
+            literal.type === "TemplateLiteral" && literal.closingBraces ? literal.closingBraces : "",
             ...classes,
-            literal.type === "TemplateElement" && literal.openingBraces ? literal.openingBraces : "",
+            literal.type === "TemplateLiteral" && literal.openingBraces ? literal.openingBraces : "",
             literal.closingQuote ?? ""
           ].join("");
 
@@ -73,10 +70,10 @@ export const tailwindSortClasses: ESLintRule<Options> = {
               notSorted: literal.content
             },
             fix(fixer) {
-              return fixer.replaceText(literal, fixedClasses);
+              return fixer.replaceTextRange(literal.range, fixedClasses);
             },
-            message: "Invalid class order: {{ notSorted }}.",
-            node
+            loc: literal.loc,
+            message: "Invalid class order: {{ notSorted }}."
           });
 
         }
@@ -92,9 +89,9 @@ export const tailwindSortClasses: ESLintRule<Options> = {
           if(callee.type !== "Identifier"){ return; }
           if(!callees.includes(callee.name)){ return; }
 
-          const literals = getCallExpressionLiterals(ctx, node.arguments);
+          const literals = getLiteralsByJSXCallExpression(ctx, node.arguments);
 
-          lintLiterals(ctx, literals, node);
+          lintLiterals(ctx, literals);
 
         },
 
@@ -102,11 +99,12 @@ export const tailwindSortClasses: ESLintRule<Options> = {
 
           const jsxNode = node as JSXOpeningElement;
 
-          const attributes = getClassAttributes(ctx, jsxNode);
+          const jsxAttributes = getJSXAttributes(ctx, classAttributes, jsxNode);
 
-          for(const attribute of attributes){
-            const literals = getClassAttributeLiterals(ctx, attribute);
-            lintLiterals(ctx, literals, node);
+          for(const attribute of jsxAttributes){
+            const literals = getJSXClassAttributeLiterals(ctx, attribute);
+
+            lintLiterals(ctx, literals);
           }
 
         }

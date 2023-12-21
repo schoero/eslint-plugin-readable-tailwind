@@ -1,19 +1,13 @@
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "eptm:utils:config.js";
-import {
-  findLineStartPosition,
-  getCallExpressionLiterals,
-  getClassAttributeLiterals,
-  getClassAttributes
-} from "eptm:utils:jsx.js";
+import { getJSXAttributes, getJSXClassAttributeLiterals, getLiteralsByJSXCallExpression } from "eptm:utils:jsx.js";
+import { findLineStartPosition } from "eptm:utils:utils";
 import { splitClasses } from "eptm:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { Node } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
-import type { Meta } from "src/types/ast.js";
+import type { Literal, Meta } from "src/types/ast.js";
 import type { ESLintRule } from "src/types/rule.js";
-
-import type { Literals } from "eptm:utils:jsx.js";
 
 
 export type Options = [
@@ -33,7 +27,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
   rule: {
     create(ctx) {
 
-      const { callees } = getOptions(ctx);
+      const { callees, classAttributes } = getOptions(ctx);
 
       return {
 
@@ -44,7 +38,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
           if(callee.type !== "Identifier"){ return; }
           if(!callees.includes(callee.name)){ return; }
 
-          const literals = getCallExpressionLiterals(ctx, node.arguments);
+          const literals = getLiteralsByJSXCallExpression(ctx, node.arguments);
 
           lintLiterals(ctx, literals);
 
@@ -54,17 +48,17 @@ export const tailwindMultiline: ESLintRule<Options> = {
 
           const jsxNode = node as JSXOpeningElement;
 
-          const attributes = getClassAttributes(ctx, jsxNode);
+          const jsxAttributes = getJSXAttributes(ctx, classAttributes, jsxNode);
 
-          for(const attribute of attributes){
+          for(const jsxAttribute of jsxAttributes){
 
-            const attributeValue = attribute.value;
-            const attributeName = attribute.name.name;
+            const attributeValue = jsxAttribute.value;
+            const attributeName = jsxAttribute.name.name;
 
             if(!attributeValue){ continue; }
             if(typeof attributeName !== "string"){ continue; }
 
-            const literals = getClassAttributeLiterals(ctx, attribute);
+            const literals = getJSXClassAttributeLiterals(ctx, jsxAttribute);
 
             lintLiterals(ctx, literals);
 
@@ -143,15 +137,13 @@ export const tailwindMultiline: ESLintRule<Options> = {
   }
 };
 
-function lintLiterals(ctx: Rule.RuleContext, literals: Literals): void {
+function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
   const { classesPerLine, group: groupSeparator, indent, printWidth } = getOptions(ctx);
 
   for(const literal of literals){
 
-    if(literal === undefined){ continue; }
-
-    const startPosition = literal.type === "TemplateElement"
+    const startPosition = literal.type === "TemplateLiteral"
       ? findLineStartPosition(ctx, literal.parent) + getIndentation(ctx, indent)
       : findLineStartPosition(ctx, literal) + getIndentation(ctx, indent);
 
@@ -164,7 +156,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literals): void {
       lines.line.addMeta({ openingQuote: "`" });
     }
 
-    if(literal.type === "TemplateElement" && literal.closingBraces){
+    if(literal.type === "TemplateLiteral" && literal.closingBraces){
       lines.line.addMeta({ closingBraces: literal.closingBraces });
     }
 
@@ -179,14 +171,14 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literals): void {
         }
 
         if((
-          literal.type === "TemplateElement" && !literal.closingBraces ||
-          literal.type !== "TemplateElement"
+          literal.type === "TemplateLiteral" && !literal.closingBraces ||
+          literal.type !== "TemplateLiteral"
         ) && isFirstGroup){
           lines.addLine();
           lines.line.indent();
         }
 
-        if(isFirstGroup && literal.type === "TemplateElement" && literal.closingBraces || !isFirstGroup){
+        if(isFirstGroup && literal.type === "TemplateLiteral" && literal.closingBraces || !isFirstGroup){
 
           if(groupSeparator === "emptyLine"){
             lines.addLine();
@@ -217,7 +209,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literals): void {
       }
     }
 
-    if(literal.type === "TemplateElement" && literal.openingBraces){
+    if(literal.type === "TemplateLiteral" && literal.openingBraces){
 
       if(groupSeparator === "emptyLine" && groupedClasses){ lines.addLine(); }
 
@@ -234,8 +226,8 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literals): void {
     }
 
     if(lines.length === 3 && (
-      literal.type === "TemplateElement" && !literal.openingBraces && !literal.closingBraces ||
-        literal.type === "Literal"
+      literal.type === "TemplateLiteral" && !literal.openingBraces && !literal.closingBraces ||
+      literal.type === "StringLiteral"
     )){
       continue;
     }
@@ -246,30 +238,18 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literals): void {
       continue;
     }
 
-    if(literal.parent.type === "JSXAttribute" && literal.parent.value?.type === "Literal"){
-      const attributeValue = literal.parent.value;
-      ctx.report({
-        data: {
-          rawLiteral: literal.raw
-        },
-        fix(fixer) {
-          return fixer.replaceText(attributeValue, `{${fixedClasses}}`);
-        },
-        message: "Invalid line wrapping: {{ rawLiteral }}.",
-        node: attributeValue
-      });
-    } else {
-      ctx.report({
-        data: {
-          notReadable: literal.content
-        },
-        fix(fixer) {
-          return fixer.replaceText(literal, fixedClasses);
-        },
-        message: "Invalid line wrapping: {{ notReadable }}.",
-        node: literal
-      });
-    }
+    ctx.report({
+      data: {
+        notReadable: literal.content
+      },
+      fix(fixer) {
+        return literals.length === 1 && literal.type === "StringLiteral" && literal.parent.type !== "JSXExpressionContainer"
+          ? fixer.replaceTextRange(literal.range, `{${fixedClasses}}`)
+          : fixer.replaceTextRange(literal.range, fixedClasses);
+      },
+      loc: literal.loc,
+      message: "Invalid line wrapping: {{ notReadable }}."
+    });
 
   }
 

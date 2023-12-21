@@ -1,86 +1,89 @@
-import { getOptions } from "eptm:rules:tailwind-sort-classes";
 import { getWhitespace } from "eptm:utils:utils.js";
 
 import type { AST, Rule } from "eslint";
 import type {
-  BaseNode,
-  Expression,
+  BaseNode as JSXBaseNode,
+  Expression as JSXExpression,
   JSXAttribute,
   JSXOpeningElement,
-  Node,
-  SimpleLiteral,
-  SpreadElement,
-  TemplateElement,
-  TemplateLiteral
+  Node as JSXNode,
+  SimpleLiteral as JSXSimpleLiteral,
+  SpreadElement as JSXSpreadElement,
+  TemplateElement as JSXTemplateElement,
+  TemplateLiteral as JSXTemplateLiteral
 } from "estree-jsx";
-import type { BracesMeta, QuoteMeta } from "src/types/ast";
+import type { BracesMeta, Literal, Node, QuoteMeta, StringLiteral, TemplateLiteral } from "src/types/ast";
 
 
-export function findLineStartPosition(ctx: Rule.RuleContext, node: Node) {
-  const line = node.loc?.start.line;
-
-  if(line === undefined){ return 0; }
-
-  return ctx.sourceCode.lines[line - 1].match(/^\s*/)?.[0]?.length ?? node.loc?.start.column ?? 0;
-}
-
-export function getClassAttributeLiterals(ctx: Rule.RuleContext, attribute: JSXAttribute): Literals {
+export function getJSXClassAttributeLiterals(ctx: Rule.RuleContext, attribute: JSXAttribute): Literal[] {
 
   const value = attribute.value;
 
-  if(value === null){
+  if(!value){
     return [];
   }
 
   // class="a b"
   if(isSimpleStringLiteral(value)){
-    const simpleStringLiteral = getLiteralBySimpleStringLiteral(ctx, value);
-    return [simpleStringLiteral];
+    const stringLiteral = getStringLiteralByJSXStringLiteral(ctx, value);
+
+    if(stringLiteral){
+      return [stringLiteral];
+    }
   }
 
   // class={"a b"}
   if(value.type === "JSXExpressionContainer" && isSimpleStringLiteral(value.expression)){
-    const simpleStringLiteral = getLiteralBySimpleStringLiteral(ctx, value.expression);
-    return [simpleStringLiteral];
+    const stringLiteral = getStringLiteralByJSXStringLiteral(ctx, value.expression);
+
+    if(stringLiteral){
+      return [stringLiteral];
+    }
   }
 
   // class={`a b ... c`}
   if(value.type === "JSXExpressionContainer" && value.expression.type === "TemplateLiteral"){
-    return getLiteralsByTemplateLiteral(ctx, value.expression);
+    return getLiteralsByJSXTemplateLiteral(ctx, value.expression);
   }
 
   return [];
+
 }
 
-export function getCallExpressionLiterals(ctx: Rule.RuleContext, args: (Expression | SpreadElement)[]): Literals {
-  return args.reduce<Literals>((acc, arg) => {
+export function getLiteralsByJSXCallExpression(ctx: Rule.RuleContext, args: (JSXExpression | JSXSpreadElement)[]): Literal[] {
+  return args.reduce<Literal[]>((acc, arg) => {
     if(arg.type === "SpreadElement"){ return acc; }
     const literals = getLiteralsByExpression(ctx, arg);
     return [...acc, ...literals];
   }, []);
 }
 
-export function getLiteralsByExpression(ctx: Rule.RuleContext, node: Expression): Literals {
+function getLiteralsByExpression(ctx: Rule.RuleContext, node: JSXExpression): Literal[] {
 
   // {"a b"}
   if(isSimpleStringLiteral(node)){
-    const simpleStringLiteral = getLiteralBySimpleStringLiteral(ctx, node);
-    return [simpleStringLiteral];
+    const simpleStringLiteral = getStringLiteralByJSXStringLiteral(ctx, node);
+    if(simpleStringLiteral){
+      return [simpleStringLiteral];
+    }
   }
 
   // {`a b ... c`}
   if(node.type === "TemplateLiteral"){
-    return getLiteralsByTemplateLiteral(ctx, node);
+    return getLiteralsByJSXTemplateLiteral(ctx, node);
   }
 
   return [];
 }
 
-function getLiteralBySimpleStringLiteral(ctx: Rule.RuleContext, node: SimpleStringLiteral): StringLiteral | undefined {
+
+function getStringLiteralByJSXStringLiteral(ctx: Rule.RuleContext, node: JSXSimpleStringLiteral): StringLiteral | undefined {
 
   const token = getTokenByNode(ctx, node);
 
-  if(!token){ return; }
+  if(!token || !node.loc || !node.range || !node.parent.loc || !node.parent.range){
+    return;
+  }
 
   const raw = token.value;
   const content = node.value;
@@ -89,20 +92,25 @@ function getLiteralBySimpleStringLiteral(ctx: Rule.RuleContext, node: SimpleStri
   const whitespaces = getWhitespace(content);
 
   return {
-    ...node,
     ...quotes,
     ...whitespaces,
     content,
-    raw
+    loc: node.loc,
+    parent: node.parent as Node,
+    range: node.range,
+    raw,
+    type: "StringLiteral"
   };
 
 }
 
-function getLiteralByTemplateElement(ctx: Rule.RuleContext, node: Rule.Node & TemplateElement): TemplateLiteralString | undefined {
+function getLiteralByJSXTemplateElement(ctx: Rule.RuleContext, node: JSXTemplateElement & Rule.Node): TemplateLiteral | undefined {
 
   const token = getTokenByNode(ctx, node);
 
-  if(!token){ return; }
+  if(!token || !node.loc || !node.range || !node.parent.loc || !node.parent.range){
+    return;
+  }
 
   const raw = token.value;
   const content = node.value.raw;
@@ -112,33 +120,46 @@ function getLiteralByTemplateElement(ctx: Rule.RuleContext, node: Rule.Node & Te
   const whitespaces = getWhitespace(content);
 
   return {
-    ...node,
     ...whitespaces,
     ...quotes,
     ...braces,
     content,
-    raw
+    loc: node.loc,
+    parent: node.parent as Node,
+    range: node.range,
+    raw,
+    type: "TemplateLiteral"
   };
 
 }
 
-function getLiteralsByTemplateLiteral(ctx: Rule.RuleContext, node: TemplateLiteral): (TemplateLiteralString | undefined)[] {
+function getLiteralsByJSXTemplateLiteral(ctx: Rule.RuleContext, node: JSXTemplateLiteral): TemplateLiteral[] {
   return node.quasis.map(quasi => {
     if(!hasNodeParentExtension(quasi)){
-      throw new Error("TemplateElement has no parent");
+      return;
     }
-
-    return getLiteralByTemplateElement(ctx, quasi);
-  });
+    return getLiteralByJSXTemplateElement(ctx, quasi);
+  }).filter((literal): literal is TemplateLiteral => literal !== undefined);
 }
 
-export function getTokenByNode(ctx: Rule.RuleContext, node: BaseNode) {
+export function getJSXAttributes(ctx: Rule.RuleContext, classNames: string[], node: JSXOpeningElement): JSXAttribute[] {
+  return node.attributes.reduce<JSXAttribute[]>((acc, attribute) => {
+    if(isJSXAttribute(attribute) &&
+      typeof attribute.name.name === "string" &&
+      classNames.includes(attribute.name.name)){
+      acc.push(attribute);
+    }
+    return acc;
+  }, []);
+}
+
+export function getTokenByNode(ctx: Rule.RuleContext, node: JSXBaseNode) {
   return node.range?.[0]
     ? ctx.sourceCode.getTokenByRangeStart(node.range[0])
     : undefined;
 }
 
-export function getTextTokenQuotes(ctx: Rule.RuleContext, token: AST.Token): QuoteMeta {
+function getTextTokenQuotes(ctx: Rule.RuleContext, token: AST.Token): QuoteMeta {
   const openingQuote = token.value.at(0);
   const closingQuote = token.value.at(-1);
 
@@ -148,7 +169,7 @@ export function getTextTokenQuotes(ctx: Rule.RuleContext, token: AST.Token): Quo
   };
 }
 
-export function getTemplateTokenQuotes(ctx: Rule.RuleContext, token: AST.Token): QuoteMeta {
+function getTemplateTokenQuotes(ctx: Rule.RuleContext, token: AST.Token): QuoteMeta {
   const openingQuote = token.value.startsWith("`") ? "`" : undefined;
   const closingQuote = token.value.endsWith("`") ? "`" : undefined;
 
@@ -158,7 +179,7 @@ export function getTemplateTokenQuotes(ctx: Rule.RuleContext, token: AST.Token):
   };
 }
 
-export function getTemplateTokenBraces(ctx: Rule.RuleContext, token: AST.Token): BracesMeta {
+function getTemplateTokenBraces(ctx: Rule.RuleContext, token: AST.Token): BracesMeta {
   const closingBraces = token.value.startsWith("}") ? "}" : undefined;
   const openingBraces = token.value.endsWith("${") ? "${" : undefined;
 
@@ -168,45 +189,20 @@ export function getTemplateTokenBraces(ctx: Rule.RuleContext, token: AST.Token):
   };
 }
 
-interface SimpleStringLiteral extends Rule.NodeParentExtension, SimpleLiteral {
-  value: string;
-}
-
-export interface StringLiteral extends Rule.NodeParentExtension, SimpleStringLiteral, QuoteMeta {
-  content: string;
-  raw: string;
-}
-
-export interface TemplateLiteralString extends Rule.NodeParentExtension, TemplateElement, QuoteMeta, BracesMeta {
-  content: string;
-  raw: string;
-}
-
-export type Literal = StringLiteral | TemplateLiteralString;
-
-export type Literals = (Literal | undefined)[];
-
-export function isJSXAttribute(node: BaseNode): node is JSXAttribute {
+function isJSXAttribute(node: JSXBaseNode): node is JSXAttribute {
   return node.type === "JSXAttribute";
 }
 
-function isSimpleStringLiteral(node: BaseNode): node is SimpleStringLiteral {
+function isSimpleStringLiteral(node: JSXBaseNode): node is JSXSimpleStringLiteral {
   return node.type === "Literal" &&
     "value" in node &&
     typeof node.value === "string";
-} export function getClassAttributes(ctx: Rule.RuleContext, node: JSXOpeningElement): JSXAttribute[] {
-
-  const { classAttributes } = getOptions(ctx);
-
-  return node.attributes.reduce<JSXAttribute[]>((acc, attribute) => {
-    if(isJSXAttribute(attribute) && classAttributes.includes(attribute.name.name as string)){
-      acc.push(attribute);
-    }
-    return acc;
-  }, []);
-
 }
 
-function hasNodeParentExtension(node: Node): node is Rule.Node {
+function hasNodeParentExtension(node: JSXNode): node is Rule.Node & Rule.NodeParentExtension {
   return "parent" in node;
+}
+
+interface JSXSimpleStringLiteral extends Rule.NodeParentExtension, JSXSimpleLiteral {
+  value: string;
 }
