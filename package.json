@@ -1,5 +1,5 @@
 {
-  "version": "0.1.2",
+  "version": "0.1.2-beta.0",
   "type": "module",
   "name": "eslint-plugin-readable-tailwind",
   "description": "auto-wraps tailwind classes after a certain width using template literals.",
@@ -22,7 +22,7 @@
   "scripts": {
     "build": "vite build",
     "docs": "eslint-doc-generator",
-    "eslint": "eslint --ext .ts,.tsx,.js,.jsx,.json,.jsonc,.yml,.md ./",
+    "eslint": "eslint .",
     "eslint:ci": "npm run eslint -- --max-warnings 0",
     "eslint:fix": "npm run eslint -- --fix",
     "lint": "npm run eslint && npm run markdownlint",
