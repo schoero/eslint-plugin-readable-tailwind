@@ -26,6 +26,7 @@
 
 ESLint plugin to automatically break up long tailwind class strings into multiple lines for better readability.
 Also sorts the classes logically, removes unnecessary whitespaces and groups the classes by their modifiers.
+It works in jsx and html.
 
 <br/>
 <br/>
@@ -38,14 +39,6 @@ Also sorts the classes logically, removes unnecessary whitespaces and groups the
 <br/>
 
 ## Installation
-
-You'll first need to install [ESLint](https://eslint.org/):
-
-```sh
-npm i eslint --save-dev
-```
-
-Next, install `eslint-plugin-readable-tailwind`:
 
 ```sh
 npm install eslint-plugin-readable-tailwind --save-dev
@@ -68,10 +61,13 @@ export default [
       "readable-tailwind": eslintPluginReadableTailwind
     },
     rules: {
-      // enable all recommended rules
+      // enable all recommended rules to warn
       ...eslintPluginReadableTailwind.configs.warning,
-      // or enable rules individually
-      "readable-tailwind/multiline": "warn"
+      // enable all recommended rules to error
+      ...eslintPluginReadableTailwind.configs.error,
+
+      // or configure rules individually
+      "readable-tailwind/multiline": ["warn", { printWidth: 100 }]
     }
   }
 ];
@@ -99,15 +95,15 @@ Add `readable-tailwind` to your eslint config:
 {
   // enable all recommended rules
   "extends": [
-    // enable errors on violations
-    "plugin:readable-tailwind/error",
-    // or warn on violations
-    "plugin:readable-tailwind/warning"
+    // enable all recommended rules to warn
+    "plugin:readable-tailwind/warning",
+    // enable all recommended rules to error
+    "plugin:readable-tailwind/error"
   ],
   "plugins": ["readable-tailwind"],
   "rules": {
-    // or enable rules individually
-    "readable-tailwind/multiline": "warn"
+    // or configure rules individually
+    "readable-tailwind/multiline": ["warn", { "printWidth": 100 }]
   }
 }
 ```
