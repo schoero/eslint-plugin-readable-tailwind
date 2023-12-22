@@ -1,6 +1,6 @@
 {
   "import": [
-    "@schoero/cspell-config"
+    "@schoero/configs/cspell"
   ],
   "ignorePaths": [
     "node_modules/**",

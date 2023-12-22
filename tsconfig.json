@@ -1,5 +1,5 @@
 {
-  "extends": "@schoero/ts-config",
+  "extends": "@schoero/configs/tsconfig",
   "compilerOptions": {
     "baseUrl": ".",
     "lib": ["ESNext"],

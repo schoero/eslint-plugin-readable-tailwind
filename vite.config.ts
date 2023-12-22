@@ -1,7 +1,7 @@
 import dts from "vite-plugin-dts";
 import noBundlePlugin from "vite-plugin-no-bundle";
 
-import { config, defineConfig } from "@schoero/vite-config";
+import { config, defineConfig } from "@schoero/configs/vite";
 
 import type { UserConfig } from "vitest";
 
