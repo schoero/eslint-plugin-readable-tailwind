@@ -57,12 +57,7 @@
     "tailwindcss": ">=3.3.0"
   },
   "devDependencies": {
-    "@schoero/changelog-config": "^0.0.3",
-    "@schoero/cspell-config": "^1.9.0",
-    "@schoero/eslint-config": "^1.42.0",
-    "@schoero/markdownlint-config": "^1.1.7",
-    "@schoero/ts-config": "^0.3.8",
-    "@schoero/vite-config": "^0.0.29",
+    "@schoero/configs": "^0.0.0-beta.10",
     "@types/eslint": "^8.56.0",
     "@types/estree-jsx": "^1.0.3",
     "@types/node": "^20.10.5",

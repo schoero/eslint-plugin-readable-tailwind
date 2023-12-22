@@ -16,6 +16,7 @@
   "[typescript]": {
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
+  "eslint.experimental.useFlatConfig": true,
   "eslint.validate": ["javascript", "typescript", "json", "jsonc", "json5", "yaml"],
   "editor.formatOnSave": false,
 
