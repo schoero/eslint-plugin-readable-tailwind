@@ -1,29 +1,32 @@
-import { RuleTester } from "eslint";
+import { FlatRuleTester } from "eslint/use-at-your-own-risk";
 
 import type { ESLintRule } from "src/types/rule.js";
 
 
-type RuleTesterParameters = Parameters<RuleTester["run"]>;
-
-const ruleTester = new RuleTester({
-  parserOptions: { ecmaFeatures: { jsx: true }, ecmaVersion: 2015 }
-});
-
-type Test = RuleTesterParameters[2] & {
-
-};
+type RuleTesterParameters = Parameters<FlatRuleTester["run"]>;
 
 export function lint<Rule extends ESLintRule>(
   eslintRule: Rule,
   tests: Omit<RuleTesterParameters[2], "invalid" | "valid"> & {
-    invalid?: (Omit<RuleTester.InvalidTestCase, "options"> & {
+    invalid?: (Omit<FlatRuleTester.InvalidTestCase, "options"> & {
       options?: Rule["options"];
     })[];
-    valid?: (Omit<RuleTester.ValidTestCase, "options"> & {
+    valid?: (Omit<FlatRuleTester.ValidTestCase, "options"> & {
       options?: Rule["options"];
     })[];
-  }
+  },
+  languageOptions?: any
 ) {
+  const ruleTester = new FlatRuleTester({
+    languageOptions: {
+      ...languageOptions,
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true
+        }
+      }
+    }
+  });
 
   ruleTester.run(eslintRule.name, eslintRule.rule, {
     ...tests,
