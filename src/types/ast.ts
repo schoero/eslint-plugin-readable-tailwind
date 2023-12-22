@@ -34,10 +34,10 @@ interface NodeBase extends Range, Loc {
   [key: string]: unknown;
   type: string;
 }
+
 export interface Node extends NodeBase {
   parent: Node;
 }
-
 
 interface LiteralBase extends NodeBase, Meta, Range, Loc {
   content: string;

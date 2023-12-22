@@ -1,37 +1,86 @@
+// @ts-expect-error - types not available yet
 import { FlatRuleTester } from "eslint/use-at-your-own-risk";
+
+import eslintParserHTML from "@html-eslint/parser";
 
 import type { ESLintRule } from "src/types/rule.js";
 
 
-type RuleTesterParameters = Parameters<FlatRuleTester["run"]>;
-
-export function lint<Rule extends ESLintRule>(
-  eslintRule: Rule,
-  tests: Omit<RuleTesterParameters[2], "invalid" | "valid"> & {
-    invalid?: (Omit<FlatRuleTester.InvalidTestCase, "options"> & {
-      options?: Rule["options"];
-    })[];
-    valid?: (Omit<FlatRuleTester.ValidTestCase, "options"> & {
-      options?: Rule["options"];
-    })[];
+export const TEST_SYNTAXES = {
+  html: {
+    languageOptions: { parser: eslintParserHTML }
   },
-  languageOptions?: any
-) {
-  const ruleTester = new FlatRuleTester({
-    languageOptions: {
-      ...languageOptions,
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true
-        }
-      }
-    }
-  });
+  jsx: {
+    languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } }
+  }
+} as const;
 
-  ruleTester.run(eslintRule.name, eslintRule.rule, {
-    ...tests,
-    invalid: tests.invalid ?? [],
-    valid: tests.valid ?? []
-  });
+
+export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, unknown>>(
+  eslintRule: Rule,
+  syntaxes: Syntaxes,
+  tests: {
+    invalid?: (
+      // Omit<FlatRuleTester.InvalidTestCase, "code" | "options" | "output"> &
+      {
+        [Key in keyof Syntaxes as `${Key & string}Output`]?: string;
+      } & {
+        [Key in keyof Syntaxes]?: string;
+      } & {
+        errors: number;
+      } & {
+        options?: Rule["options"];
+      }
+    )[];
+    valid?: (
+      // Omit<FlatRuleTester.ValidTestCase, "code" | "options" | "output"> &
+      {
+        [Key in keyof Syntaxes]?: string;
+      } & {
+        options?: Rule["options"];
+      }
+    )[];
+  }
+) {
+
+  for(const invalid of tests.invalid ?? []){
+    for(const syntax of Object.keys(syntaxes)){
+
+      const ruleTester = new FlatRuleTester(syntaxes[syntax]);
+
+      if(!invalid[syntax] || !invalid[`${syntax}Output`]){
+        continue;
+      }
+
+      ruleTester.run(eslintRule.name, eslintRule.rule, {
+        invalid: [{
+          code: invalid[syntax],
+          errors: invalid.errors,
+          options: invalid.options ?? [],
+          output: invalid[`${syntax}Output`]
+        }],
+        valid: []
+      });
+    }
+  }
+
+  for(const valid of tests.valid ?? []){
+    for(const syntax of Object.keys(syntaxes)){
+
+      const ruleTester = new FlatRuleTester(syntaxes[syntax]);
+
+      if(!valid[syntax]){
+        continue;
+      }
+
+      ruleTester.run(eslintRule.name, eslintRule.rule, {
+        invalid: [],
+        valid: [{
+          code: valid[syntax],
+          options: valid.options ?? []
+        }]
+      });
+    }
+  }
 
 }

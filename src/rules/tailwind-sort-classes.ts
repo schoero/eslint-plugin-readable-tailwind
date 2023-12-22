@@ -6,10 +6,12 @@ import loadConfig from "tailwindcss/loadConfig.js";
 import resolveConfig from "tailwindcss/resolveConfig.js";
 
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "eptm:utils:config.js";
+import { getHTMLAttributes, getHTMLClassAttributeLiterals } from "eptm:utils:html.js";
 import { getJSXAttributes } from "eptm:utils:jsx";
 import { getJSXClassAttributeLiterals, getLiteralsByJSXCallExpression } from "eptm:utils:jsx.js";
 import { splitClasses, splitWhitespaces } from "eptm:utils:utils.js";
 
+import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
 import type { Node } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
@@ -73,7 +75,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
               return fixer.replaceTextRange(literal.range, fixedClasses);
             },
             loc: literal.loc,
-            message: "Invalid class order: {{ notSorted }}."
+            message: "Invalid class order: \"{{ notSorted }}\"."
           });
 
         }
@@ -107,8 +109,20 @@ export const tailwindSortClasses: ESLintRule<Options> = {
             lintLiterals(ctx, literals);
           }
 
-        }
+        },
 
+        Tag(node: Node) {
+
+          const htmlTagNode = node as unknown as TagNode;
+          const htmlAttributes = getHTMLAttributes(ctx, classAttributes, htmlTagNode);
+
+          for(const htmlAttribute of htmlAttributes){
+            const literals = getHTMLClassAttributeLiterals(ctx, htmlAttribute);
+
+            lintLiterals(ctx, literals);
+          }
+
+        }
       };
     },
     meta: {

@@ -1,5 +1,5 @@
 import { createTrimTag } from "src/utils/template.js";
-import { lint } from "tests/utils.js";
+import { lint, TEST_SYNTAXES } from "tests/utils.js";
 import { describe, expect, it } from "vitest";
 
 import { tailwindMultiline } from "eptm:rules:tailwind-multiline.js";
@@ -8,13 +8,17 @@ import { tailwindMultiline } from "eptm:rules:tailwind-multiline.js";
 describe(`${tailwindMultiline.name}`, () => {
 
   it("should not wrap short lines", () => {
-    expect(void lint(tailwindMultiline, {
-      valid: [
-        { code: "const Test = () => <div class={`a b c`} />;" },
-        { code: "const Test = () => <div class='a b c' />;" },
-        { code: "const Test = () => <div class=\"a b c\" />;" }
-      ]
-    })).toBeUndefined();
+    expect(void lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          { jsx: "const Test = () => <div class={`a b c`} />;" },
+          { html: "<div class='a b c' />", jsx: "const Test = () => <div class='a b c' />;" },
+          { html: "<div class=\"a b c\" />", jsx: "const Test = () => <div class=\"a b c\" />;" }
+        ]
+      }
+    )).toBeUndefined();
   });
 
   it("should change to a jsx expression correctly", () => {
@@ -28,37 +32,41 @@ describe(`${tailwindMultiline.name}`, () => {
       g h
     `;
 
-    expect(void lint(tailwindMultiline, {
-      invalid: [
-        {
-          code: `const Test = () => <div class="${singleLine}" />;`,
-          errors: 1,
-          options: [{ classesPerLine: 3, indent: 2 }],
-          output: `const Test = () => <div class={\`${multiline}\`} />;`
-        },
-        {
-          code: `const Test = () => <div class='${singleLine}' />;`,
-          errors: 1,
-          options: [{ classesPerLine: 3, indent: 2 }],
-          output: `const Test = () => <div class={\`${multiline}\`} />;`
-        },
-        {
-          code: `const Test = () => <div class={"${singleLine}"} />;`,
-          errors: 1,
-          options: [{ classesPerLine: 3, indent: 2 }],
-          output: `const Test = () => <div class={\`${multiline}\`} />;`
-        },
-        {
-          code: `const Test = () => <div class={'${singleLine}'} />;`,
-          errors: 1,
-          options: [{ classesPerLine: 3, indent: 2 }],
-          output: `const Test = () => <div class={\`${multiline}\`} />;`
-        }
-      ],
-      valid: [
-        { code: `const Test = () => <div class={\`${multiline}\`} />;` }
-      ]
-    })).toBeUndefined();
+    expect(void lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            jsx: `const Test = () => <div class="${singleLine}" />;`,
+            jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
+            options: [{ classesPerLine: 3, indent: 2 }]
+          },
+          {
+            errors: 1,
+            jsx: `const Test = () => <div class='${singleLine}' />;`,
+            jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
+            options: [{ classesPerLine: 3, indent: 2 }]
+          },
+          {
+            errors: 1,
+            jsx: `const Test = () => <div class={"${singleLine}"} />;`,
+            jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
+            options: [{ classesPerLine: 3, indent: 2 }]
+          },
+          {
+            errors: 1,
+            jsx: `const Test = () => <div class={'${singleLine}'} />;`,
+            jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
+            options: [{ classesPerLine: 3, indent: 2 }]
+          }
+        ],
+        valid: [
+          { jsx: `const Test = () => <div class={\`${multiline}\`} />;` }
+        ]
+      }
+    )).toBeUndefined();
   });
 
   it("should wrap long lines on to multiple lines", () => {
@@ -72,13 +80,15 @@ describe(`${tailwindMultiline.name}`, () => {
       g h
     `;
 
-    expect(void lint(tailwindMultiline, {
+    expect(void lint(tailwindMultiline, TEST_SYNTAXES, {
       invalid: [
         {
-          code: `const Test = () => <div class={\`${singleLine}\`} />;`,
           errors: 1,
-          options: [{ classesPerLine: 3, indent: 2 }],
-          output: `const Test = () => <div class={\`${multiline}\`} />;`
+          html: `<div class="${singleLine}" />`,
+          htmlOutput: `<div class="${multiline}" />`,
+          jsx: `const Test = () => <div class={\`${singleLine}\`} />;`,
+          jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
+          options: [{ classesPerLine: 3, indent: 2 }]
         }
       ]
     })).toBeUndefined();
@@ -127,34 +137,38 @@ describe(`${tailwindMultiline.name}`, () => {
       g h
     `;
 
-    expect(void lint(tailwindMultiline, {
-      invalid: [
-        {
-          code: `const Test = () => <div class={\`${singleLineWithExpressionAtBeginning}\`} />;`,
-          errors: 2,
-          options: [{ classesPerLine: 3, indent: 2 }],
-          output: `const Test = () => <div class={\`${multilineWithExpressionAtBeginning}\`} />;`
-        },
-        {
-          code: `const Test = () => <div class={\`${singleLineWithExpressionInCenter}\`} />;`,
-          errors: 2,
-          options: [{ classesPerLine: 3, indent: 2 }],
-          output: `const Test = () => <div class={\`${multilineWithExpressionInCenter}\`} />;`
-        },
-        {
-          code: `const Test = () => <div class={\`${singleLineWithExpressionAtEnd}\`} />;`,
-          errors: 2,
-          options: [{ classesPerLine: 3, indent: 2 }],
-          output: `const Test = () => <div class={\`${multilineWithExpressionAtEnd}\`} />;`
-        },
-        {
-          code: `const Test = () => <div class={\`${singleLineWithClassesAroundExpression}\`} />;`,
-          errors: 2,
-          options: [{ classesPerLine: 4, indent: 2 }],
-          output: `const Test = () => <div class={\`${multilineWithClassesAroundExpression}\`} />;`
-        }
-      ]
-    })).toBeUndefined();
+    expect(void lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 2,
+            jsx: `const Test = () => <div class={\`${singleLineWithExpressionAtBeginning}\`} />;`,
+            jsxOutput: `const Test = () => <div class={\`${multilineWithExpressionAtBeginning}\`} />;`,
+            options: [{ classesPerLine: 3, indent: 2 }]
+          },
+          {
+            errors: 2,
+            jsx: `const Test = () => <div class={\`${singleLineWithExpressionInCenter}\`} />;`,
+            jsxOutput: `const Test = () => <div class={\`${multilineWithExpressionInCenter}\`} />;`,
+            options: [{ classesPerLine: 3, indent: 2 }]
+          },
+          {
+            errors: 2,
+            jsx: `const Test = () => <div class={\`${singleLineWithExpressionAtEnd}\`} />;`,
+            jsxOutput: `const Test = () => <div class={\`${multilineWithExpressionAtEnd}\`} />;`,
+            options: [{ classesPerLine: 3, indent: 2 }]
+          },
+          {
+            errors: 2,
+            jsx: `const Test = () => <div class={\`${singleLineWithClassesAroundExpression}\`} />;`,
+            jsxOutput: `const Test = () => <div class={\`${multilineWithClassesAroundExpression}\`} />;`,
+            options: [{ classesPerLine: 4, indent: 2 }]
+          }
+        ]
+      }
+    )).toBeUndefined();
 
   });
 
@@ -171,16 +185,22 @@ describe(`${tailwindMultiline.name}`, () => {
       g-3:a g-3:b
     `;
 
-    expect(void lint(tailwindMultiline, {
-      invalid: [
-        {
-          code: `const Test = () => <div class={\`${singleLine}\`} />;`,
-          errors: 1,
-          options: [{ classesPerLine: 3, indent: 2 }],
-          output: `const Test = () => <div class={\`${multiline}\`} />;`
-        }
-      ]
-    })).toBeUndefined();
+    expect(void lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            html: `<div class="${singleLine}" />`,
+            htmlOutput: `<div class="${multiline}" />`,
+            jsx: `const Test = () => <div class={\`${singleLine}\`} />;`,
+            jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
+            options: [{ classesPerLine: 3, indent: 2 }]
+          }
+        ]
+      }
+    )).toBeUndefined();
 
   });
 

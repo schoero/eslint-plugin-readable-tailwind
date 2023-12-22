@@ -1,8 +1,10 @@
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "eptm:utils:config.js";
+import { getHTMLAttributes, getHTMLClassAttributeLiterals } from "eptm:utils:html.js";
 import { getJSXAttributes, getJSXClassAttributeLiterals, getLiteralsByJSXCallExpression } from "eptm:utils:jsx.js";
 import { findLineStartPosition } from "eptm:utils:utils";
 import { splitClasses } from "eptm:utils:utils.js";
 
+import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
 import type { Node } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
@@ -62,6 +64,19 @@ export const tailwindMultiline: ESLintRule<Options> = {
 
             lintLiterals(ctx, literals);
 
+          }
+
+        },
+
+        Tag(node: Node) {
+
+          const htmlTagNode = node as unknown as TagNode;
+          const htmlAttributes = getHTMLAttributes(ctx, classAttributes, htmlTagNode);
+
+          for(const htmlAttribute of htmlAttributes){
+            const literals = getHTMLClassAttributeLiterals(ctx, htmlAttribute);
+
+            lintLiterals(ctx, literals);
           }
 
         }
@@ -153,7 +168,11 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     const lines = new Lines(ctx, startPosition);
 
     if(literal.openingQuote){
-      lines.line.addMeta({ openingQuote: "`" });
+      if(literal.parent.type === "JSXAttribute" || literal.parent.type === "JSXExpressionContainer"){
+        lines.line.addMeta({ openingQuote: "`" });
+      } else {
+        lines.line.addMeta({ openingQuote: literal.openingQuote });
+      }
     }
 
     if(literal.type === "TemplateLiteral" && literal.closingBraces){
@@ -222,7 +241,12 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     if(literal.closingQuote){
       lines.addLine();
       lines.line.indent(startPosition - getIndentation(ctx, indent));
-      lines.line.addMeta({ closingQuote: "`" });
+
+      if(literal.parent.type === "JSXAttribute" || literal.parent.type === "JSXExpressionContainer"){
+        lines.line.addMeta({ closingQuote: "`" });
+      } else {
+        lines.line.addMeta({ closingQuote: literal.closingQuote });
+      }
     }
 
     if(lines.length === 3 && (
@@ -243,12 +267,12 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         notReadable: literal.content
       },
       fix(fixer) {
-        return literals.length === 1 && literal.type === "StringLiteral" && literal.parent.type !== "JSXExpressionContainer"
+        return literal.parent.type === "JSXAttribute"
           ? fixer.replaceTextRange(literal.range, `{${fixedClasses}}`)
           : fixer.replaceTextRange(literal.range, fixedClasses);
       },
       loc: literal.loc,
-      message: "Invalid line wrapping: {{ notReadable }}."
+      message: "Invalid line wrapping: \"{{ notReadable }}\"."
     });
 
   }

@@ -100,7 +100,6 @@ Add `readable-tailwind` to your eslint config:
 
 ```jsonc
 {
-  // enable all recommended rules
   "extends": [
     // enable all recommended rules to warn
     "plugin:readable-tailwind/warning",

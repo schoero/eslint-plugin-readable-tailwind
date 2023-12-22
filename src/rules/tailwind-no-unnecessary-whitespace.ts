@@ -1,7 +1,9 @@
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "eptm:utils:config.js";
+import { getHTMLAttributes, getHTMLClassAttributeLiterals } from "eptm:utils:html.js";
 import { getJSXAttributes, getJSXClassAttributeLiterals, getLiteralsByJSXCallExpression } from "eptm:utils:jsx.js";
 import { splitClasses, splitWhitespaces } from "eptm:utils:utils.js";
 
+import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
 import type { Node } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
@@ -42,8 +44,6 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
           if(literal.raw === fixedClasses){
             continue;
           }
-          // `\n  a b c\n\n  ${
-          // `\n  a b c \n\n   ${
 
           ctx.report({
             data: {
@@ -53,7 +53,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
               return fixer.replaceTextRange(literal.range, fixedClasses);
             },
             loc: literal.loc,
-            message: "Unnecessary whitespace: {{ unnecessaryWhitespace }}."
+            message: "Unnecessary whitespace: \"{{ unnecessaryWhitespace }}\"."
           });
 
         }
@@ -84,6 +84,19 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
 
           for(const attribute of jsxAttributes){
             const literals = getJSXClassAttributeLiterals(ctx, attribute);
+
+            lintLiterals(ctx, literals);
+          }
+
+        },
+
+        Tag(node: Node) {
+
+          const htmlTagNode = node as unknown as TagNode;
+          const htmlAttributes = getHTMLAttributes(ctx, classAttributes, htmlTagNode);
+
+          for(const htmlAttribute of htmlAttributes){
+            const literals = getHTMLClassAttributeLiterals(ctx, htmlAttribute);
 
             lintLiterals(ctx, literals);
           }
