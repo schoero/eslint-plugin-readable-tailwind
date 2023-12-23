@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { tailwindSortClasses } from "eptm:rules:tailwind-sort-classes.js";
 
 
-describe(`${tailwindSortClasses.name}`, () => {
+describe(tailwindSortClasses.name, () => {
 
   it("should sort simple class names as defined", () => expect(
     void lint(tailwindSortClasses, TEST_SYNTAXES, {

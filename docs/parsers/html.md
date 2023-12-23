@@ -14,13 +14,14 @@ npm i -D @html-eslint/parser
 
 ```js
 // eslint.config.js
-import eslintParserHTML from "@html-eslint/parser";
 import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
+
+import eslintParserHTML from "@html-eslint/parser";
 
 export default [
   {
     languageOptions: {
-      parser: eslintParserHTML,
+      parser: eslintParserHTML
     },
     plugins: {
       "readable-tailwind": eslintPluginReadableTailwind

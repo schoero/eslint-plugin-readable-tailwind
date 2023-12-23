@@ -146,7 +146,7 @@ export function getJSXAttributes(ctx: Rule.RuleContext, classNames: string[], no
   return node.attributes.reduce<JSXAttribute[]>((acc, attribute) => {
     if(isJSXAttribute(attribute) &&
       typeof attribute.name.name === "string" &&
-      classNames.includes(attribute.name.name)){
+        classNames.includes(attribute.name.name)){
       acc.push(attribute);
     }
     return acc;

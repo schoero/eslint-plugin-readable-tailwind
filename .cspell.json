@@ -1,12 +1,13 @@
 {
-  "import": [
-    "@schoero/configs/cspell"
-  ],
   "ignorePaths": [
     "node_modules/**",
     "lib/**"
   ],
+  "import": [
+    "@schoero/configs/cspell"
+  ],
   "words": [
+    "eslintrc",
     "callees",
     "clsx",
     "ecma",

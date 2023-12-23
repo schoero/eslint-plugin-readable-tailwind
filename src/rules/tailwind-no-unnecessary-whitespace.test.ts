@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { tailwindNoUnnecessaryWhitespace } from "eptm:rules:tailwind-no-unnecessary-whitespace.js";
 
 
-describe(`${tailwindNoUnnecessaryWhitespace.name}`, () => {
+describe(tailwindNoUnnecessaryWhitespace.name, () => {
 
   it("should trim leading and trailing white space in literals", () => expect(
     void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {

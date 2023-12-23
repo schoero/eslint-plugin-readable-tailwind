@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { tailwindMultiline } from "eptm:rules:tailwind-multiline.js";
 
 
-describe(`${tailwindMultiline.name}`, () => {
+describe(tailwindMultiline.name, () => {
 
   it("should not wrap short lines", () => {
     expect(void lint(
