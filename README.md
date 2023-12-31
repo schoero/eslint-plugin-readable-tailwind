@@ -41,7 +41,7 @@ It works in jsx, html and svelte.
 ## Installation
 
 ```sh
-npm install eslint-plugin-readable-tailwind --save-dev
+npm i -D eslint-plugin-readable-tailwind
 ```
 
 <br/>
