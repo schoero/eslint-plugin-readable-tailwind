@@ -34,6 +34,45 @@ describe(tailwindMultiline.name, () => {
     )).toBeUndefined();
   });
 
+  it("should change the quotes in defined call signatures to template literals", () => {
+
+    const trim = createTrimTag(4);
+
+    const dirtyDefined = "defined('a b c d e f g h')";
+
+    const cleanDefined = trim`defined(\`
+      a b c
+      d e f
+      g h
+    \`)`;
+
+    const dirtyUndefined = "notDefined('a b c d e f g h')";
+
+    expect(void lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            jsx: `const Test = () => <div class={${dirtyDefined}} />;`,
+            jsxOutput: `const Test = () => <div class={${cleanDefined}} />;`,
+            options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }],
+            svelte: `<div class={${dirtyDefined}} />`,
+            svelteOutput: `<div class={${cleanDefined}} />`
+          }
+        ],
+        valid: [
+          {
+            jsx: `const Test = () => <div class={${dirtyUndefined}} />;`,
+            options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }],
+            svelte: `<div class={${dirtyUndefined}} />`
+          }
+        ]
+      }
+    )).toBeUndefined();
+  });
+
   it("should change to a jsx expression correctly", () => {
 
     const trim = createTrimTag(4);
@@ -106,6 +145,8 @@ describe(tailwindMultiline.name, () => {
           errors: 1,
           html: `<div class="${singleLine}" />`,
           htmlOutput: `<div class="${multiline}" />`,
+          jsx: `const Test = () => <div class="${singleLine}" />;`,
+          jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
           options: [{ classesPerLine: 3, indent: 2 }],
           svelte: `<div class="${singleLine}" />`,
           svelteOutput: `<div class="${multiline}" />`
@@ -114,6 +155,8 @@ describe(tailwindMultiline.name, () => {
           errors: 1,
           html: `<div class='${singleLine}' />`,
           htmlOutput: `<div class='${multiline}' />`,
+          jsx: `const Test = () => <div class='${singleLine}' />;`,
+          jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
           options: [{ classesPerLine: 3, indent: 2 }],
           svelte: `<div class='${singleLine}' />`,
           svelteOutput: `<div class='${multiline}' />`

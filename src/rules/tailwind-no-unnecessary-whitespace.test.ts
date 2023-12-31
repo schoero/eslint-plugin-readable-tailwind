@@ -1,4 +1,3 @@
-import { tsx } from "src/utils/template.js";
 import { lint, TEST_SYNTAXES } from "tests/utils.js";
 import { describe, expect, it } from "vitest";
 
@@ -139,29 +138,43 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
         }
       ],
       valid: [
-        { html: `<div class="${cleanedMultilineString}" />`, jsx: `const Test = () => <div class={\`${cleanedMultilineString}\`} />;` },
-        { html: `<div class="${cleanedSinglelineString}" />`, jsx: `const Test = () => <div class={\`${cleanedSinglelineString}\`} />;` }
+        {
+          html: `<div class="${cleanedMultilineString}" />`,
+          jsx: `const Test = () => <div class={\`${cleanedMultilineString}\`} />;`,
+          svelte: `<div class="${cleanedMultilineString}" />`
+        },
+        {
+          html: `<div class="${cleanedSinglelineString}" />`,
+          jsx: `const Test = () => <div class={\`${cleanedSinglelineString}\`} />;`,
+          svelte: `<div class="${cleanedSinglelineString}" />`
+        }
       ]
     })).toBeUndefined();
   });
 
   it("should also work in defined call signature arguments", () => {
 
-    const dirtyDefined = tsx`defined('  f  e  ');`;
-    const cleanDefined = tsx`defined('f e');`;
-    const dirtyUndefined = tsx`notDefined("  f  e  ");`;
+    const dirtyDefined = "defined('  f  e  ');";
+    const cleanDefined = "defined('f e');";
+    const dirtyUndefined = "notDefined(\"  f  e  \");";
 
     expect(void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
-          jsx: `${dirtyDefined}`,
-          jsxOutput: `${cleanDefined}`,
-          options: [{ callees: ["defined"] }]
+          jsx: dirtyDefined,
+          jsxOutput: cleanDefined,
+          options: [{ callees: ["defined"] }],
+          svelte: `<script>${dirtyDefined}</script>`,
+          svelteOutput: `<script>${cleanDefined}</script>`
         }
       ],
       valid: [
-        { jsx: `${dirtyUndefined}` }
+        {
+          jsx: dirtyUndefined,
+          options: [{ callees: ["defined"] }],
+          svelte: `<script>${dirtyUndefined}</script>`
+        }
       ]
     })).toBeUndefined();
 
@@ -195,11 +208,16 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
           errors: 1,
           jsx: `const Test = () => <div class={\`${dirtyDefinedMultiline}\`} />;`,
           jsxOutput: `const Test = () => <div class={\`${cleanDefinedMultiline}\`} />;`,
-          options: [{ callees: ["defined"] }]
+          options: [{ callees: ["defined"] }],
+          svelte: `<div class={\`${dirtyDefinedMultiline}\`} />`,
+          svelteOutput: `<div class={\`${cleanDefinedMultiline}\`} />`
         }
       ],
       valid: [
-        { jsx: `const Test = () => <div class={\`${dirtyUndefinedMultiline}\`} />;` }
+        {
+          jsx: `const Test = () => <div class={\`${dirtyUndefinedMultiline}\`} />;`,
+          svelte: `<div class={\`${dirtyUndefinedMultiline}\`} />`
+        }
       ]
     })).toBeUndefined();
 
