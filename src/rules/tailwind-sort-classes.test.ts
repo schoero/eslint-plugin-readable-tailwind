@@ -1,4 +1,3 @@
-import { } from "src/utils/template.js";
 import { lint, TEST_SYNTAXES } from "tests/utils.js";
 import { describe, expect, it } from "vitest";
 
