@@ -2,8 +2,8 @@ import {
   getLiteralByJSXTemplateElement,
   getStringLiteralByJSXStringLiteral,
   isSimpleStringLiteral
-} from "eptm:utils:jsx.js";
-import { getWhitespace } from "eptm:utils:utils.js";
+} from "readable-tailwind:utils:jsx.js";
+import { getWhitespace } from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { BaseNode as JSXBaseNode, Node as JSXNode, TemplateLiteral as JSXTemplateLiteral } from "estree-jsx";

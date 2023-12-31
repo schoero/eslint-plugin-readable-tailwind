@@ -1,4 +1,4 @@
-import { getQuotes, getWhitespace } from "eptm:utils:utils.js";
+import { getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
 
 import type { AST, Rule } from "eslint";
 import type {

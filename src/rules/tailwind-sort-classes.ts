@@ -5,12 +5,12 @@ import setupContextUtils from "tailwindcss/lib/lib/setupContextUtils.js";
 import loadConfig from "tailwindcss/loadConfig.js";
 import resolveConfig from "tailwindcss/resolveConfig.js";
 
-import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "eptm:utils:config.js";
-import { getHTMLAttributes, getHTMLClassAttributeLiterals } from "eptm:utils:html.js";
-import { getJSXAttributes } from "eptm:utils:jsx";
-import { getJSXClassAttributeLiterals, getLiteralsByJSXCallExpression } from "eptm:utils:jsx.js";
-import { getSvelteAttributes, getSvelteClassAttributeLiterals } from "eptm:utils:svelte.js";
-import { splitClasses, splitWhitespaces } from "eptm:utils:utils.js";
+import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "readable-tailwind:utils:config.js";
+import { getHTMLAttributes, getHTMLClassAttributeLiterals } from "readable-tailwind:utils:html.js";
+import { getJSXAttributes } from "readable-tailwind:utils:jsx";
+import { getJSXClassAttributeLiterals, getLiteralsByJSXCallExpression } from "readable-tailwind:utils:jsx.js";
+import { getSvelteAttributes, getSvelteClassAttributeLiterals } from "readable-tailwind:utils:svelte.js";
+import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";

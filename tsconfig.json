@@ -8,9 +8,9 @@
     "noEmit": true,
     "noImplicitAny": false,
     "paths": {
-      "eptm:rules:*": ["src/rules/*"],
-      "eptm:tests:": ["src/tests/*"],
-      "eptm:utils:*": ["src/utils/*"]
+      "readable-tailwind:rules:*": ["src/rules/*"],
+      "readable-tailwind:tests:": ["src/tests/*"],
+      "readable-tailwind:utils:*": ["src/utils/*"]
     },
     "rootDir": ".",
     "skipLibCheck": true,

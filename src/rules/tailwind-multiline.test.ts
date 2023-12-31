@@ -2,7 +2,7 @@ import { createTrimTag } from "src/utils/template.js";
 import { lint, TEST_SYNTAXES } from "tests/utils.js";
 import { describe, expect, it } from "vitest";
 
-import { tailwindMultiline } from "eptm:rules:tailwind-multiline.js";
+import { tailwindMultiline } from "readable-tailwind:rules:tailwind-multiline.js";
 
 
 describe(tailwindMultiline.name, () => {

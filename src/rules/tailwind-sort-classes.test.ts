@@ -2,7 +2,7 @@ import { } from "src/utils/template.js";
 import { lint, TEST_SYNTAXES } from "tests/utils.js";
 import { describe, expect, it } from "vitest";
 
-import { tailwindSortClasses } from "eptm:rules:tailwind-sort-classes.js";
+import { tailwindSortClasses } from "readable-tailwind:rules:tailwind-sort-classes.js";
 
 
 describe(tailwindSortClasses.name, () => {

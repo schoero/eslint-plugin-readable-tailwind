@@ -1,6 +1,6 @@
-import { tailwindMultiline } from "eptm:rules:tailwind-multiline.js";
-import { tailwindNoUnnecessaryWhitespace } from "eptm:rules:tailwind-no-unnecessary-whitespace.js";
-import { tailwindSortClasses } from "eptm:rules:tailwind-sort-classes.js";
+import { tailwindMultiline } from "readable-tailwind:rules:tailwind-multiline.js";
+import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
+import { tailwindSortClasses } from "readable-tailwind:rules:tailwind-sort-classes.js";
 
 import type { ESLint } from "eslint";
 
