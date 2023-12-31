@@ -26,7 +26,7 @@
 
 ESLint plugin to automatically break up long tailwind class strings into multiple lines for better readability.
 Also sorts the classes logically, removes unnecessary whitespaces and groups the classes by their modifiers.
-It works in jsx and html.
+It works in jsx, html and svelte.
 
 <br/>
 <br/>
@@ -48,77 +48,11 @@ npm install eslint-plugin-readable-tailwind --save-dev
 
 ## Usage
 
-### Flat config
+Please read the documentation for the specific flavor you are using:
 
-Add `readable-tailwind` to your [flat eslint config](https://eslint.org/docs/latest/use/configure/configuration-files-new):
-
-```js
-import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
-
-export default [
-  {
-    languageOptions: {
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true
-        }
-      }
-    },
-    plugins: {
-      "readable-tailwind": eslintPluginReadableTailwind
-    },
-    rules: {
-      // enable all recommended rules to warn
-      ...eslintPluginReadableTailwind.configs.warning,
-      // enable all recommended rules to error
-      ...eslintPluginReadableTailwind.configs.error,
-
-      // or configure rules individually
-      "readable-tailwind/multiline": ["warn", { printWidth: 100 }]
-    }
-  }
-];
-```
-
-<br/>
-
-#### VSCode
-
-To enable the new flat config format in VSCode, add the following to your `.vscode/settings.json`:
-
-```jsonc
-{
-  "eslint.experimental.useFlatConfig": true
-}
-```
-
-<br/>
-
-### Legacy config
-
-Add `readable-tailwind` to your eslint config:
-
-```jsonc
-{
-  "extends": [
-    // enable all recommended rules to warn
-    "plugin:readable-tailwind/warning",
-    // enable all recommended rules to error
-    "plugin:readable-tailwind/error"
-  ],
-  "parserOptions": {
-    "ecmaFeatures": {
-      "jsx": true
-    },
-    "ecmaVersion": "latest"
-  },
-  "plugins": ["readable-tailwind"],
-  "rules": {
-    // or configure rules individually
-    "readable-tailwind/multiline": ["warn", { "printWidth": 100 }]
-  }
-}
-```
+- [JSX/TSX](docs/parsers/jsx.md) (React, Qwik, Solid, etc.)
+- [HTML](docs/parsers/html.md)
+- [Svelte](docs/parsers/svelte.md)
 
 <br/>
 <br/>

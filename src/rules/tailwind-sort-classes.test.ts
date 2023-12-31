@@ -12,33 +12,101 @@ describe(tailwindSortClasses.name, () => {
       invalid: [
         {
           errors: 1,
-          html: "<div class='b a' />",
-          htmlOutput: "<div class='a b' />",
+          html: "<div class=\"b a\" />",
+          htmlOutput: "<div class=\"a b\" />",
           jsx: "const Test = () => <div class=\"b a\" />;",
           jsxOutput: "const Test = () => <div class=\"a b\" />;",
+          options: [{ order: "asc" }],
+          svelte: "<div class=\"b a\" />",
+          svelteOutput: "<div class=\"a b\" />"
+        },
+        {
+          errors: 1,
+          html: "<div class=\"a b\" />",
+          htmlOutput: "<div class=\"b a\" />",
+          jsx: "const Test = () => <div class=\"a b\" />;",
+          jsxOutput: "const Test = () => <div class=\"b a\" />;",
+          options: [{ order: "desc" }],
+          svelte: "<div class=\"a b\" />",
+          svelteOutput: "<div class=\"b a\" />"
+        },
+        {
+          errors: 1,
+          html: "<div class=\"w-full absolute\" />",
+          htmlOutput: "<div class=\"absolute w-full\" />",
+          jsx: "const Test = () => <div class=\"w-full absolute\" />;",
+          jsxOutput: "const Test = () => <div class=\"absolute w-full\" />;",
+          options: [{ order: "official" }],
+          svelte: "<div class=\"w-full absolute\" />",
+          svelteOutput: "<div class=\"absolute w-full\" />"
+        }
+      ],
+      valid: [
+        {
+          html: "<div class=\"a b\" />",
+          jsx: "const Test = () => <div class=\"a b\" />;",
+          options: [{ order: "asc" }],
+          svelte: "<div class=\"a b\" />"
+        },
+        {
+          html: "div class=\"b a\" />",
+          jsx: "const Test = () => <div class=\"b a\" />;",
+          options: [{ order: "desc" }],
+          svelte: "div class=\"b a\" />"
+        },
+        {
+          html: "<div class=\"absolute w-full\" />",
+          jsx: "const Test = () => <div class=\"absolute w-full\" />;",
+          options: [{ order: "official" }],
+          svelte: "<div class=\"absolute w-full\" />"
+        }
+      ]
+    })
+  ).toBeUndefined());
+
+  it("should keep the quotes as they are", () => expect(
+    void lint(tailwindSortClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 1,
+          html: "<div class=\"b a\" />",
+          htmlOutput: "<div class=\"a b\" />",
+          jsx: "const Test = () => <div class=\"b a\" />;",
+          jsxOutput: "const Test = () => <div class=\"a b\" />;",
+          options: [{ order: "asc" }],
+          svelte: "<div class=\"b a\" />",
+          svelteOutput: "<div class=\"a b\" />"
+        },
+        {
+          errors: 1,
+          html: "<div class='b a' />",
+          htmlOutput: "<div class='a b' />",
+          jsx: "const Test = () => <div class='b a' />;",
+          jsxOutput: "const Test = () => <div class='a b' />;",
+          options: [{ order: "asc" }],
+          svelte: "<div class='b a' />",
+          svelteOutput: "<div class='a b' />"
+        },
+        {
+          errors: 1,
+          jsx: "const Test = () => <div class={`b a`} />;",
+          jsxOutput: "const Test = () => <div class={`a b`} />;",
+          options: [{ order: "asc" }],
+          svelte: "<div class={`b a`} />",
+          svelteOutput: "<div class={`a b`} />"
+        },
+        {
+          errors: 1,
+          jsx: "const Test = () => <div class={\"b a\"} />;",
+          jsxOutput: "const Test = () => <div class={\"a b\"} />;",
           options: [{ order: "asc" }]
         },
         {
           errors: 1,
-          html: "<div class='a b' />",
-          htmlOutput: "<div class='b a' />",
-          jsx: "const Test = () => <div class=\"a b\" />;",
-          jsxOutput: "const Test = () => <div class=\"b a\" />;",
-          options: [{ order: "desc" }]
-        },
-        {
-          errors: 1,
-          html: "<div class='w-full absolute' />",
-          htmlOutput: "<div class='absolute w-full' />",
-          jsx: "const Test = () => <div class=\"w-full absolute\" />;",
-          jsxOutput: "const Test = () => <div class=\"absolute w-full\" />;",
-          options: [{ order: "official" }]
+          jsx: "const Test = () => <div class={'b a'} />;",
+          jsxOutput: "const Test = () => <div class={'a b'} />;",
+          options: [{ order: "asc" }]
         }
-      ],
-      valid: [
-        { html: "<div class=\"a b\" />", jsx: "const Test = () => <div class=\"a b\" />;", options: [{ order: "asc" }] },
-        { html: "div class=\"b a\" />", jsx: "const Test = () => <div class=\"b a\" />;", options: [{ order: "desc" }] },
-        { html: "<div class=\"absolute w-full\" />", jsx: "const Test = () => <div class=\"absolute w-full\" />;", options: [{ order: "official" }] }
       ]
     })
   ).toBeUndefined());
@@ -46,7 +114,10 @@ describe(tailwindSortClasses.name, () => {
   it("should keep expressions as they are", () => expect(
     void lint(tailwindSortClasses, TEST_SYNTAXES, {
       valid: [
-        { jsx: "const Test = () => <div class={true ? \"a\" : \"b\"} />;" }
+        {
+          jsx: "const Test = () => <div class={true ? \"a\" : \"b\"} />;",
+          svelte: "<div class={true ? \"a\" : \"b\"} />"
+        }
       ]
     })
   ).toBeUndefined());
@@ -58,11 +129,16 @@ describe(tailwindSortClasses.name, () => {
           errors: 2,
           jsx: "const Test = () => <div class={`c a ${true ? 'e' : 'f'} d b `} />;",
           jsxOutput: "const Test = () => <div class={`a c ${true ? 'e' : 'f'} b d `} />;",
-          options: [{ order: "asc" }]
+          options: [{ order: "asc" }],
+          svelte: "<div class={`c a ${true ? 'e' : 'f'} d b `} />",
+          svelteOutput: "<div class={`a c ${true ? 'e' : 'f'} b d `} />"
         }
       ],
       valid: [
-        { jsx: "const Test = () => <div class={`a c ${true ? 'e' : 'f'} b `} />;" }
+        {
+          jsx: "const Test = () => <div class={`a c ${true ? 'e' : 'f'} b `} />;",
+          svelte: "<div class={`a c ${true ? 'e' : 'f'} b `} />"
+        }
       ]
     })
   ).toBeUndefined());
@@ -84,13 +160,43 @@ describe(tailwindSortClasses.name, () => {
           errors: 1,
           html: `<div class="${unsortedMultilineString}" />`,
           htmlOutput: `<div class="${sortedMultilineString}" />`,
+          options: [{ order: "asc" }],
+          svelte: `<div class="${unsortedMultilineString}" />`,
+          svelteOutput: `<div class="${sortedMultilineString}" />`
+        },
+        {
+          errors: 1,
+          html: `<div class='${unsortedMultilineString}' />`,
+          htmlOutput: `<div class='${sortedMultilineString}' />`,
+          options: [{ order: "asc" }],
+          svelte: `<div class='${unsortedMultilineString}' />`,
+          svelteOutput: `<div class='${sortedMultilineString}' />`
+        },
+        {
+          errors: 1,
           jsx: `const Test = () => <div class={\`${unsortedMultilineString}\`} />;`,
           jsxOutput: `const Test = () => <div class={\`${sortedMultilineString}\`} />;`,
-          options: [{ order: "asc" }]
+          options: [{ order: "asc" }],
+          svelte: `<div class={\`${unsortedMultilineString}\`} />`,
+          svelteOutput: `<div class={\`${sortedMultilineString}\`} />`
         }
       ],
       valid: [
-        { html: `<div class="${sortedMultilineString}" />`, jsx: `const Test = () => <div class={\`${sortedMultilineString}\`} />;`, options: [{ order: "asc" }] }
+        {
+          html: `<div class="${sortedMultilineString}" />`,
+          options: [{ order: "asc" }],
+          svelte: `<div class="${sortedMultilineString}" />`
+        },
+        {
+          html: `<div class='${sortedMultilineString}' />`,
+          options: [{ order: "asc" }],
+          svelte: `<div class='${sortedMultilineString}' />`
+        },
+        {
+          jsx: `const Test = () => <div class={\`${sortedMultilineString}\`} />;`,
+          options: [{ order: "asc" }],
+          svelte: `<div class={\`${sortedMultilineString}\`} />`
+        }
       ]
     })).toBeUndefined();
   });
@@ -104,7 +210,9 @@ describe(tailwindSortClasses.name, () => {
           htmlOutput: "<div class=\"a:a a:b b:a b:b c:a c:b\" />",
           jsx: "const Test = () => <div class=\"c:a a:a b:a a:b c:b b:b\" />;",
           jsxOutput: "const Test = () => <div class=\"a:a a:b b:a b:b c:a c:b\" />;",
-          options: [{ order: "improved" }]
+          options: [{ order: "improved" }],
+          svelte: "<div class=\"c:a a:a b:a a:b c:b b:b\" />",
+          svelteOutput: "<div class=\"a:a a:b b:a b:b c:a c:b\" />"
         }
       ]
     })).toBeUndefined();

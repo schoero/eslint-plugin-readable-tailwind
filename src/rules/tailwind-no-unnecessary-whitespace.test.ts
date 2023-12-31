@@ -15,19 +15,51 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
           html: "<div class=\"  b  a  \" />",
           htmlOutput: "<div class=\"b a\" />",
           jsx: "const Test = () => <div class=\"  b  a  \" />;",
-          jsxOutput: "const Test = () => <div class=\"b a\" />;"
+          jsxOutput: "const Test = () => <div class=\"b a\" />;",
+          svelte: "<div class=\"  b  a  \" />",
+          svelteOutput: "<div class=\"b a\" />"
+        }
+      ]
+    })
+  ).toBeUndefined());
+
+  it("should keep the quotes as they are", () => expect(
+    void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 1,
+          html: "<div class=\"  b  a  \" />",
+          htmlOutput: "<div class=\"b a\" />",
+          jsx: "const Test = () => <div class=\"  b  a  \" />;",
+          jsxOutput: "const Test = () => <div class=\"b a\" />;",
+          svelte: "<div class=\"  b  a  \" />",
+          svelteOutput: "<div class=\"b a\" />"
         },
         {
           errors: 1,
           html: "<div class='  b  a  ' />",
           htmlOutput: "<div class='b a' />",
           jsx: "const Test = () => <div class='  b  a  ' />;",
-          jsxOutput: "const Test = () => <div class='b a' />;"
+          jsxOutput: "const Test = () => <div class='b a' />;",
+          svelte: "<div class='  b  a  ' />",
+          svelteOutput: "<div class='b a' />"
         },
         {
           errors: 1,
           jsx: "const Test = () => <div class={`  b  a  `} />;",
-          jsxOutput: "const Test = () => <div class={`b a`} />;"
+          jsxOutput: "const Test = () => <div class={`b a`} />;",
+          svelte: "<div class={`  b  a  `} />",
+          svelteOutput: "<div class={`b a`} />"
+        },
+        {
+          errors: 1,
+          jsx: "const Test = () => <div class={\"  b  a  \"} />;",
+          jsxOutput: "const Test = () => <div class={\"b a\"} />;"
+        },
+        {
+          errors: 1,
+          jsx: "const Test = () => <div class={'  b  a  '} />;",
+          jsxOutput: "const Test = () => <div class={'b a'} />;"
         }
       ]
     })
@@ -39,7 +71,9 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
         {
           errors: 2,
           jsx: "const Test = () => <div class={`  b  a  ${'  c  '}  d  `} />;",
-          jsxOutput: "const Test = () => <div class={`b a ${'  c  '} d`} />;"
+          jsxOutput: "const Test = () => <div class={`b a ${'  c  '} d`} />;",
+          svelte: "<div class={`  b  a  ${'  c  '}  d  `} />",
+          svelteOutput: "<div class={`b a ${'  c  '} d`} />"
         }
       ]
     })
@@ -51,7 +85,9 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
         {
           errors: 3,
           jsx: "const Test = () => <div class={`  ${' b '}  a  d  ${'  c  '}  `} />;",
-          jsxOutput: "const Test = () => <div class={`${' b '} a d ${'  c  '}`} />;"
+          jsxOutput: "const Test = () => <div class={`${' b '} a d ${'  c  '}`} />;",
+          svelte: "<div class={`  ${' b '}  a  d  ${'  c  '}  `} />",
+          svelteOutput: "<div class={`${' b '} a d ${'  c  '}`} />"
         }
       ]
     })
@@ -76,8 +112,22 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
           errors: 1,
           html: `<div class="${uncleanedMultilineString}" />`,
           htmlOutput: `<div class="${cleanedMultilineString}" />`,
+          svelte: `<div class="${uncleanedMultilineString}=" />`,
+          svelteOutput: `<div class="${cleanedMultilineString}=" />`
+        },
+        {
+          errors: 1,
+          html: `<div class='${uncleanedMultilineString}' />`,
+          htmlOutput: `<div class='${cleanedMultilineString}' />`,
+          svelte: `<div class='${uncleanedMultilineString}=' />`,
+          svelteOutput: `<div class='${cleanedMultilineString}=' />`
+        },
+        {
+          errors: 1,
           jsx: `const Test = () => <div class={\`${uncleanedMultilineString}\`} />;`,
-          jsxOutput: `const Test = () => <div class={\`${cleanedMultilineString}\`} />;`
+          jsxOutput: `const Test = () => <div class={\`${cleanedMultilineString}\`} />;`,
+          svelte: `<div class={\`${uncleanedMultilineString}\`} />`,
+          svelteOutput: `<div class={\`${cleanedMultilineString}\`} />`
         },
         {
           errors: 1,

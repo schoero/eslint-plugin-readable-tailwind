@@ -1,6 +1,7 @@
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "eptm:utils:config.js";
 import { getHTMLAttributes, getHTMLClassAttributeLiterals } from "eptm:utils:html.js";
 import { getJSXAttributes, getJSXClassAttributeLiterals, getLiteralsByJSXCallExpression } from "eptm:utils:jsx.js";
+import { getSvelteAttributes, getSvelteClassAttributeLiterals } from "eptm:utils:svelte.js";
 import { splitClasses, splitWhitespaces } from "eptm:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
@@ -9,6 +10,7 @@ import type { Node } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { Literal } from "src/types/ast.js";
 import type { ESLintRule } from "src/types/rule.js";
+import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 
 
 export type Options = [
@@ -24,42 +26,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
   rule: {
     create(ctx) {
 
-      const { allowMultiline, callees, classAttributes } = getOptions(ctx);
-
-
-      const lintLiterals = (ctx: Rule.RuleContext, literals: Literal[]) => {
-
-        for(const literal of literals){
-
-          const classes = splitClassesKeepWhitespace(literal, allowMultiline);
-
-          const fixedClasses = [
-            literal.openingQuote ?? "",
-            literal.type === "TemplateLiteral" && literal.closingBraces ? literal.closingBraces : "",
-            ...classes,
-            literal.type === "TemplateLiteral" && literal.openingBraces ? literal.openingBraces : "",
-            literal.closingQuote ?? ""
-          ].join("");
-
-          if(literal.raw === fixedClasses){
-            continue;
-          }
-
-          ctx.report({
-            data: {
-              unnecessaryWhitespace: literal.content
-            },
-            fix(fixer) {
-              return fixer.replaceTextRange(literal.range, fixedClasses);
-            },
-            loc: literal.loc,
-            message: "Unnecessary whitespace: \"{{ unnecessaryWhitespace }}\"."
-          });
-
-        }
-
-      };
-
+      const { callees, classAttributes } = getOptions(ctx);
 
       return {
 
@@ -84,6 +51,19 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
 
           for(const attribute of jsxAttributes){
             const literals = getJSXClassAttributeLiterals(ctx, attribute);
+
+            lintLiterals(ctx, literals);
+          }
+
+        },
+
+        SvelteStartTag(node: Node) {
+
+          const svelteNode = node as unknown as SvelteStartTag;
+          const svelteAttributes = getSvelteAttributes(ctx, classAttributes, svelteNode);
+
+          for(const attribute of svelteAttributes){
+            const literals = getSvelteClassAttributeLiterals(ctx, attribute);
 
             lintLiterals(ctx, literals);
           }
@@ -146,6 +126,42 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
     }
   }
 };
+
+function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
+
+  const { allowMultiline } = getOptions(ctx);
+
+  for(const literal of literals){
+
+    const classes = splitClassesKeepWhitespace(literal, allowMultiline);
+
+    const fixedClasses = [
+      literal.openingQuote ?? "",
+      literal.type === "TemplateLiteral" && literal.closingBraces ? literal.closingBraces : "",
+      ...classes,
+      literal.type === "TemplateLiteral" && literal.openingBraces ? literal.openingBraces : "",
+      literal.closingQuote ?? ""
+    ].join("");
+
+    if(literal.raw === fixedClasses){
+      continue;
+    }
+
+    ctx.report({
+      data: {
+        unnecessaryWhitespace: literal.content
+      },
+      fix(fixer) {
+        return fixer.replaceTextRange(literal.range, fixedClasses);
+      },
+      loc: literal.loc,
+      message: "Unnecessary whitespace: \"{{ unnecessaryWhitespace }}\"."
+    });
+
+  }
+
+}
+
 
 function splitClassesKeepWhitespace(literal: Literal, allowMultiline: boolean): string[] {
 

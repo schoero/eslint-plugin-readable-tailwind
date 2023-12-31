@@ -13,9 +13,22 @@ describe(tailwindMultiline.name, () => {
       TEST_SYNTAXES,
       {
         valid: [
-          { jsx: "const Test = () => <div class={`a b c`} />;" },
-          { html: "<div class='a b c' />", jsx: "const Test = () => <div class='a b c' />;" },
-          { html: "<div class=\"a b c\" />", jsx: "const Test = () => <div class=\"a b c\" />;" }
+          { jsx: "const Test = () => <div class={\"a b c\"} />;" },
+          { jsx: "const Test = () => <div class={'a b c'} />;" },
+          {
+            jsx: "const Test = () => <div class={`a b c`} />;",
+            svelte: "<div class={`a b c`} />"
+          },
+          {
+            html: "<div class='a b c' />",
+            jsx: "const Test = () => <div class='a b c' />;",
+            svelte: "<div class='a b c' />"
+          },
+          {
+            html: "<div class=\"a b c\" />",
+            jsx: "const Test = () => <div class=\"a b c\" />;",
+            svelte: "<div class=\"a b c\" />"
+          }
         ]
       }
     )).toBeUndefined();
@@ -53,17 +66,24 @@ describe(tailwindMultiline.name, () => {
             errors: 1,
             jsx: `const Test = () => <div class={"${singleLine}"} />;`,
             jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
-            options: [{ classesPerLine: 3, indent: 2 }]
+            options: [{ classesPerLine: 3, indent: 2 }],
+            svelte: `<div class={"${singleLine}"} />`,
+            svelteOutput: `<div class={\`${multiline}\`} />`
           },
           {
             errors: 1,
             jsx: `const Test = () => <div class={'${singleLine}'} />;`,
             jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
-            options: [{ classesPerLine: 3, indent: 2 }]
+            options: [{ classesPerLine: 3, indent: 2 }],
+            svelte: `<div class={'${singleLine}'} />`,
+            svelteOutput: `<div class={\`${multiline}\`} />`
           }
         ],
         valid: [
-          { jsx: `const Test = () => <div class={\`${multiline}\`} />;` }
+          { jsx: `const Test = () => <div class={\`${multiline}\`} />;` },
+          { svelte: `<div class={\`${multiline}\`} />` },
+          { html: `<div class="${multiline}" />`, svelte: `<div class="${multiline}" />` },
+          { html: `<div class='${multiline}' />`, svelte: `<div class='${multiline}' />` }
         ]
       }
     )).toBeUndefined();
@@ -86,9 +106,37 @@ describe(tailwindMultiline.name, () => {
           errors: 1,
           html: `<div class="${singleLine}" />`,
           htmlOutput: `<div class="${multiline}" />`,
+          options: [{ classesPerLine: 3, indent: 2 }],
+          svelte: `<div class="${singleLine}" />`,
+          svelteOutput: `<div class="${multiline}" />`
+        },
+        {
+          errors: 1,
+          html: `<div class='${singleLine}' />`,
+          htmlOutput: `<div class='${multiline}' />`,
+          options: [{ classesPerLine: 3, indent: 2 }],
+          svelte: `<div class='${singleLine}' />`,
+          svelteOutput: `<div class='${multiline}' />`
+        },
+        {
+          errors: 1,
           jsx: `const Test = () => <div class={\`${singleLine}\`} />;`,
           jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
-          options: [{ classesPerLine: 3, indent: 2 }]
+          options: [{ classesPerLine: 3, indent: 2 }],
+          svelte: `<div class={\`${singleLine}\`} />`,
+          svelteOutput: `<div class={\`${multiline}\`} />`
+        },
+        {
+          errors: 1,
+          options: [{ classesPerLine: 3, indent: 2 }],
+          svelte: `<div class={"${singleLine}"} />`,
+          svelteOutput: `<div class={\`${multiline}\`} />`
+        },
+        {
+          errors: 1,
+          options: [{ classesPerLine: 3, indent: 2 }],
+          svelte: `<div class={'${singleLine}'} />`,
+          svelteOutput: `<div class={\`${multiline}\`} />`
         }
       ]
     })).toBeUndefined();
@@ -146,25 +194,33 @@ describe(tailwindMultiline.name, () => {
             errors: 2,
             jsx: `const Test = () => <div class={\`${singleLineWithExpressionAtBeginning}\`} />;`,
             jsxOutput: `const Test = () => <div class={\`${multilineWithExpressionAtBeginning}\`} />;`,
-            options: [{ classesPerLine: 3, indent: 2 }]
+            options: [{ classesPerLine: 3, indent: 2 }],
+            svelte: `<div class={\`${singleLineWithExpressionAtBeginning}\`} />`,
+            svelteOutput: `<div class={\`${multilineWithExpressionAtBeginning}\`} />`
           },
           {
             errors: 2,
             jsx: `const Test = () => <div class={\`${singleLineWithExpressionInCenter}\`} />;`,
             jsxOutput: `const Test = () => <div class={\`${multilineWithExpressionInCenter}\`} />;`,
-            options: [{ classesPerLine: 3, indent: 2 }]
+            options: [{ classesPerLine: 3, indent: 2 }],
+            svelte: `<div class={\`${singleLineWithExpressionInCenter}\`} />`,
+            svelteOutput: `<div class={\`${multilineWithExpressionInCenter}\`} />`
           },
           {
             errors: 2,
             jsx: `const Test = () => <div class={\`${singleLineWithExpressionAtEnd}\`} />;`,
             jsxOutput: `const Test = () => <div class={\`${multilineWithExpressionAtEnd}\`} />;`,
-            options: [{ classesPerLine: 3, indent: 2 }]
+            options: [{ classesPerLine: 3, indent: 2 }],
+            svelte: `<div class={\`${singleLineWithExpressionAtEnd}\`} />`,
+            svelteOutput: `<div class={\`${multilineWithExpressionAtEnd}\`} />`
           },
           {
             errors: 2,
             jsx: `const Test = () => <div class={\`${singleLineWithClassesAroundExpression}\`} />;`,
             jsxOutput: `const Test = () => <div class={\`${multilineWithClassesAroundExpression}\`} />;`,
-            options: [{ classesPerLine: 4, indent: 2 }]
+            options: [{ classesPerLine: 4, indent: 2 }],
+            svelte: `<div class={\`${singleLineWithClassesAroundExpression}\`} />`,
+            svelteOutput: `<div class={\`${multilineWithClassesAroundExpression}\`} />`
           }
         ]
       }
@@ -196,7 +252,9 @@ describe(tailwindMultiline.name, () => {
             htmlOutput: `<div class="${multiline}" />`,
             jsx: `const Test = () => <div class={\`${singleLine}\`} />;`,
             jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
-            options: [{ classesPerLine: 3, indent: 2 }]
+            options: [{ classesPerLine: 3, indent: 2 }],
+            svelte: `<div class="${singleLine}" />`,
+            svelteOutput: `<div class="${multiline}" />`
           }
         ]
       }

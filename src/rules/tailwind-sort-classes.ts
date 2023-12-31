@@ -9,6 +9,7 @@ import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "eptm:utils:config.js"
 import { getHTMLAttributes, getHTMLClassAttributeLiterals } from "eptm:utils:html.js";
 import { getJSXAttributes } from "eptm:utils:jsx";
 import { getJSXClassAttributeLiterals, getLiteralsByJSXCallExpression } from "eptm:utils:jsx.js";
+import { getSvelteAttributes, getSvelteClassAttributeLiterals } from "eptm:utils:svelte.js";
 import { splitClasses, splitWhitespaces } from "eptm:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
@@ -17,6 +18,7 @@ import type { Node } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { Literal } from "src/types/ast.js";
 import type { ESLintRule } from "src/types/rule.js";
+import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { Config } from "tailwindcss/types/config.js";
 
 
@@ -38,7 +40,6 @@ export const tailwindSortClasses: ESLintRule<Options> = {
 
       const tailwindConfig = findTailwindConfig(ctx);
       const tailwindContext = createTailwindContext(tailwindConfig);
-
 
       const lintLiterals = (ctx: Rule.RuleContext, literals: Literal[]) => {
 
@@ -111,10 +112,23 @@ export const tailwindSortClasses: ESLintRule<Options> = {
 
         },
 
+        SvelteStartTag(node: Node) {
+
+          const svelteNode = node as unknown as SvelteStartTag;
+          const svelteAttributes = getSvelteAttributes(ctx, classAttributes, svelteNode);
+
+          for(const attribute of svelteAttributes){
+            const literals = getSvelteClassAttributeLiterals(ctx, attribute);
+
+            lintLiterals(ctx, literals);
+          }
+
+        },
+
         Tag(node: Node) {
 
-          const htmlTagNode = node as unknown as TagNode;
-          const htmlAttributes = getHTMLAttributes(ctx, classAttributes, htmlTagNode);
+          const htmlNode = node as unknown as TagNode;
+          const htmlAttributes = getHTMLAttributes(ctx, classAttributes, htmlNode);
 
           for(const htmlAttribute of htmlAttributes){
             const literals = getHTMLClassAttributeLiterals(ctx, htmlAttribute);

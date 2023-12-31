@@ -1,9 +1,9 @@
-# HTML
+# Svelte
 
-To lint HTML files you need to install the [@html-eslint/parser](https://github.com/yeonjuan/html-eslint/tree/main/packages/parser).
+To lint Svelte files you need to install the [svelte-eslint-parser](https://github.com/sveltejs/svelte-eslint-parser).
 
 ```sh
-npm i -D @html-eslint/parser
+npm i -D svelte-eslint-parser
 ```
 
 <br/>
@@ -15,13 +15,12 @@ npm i -D @html-eslint/parser
 ```js
 // eslint.config.js
 import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
-
-import eslintParserHTML from "@html-eslint/parser";
+import eslintParserSvelte from "svelte-eslint-parser";
 
 export default [
   {
     languageOptions: {
-      parser: eslintParserHTML
+      parser: eslintParserSvelte
     },
     plugins: {
       "readable-tailwind": eslintPluginReadableTailwind
@@ -75,10 +74,10 @@ To enable the new flat config format in VSCode, add the following to your `.vsco
 
 ### VSCode
 
-To enable the VSCode ESLint Plugin to validate HTML files, add the following to your `.vscode/settings.json`:
+To enable the VSCode ESLint Plugin to validate Svelte files, add the following to your `.vscode/settings.json`:
 
 ```jsonc
 {
-  "eslint.validate": [/* ...other formats */, "html"]
+  "eslint.validate": [/* ...other formats */, "svelte"]
 }
 ```

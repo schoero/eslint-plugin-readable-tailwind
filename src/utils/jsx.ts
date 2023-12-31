@@ -1,4 +1,4 @@
-import { getWhitespace } from "eptm:utils:utils.js";
+import { getQuotes, getWhitespace } from "eptm:utils:utils.js";
 
 import type { AST, Rule } from "eslint";
 import type {
@@ -77,7 +77,7 @@ function getLiteralsByExpression(ctx: Rule.RuleContext, node: JSXExpression): Li
 }
 
 
-function getStringLiteralByJSXStringLiteral(ctx: Rule.RuleContext, node: JSXSimpleStringLiteral): StringLiteral | undefined {
+export function getStringLiteralByJSXStringLiteral(ctx: Rule.RuleContext, node: JSXSimpleStringLiteral): StringLiteral | undefined {
 
   const token = getTokenByNode(ctx, node);
 
@@ -88,7 +88,7 @@ function getStringLiteralByJSXStringLiteral(ctx: Rule.RuleContext, node: JSXSimp
   const raw = token.value;
   const content = node.value;
 
-  const quotes = getTextTokenQuotes(ctx, token);
+  const quotes = getQuotes(raw);
   const whitespaces = getWhitespace(content);
 
   return {
@@ -104,7 +104,7 @@ function getStringLiteralByJSXStringLiteral(ctx: Rule.RuleContext, node: JSXSimp
 
 }
 
-function getLiteralByJSXTemplateElement(ctx: Rule.RuleContext, node: JSXTemplateElement & Rule.Node): TemplateLiteral | undefined {
+export function getLiteralByJSXTemplateElement(ctx: Rule.RuleContext, node: JSXTemplateElement & Rule.Node): TemplateLiteral | undefined {
 
   const token = getTokenByNode(ctx, node);
 
@@ -115,9 +115,9 @@ function getLiteralByJSXTemplateElement(ctx: Rule.RuleContext, node: JSXTemplate
   const raw = token.value;
   const content = node.value.raw;
 
-  const quotes = getTemplateTokenQuotes(ctx, token);
-  const braces = getTemplateTokenBraces(ctx, token);
+  const quotes = getQuotes(raw);
   const whitespaces = getWhitespace(content);
+  const braces = getTemplateTokenBraces(ctx, token);
 
   return {
     ...whitespaces,
@@ -133,7 +133,7 @@ function getLiteralByJSXTemplateElement(ctx: Rule.RuleContext, node: JSXTemplate
 
 }
 
-function getLiteralsByJSXTemplateLiteral(ctx: Rule.RuleContext, node: JSXTemplateLiteral): TemplateLiteral[] {
+export function getLiteralsByJSXTemplateLiteral(ctx: Rule.RuleContext, node: JSXTemplateLiteral): TemplateLiteral[] {
   return node.quasis.map(quasi => {
     if(!hasNodeParentExtension(quasi)){
       return;
@@ -179,7 +179,7 @@ function getTemplateTokenQuotes(ctx: Rule.RuleContext, token: AST.Token): QuoteM
   };
 }
 
-function getTemplateTokenBraces(ctx: Rule.RuleContext, token: AST.Token): BracesMeta {
+export function getTemplateTokenBraces(ctx: Rule.RuleContext, token: AST.Token): BracesMeta {
   const closingBraces = token.value.startsWith("}") ? "}" : undefined;
   const openingBraces = token.value.endsWith("${") ? "${" : undefined;
 
@@ -189,20 +189,20 @@ function getTemplateTokenBraces(ctx: Rule.RuleContext, token: AST.Token): Braces
   };
 }
 
-function isJSXAttribute(node: JSXBaseNode): node is JSXAttribute {
-  return node.type === "JSXAttribute";
-}
-
-function isSimpleStringLiteral(node: JSXBaseNode): node is JSXSimpleStringLiteral {
-  return node.type === "Literal" &&
-    "value" in node &&
-    typeof node.value === "string";
-}
-
-function hasNodeParentExtension(node: JSXNode): node is Rule.Node & Rule.NodeParentExtension {
+export function hasNodeParentExtension(node: JSXNode): node is Rule.Node & Rule.NodeParentExtension {
   return "parent" in node;
 }
 
 interface JSXSimpleStringLiteral extends Rule.NodeParentExtension, JSXSimpleLiteral {
   value: string;
+}
+
+function isJSXAttribute(node: JSXBaseNode): node is JSXAttribute {
+  return node.type === "JSXAttribute";
+}
+
+export function isSimpleStringLiteral(node: JSXBaseNode): node is JSXSimpleStringLiteral {
+  return node.type === "Literal" &&
+    "value" in node &&
+    typeof node.value === "string";
 }

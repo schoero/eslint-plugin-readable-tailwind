@@ -1,6 +1,7 @@
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "eptm:utils:config.js";
 import { getHTMLAttributes, getHTMLClassAttributeLiterals } from "eptm:utils:html.js";
 import { getJSXAttributes, getJSXClassAttributeLiterals, getLiteralsByJSXCallExpression } from "eptm:utils:jsx.js";
+import { getSvelteAttributes, getSvelteClassAttributeLiterals } from "eptm:utils:svelte.js";
 import { findLineStartPosition } from "eptm:utils:utils";
 import { splitClasses } from "eptm:utils:utils.js";
 
@@ -10,6 +11,7 @@ import type { Node } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { Literal, Meta } from "src/types/ast.js";
 import type { ESLintRule } from "src/types/rule.js";
+import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 
 
 export type Options = [
@@ -61,6 +63,26 @@ export const tailwindMultiline: ESLintRule<Options> = {
             if(typeof attributeName !== "string"){ continue; }
 
             const literals = getJSXClassAttributeLiterals(ctx, jsxAttribute);
+
+            lintLiterals(ctx, literals);
+
+          }
+
+        },
+
+        SvelteStartTag(node: Node) {
+
+          const svelteNode = node as unknown as SvelteStartTag;
+
+          const svelteAttributes = getSvelteAttributes(ctx, classAttributes, svelteNode);
+
+          for(const svelteAttribute of svelteAttributes){
+
+            const attributeName = svelteAttribute.key.name;
+
+            if(typeof attributeName !== "string"){ continue; }
+
+            const literals = getSvelteClassAttributeLiterals(ctx, svelteAttribute);
 
             lintLiterals(ctx, literals);
 
@@ -168,7 +190,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     const lines = new Lines(ctx, startPosition);
 
     if(literal.openingQuote){
-      if(literal.parent.type === "JSXAttribute" || literal.parent.type === "JSXExpressionContainer"){
+      if(literal.parent.type === "JSXAttribute" || literal.parent.type === "JSXExpressionContainer" || literal.parent.type === "SvelteMustacheTag"){
         lines.line.addMeta({ openingQuote: "`" });
       } else {
         lines.line.addMeta({ openingQuote: literal.openingQuote });
@@ -242,7 +264,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       lines.addLine();
       lines.line.indent(startPosition - getIndentation(ctx, indent));
 
-      if(literal.parent.type === "JSXAttribute" || literal.parent.type === "JSXExpressionContainer"){
+      if(literal.parent.type === "JSXAttribute" || literal.parent.type === "JSXExpressionContainer" || literal.parent.type === "SvelteMustacheTag"){
         lines.line.addMeta({ closingQuote: "`" });
       } else {
         lines.line.addMeta({ closingQuote: literal.closingQuote });

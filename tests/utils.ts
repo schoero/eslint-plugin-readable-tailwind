@@ -1,5 +1,6 @@
 // @ts-expect-error - types not available yet
 import { FlatRuleTester } from "eslint/use-at-your-own-risk";
+import eslintParserSvelte from "svelte-eslint-parser";
 
 import eslintParserHTML from "@html-eslint/parser";
 
@@ -12,6 +13,9 @@ export const TEST_SYNTAXES = {
   },
   jsx: {
     languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } }
+  },
+  svelte: {
+    languageOptions: { parser: eslintParserSvelte }
   }
 } as const;
 
