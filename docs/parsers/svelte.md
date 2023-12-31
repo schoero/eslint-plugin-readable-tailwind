@@ -63,7 +63,7 @@ To enable the new flat config format in VSCode, add the following to your `.vsco
     // enable all recommended rules to error
     "plugin:readable-tailwind/error"
   ],
-  "parser": "@html-eslint/parser",
+  "parser": "svelte-eslint-parser",
   "plugins": ["readable-tailwind"],
   "rules": {
     // or configure rules individually
