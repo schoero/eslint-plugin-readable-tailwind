@@ -194,7 +194,11 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     const lines = new Lines(ctx, startPosition);
 
     if(literal.openingQuote){
-      if(literal.parent.type === "JSXAttribute" || literal.parent.type === "JSXExpressionContainer" || literal.parent.type === "SvelteMustacheTag"){
+      if(
+        literal.parent.type === "JSXAttribute" ||
+        literal.parent.type === "JSXExpressionContainer" ||
+        literal.parent.type === "CallExpression" ||
+        literal.parent.type === "SvelteMustacheTag"){
         lines.line.addMeta({ openingQuote: "`" });
       } else {
         lines.line.addMeta({ openingQuote: literal.openingQuote });
@@ -268,7 +272,11 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       lines.addLine();
       lines.line.indent(startPosition - getIndentation(ctx, indent));
 
-      if(literal.parent.type === "JSXAttribute" || literal.parent.type === "JSXExpressionContainer" || literal.parent.type === "SvelteMustacheTag"){
+      if(
+        literal.parent.type === "JSXAttribute" ||
+        literal.parent.type === "JSXExpressionContainer" ||
+        literal.parent.type === "CallExpression" ||
+        literal.parent.type === "SvelteMustacheTag"){
         lines.line.addMeta({ closingQuote: "`" });
       } else {
         lines.line.addMeta({ closingQuote: literal.closingQuote });
