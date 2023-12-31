@@ -16,12 +16,12 @@ With the default options, a class name will be broken up into multiple lines and
 
 ```tsx
 // ❌ BAD
-const Test = () => <div className="text-blue underline hover:text-opacity-70" />;
+<div class="text-blue underline hover:text-opacity-70" />;
 ```
 
 ```tsx
 // ✅ GOOD
-const Test = () => <div class={`
+<div class={`
   text-blue underline
 
   hover:text-opacity-70

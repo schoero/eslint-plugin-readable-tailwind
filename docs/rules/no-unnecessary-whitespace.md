@@ -14,12 +14,12 @@ Disallow unnecessary whitespace in between and around tailwind classes.
 
 ```tsx
 // ❌ BAD
-const Test = () => <div className=" text-blue  underline hover:text-opacity-70 " />;
+<div class=" text-blue  underline hover:text-opacity-70 " />;
 ```
 
 ```tsx
 // ✅ GOOD
-const Test = () => <div className="text-blue underline hover:text-opacity-70"/>;
+<div class="text-blue underline hover:text-opacity-70"/>;
 ```
 
 ## Options

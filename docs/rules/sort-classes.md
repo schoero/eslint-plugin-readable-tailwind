@@ -21,12 +21,12 @@ Order:
 
 ```tsx
 // ❌ BAD
-const Test = () => <div className="text-blue underline hover:text-opacity-70"/>;
+<div class="hover:text-opacity-70 underline text-blue"/>;
 ```
 
 ```tsx
 // ✅ GOOD
-const Test = () => <div className="text-blue underline hover:text-opacity-70"/>;
+<div class="text-blue underline hover:text-opacity-70"/>;
 ```
 
 ## Options
