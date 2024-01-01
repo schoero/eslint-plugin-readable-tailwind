@@ -1,5 +1,5 @@
 {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "name": "eslint-plugin-readable-tailwind",
   "description": "auto-wraps tailwind classes after a certain width using template literals.",
@@ -62,7 +62,7 @@
     "@types/eslint": "^8.56.0",
     "@types/estree-jsx": "^1.0.3",
     "@types/node": "^20.10.6",
-    "cspell": "^8.3.0",
+    "cspell": "^8.3.1",
     "es-html-parser": "^0.0.9",
     "eslint": "^8.56.0",
     "eslint-doc-generator": "^1.6.1",
@@ -75,7 +75,8 @@
     "vite": "^5.0.10",
     "vite-plugin-dts": "^3.7.0",
     "vite-plugin-no-bundle": "^3.0.0",
-    "vitest": "^1.1.0"
+    "vitest": "^1.1.1",
+    "vue-eslint-parser": "^9.3.2"
   },
   "keywords": [
     "eslint",
@@ -94,6 +95,7 @@
     "jsx",
     "html",
     "svelte",
+    "vue",
     "react",
     "qwik",
     "solid",

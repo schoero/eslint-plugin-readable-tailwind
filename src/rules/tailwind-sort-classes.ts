@@ -11,6 +11,7 @@ import { getJSXAttributes } from "readable-tailwind:utils:jsx";
 import { getJSXClassAttributeLiterals, getLiteralsByJSXCallExpression } from "readable-tailwind:utils:jsx.js";
 import { getSvelteAttributes, getSvelteClassAttributeLiterals } from "readable-tailwind:utils:svelte.js";
 import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
+import { getVueAttributes, getVueClassAttributeLiterals } from "readable-tailwind:utils:vue.js";
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
@@ -20,6 +21,7 @@ import type { Literal } from "src/types/ast.js";
 import type { ESLintRule } from "src/types/rule.js";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { Config } from "tailwindcss/types/config.js";
+import type { VStartTag } from "vue-eslint-parser/ast";
 
 
 export type Options = [
@@ -82,62 +84,83 @@ export const tailwindSortClasses: ESLintRule<Options> = {
         }
       };
 
-
-      return {
-
+      const callExpressions = {
         CallExpression(node) {
-
           const { callee } = node;
 
           if(callee.type !== "Identifier"){ return; }
           if(!callees.includes(callee.name)){ return; }
 
           const literals = getLiteralsByJSXCallExpression(ctx, node.arguments);
-
           lintLiterals(ctx, literals);
 
-        },
+        }
+      };
 
+      const jsx = {
         JSXOpeningElement(node: Node) {
-
           const jsxNode = node as JSXOpeningElement;
-
           const jsxAttributes = getJSXAttributes(ctx, classAttributes, jsxNode);
 
           for(const attribute of jsxAttributes){
             const literals = getJSXClassAttributeLiterals(ctx, attribute);
-
-            lintLiterals(ctx, literals);
-          }
-
-        },
-
-        SvelteStartTag(node: Node) {
-
-          const svelteNode = node as unknown as SvelteStartTag;
-          const svelteAttributes = getSvelteAttributes(ctx, classAttributes, svelteNode);
-
-          for(const attribute of svelteAttributes){
-            const literals = getSvelteClassAttributeLiterals(ctx, attribute);
-
-            lintLiterals(ctx, literals);
-          }
-
-        },
-
-        Tag(node: Node) {
-
-          const htmlNode = node as unknown as TagNode;
-          const htmlAttributes = getHTMLAttributes(ctx, classAttributes, htmlNode);
-
-          for(const htmlAttribute of htmlAttributes){
-            const literals = getHTMLClassAttributeLiterals(ctx, htmlAttribute);
-
             lintLiterals(ctx, literals);
           }
 
         }
       };
+
+      const svelte = {
+        SvelteStartTag(node: Node) {
+          const svelteNode = node as unknown as SvelteStartTag;
+          const svelteAttributes = getSvelteAttributes(ctx, classAttributes, svelteNode);
+
+          for(const attribute of svelteAttributes){
+            const literals = getSvelteClassAttributeLiterals(ctx, attribute);
+            lintLiterals(ctx, literals);
+          }
+        }
+      };
+
+      const vue = {
+        VStartTag(node: Node) {
+          const vueNode = node as unknown as VStartTag;
+          const vueAttributes = getVueAttributes(ctx, classAttributes, vueNode);
+
+          for(const attribute of vueAttributes){
+            const literals = getVueClassAttributeLiterals(ctx, attribute);
+            lintLiterals(ctx, literals);
+          }
+        }
+      };
+
+      const html = {
+        Tag(node: Node) {
+          const htmlNode = node as unknown as TagNode;
+          const htmlAttributes = getHTMLAttributes(ctx, classAttributes, htmlNode);
+
+          for(const htmlAttribute of htmlAttributes){
+            const literals = getHTMLClassAttributeLiterals(ctx, htmlAttribute);
+            lintLiterals(ctx, literals);
+          }
+        }
+      };
+
+      // Vue
+      if(typeof ctx.parserServices?.defineTemplateBodyVisitor === "function"){
+        return {
+          ...callExpressions,
+          ...ctx.parserServices.defineTemplateBodyVisitor(vue)
+        };
+      }
+
+      return {
+        ...callExpressions,
+        ...jsx,
+        ...svelte,
+        ...html
+      };
+
     },
     meta: {
       docs: {

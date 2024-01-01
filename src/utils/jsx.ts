@@ -12,7 +12,7 @@ import type {
   TemplateElement as JSXTemplateElement,
   TemplateLiteral as JSXTemplateLiteral
 } from "estree-jsx";
-import type { BracesMeta, Literal, Node, QuoteMeta, StringLiteral, TemplateLiteral } from "src/types/ast";
+import type { BracesMeta, Literal, Node, StringLiteral, TemplateLiteral } from "src/types/ast";
 
 
 export function getJSXClassAttributeLiterals(ctx: Rule.RuleContext, attribute: JSXAttribute): Literal[] {
@@ -153,30 +153,10 @@ export function getJSXAttributes(ctx: Rule.RuleContext, classNames: string[], no
   }, []);
 }
 
-export function getTokenByNode(ctx: Rule.RuleContext, node: JSXBaseNode) {
+function getTokenByNode(ctx: Rule.RuleContext, node: JSXBaseNode) {
   return node.range?.[0]
     ? ctx.sourceCode.getTokenByRangeStart(node.range[0])
     : undefined;
-}
-
-function getTextTokenQuotes(ctx: Rule.RuleContext, token: AST.Token): QuoteMeta {
-  const openingQuote = token.value.at(0);
-  const closingQuote = token.value.at(-1);
-
-  return {
-    closingQuote: closingQuote === "'" || closingQuote === '"' ? closingQuote : undefined,
-    openingQuote: openingQuote === "'" || openingQuote === '"' ? openingQuote : undefined
-  };
-}
-
-function getTemplateTokenQuotes(ctx: Rule.RuleContext, token: AST.Token): QuoteMeta {
-  const openingQuote = token.value.startsWith("`") ? "`" : undefined;
-  const closingQuote = token.value.endsWith("`") ? "`" : undefined;
-
-  return {
-    closingQuote: closingQuote === "`" ? closingQuote : undefined,
-    openingQuote: openingQuote === "`" ? openingQuote : undefined
-  };
 }
 
 export function getTemplateTokenBraces(ctx: Rule.RuleContext, token: AST.Token): BracesMeta {

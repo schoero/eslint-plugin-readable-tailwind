@@ -8,6 +8,7 @@ import {
 import { getSvelteAttributes, getSvelteClassAttributeLiterals } from "readable-tailwind:utils:svelte.js";
 import { findLineStartPosition } from "readable-tailwind:utils:utils";
 import { splitClasses } from "readable-tailwind:utils:utils.js";
+import { getVueAttributes, getVueClassAttributeLiterals } from "readable-tailwind:utils:vue.js";
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
@@ -16,6 +17,7 @@ import type { JSXOpeningElement } from "estree-jsx";
 import type { Literal, Meta } from "src/types/ast.js";
 import type { ESLintRule } from "src/types/rule.js";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
+import type { VStartTag } from "vue-eslint-parser/ast";
 
 
 export type Options = [
@@ -37,25 +39,21 @@ export const tailwindMultiline: ESLintRule<Options> = {
 
       const { callees, classAttributes } = getOptions(ctx);
 
-      return {
-
+      const callExpressions = {
         CallExpression(node) {
-
           const { callee } = node;
 
           if(callee.type !== "Identifier"){ return; }
           if(!callees.includes(callee.name)){ return; }
 
           const literals = getLiteralsByJSXCallExpression(ctx, node.arguments);
-
           lintLiterals(ctx, literals);
+        }
+      };
 
-        },
-
+      const jsx = {
         JSXOpeningElement(node: Node) {
-
           const jsxNode = node as JSXOpeningElement;
-
           const jsxAttributes = getJSXAttributes(ctx, classAttributes, jsxNode);
 
           for(const jsxAttribute of jsxAttributes){
@@ -67,46 +65,65 @@ export const tailwindMultiline: ESLintRule<Options> = {
             if(typeof attributeName !== "string"){ continue; }
 
             const literals = getJSXClassAttributeLiterals(ctx, jsxAttribute);
-
             lintLiterals(ctx, literals);
-
           }
+        }
+      };
 
-        },
-
+      const svelte = {
         SvelteStartTag(node: Node) {
-
           const svelteNode = node as unknown as SvelteStartTag;
-
           const svelteAttributes = getSvelteAttributes(ctx, classAttributes, svelteNode);
 
           for(const svelteAttribute of svelteAttributes){
-
             const attributeName = svelteAttribute.key.name;
 
             if(typeof attributeName !== "string"){ continue; }
 
             const literals = getSvelteClassAttributeLiterals(ctx, svelteAttribute);
-
             lintLiterals(ctx, literals);
-
           }
+        }
+      };
 
-        },
+      const vue = {
+        VStartTag(node: Node) {
+          const vueNode = node as unknown as VStartTag;
+          const vueAttributes = getVueAttributes(ctx, classAttributes, vueNode);
 
+          for(const attribute of vueAttributes){
+            const literals = getVueClassAttributeLiterals(ctx, attribute);
+            lintLiterals(ctx, literals);
+          }
+        }
+      };
+
+      const html = {
         Tag(node: Node) {
-
           const htmlTagNode = node as unknown as TagNode;
           const htmlAttributes = getHTMLAttributes(ctx, classAttributes, htmlTagNode);
 
           for(const htmlAttribute of htmlAttributes){
             const literals = getHTMLClassAttributeLiterals(ctx, htmlAttribute);
-
             lintLiterals(ctx, literals);
           }
-
         }
+      };
 
+      // Vue
+      if(typeof ctx.parserServices?.defineTemplateBodyVisitor === "function"){
+        return {
+          ...callExpressions,
+          ...ctx.parserServices.defineTemplateBodyVisitor(vue)
+        };
+      }
+
+      return {
+        ...callExpressions,
+        ...jsx,
+        ...svelte,
+        ...vue,
+        ...html
       };
     },
     meta: {

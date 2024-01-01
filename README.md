@@ -26,7 +26,7 @@
 
 ESLint plugin to automatically break up long tailwind class strings into multiple lines for better readability.
 Also sorts the classes logically, removes unnecessary whitespaces and groups the classes by their modifiers.
-It works in jsx, html and svelte.
+It works in jsx, svelte, vue, and html files.
 
 <br/>
 <br/>
@@ -51,8 +51,9 @@ npm i -D eslint-plugin-readable-tailwind
 Please read the documentation for the specific flavor you are using:
 
 - [JSX/TSX](docs/parsers/jsx.md) (React, Qwik, Solid, etc.)
-- [HTML](docs/parsers/html.md)
 - [Svelte](docs/parsers/svelte.md)
+- [Vue](docs/parsers/vue.md)
+- [HTML](docs/parsers/html.md)
 
 <br/>
 <br/>

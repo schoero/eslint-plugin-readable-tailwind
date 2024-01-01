@@ -20,7 +20,9 @@ describe(tailwindSortClasses.name, () => {
             jsxOutput: "const Test = () => <div class=\"a b\" />;",
             options: [{ order: "asc" }],
             svelte: "<div class=\"b a\" />",
-            svelteOutput: "<div class=\"a b\" />"
+            svelteOutput: "<div class=\"a b\" />",
+            vue: "<template><div class=\"b a\" /></template>",
+            vueOutput: "<template><div class=\"a b\" /></template>"
           },
           {
             errors: 1,
@@ -30,7 +32,9 @@ describe(tailwindSortClasses.name, () => {
             jsxOutput: "const Test = () => <div class=\"b a\" />;",
             options: [{ order: "desc" }],
             svelte: "<div class=\"a b\" />",
-            svelteOutput: "<div class=\"b a\" />"
+            svelteOutput: "<div class=\"b a\" />",
+            vue: "<template><div class=\"a b\" /></template>",
+            vueOutput: "<template><div class=\"b a\" /></template>"
           },
           {
             errors: 1,
@@ -40,7 +44,9 @@ describe(tailwindSortClasses.name, () => {
             jsxOutput: "const Test = () => <div class=\"absolute w-full\" />;",
             options: [{ order: "official" }],
             svelte: "<div class=\"w-full absolute\" />",
-            svelteOutput: "<div class=\"absolute w-full\" />"
+            svelteOutput: "<div class=\"absolute w-full\" />",
+            vue: "<template><div class=\"w-full absolute\" /></template>",
+            vueOutput: "<template><div class=\"absolute w-full\" /></template>"
           }
         ],
         valid: [
@@ -48,19 +54,22 @@ describe(tailwindSortClasses.name, () => {
             html: "<div class=\"a b\" />",
             jsx: "const Test = () => <div class=\"a b\" />;",
             options: [{ order: "asc" }],
-            svelte: "<div class=\"a b\" />"
+            svelte: "<div class=\"a b\" />",
+            vue: "<template><div class=\"a b\" /></template>"
           },
           {
             html: "div class=\"b a\" />",
             jsx: "const Test = () => <div class=\"b a\" />;",
             options: [{ order: "desc" }],
-            svelte: "div class=\"b a\" />"
+            svelte: "div class=\"b a\" />",
+            vue: "<template><div class=\"b a\" /></template>"
           },
           {
             html: "<div class=\"absolute w-full\" />",
             jsx: "const Test = () => <div class=\"absolute w-full\" />;",
             options: [{ order: "official" }],
-            svelte: "<div class=\"absolute w-full\" />"
+            svelte: "<div class=\"absolute w-full\" />",
+            vue: "<template><div class=\"absolute w-full\" /></template>"
           }
         ]
       }
@@ -81,7 +90,9 @@ describe(tailwindSortClasses.name, () => {
             jsxOutput: "const Test = () => <div class=\"a b\" />;",
             options: [{ order: "asc" }],
             svelte: "<div class=\"b a\" />",
-            svelteOutput: "<div class=\"a b\" />"
+            svelteOutput: "<div class=\"a b\" />",
+            vue: "<template><div class=\"b a\" /></template>",
+            vueOutput: "<template><div class=\"a b\" /></template>"
           },
           {
             errors: 1,
@@ -91,7 +102,9 @@ describe(tailwindSortClasses.name, () => {
             jsxOutput: "const Test = () => <div class='a b' />;",
             options: [{ order: "asc" }],
             svelte: "<div class='b a' />",
-            svelteOutput: "<div class='a b' />"
+            svelteOutput: "<div class='a b' />",
+            vue: "<template><div class='b a' /></template>",
+            vueOutput: "<template><div class='a b' /></template>"
           },
           {
             errors: 1,
@@ -173,7 +186,9 @@ describe(tailwindSortClasses.name, () => {
               htmlOutput: `<div class="${sortedMultilineString}" />`,
               options: [{ order: "asc" }],
               svelte: `<div class="${unsortedMultilineString}" />`,
-              svelteOutput: `<div class="${sortedMultilineString}" />`
+              svelteOutput: `<div class="${sortedMultilineString}" />`,
+              vue: `<template><div class="${unsortedMultilineString}" /></template>`,
+              vueOutput: `<template><div class="${sortedMultilineString}" /></template>`
             },
             {
               errors: 1,
@@ -181,7 +196,9 @@ describe(tailwindSortClasses.name, () => {
               htmlOutput: `<div class='${sortedMultilineString}' />`,
               options: [{ order: "asc" }],
               svelte: `<div class='${unsortedMultilineString}' />`,
-              svelteOutput: `<div class='${sortedMultilineString}' />`
+              svelteOutput: `<div class='${sortedMultilineString}' />`,
+              vue: `<template><div class='${unsortedMultilineString}' /></template>`,
+              vueOutput: `<template><div class='${sortedMultilineString}' /></template>`
             },
             {
               errors: 1,
@@ -196,12 +213,14 @@ describe(tailwindSortClasses.name, () => {
             {
               html: `<div class="${sortedMultilineString}" />`,
               options: [{ order: "asc" }],
-              svelte: `<div class="${sortedMultilineString}" />`
+              svelte: `<div class="${sortedMultilineString}" />`,
+              vue: `<template><div class="${sortedMultilineString}" /></template>`
             },
             {
               html: `<div class='${sortedMultilineString}' />`,
               options: [{ order: "asc" }],
-              svelte: `<div class='${sortedMultilineString}' />`
+              svelte: `<div class='${sortedMultilineString}' />`,
+              vue: `<template><div class='${sortedMultilineString}' /></template>`
             },
             {
               jsx: `const Test = () => <div class={\`${sortedMultilineString}\`} />;`,
@@ -225,7 +244,9 @@ describe(tailwindSortClasses.name, () => {
           jsxOutput: "const Test = () => <div class=\"a:a a:b b:a b:b c:a c:b\" />;",
           options: [{ order: "improved" }],
           svelte: "<div class=\"c:a a:a b:a a:b c:b b:b\" />",
-          svelteOutput: "<div class=\"a:a a:b b:a b:b c:a c:b\" />"
+          svelteOutput: "<div class=\"a:a a:b b:a b:b c:a c:b\" />",
+          vue: "<template><div class=\"c:a a:a b:a a:b c:b b:b\" /></template>",
+          vueOutput: "<template><div class=\"a:a a:b b:a b:b c:a c:b\" /></template>"
         }
       ]
     })).toBeUndefined();
@@ -248,14 +269,17 @@ describe(tailwindSortClasses.name, () => {
             jsxOutput: cleanDefined,
             options: [{ callees: ["defined"], order: "asc" }],
             svelte: `<script>${dirtyDefined}</script>`,
-            svelteOutput: `<script>${cleanDefined}</script>`
+            svelteOutput: `<script>${cleanDefined}</script>`,
+            vue: `<script>${dirtyDefined}</script>`,
+            vueOutput: `<script>${cleanDefined}</script>`
           }
         ],
         valid: [
           {
             jsx: dirtyUndefined,
             options: [{ callees: ["defined"], order: "asc" }],
-            svelte: `<script>${dirtyUndefined}</script>`
+            svelte: `<script>${dirtyUndefined}</script>`,
+            vue: `<script>${dirtyUndefined}</script>`
           }
         ]
       }

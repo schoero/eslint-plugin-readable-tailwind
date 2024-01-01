@@ -3,9 +3,10 @@ import {
   getStringLiteralByJSXStringLiteral,
   isSimpleStringLiteral
 } from "readable-tailwind:utils:jsx.js";
-import { getWhitespace } from "readable-tailwind:utils:utils.js";
+import { getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
+import type { Node as ESTreeNode } from "estree";
 import type { BaseNode as JSXBaseNode, Node as JSXNode, TemplateLiteral as JSXTemplateLiteral } from "estree-jsx";
 import type { Literal, Node, QuoteMeta, StringLiteral, TemplateLiteral } from "src/types/ast.js";
 import type {
@@ -64,11 +65,10 @@ export function getSvelteClassAttributeLiterals(ctx: Rule.RuleContext, attribute
 function getStringLiteralBySvelteStringLiteral(ctx: Rule.RuleContext, node: SvelteLiteral): StringLiteral | undefined {
 
   const content = node.value;
+  const raw = ctx.sourceCode.getText(node as unknown as ESTreeNode, 1, 1);
 
-  const quotes = getQuotesByNode(ctx, node);
+  const quotes = getQuotes(raw);
   const whitespaces = getWhitespace(content);
-
-  const raw = (quotes.openingQuote ?? "") + node.value + (quotes.closingQuote ?? "");
 
   return {
     ...whitespaces,

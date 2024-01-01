@@ -16,7 +16,9 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
           jsx: "const Test = () => <div class=\"  b  a  \" />;",
           jsxOutput: "const Test = () => <div class=\"b a\" />;",
           svelte: "<div class=\"  b  a  \" />",
-          svelteOutput: "<div class=\"b a\" />"
+          svelteOutput: "<div class=\"b a\" />",
+          vue: "<template><div class=\"  b  a  \" /></template>",
+          vueOutput: "<template><div class=\"b a\" /></template>"
         }
       ]
     })
@@ -32,7 +34,9 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
           jsx: "const Test = () => <div class=\"  b  a  \" />;",
           jsxOutput: "const Test = () => <div class=\"b a\" />;",
           svelte: "<div class=\"  b  a  \" />",
-          svelteOutput: "<div class=\"b a\" />"
+          svelteOutput: "<div class=\"b a\" />",
+          vue: "<template><div class=\"  b  a  \" /></template>",
+          vueOutput: "<template><div class=\"b a\" /></template>"
         },
         {
           errors: 1,
@@ -41,7 +45,9 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
           jsx: "const Test = () => <div class='  b  a  ' />;",
           jsxOutput: "const Test = () => <div class='b a' />;",
           svelte: "<div class='  b  a  ' />",
-          svelteOutput: "<div class='b a' />"
+          svelteOutput: "<div class='b a' />",
+          vue: "<template><div class='  b  a  ' /></template>",
+          vueOutput: "<template><div class='b a' /></template>"
         },
         {
           errors: 1,
@@ -53,12 +59,16 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
         {
           errors: 1,
           jsx: "const Test = () => <div class={\"  b  a  \"} />;",
-          jsxOutput: "const Test = () => <div class={\"b a\"} />;"
+          jsxOutput: "const Test = () => <div class={\"b a\"} />;",
+          svelte: "<div class={\"  b  a  \"} />",
+          svelteOutput: "<div class={\"b a\"} />"
         },
         {
           errors: 1,
           jsx: "const Test = () => <div class={'  b  a  '} />;",
-          jsxOutput: "const Test = () => <div class={'b a'} />;"
+          jsxOutput: "const Test = () => <div class={'b a'} />;",
+          svelte: "<div class={'  b  a  '} />",
+          svelteOutput: "<div class={'b a'} />"
         }
       ]
     })
@@ -111,15 +121,19 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
           errors: 1,
           html: `<div class="${uncleanedMultilineString}" />`,
           htmlOutput: `<div class="${cleanedMultilineString}" />`,
-          svelte: `<div class="${uncleanedMultilineString}=" />`,
-          svelteOutput: `<div class="${cleanedMultilineString}=" />`
+          svelte: `<div class="${uncleanedMultilineString}" />`,
+          svelteOutput: `<div class="${cleanedMultilineString}" />`,
+          vue: `<template><div class="${uncleanedMultilineString}" /></template>`,
+          vueOutput: `<template><div class="${cleanedMultilineString}" /></template>`
         },
         {
           errors: 1,
           html: `<div class='${uncleanedMultilineString}' />`,
           htmlOutput: `<div class='${cleanedMultilineString}' />`,
-          svelte: `<div class='${uncleanedMultilineString}=' />`,
-          svelteOutput: `<div class='${cleanedMultilineString}=' />`
+          svelte: `<div class='${uncleanedMultilineString}' />`,
+          svelteOutput: `<div class='${cleanedMultilineString}' />`,
+          vue: `<template><div class='${uncleanedMultilineString}' /></template>`,
+          vueOutput: `<template><div class='${cleanedMultilineString}' /></template>`
         },
         {
           errors: 1,
@@ -134,19 +148,25 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
           htmlOutput: `<div class='${cleanedSinglelineString}' />`,
           jsx: `const Test = () => <div class={\`${uncleanedMultilineString}\`} />;`,
           jsxOutput: `const Test = () => <div class={\`${cleanedSinglelineString}\`} />;`,
-          options: [{ allowMultiline: false }]
+          options: [{ allowMultiline: false }],
+          svelte: `<div class={\`${uncleanedMultilineString}\`} />`,
+          svelteOutput: `<div class={\`${cleanedSinglelineString}\`} />`,
+          vue: `<template><div class='${uncleanedMultilineString}' /></template>`,
+          vueOutput: `<template><div class='${cleanedSinglelineString}' /></template>`
         }
       ],
       valid: [
         {
           html: `<div class="${cleanedMultilineString}" />`,
           jsx: `const Test = () => <div class={\`${cleanedMultilineString}\`} />;`,
-          svelte: `<div class="${cleanedMultilineString}" />`
+          svelte: `<div class="${cleanedMultilineString}" />`,
+          vue: `<template><div class="${cleanedMultilineString}" /></template>`
         },
         {
           html: `<div class="${cleanedSinglelineString}" />`,
-          jsx: `const Test = () => <div class={\`${cleanedSinglelineString}\`} />;`,
-          svelte: `<div class="${cleanedSinglelineString}" />`
+          jsx: `const Test = () => <div class="${cleanedSinglelineString}" />;`,
+          svelte: `<div class="${cleanedSinglelineString}" />`,
+          vue: `<template><div class="${cleanedSinglelineString}" /></template>`
         }
       ]
     })).toBeUndefined();
@@ -166,14 +186,17 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
           jsxOutput: cleanDefined,
           options: [{ callees: ["defined"] }],
           svelte: `<script>${dirtyDefined}</script>`,
-          svelteOutput: `<script>${cleanDefined}</script>`
+          svelteOutput: `<script>${cleanDefined}</script>`,
+          vue: `<script>${dirtyDefined}</script>`,
+          vueOutput: `<script>${cleanDefined}</script>`
         }
       ],
       valid: [
         {
           jsx: dirtyUndefined,
           options: [{ callees: ["defined"] }],
-          svelte: `<script>${dirtyUndefined}</script>`
+          svelte: `<script>${dirtyUndefined}</script>`,
+          vue: `<script>${dirtyUndefined}</script>`
         }
       ]
     })).toBeUndefined();
@@ -191,11 +214,13 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       d c ${dirtyDefined} h g
       j i
     `;
+
     const cleanDefinedMultiline = `
       b a
       d c ${cleanDefined} h g
       j i
     `;
+
     const dirtyUndefinedMultiline = `
       b a
       d c ${dirtyUndefined} h g

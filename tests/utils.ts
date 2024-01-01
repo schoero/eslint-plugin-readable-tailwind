@@ -1,6 +1,7 @@
 // @ts-expect-error - types not available yet
 import { FlatRuleTester } from "eslint/use-at-your-own-risk";
 import eslintParserSvelte from "svelte-eslint-parser";
+import eslintParserVue from "vue-eslint-parser";
 
 import eslintParserHTML from "@html-eslint/parser";
 
@@ -16,6 +17,9 @@ export const TEST_SYNTAXES = {
   },
   svelte: {
     languageOptions: { parser: eslintParserSvelte }
+  },
+  vue: {
+    languageOptions: { parser: eslintParserVue }
   }
 } as const;
 
