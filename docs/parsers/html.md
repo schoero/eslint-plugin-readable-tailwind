@@ -28,9 +28,9 @@ export default [
     },
     rules: {
       // enable all recommended rules to warn
-      ...eslintPluginReadableTailwind.configs.warning,
+      ...eslintPluginReadableTailwind.configs.warning.rules,
       // enable all recommended rules to error
-      ...eslintPluginReadableTailwind.configs.error,
+      ...eslintPluginReadableTailwind.configs.error.rules,
 
       // or configure rules individually
       "readable-tailwind/multiline": ["warn", { printWidth: 100 }]
