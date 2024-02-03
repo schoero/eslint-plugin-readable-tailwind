@@ -16,7 +16,8 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 ## Examples
 
-With the default options, a class name will be broken up into multiple lines and grouped by their modifiers. Groups are separated by an empty line.
+With the default options, a class name will be broken up into multiple lines and grouped by their modifiers. Groups are separated by an empty line.  
+
 The following examples show how the rule behaves with different options:
 
 ```tsx
@@ -53,7 +54,7 @@ The following examples show how the rule behaves with different options:
 ```
 
 ```tsx
-// ✅ GOOD with { classesPerLine: 1, group: 'emptyLine' }
+// ✅ GOOD: with { classesPerLine: 1, group: 'emptyLine' }
 <div class={`
   text-black
   underline
