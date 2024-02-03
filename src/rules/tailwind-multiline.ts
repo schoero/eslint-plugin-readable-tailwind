@@ -314,13 +314,18 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         break skip;
       }
 
+      const openingQuoteLength = literal.openingQuote?.length ?? 0;
+      const closingBracesLength = literal.closingBraces?.length ?? 0;
+
       const firstLineLength = lines
         .at(1)
         .toString()
         .trim()
-        .length;
+        .length +
+        openingQuoteLength +
+        closingBracesLength;
 
-      // disallow skipping if the first line including the element and previous attributes is longer than the printWidth
+      // disallow skipping if the first line including the element and all previous characters is longer than the printWidth
       if(literalStartPosition + firstLineLength > printWidth && printWidth !== 0){
         break skip;
       }
