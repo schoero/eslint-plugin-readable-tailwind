@@ -24,7 +24,7 @@
 <br/>
 <br/>
 
-ESLint plugin to automatically break up long tailwind class strings into multiple lines based on a specified printWidth or class count. This improves readability and eliminates horizontal scrolling.  
+ESLint plugin to automatically break up long tailwind class strings into multiple lines based on a specified print width or class count. This improves readability and eliminates horizontal scrolling.  
 It also sorts the classes logically, removes unnecessary whitespaces and groups the classes by their modifiers. It works in jsx, svelte, vue, and html files and is designed to work well with and without prettier.
 
 <br/>
