@@ -124,7 +124,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
           properties: {
             allowMultiline: {
               default: getOptions().allowMultiline,
-              description: "Allow multi-line class declarations. If this option is disabled, template literal strings will be collapsed into a single line string wherever possible.",
+              description: "Allow multi-line class declarations. If this option is disabled, template literal strings will be collapsed into a single line string wherever possible. Must be set to `true` when used in combination with [readable-tailwind/multiline](./multiline.md).",
               type: "boolean"
             },
             callees: {

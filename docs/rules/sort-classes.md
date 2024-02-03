@@ -20,13 +20,28 @@ Order:
 ## Examples
 
 ```tsx
-// ❌ BAD
-<div class="hover:text-opacity-70 underline text-blue"/>;
+// ❌ BAD: all classes are in random order
+<div class="underline hover:text-opacity-70 focus:font-bold text-black hover:font-bold focus:text-opacity-70"/>;
 ```
 
 ```tsx
-// ✅ GOOD
-<div class="text-blue underline hover:text-opacity-70"/>;
+// ✅ GOOD: with option { order: 'asc' }
+<div class="focus:font-bold focus:text-opacity-70 hover:font-bold hover:text-opacity-70 text-black underline"/>;
+```
+
+```tsx
+// ✅ GOOD: with option { order: 'desc' }
+<div class="underline text-black hover:text-opacity-70 hover:font-bold focus:text-opacity-70 focus:font-bold"/>;
+```
+
+```tsx
+// ✅ GOOD: with option { order: 'official' }
+<div class="text-black underline hover:font-bold hover:text-opacity-70 focus:font-bold focus:text-opacity-70"/>;
+```
+
+```tsx
+// ✅ GOOD: with option { order: 'improved' }
+<div class="text-black underline focus:font-bold focus:text-opacity-70 hover:font-bold hover:text-opacity-70"/>;
 ```
 
 ## Options

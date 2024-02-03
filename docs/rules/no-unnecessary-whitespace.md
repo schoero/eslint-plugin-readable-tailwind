@@ -13,23 +13,23 @@ Disallow unnecessary whitespace in between and around tailwind classes.
 ## Examples
 
 ```tsx
-// ❌ BAD
-<div class=" text-blue  underline hover:text-opacity-70 " />;
+// ❌ BAD: random unnecessary whitespace
+<div class=" text-black    underline  hover:text-opacity-70   " />;
 ```
 
 ```tsx
-// ✅ GOOD
-<div class="text-blue underline hover:text-opacity-70"/>;
+// ✅ GOOD: only necessary whitespace is remaining
+<div class="text-black underline hover:text-opacity-70"/>;
 ```
 
 ## Options
 
 <!-- begin auto-generated rule options list -->
 
-| Name              | Description                                                                                                                                              | Type     | Default                           |
-| :---------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- | :------- | :-------------------------------- |
-| `allowMultiline`  | Allow multi-line class declarations. If this option is disabled, template literal strings will be collapsed into a single line string wherever possible. | Boolean  | `true`                            |
-| `callees`         | List of function names whose arguments should also be considered.                                                                                        | String[] | [`clsx`, `cva`, `ctl`, `twMerge`] |
-| `classAttributes` | The name of the attribute that contains the tailwind classes.                                                                                            | String[] | [`class`, `className`]            |
+| Name              | Description                                                                                                                                                                                                                                                 | Type     | Default                           |
+| :---------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------- | :-------------------------------- |
+| `allowMultiline`  | Allow multi-line class declarations. If this option is disabled, template literal strings will be collapsed into a single line string wherever possible. Must be set to `true` when used in combination with [readable-tailwind/multiline](./multiline.md). | Boolean  | `true`                            |
+| `callees`         | List of function names whose arguments should also be considered.                                                                                                                                                                                           | String[] | [`clsx`, `cva`, `ctl`, `twMerge`] |
+| `classAttributes` | The name of the attribute that contains the tailwind classes.                                                                                                                                                                                               | String[] | [`class`, `className`]            |
 
 <!-- end auto-generated rule options list -->

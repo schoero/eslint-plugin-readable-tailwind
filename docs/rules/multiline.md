@@ -12,19 +12,53 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 ## Examples
 
-With the default options, a class name will be broken up into multiple lines and grouped by their modifiers. Groups are separated by an empty line
+With the default options, a class name will be broken up into multiple lines and grouped by their modifiers. Groups are separated by an empty line.
+The following examples show how the rule behaves with different options:
 
 ```tsx
 // ❌ BAD
-<div class="text-blue underline hover:text-opacity-70" />;
+<div class="text-black underline focus:font-bold focus:text-opacity-70 hover:font-bold hover:text-opacity-70" />;
 ```
 
 ```tsx
-// ✅ GOOD
+// ✅ GOOD: with option { group: 'emptyLine' }
 <div class={`
-  text-blue underline
+  text-black underline
 
-  hover:text-opacity-70
+  focus:font-bold focus:text-opacity-70
+
+  hover:font-bold hover:text-opacity-70
+`} />;
+```
+
+```tsx
+// ✅ GOOD: with option { group: 'newLine' }
+<div class={`
+  text-black underline
+  focus:font-bold focus:text-opacity-70
+  hover:font-bold hover:text-opacity-70
+`} />;
+```
+
+```tsx
+// ✅ GOOD: with option { group: 'never', printWidth: 80 }
+<div class={`
+      text-black underline focus:font-bold focus:text-opacity-70 hover:font-bold
+      hover:text-opacity-70
+`} />;
+```
+
+```tsx
+// ✅ GOOD with { classesPerLine: 1, group: 'emptyLine' }
+<div class={`
+      text-black
+      underline
+
+      focus:font-bold
+      focus:text-opacity-70
+
+      hover:font-bold
+      hover:text-opacity-70
 `} />;
 ```
 
