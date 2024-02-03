@@ -6,7 +6,7 @@ import {
   getLiteralsByJSXCallExpression
 } from "readable-tailwind:utils:jsx.js";
 import { getSvelteAttributes, getSvelteClassAttributeLiterals } from "readable-tailwind:utils:svelte.js";
-import { findLineStartPosition } from "readable-tailwind:utils:utils";
+import { findLineStartPosition, findLiteralStartPosition } from "readable-tailwind:utils:utils";
 import { splitClasses } from "readable-tailwind:utils:utils.js";
 import { getVueAttributes, getVueClassAttributeLiterals } from "readable-tailwind:utils:vue.js";
 
@@ -125,6 +125,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
         ...vue,
         ...html
       };
+
     },
     meta: {
       docs: {
@@ -201,14 +202,16 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
   for(const literal of literals){
 
-    const startPosition = literal.type === "TemplateLiteral"
+    const lineStartPosition = literal.type === "TemplateLiteral"
       ? findLineStartPosition(ctx, literal.parent) + getIndentation(ctx, indent)
       : findLineStartPosition(ctx, literal) + getIndentation(ctx, indent);
+
+    const literalStartPosition = findLiteralStartPosition(ctx, literal);
 
     const classChunks = splitClasses(literal.content);
     const groupedClasses = groupClasses(ctx, classChunks);
 
-    const lines = new Lines(ctx, startPosition);
+    const lines = new Lines(ctx, lineStartPosition);
 
     if(literal.openingQuote){
       if(
@@ -287,7 +290,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     if(literal.closingQuote){
       lines.addLine();
-      lines.line.indent(startPosition - getIndentation(ctx, indent));
+      lines.line.indent(lineStartPosition - getIndentation(ctx, indent));
 
       if(
         literal.parent.type === "JSXAttribute" ||
@@ -300,11 +303,22 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       }
     }
 
-    if(lines.length === 3 && (
-      literal.type === "TemplateLiteral" && !literal.openingBraces && !literal.closingBraces ||
-      literal.type === "StringLiteral"
-    )){
-      continue;
+    if(lines.length === 3){
+
+      const firstLineLength = lines
+        .at(1)
+        .toString()
+        .trim()
+        .length;
+
+      if(literalStartPosition + firstLineLength < printWidth &&
+        (
+          literal.type === "TemplateLiteral" && !literal.openingBraces && !literal.closingBraces ||
+          literal.type === "StringLiteral"
+        )){
+        continue;
+      }
+
     }
 
     const fixedClasses = lines.toString();
@@ -362,14 +376,18 @@ class Lines {
 
   private lines: Line[] = [];
   private currentLine: Line | undefined;
-  private startPosition = 0;
+  private indentation = 0;
   private ctx: Rule.RuleContext;
 
-  constructor(ctx: Rule.RuleContext, startPosition: number) {
+  constructor(ctx: Rule.RuleContext, indentation: number) {
     this.ctx = ctx;
-    this.startPosition = startPosition;
+    this.indentation = indentation;
 
     this.addLine();
+  }
+
+  public at(index: number) {
+    return this.lines[index];
   }
 
   public get line() {
@@ -381,7 +399,7 @@ class Lines {
   }
 
   public addLine() {
-    const line = new Line(this.ctx, this.startPosition);
+    const line = new Line(this.ctx, this.indentation);
     this.lines.push(line);
     this.currentLine = line;
     return this;
@@ -400,14 +418,14 @@ class Line {
   private classes: string[] = [];
   private meta: Meta = {};
   private ctx: Rule.RuleContext;
-  private startPosition = 0;
+  private indentation = 0;
 
-  constructor(ctx: Rule.RuleContext, startPosition: number) {
+  constructor(ctx: Rule.RuleContext, indentation: number) {
     this.ctx = ctx;
-    this.startPosition = startPosition;
+    this.indentation = indentation;
   }
 
-  public indent(start: number = this.startPosition) {
+  public indent(start: number = this.indentation) {
     const indent = getOptions(this.ctx).indent;
 
     if(indent === "tab"){
@@ -442,7 +460,7 @@ class Line {
   }
 
   public clone() {
-    const line = new Line(this.ctx, this.startPosition);
+    const line = new Line(this.ctx, this.indentation);
     line.classes = [...this.classes];
     line.meta = { ...this.meta };
     return line;

@@ -1,5 +1,5 @@
 import type { Rule } from "eslint";
-import type { Node, QuoteMeta } from "src/types/ast.js";
+import type { Literal, Node, QuoteMeta } from "src/types/ast.js";
 
 
 export function getWhitespace(classes: string) {
@@ -41,4 +41,9 @@ export function splitWhitespaces(classes: string): string[] {
 export function findLineStartPosition(ctx: Rule.RuleContext, node: Node) {
   const line = node.loc.start.line;
   return ctx.sourceCode.lines[line - 1].match(/^\s*/)?.[0]?.length ?? 0;
+}
+
+export function findLiteralStartPosition(ctx: Rule.RuleContext, literal: Literal) {
+  const column = literal.loc.start.column;
+  return column;
 }
