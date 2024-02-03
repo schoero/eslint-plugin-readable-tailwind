@@ -8,7 +8,7 @@ JSX and TSX files are supported out of the box. The only thing you need to do is
 
 ### Flat config
 
-<small>Read more about the new [ESLint flat config format](https://eslint.org/docs/latest/use/configure/configuration-files-new)</small>
+Read more about the new [ESLint flat config format](https://eslint.org/docs/latest/use/configure/configuration-files-new)
 
 ```js
 // eslint.config.js

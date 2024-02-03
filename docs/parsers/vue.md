@@ -12,7 +12,7 @@ npm i -D vue-eslint-parser
 
 ### Flat config
 
-<small>Read more about the new [ESLint flat config format](https://eslint.org/docs/latest/use/configure/configuration-files-new)</small>
+Read more about the new [ESLint flat config format](https://eslint.org/docs/latest/use/configure/configuration-files-new)
 
 ```js
 // eslint.config.js
