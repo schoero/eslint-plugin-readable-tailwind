@@ -74,3 +74,22 @@ Please read the documentation for the specific flavor you are using:
 | [sort-classes](docs/rules/sort-classes.md)                           | Enforce a consistent order for tailwind classes.       | ![error](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/assets/checkmark-error.svg) | ![warning](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/assets/checkmark-warning.svg) | 🔧 |
 
 <!-- end auto-generated rules list -->
+
+<br/>
+<br/>
+
+## Editor configuration
+
+### VSCode
+
+#### Auto-fix on save
+
+These rules are intended to automatically fix the tailwind classes. If you have installed the [VSCode ESLint plugin](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint), you can configure it to automatically fix the classes on save by adding the following options to your `.vscode/settings.json`:
+
+```jsonc
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
+}
+```

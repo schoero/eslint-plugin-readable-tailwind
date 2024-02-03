@@ -8,6 +8,8 @@ JSX and TSX files are supported out of the box. The only thing you need to do is
 
 ### Flat config
 
+<small>Read more about the new [ESLint flat config format](https://eslint.org/docs/latest/use/configure/configuration-files-new)</small>
+
 ```js
 // eslint.config.js
 import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
@@ -35,18 +37,6 @@ export default [
     }
   }
 ];
-```
-
-<br/>
-
-#### VSCode
-
-To enable the new flat config format in VSCode, add the following to your `.vscode/settings.json`:
-
-```jsonc
-{
-  "eslint.experimental.useFlatConfig": true
-}
 ```
 
 <br/>

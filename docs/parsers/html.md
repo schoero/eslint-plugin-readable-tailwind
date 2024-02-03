@@ -12,6 +12,8 @@ npm i -D @html-eslint/parser
 
 ### Flat config
 
+<small>Read more about the new [ESLint flat config format](https://eslint.org/docs/latest/use/configure/configuration-files-new)</small>
+
 ```js
 // eslint.config.js
 import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
@@ -41,18 +43,6 @@ export default [
 
 <br/>
 
-#### VSCode
-
-To enable the new flat config format in VSCode, add the following to your `.vscode/settings.json`:
-
-```jsonc
-{
-  "eslint.experimental.useFlatConfig": true
-}
-```
-
-<br/>
-
 ### Legacy config
 
 ```jsonc
@@ -73,9 +63,11 @@ To enable the new flat config format in VSCode, add the following to your `.vsco
 }
 ```
 
-### VSCode
+### Editor configuration
 
-To enable the VSCode ESLint Plugin to validate HTML files, add the following to your `.vscode/settings.json`:
+#### VSCode
+
+To enable the [VSCode ESLint plugin](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) to validate HTML files, add the following to your `.vscode/settings.json`:
 
 ```jsonc
 {
