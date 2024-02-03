@@ -89,7 +89,7 @@ These rules are intended to automatically fix the tailwind classes. If you have 
 ```jsonc
 {
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "explicit"
   }
 }
 ```
