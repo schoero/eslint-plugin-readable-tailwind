@@ -17,8 +17,14 @@ Order:
 - `official`: Sort classes according to the official sorting order from tailwindcss.
 - `improved`: Same as `official` but also sorts by data-attributes.
 
+<br/>
+<br/>
+
 > [!NOTE]
 > If you also use [eslint-plugin-tailwindcss](https://github.com/francoismassart/eslint-plugin-tailwindcss) you should disable the rule [eslint-plugin-tailwindcss/classnames-order](https://github.com/francoismassart/eslint-plugin-tailwindcss/blob/master/docs/rules/classnames-order.md), and use this rule instead. Otherwise, the two rules may conflict with each other.
+
+<br/>
+<br/>
 
 ## Examples
 
