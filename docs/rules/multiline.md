@@ -32,13 +32,13 @@ With the default options, a class name will be broken up into multiple lines and
 
 <!-- begin auto-generated rule options list -->
 
-| Name              | Description                                                                                                                                   | Type     | Choices                         | Default                           |
-| :---------------- | :-------------------------------------------------------------------------------------------------------------------------------------------- | :------- | :------------------------------ | :-------------------------------- |
-| `callees`         | List of function names whose arguments should also be considered.                                                                             | String[] |                                 | [`clsx`, `cva`, `ctl`, `twMerge`] |
-| `classAttributes` | The name of the attribute that contains the tailwind classes.                                                                                 | String[] |                                 | [`class`, `className`]            |
-| `classesPerLine`  | The maximum number of classes per line.                                                                                                       | Integer  |                                 | `100000`                          |
-| `group`           | The group separator.                                                                                                                          | String   | `emptyLine`, `never`, `newLine` | `emptyLine`                       |
-| `indent`          | Determines how the code should be indented.                                                                                                   | Integer  |                                 | `2`                               |
-| `printWidth`      | The maximum line length. Lines are wrapped appropriately to stay within this limit or within the limit provided by the classesPerLine option. | Integer  |                                 | `80`                              |
+| Name              | Description                                                                                                                                                   | Type     | Choices                         | Default                           |
+| :---------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------ | :------- | :------------------------------ | :-------------------------------- |
+| `callees`         | List of function names whose arguments should also be considered.                                                                                             | String[] |                                 | [`clsx`, `cva`, `ctl`, `twMerge`] |
+| `classAttributes` | The name of the attribute that contains the tailwind classes.                                                                                                 | String[] |                                 | [`class`, `className`]            |
+| `classesPerLine`  | The maximum amount of classes per line. Lines are wrapped appropriately to stay within this limit . The value `0` disables line wrapping by `classesPerLine`. | Integer  |                                 | `0`                               |
+| `group`           | The group separator.                                                                                                                                          | String   | `emptyLine`, `never`, `newLine` | `emptyLine`                       |
+| `indent`          | Determines how the code should be indented.                                                                                                                   | Integer  |                                 | `2`                               |
+| `printWidth`      | The maximum line length. Lines are wrapped appropriately to stay within this limit. The value `0` disables line wrapping by `printWidth`.                     | Integer  |                                 | `80`                              |
 
 <!-- end auto-generated rule options list -->

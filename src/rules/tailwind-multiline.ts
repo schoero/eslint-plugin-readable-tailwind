@@ -157,7 +157,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
             },
             classesPerLine: {
               default: getOptions().classesPerLine,
-              description: "The maximum number of classes per line.",
+              description: "The maximum amount of classes per line. Lines are wrapped appropriately to stay within this limit . The value `0` disables line wrapping by `classesPerLine`.",
               type: "integer"
             },
             group: {
@@ -184,7 +184,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
             },
             printWidth: {
               default: getOptions().printWidth,
-              description: "The maximum line length. Lines are wrapped appropriately to stay within this limit or within the limit provided by the classesPerLine option.",
+              description: "The maximum line length. Lines are wrapped appropriately to stay within this limit. The value `0` disables line wrapping by `printWidth`.",
               type: "integer"
             }
           },
@@ -267,7 +267,10 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
             .addClass(className)
             .toString();
 
-          if(simulatedLine.length > printWidth || lines.line.classCount >= classesPerLine){
+          if(
+            simulatedLine.length > printWidth && printWidth !== 0 ||
+            lines.line.classCount >= classesPerLine && classesPerLine !== 0
+          ){
             lines.addLine();
             lines.line.indent();
           }
@@ -303,7 +306,13 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       }
     }
 
-    if(lines.length === 3){
+    // Skip line wrapping if it is not necessary
+    skip: if(lines.length === 3){
+
+      // disallow skipping for template literals with braces
+      if(literal.type === "TemplateLiteral" && (literal.openingBraces || literal.closingBraces)){
+        break skip;
+      }
 
       const firstLineLength = lines
         .at(1)
@@ -311,13 +320,17 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         .trim()
         .length;
 
-      if(literalStartPosition + firstLineLength < printWidth &&
-        (
-          literal.type === "TemplateLiteral" && !literal.openingBraces && !literal.closingBraces ||
-          literal.type === "StringLiteral"
-        )){
-        continue;
+      // disallow skipping if the first line including the element and previous attributes is longer than the printWidth
+      if(literalStartPosition + firstLineLength > printWidth && printWidth !== 0){
+        break skip;
       }
+
+      // disallow skipping if the first line contains more classes than the classesPerLine
+      if(lines.at(1).classCount > classesPerLine && classesPerLine !== 0){
+        break skip;
+      }
+
+      continue;
 
     }
 
@@ -353,7 +366,7 @@ function getOptions(ctx?: Rule.RuleContext) {
   const options: Options[0] = ctx?.options[0] ?? {};
 
   const printWidth = options.printWidth ?? 80;
-  const classesPerLine = options.classesPerLine ?? 100_000;
+  const classesPerLine = options.classesPerLine ?? 0;
   const indent = options.indent ?? 2;
   const group = options.group ?? "emptyLine";
 

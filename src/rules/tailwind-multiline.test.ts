@@ -73,6 +73,24 @@ describe(tailwindMultiline.name, () => {
     )).toBeUndefined();
   });
 
+  it("should disable the `printWidth` limit when set to `0`", () => {
+    expect(void lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            html: "<div class=\"this string literal is longer than 80 characters and would be wrapped using the default printWidth\" />",
+            jsx: "const Test = () => <div class=\"this string literal is longer than 80 characters and would be wrapped using the default printWidth\" />;",
+            options: [{ printWidth: 0 }],
+            svelte: "<div class=\"this string literal is longer than 80 characters and would be wrapped using the default printWidth\" />",
+            vue: "<template><div class=\"this string literal is longer than 80 characters and would be wrapped using the default printWidth\" /></template>"
+          }
+        ]
+      }
+    )).toBeUndefined();
+  });
+
   it("should change the quotes in defined call signatures to template literals", () => {
 
     const trim = createTrimTag(4);
