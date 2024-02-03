@@ -6,9 +6,13 @@
 
 <!-- end auto-generated rule header -->
 
+<br/>
+
 ## Description
 
 Disallow unnecessary whitespace in between and around tailwind classes.
+
+<br/>
 
 ## Examples
 
@@ -21,6 +25,8 @@ Disallow unnecessary whitespace in between and around tailwind classes.
 // ✅ GOOD: only necessary whitespace is remaining
 <div class="text-black underline hover:text-opacity-70"/>;
 ```
+
+<br/>
 
 ## Options
 

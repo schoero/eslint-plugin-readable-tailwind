@@ -6,9 +6,13 @@
 
 <!-- end auto-generated rule header -->
 
+<br/>
+
 ## Description
 
 Enforce tailwind classes to be broken up into multiple lines. It is possible to break at a certain print width or a certain number of classes per line.
+
+<br/>
 
 ## Examples
 
@@ -61,6 +65,8 @@ The following examples show how the rule behaves with different options:
       hover:text-opacity-70
 `} />;
 ```
+
+<br/>
 
 ## Options
 
