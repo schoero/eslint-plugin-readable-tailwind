@@ -2,7 +2,7 @@
   "version": "0.3.0",
   "type": "module",
   "name": "eslint-plugin-readable-tailwind",
-  "description": "auto-wraps tailwind classes after a certain width using template literals.",
+  "description": "auto-wraps tailwind classes after a certain print width or class count into multiple lines to improve readability.",
   "license": "MIT",
   "author": "Roger Schönbächler",
   "repository": {
