@@ -64,7 +64,6 @@ export default [
 
 <br/>
 
-
 ### Editor configuration
 
 #### VSCode
