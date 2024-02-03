@@ -83,6 +83,8 @@
     "eslint-plugin",
     "tailwind",
     "readable",
+    "horizontal",
+    "scrolling",
     "multiline",
     "multi",
     "newline",
