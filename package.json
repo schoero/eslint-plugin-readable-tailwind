@@ -57,11 +57,11 @@
     "tailwindcss": ">=3.3.0"
   },
   "devDependencies": {
-    "@html-eslint/parser": "^0.22.0",
+    "@html-eslint/parser": "^0.23.0",
     "@schoero/configs": "^0.0.0-beta.27",
     "@types/eslint": "^8.56.2",
-    "@types/estree-jsx": "^1.0.3",
-    "@types/node": "^20.11.5",
+    "@types/estree-jsx": "^1.0.4",
+    "@types/node": "^20.11.16",
     "cspell": "^8.3.2",
     "es-html-parser": "^0.0.9",
     "eslint": "^8.56.0",
@@ -73,10 +73,10 @@
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3",
     "vite": "^5.0.12",
-    "vite-plugin-dts": "^3.7.1",
+    "vite-plugin-dts": "^3.7.2",
     "vite-plugin-no-bundle": "^3.0.0",
-    "vitest": "^1.2.1",
-    "vue-eslint-parser": "^9.4.1"
+    "vitest": "^1.2.2",
+    "vue-eslint-parser": "^9.4.2"
   },
   "keywords": [
     "eslint",
