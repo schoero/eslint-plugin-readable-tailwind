@@ -8,8 +8,9 @@
     "noEmit": true,
     "noImplicitAny": false,
     "paths": {
+      "readable-tailwind:flavors:*": ["src/flavors/*"],
       "readable-tailwind:rules:*": ["src/rules/*"],
-      "readable-tailwind:tests:": ["src/tests/*"],
+      "readable-tailwind:tests:*": ["src/tests/*"],
       "readable-tailwind:utils:*": ["src/utils/*"]
     },
     "rootDir": ".",

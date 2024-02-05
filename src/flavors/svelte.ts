@@ -2,7 +2,7 @@ import {
   getLiteralByJSXTemplateElement,
   getStringLiteralByJSXStringLiteral,
   isSimpleStringLiteral
-} from "readable-tailwind:utils:jsx.js";
+} from "readable-tailwind:flavors:jsx.js";
 import { getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";

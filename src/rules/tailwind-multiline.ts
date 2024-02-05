@@ -1,14 +1,14 @@
-import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "readable-tailwind:utils:config.js";
-import { getHTMLAttributes, getHTMLClassAttributeLiterals } from "readable-tailwind:utils:html.js";
+import { getHTMLAttributes, getHTMLClassAttributeLiterals } from "readable-tailwind:flavors:html.js";
 import {
   getJSXAttributes,
   getJSXClassAttributeLiterals,
   getLiteralsByJSXCallExpression
-} from "readable-tailwind:utils:jsx.js";
-import { getSvelteAttributes, getSvelteClassAttributeLiterals } from "readable-tailwind:utils:svelte.js";
+} from "readable-tailwind:flavors:jsx.js";
+import { getSvelteAttributes, getSvelteClassAttributeLiterals } from "readable-tailwind:flavors:svelte.js";
+import { getVueAttributes, getVueClassAttributeLiterals } from "readable-tailwind:flavors:vue.js";
+import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "readable-tailwind:utils:config.js";
 import { findLineStartPosition, findLiteralStartPosition } from "readable-tailwind:utils:utils";
 import { splitClasses } from "readable-tailwind:utils:utils.js";
-import { getVueAttributes, getVueClassAttributeLiterals } from "readable-tailwind:utils:vue.js";
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
