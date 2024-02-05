@@ -1,4 +1,4 @@
-import { createTrimTag } from "src/utils/template.js";
+import { createTrimTag } from "tests/utils";
 import { lint, TEST_SYNTAXES } from "tests/utils.js";
 import { describe, expect, it } from "vitest";
 

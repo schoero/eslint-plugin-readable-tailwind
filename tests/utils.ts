@@ -1,5 +1,6 @@
 // @ts-expect-error - types not available yet
 import { FlatRuleTester } from "eslint/use-at-your-own-risk";
+import { createTag } from "proper-tags";
 import eslintParserSvelte from "svelte-eslint-parser";
 import eslintParserVue from "vue-eslint-parser";
 
@@ -91,4 +92,16 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
     }
   }
 
+}
+
+const customIndentStripTransformer = (count: number) => {
+  return {
+    onEndResult(endResult: string) {
+      return endResult.replace(new RegExp(`^ {${count}}`, "gm"), "");
+    }
+  };
+};
+
+export function createTrimTag(count: number) {
+  return createTag(customIndentStripTransformer(count));
 }
