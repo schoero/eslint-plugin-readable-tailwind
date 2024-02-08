@@ -88,10 +88,13 @@ export const tailwindSortClasses: ESLintRule<Options> = {
         CallExpression(node: Node) {
           const jsxNode = node as CallExpression;
 
-          if(jsxNode.callee.type !== "Identifier"){ return; }
-
           const literals = callees.reduce<Literal[]>((literals, callee) => {
-            if(typeof callee === "string" && callee === jsxNode.callee.name){
+
+            if(jsxNode.callee.type !== "Identifier"){ return literals; }
+
+            if(typeof callee === "string"){
+              if(callee !== jsxNode.callee.name){ return literals; }
+
               literals.push(...getLiteralsByJSXCallExpression(ctx, jsxNode.arguments));
             } else {
               literals.push(...getLiteralsByJSXNodeAndRegex(ctx, node, callee));
@@ -100,7 +103,8 @@ export const tailwindSortClasses: ESLintRule<Options> = {
             return literals;
           }, []);
 
-          lintLiterals(ctx, deduplicateLiterals(literals));
+          const uniqueLiterals = deduplicateLiterals(literals);
+          lintLiterals(ctx, uniqueLiterals);
 
         },
         JSXOpeningElement(node: Node) {
