@@ -1,6 +1,7 @@
 import type { AttributeNode, TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { Literal, QuoteMeta } from "src/types/ast.js";
+
+import type { Literal, QuoteMeta } from "readable-tailwind:types:ast.js";
 
 
 export function getHTMLAttributes(ctx: Rule.RuleContext, classAttributes: string[], node: TagNode): AttributeNode[] {

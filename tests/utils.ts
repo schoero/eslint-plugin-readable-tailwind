@@ -6,7 +6,7 @@ import eslintParserVue from "vue-eslint-parser";
 
 import eslintParserHTML from "@html-eslint/parser";
 
-import type { ESLintRule } from "src/types/rule.js";
+import type { ESLintRule } from "readable-tailwind:types:rule.js";
 
 
 export const TEST_SYNTAXES = {

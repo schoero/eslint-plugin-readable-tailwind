@@ -2,7 +2,7 @@ import { getHTMLAttributes, getHTMLClassAttributeLiterals } from "readable-tailw
 import {
   getJSXAttributes,
   getJSXClassAttributeLiterals,
-  getLiteralsByJSXCallExpression
+  getLiteralsByJSXCallExpressionAndStringCallee
 } from "readable-tailwind:flavors:jsx.js";
 import { getSvelteAttributes, getSvelteClassAttributeLiterals } from "readable-tailwind:flavors:svelte.js";
 import { getVueAttributes, getVueClassAttributeLiterals } from "readable-tailwind:flavors:vue.js";
@@ -14,10 +14,11 @@ import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
 import type { Node } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
-import type { Literal, Meta } from "src/types/ast.js";
-import type { ESLintRule } from "src/types/rule.js";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { VStartTag } from "vue-eslint-parser/ast";
+
+import type { Literal, Meta } from "readable-tailwind:types:ast.js";
+import type { ESLintRule } from "readable-tailwind:types:rule.js";
 
 
 export type Options = [
@@ -46,7 +47,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
           if(callee.type !== "Identifier"){ return; }
           if(!calleesIncludes(callees, callee.name)){ return; }
 
-          const literals = getLiteralsByJSXCallExpression(ctx, node.arguments);
+          const literals = getLiteralsByJSXCallExpressionAndStringCallee(ctx, node.arguments);
           lintLiterals(ctx, literals);
         }
       };

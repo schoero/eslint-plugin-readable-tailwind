@@ -1,6 +1,7 @@
 import type { Rule } from "eslint";
-import type { Literal, Node, QuoteMeta } from "src/types/ast.js";
-import type { Callees } from "src/types/rule.js";
+
+import type { Literal, Node, QuoteMeta } from "readable-tailwind:types:ast.js";
+import type { Callees } from "readable-tailwind:types:rule.js";
 
 
 export function getWhitespace(classes: string) {

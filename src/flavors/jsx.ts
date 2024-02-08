@@ -1,8 +1,9 @@
-import { getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
+import { deduplicateLiterals, getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
 
 import type { AST, Rule } from "eslint";
 import type {
   BaseNode as JSXBaseNode,
+  CallExpression,
   Expression as JSXExpression,
   JSXAttribute,
   JSXExpressionContainer,
@@ -13,8 +14,9 @@ import type {
   TemplateElement as JSXTemplateElement,
   TemplateLiteral as JSXTemplateLiteral
 } from "estree-jsx";
-import type { BracesMeta, Literal, Node, StringLiteral, TemplateLiteral } from "src/types/ast";
-import type { CalleeRegex } from "src/types/rule.js";
+
+import type { BracesMeta, Literal, Node, StringLiteral, TemplateLiteral } from "readable-tailwind:types:ast";
+import type { CalleeRegex, Callees } from "readable-tailwind:types:rule.js";
 
 
 export function getJSXClassAttributeLiterals(ctx: Rule.RuleContext, attribute: JSXAttribute): Literal[] {
@@ -49,7 +51,26 @@ export function getJSXClassAttributeLiterals(ctx: Rule.RuleContext, attribute: J
 
 }
 
-export function getLiteralsByJSXCallExpression(ctx: Rule.RuleContext, args: (JSXExpression | JSXSpreadElement)[]): Literal[] {
+export function getLiteralsByJSXCallExpression(ctx: Rule.RuleContext, jsxNode: CallExpression, callees: Callees): Literal[] {
+  const literals = callees.reduce<Literal[]>((literals, callee) => {
+
+    if(jsxNode.callee.type !== "Identifier"){ return literals; }
+
+    if(typeof callee === "string"){
+      if(callee !== jsxNode.callee.name){ return literals; }
+
+      literals.push(...getLiteralsByJSXCallExpressionAndStringCallee(ctx, jsxNode.arguments));
+    } else {
+      literals.push(...getLiteralsByJSXCallExpressionAndRegexCallee(ctx, jsxNode, callee));
+    }
+
+    return literals;
+  }, []);
+
+  return deduplicateLiterals(literals);
+}
+
+function getLiteralsByJSXCallExpressionAndStringCallee(ctx: Rule.RuleContext, args: (JSXExpression | JSXSpreadElement)[]): Literal[] {
   return args.reduce<Literal[]>((acc, arg) => {
     if(arg.type === "SpreadElement"){ return acc; }
     const literals = getLiteralsByExpression(ctx, arg);
@@ -57,9 +78,9 @@ export function getLiteralsByJSXCallExpression(ctx: Rule.RuleContext, args: (JSX
   }, []);
 }
 
-export function getLiteralsByJSXNodeAndRegex(ctx: Rule.RuleContext, node: JSXNode, regularExpressions: CalleeRegex): Literal[] {
+function getLiteralsByJSXCallExpressionAndRegexCallee(ctx: Rule.RuleContext, node: JSXNode, regexCallee: CalleeRegex): Literal[] {
 
-  const [containerRegexString, stringLiteralRegexString] = regularExpressions;
+  const [containerRegexString, stringLiteralRegexString] = regexCallee;
 
   const sourceCode = ctx.sourceCode.getText(node);
 

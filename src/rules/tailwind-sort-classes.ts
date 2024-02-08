@@ -6,22 +6,23 @@ import loadConfig from "tailwindcss/loadConfig.js";
 import resolveConfig from "tailwindcss/resolveConfig.js";
 
 import { getHTMLAttributes, getHTMLClassAttributeLiterals } from "readable-tailwind:flavors:html.js";
-import { getJSXAttributes, getLiteralsByJSXNodeAndRegex } from "readable-tailwind:flavors:jsx";
-import { getJSXClassAttributeLiterals, getLiteralsByJSXCallExpression } from "readable-tailwind:flavors:jsx.js";
+import { getJSXAttributes, getLiteralsByJSXCallExpression } from "readable-tailwind:flavors:jsx";
+import { getJSXClassAttributeLiterals } from "readable-tailwind:flavors:jsx.js";
 import { getSvelteAttributes, getSvelteClassAttributeLiterals } from "readable-tailwind:flavors:svelte.js";
 import { getVueAttributes, getVueClassAttributeLiterals } from "readable-tailwind:flavors:vue.js";
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "readable-tailwind:utils:config.js";
-import { deduplicateLiterals, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
+import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
 import type { Node } from "estree";
 import type { CallExpression, JSXOpeningElement } from "estree-jsx";
-import type { Literal } from "src/types/ast.js";
-import type { Callees, ESLintRule } from "src/types/rule.js";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { Config } from "tailwindcss/types/config.js";
 import type { VStartTag } from "vue-eslint-parser/ast";
+
+import type { Literal } from "readable-tailwind:types:ast.js";
+import type { Callees, ESLintRule } from "readable-tailwind:types:rule.js";
 
 
 export type Options = [
@@ -88,23 +89,8 @@ export const tailwindSortClasses: ESLintRule<Options> = {
         CallExpression(node: Node) {
           const jsxNode = node as CallExpression;
 
-          const literals = callees.reduce<Literal[]>((literals, callee) => {
-
-            if(jsxNode.callee.type !== "Identifier"){ return literals; }
-
-            if(typeof callee === "string"){
-              if(callee !== jsxNode.callee.name){ return literals; }
-
-              literals.push(...getLiteralsByJSXCallExpression(ctx, jsxNode.arguments));
-            } else {
-              literals.push(...getLiteralsByJSXNodeAndRegex(ctx, node, callee));
-            }
-
-            return literals;
-          }, []);
-
-          const uniqueLiterals = deduplicateLiterals(literals);
-          lintLiterals(ctx, uniqueLiterals);
+          const literals = getLiteralsByJSXCallExpression(ctx, jsxNode, callees);
+          lintLiterals(ctx, literals);
 
         },
         JSXOpeningElement(node: Node) {

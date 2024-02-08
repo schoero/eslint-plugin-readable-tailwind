@@ -8,7 +8,6 @@ import { getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
 import type { Rule } from "eslint";
 import type { Node as ESTreeNode } from "estree";
 import type { BaseNode as JSXBaseNode, Node as JSXNode, TemplateLiteral as JSXTemplateLiteral } from "estree-jsx";
-import type { Literal, Node, QuoteMeta, StringLiteral, TemplateLiteral } from "src/types/ast.js";
 import type {
   SvelteAttribute,
   SvelteDirective,
@@ -19,6 +18,8 @@ import type {
   SvelteStartTag,
   SvelteStyleDirective
 } from "svelte-eslint-parser/lib/ast/index.js";
+
+import type { Literal, Node, QuoteMeta, StringLiteral, TemplateLiteral } from "readable-tailwind:types:ast.js";
 
 
 export function getSvelteAttributes(ctx: Rule.RuleContext, classAttributes: string[], node: SvelteStartTag): SvelteAttribute[] {
