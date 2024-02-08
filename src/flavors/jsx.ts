@@ -5,6 +5,7 @@ import type {
   BaseNode as JSXBaseNode,
   Expression as JSXExpression,
   JSXAttribute,
+  JSXExpressionContainer,
   JSXOpeningElement,
   Node as JSXNode,
   SimpleLiteral as JSXSimpleLiteral,
@@ -13,6 +14,7 @@ import type {
   TemplateLiteral as JSXTemplateLiteral
 } from "estree-jsx";
 import type { BracesMeta, Literal, Node, StringLiteral, TemplateLiteral } from "src/types/ast";
+import type { CalleeRegex } from "src/types/rule.js";
 
 
 export function getJSXClassAttributeLiterals(ctx: Rule.RuleContext, attribute: JSXAttribute): Literal[] {
@@ -23,7 +25,6 @@ export function getJSXClassAttributeLiterals(ctx: Rule.RuleContext, attribute: J
     return [];
   }
 
-  // class="a b"
   if(isSimpleStringLiteral(value)){
     const stringLiteral = getStringLiteralByJSXStringLiteral(ctx, value);
 
@@ -32,8 +33,7 @@ export function getJSXClassAttributeLiterals(ctx: Rule.RuleContext, attribute: J
     }
   }
 
-  // class={"a b"}
-  if(value.type === "JSXExpressionContainer" && isSimpleStringLiteral(value.expression)){
+  if(isSimpleExpressionContainer(value)){
     const stringLiteral = getStringLiteralByJSXStringLiteral(ctx, value.expression);
 
     if(stringLiteral){
@@ -41,8 +41,7 @@ export function getJSXClassAttributeLiterals(ctx: Rule.RuleContext, attribute: J
     }
   }
 
-  // class={`a b ... c`}
-  if(value.type === "JSXExpressionContainer" && value.expression.type === "TemplateLiteral"){
+  if(isTemplateExpressionContainer(value)){
     return getLiteralsByJSXTemplateLiteral(ctx, value.expression);
   }
 
@@ -58,9 +57,49 @@ export function getLiteralsByJSXCallExpression(ctx: Rule.RuleContext, args: (JSX
   }, []);
 }
 
+export function getLiteralsByJSXNodeAndRegex(ctx: Rule.RuleContext, node: JSXNode, regularExpressions: CalleeRegex): Literal[] {
+
+  const [containerRegexString, stringLiteralRegexString] = regularExpressions;
+
+  const sourceCode = ctx.sourceCode.getText(node);
+
+  const containerRegex = new RegExp(containerRegexString, "g");
+  const stringLiteralRegex = new RegExp(stringLiteralRegexString, "g");
+  const containers = sourceCode.matchAll(containerRegex);
+
+  const matchedLiterals: Literal[] = [];
+
+  for(const container of containers){
+    const stringLiterals = container[0].matchAll(stringLiteralRegex);
+
+    for(const stringLiteral of stringLiterals){
+      if(!stringLiteral.index){ continue; }
+
+      const node = ctx.sourceCode.getNodeByRangeIndex(stringLiteral.index);
+
+      if(!node){ continue; }
+
+      const literals = isSimpleStringLiteral(node)
+        ? getStringLiteralByJSXStringLiteral(ctx, node)
+        : isTemplateExpressionContainer(node)
+          ? getLiteralsByJSXTemplateLiteral(ctx, node.expression)
+          : undefined;
+
+      if(literals === undefined){ continue; }
+
+      matchedLiterals.push(
+        ...Array.isArray(literals) ? literals : [literals]
+      );
+    }
+
+  }
+
+  return matchedLiterals;
+
+}
+
 function getLiteralsByExpression(ctx: Rule.RuleContext, node: JSXExpression): Literal[] {
 
-  // {"a b"}
   if(isSimpleStringLiteral(node)){
     const simpleStringLiteral = getStringLiteralByJSXStringLiteral(ctx, node);
     if(simpleStringLiteral){
@@ -68,14 +107,13 @@ function getLiteralsByExpression(ctx: Rule.RuleContext, node: JSXExpression): Li
     }
   }
 
-  // {`a b ... c`}
-  if(node.type === "TemplateLiteral"){
+  if(isTemplateLiteral(node)){
     return getLiteralsByJSXTemplateLiteral(ctx, node);
   }
 
   return [];
-}
 
+}
 
 export function getStringLiteralByJSXStringLiteral(ctx: Rule.RuleContext, node: JSXSimpleStringLiteral): StringLiteral | undefined {
 
@@ -177,6 +215,12 @@ interface JSXSimpleStringLiteral extends Rule.NodeParentExtension, JSXSimpleLite
   value: string;
 }
 
+function isJSXNode(node: unknown): node is JSXNode {
+  return node !== null &&
+    typeof node === "object" &&
+    "type" in node;
+}
+
 function isJSXAttribute(node: JSXBaseNode): node is JSXAttribute {
   return node.type === "JSXAttribute";
 }
@@ -185,4 +229,20 @@ export function isSimpleStringLiteral(node: JSXBaseNode): node is JSXSimpleStrin
   return node.type === "Literal" &&
     "value" in node &&
     typeof node.value === "string";
+}
+
+export function isTemplateLiteral(node: JSXBaseNode): node is JSXTemplateLiteral {
+  return node.type === "TemplateLiteral";
+}
+
+export function isSimpleExpressionContainer(node: JSXBaseNode): node is JSXExpressionContainer & { expression: JSXSimpleStringLiteral; } {
+  return node.type === "JSXExpressionContainer" && "expression" in node &&
+    isJSXNode(node.expression) &&
+    isSimpleStringLiteral(node.expression);
+}
+
+export function isTemplateExpressionContainer(node: JSXBaseNode): node is JSXExpressionContainer & { expression: JSXTemplateLiteral; } {
+  return node.type === "JSXExpressionContainer" && "expression" in node &&
+    isJSXNode(node.expression) &&
+    isTemplateLiteral(node.expression);
 }

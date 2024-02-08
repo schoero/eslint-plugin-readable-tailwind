@@ -285,7 +285,93 @@ describe(tailwindSortClasses.name, () => {
       }
     )).toBeUndefined();
 
+    expect(void lint(
+      tailwindSortClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            jsx: dirtyDefined,
+            jsxOutput: cleanDefined,
+            options: [{ callees: ["/defined/"], order: "asc" }],
+            svelte: `<script>${dirtyDefined}</script>`,
+            svelteOutput: `<script>${cleanDefined}</script>`,
+            vue: `<script>${dirtyDefined}</script>`,
+            vueOutput: `<script>${cleanDefined}</script>`
+          }
+        ],
+        valid: [
+          {
+            jsx: dirtyUndefined,
+            options: [{ callees: ["/defined/"], order: "asc" }],
+            svelte: `<script>${dirtyUndefined}</script>`,
+            vue: `<script>${dirtyUndefined}</script>`
+          }
+        ]
+      }
+    )).toBeUndefined();
+
   });
+
+  it("should also work in call signature arguments matched by a regex", () => {
+
+    const dirtyDefined = `defined(
+      "b a",
+      {
+        "nested": {
+          "property": "b a",
+        },
+        "deeply": {
+          "nested": {
+            "property": "b a",
+            "another-property": "b a"
+          },
+        }
+      }
+    );`;
+
+    const cleanDefined = `defined(
+      "a b",
+      {
+        "nested": {
+          "property": "a b",
+        },
+        "deeply": {
+          "nested": {
+            "property": "a b",
+            "another-property": "a b"
+          },
+        }
+      }
+    );`;
+
+    expect(void lint(
+      tailwindSortClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 4,
+            jsx: dirtyDefined,
+            jsxOutput: cleanDefined,
+            options: [{
+              callees: [
+                ["defined\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
+              ],
+              order: "asc"
+            }]
+            // svelte: `<script>${dirtyDefined}</script>`,
+            // svelteOutput: `<script>${cleanDefined}</script>`
+            // vue: `<script>${dirtyDefined}</script>`,
+            // vueOutput: `<script>${cleanDefined}</script>`
+          }
+        ]
+      }
+    )).toBeUndefined();
+
+  });
+
 
   it("should also work in defined call signature arguments in template literals", () => {
 

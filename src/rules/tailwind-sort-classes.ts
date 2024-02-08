@@ -6,19 +6,19 @@ import loadConfig from "tailwindcss/loadConfig.js";
 import resolveConfig from "tailwindcss/resolveConfig.js";
 
 import { getHTMLAttributes, getHTMLClassAttributeLiterals } from "readable-tailwind:flavors:html.js";
-import { getJSXAttributes } from "readable-tailwind:flavors:jsx";
+import { getJSXAttributes, getLiteralsByJSXNodeAndRegex } from "readable-tailwind:flavors:jsx";
 import { getJSXClassAttributeLiterals, getLiteralsByJSXCallExpression } from "readable-tailwind:flavors:jsx.js";
 import { getSvelteAttributes, getSvelteClassAttributeLiterals } from "readable-tailwind:flavors:svelte.js";
 import { getVueAttributes, getVueClassAttributeLiterals } from "readable-tailwind:flavors:vue.js";
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "readable-tailwind:utils:config.js";
-import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
+import { deduplicateLiterals, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
 import type { Node } from "estree";
-import type { JSXOpeningElement } from "estree-jsx";
+import type { CallExpression, JSXOpeningElement } from "estree-jsx";
 import type { Literal } from "src/types/ast.js";
-import type { ESLintRule } from "src/types/rule.js";
+import type { Callees, ESLintRule } from "src/types/rule.js";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { Config } from "tailwindcss/types/config.js";
 import type { VStartTag } from "vue-eslint-parser/ast";
@@ -26,7 +26,7 @@ import type { VStartTag } from "vue-eslint-parser/ast";
 
 export type Options = [
   {
-    callees?: string[];
+    callees?: Callees;
     classAttributes?: string[];
     order?: "asc" | "desc" | "improved" | "official" ;
     tailwindConfig?: string;
@@ -84,20 +84,25 @@ export const tailwindSortClasses: ESLintRule<Options> = {
         }
       };
 
-      const callExpressions = {
-        CallExpression(node) {
-          const { callee } = node;
-
-          if(callee.type !== "Identifier"){ return; }
-          if(!callees.includes(callee.name)){ return; }
-
-          const literals = getLiteralsByJSXCallExpression(ctx, node.arguments);
-          lintLiterals(ctx, literals);
-
-        }
-      };
-
       const jsx = {
+        CallExpression(node: Node) {
+          const jsxNode = node as CallExpression;
+
+          if(jsxNode.callee.type !== "Identifier"){ return; }
+
+          const literals = callees.reduce<Literal[]>((literals, callee) => {
+            if(typeof callee === "string" && callee === jsxNode.callee.name){
+              literals.push(...getLiteralsByJSXCallExpression(ctx, jsxNode.arguments));
+            } else {
+              literals.push(...getLiteralsByJSXNodeAndRegex(ctx, node, callee));
+            }
+
+            return literals;
+          }, []);
+
+          lintLiterals(ctx, deduplicateLiterals(literals));
+
+        },
         JSXOpeningElement(node: Node) {
           const jsxNode = node as JSXOpeningElement;
           const jsxAttributes = getJSXAttributes(ctx, classAttributes, jsxNode);
@@ -149,13 +154,11 @@ export const tailwindSortClasses: ESLintRule<Options> = {
       // Vue
       if(typeof ctx.parserServices?.defineTemplateBodyVisitor === "function"){
         return {
-          ...callExpressions,
           ...ctx.parserServices.defineTemplateBodyVisitor(vue)
         };
       }
 
       return {
-        ...callExpressions,
         ...jsx,
         ...svelte,
         ...html
@@ -178,7 +181,24 @@ export const tailwindSortClasses: ESLintRule<Options> = {
               default: getOptions().callees,
               description: "List of function names whose arguments should also be considered.",
               items: {
-                type: "string"
+                oneOf: [
+                  {
+                    items: {
+                      items: [
+                        { type: "string" },
+                        { type: "string" }
+                      ],
+                      type: "array"
+                    },
+                    type: "array"
+                  },
+                  {
+                    items: {
+                      type: "string"
+                    },
+                    type: "array"
+                  }
+                ]
               },
               type: "array"
             },

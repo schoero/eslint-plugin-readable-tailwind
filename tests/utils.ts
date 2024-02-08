@@ -30,7 +30,6 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
   syntaxes: Syntaxes,
   tests: {
     invalid?: (
-      // Omit<FlatRuleTester.InvalidTestCase, "code" | "options" | "output"> &
       {
         [Key in keyof Syntaxes as `${Key & string}Output`]?: string;
       } & {
@@ -42,7 +41,6 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
       }
     )[];
     valid?: (
-      // Omit<FlatRuleTester.ValidTestCase, "code" | "options" | "output"> &
       {
         [Key in keyof Syntaxes]?: string;
       } & {

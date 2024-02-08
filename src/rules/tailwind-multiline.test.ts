@@ -128,6 +128,30 @@ describe(tailwindMultiline.name, () => {
         ]
       }
     )).toBeUndefined();
+
+    expect(void lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            jsx: `const Test = () => <div class={${dirtyDefined}} />;`,
+            jsxOutput: `const Test = () => <div class={${cleanDefined}} />;`,
+            options: [{ callees: ["/defined/"], classesPerLine: 3, indent: 2 }],
+            svelte: `<div class={${dirtyDefined}} />`,
+            svelteOutput: `<div class={${cleanDefined}} />`
+          }
+        ],
+        valid: [
+          {
+            jsx: `const Test = () => <div class={${dirtyUndefined}} />;`,
+            options: [{ callees: ["/defined/"], classesPerLine: 3, indent: 2 }],
+            svelte: `<div class={${dirtyUndefined}} />`
+          }
+        ]
+      }
+    )).toBeUndefined();
   });
 
   it("should change to a jsx expression correctly", () => {

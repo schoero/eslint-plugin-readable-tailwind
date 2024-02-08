@@ -201,6 +201,29 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       ]
     })).toBeUndefined();
 
+    expect(void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 1,
+          jsx: dirtyDefined,
+          jsxOutput: cleanDefined,
+          options: [{ callees: ["/defined/"] }],
+          svelte: `<script>${dirtyDefined}</script>`,
+          svelteOutput: `<script>${cleanDefined}</script>`,
+          vue: `<script>${dirtyDefined}</script>`,
+          vueOutput: `<script>${cleanDefined}</script>`
+        }
+      ],
+      valid: [
+        {
+          jsx: dirtyUndefined,
+          options: [{ callees: ["/defined/"] }],
+          svelte: `<script>${dirtyUndefined}</script>`,
+          vue: `<script>${dirtyUndefined}</script>`
+        }
+      ]
+    })).toBeUndefined();
+
   });
 
   it("should also work in defined call signature arguments in template literals", () => {

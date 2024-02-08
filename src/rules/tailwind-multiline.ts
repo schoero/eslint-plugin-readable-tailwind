@@ -7,7 +7,7 @@ import {
 import { getSvelteAttributes, getSvelteClassAttributeLiterals } from "readable-tailwind:flavors:svelte.js";
 import { getVueAttributes, getVueClassAttributeLiterals } from "readable-tailwind:flavors:vue.js";
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "readable-tailwind:utils:config.js";
-import { findLineStartPosition, findLiteralStartPosition } from "readable-tailwind:utils:utils";
+import { calleesIncludes, findLineStartPosition, findLiteralStartPosition } from "readable-tailwind:utils:utils";
 import { splitClasses } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
@@ -44,7 +44,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
           const { callee } = node;
 
           if(callee.type !== "Identifier"){ return; }
-          if(!callees.includes(callee.name)){ return; }
+          if(!calleesIncludes(callees, callee.name)){ return; }
 
           const literals = getLiteralsByJSXCallExpression(ctx, node.arguments);
           lintLiterals(ctx, literals);
