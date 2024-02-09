@@ -1,15 +1,15 @@
 import { resolve } from "node:path";
 
+import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "src/parsers/html.js";
+import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "src/parsers/svelte.js";
+import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "src/parsers/vue.js";
 import defaultConfig from "tailwindcss/defaultConfig.js";
 import setupContextUtils from "tailwindcss/lib/lib/setupContextUtils.js";
 import loadConfig from "tailwindcss/loadConfig.js";
 import resolveConfig from "tailwindcss/resolveConfig.js";
 
-import { getHTMLAttributes, getHTMLClassAttributeLiterals } from "readable-tailwind:flavors:html.js";
-import { getJSXAttributes, getLiteralsByJSXCallExpression } from "readable-tailwind:flavors:jsx";
-import { getJSXClassAttributeLiterals } from "readable-tailwind:flavors:jsx.js";
-import { getSvelteAttributes, getSvelteClassAttributeLiterals } from "readable-tailwind:flavors:svelte.js";
-import { getVueAttributes, getVueClassAttributeLiterals } from "readable-tailwind:flavors:vue.js";
+import { getLiteralsByESCallExpression } from "readable-tailwind:flavors:es";
+import { getJSXAttributes, getLiteralsByJSXClassAttribute } from "readable-tailwind:flavors:jsx";
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "readable-tailwind:utils:config.js";
 import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
@@ -89,16 +89,15 @@ export const tailwindSortClasses: ESLintRule<Options> = {
         CallExpression(node: Node) {
           const jsxNode = node as CallExpression;
 
-          const literals = getLiteralsByJSXCallExpression(ctx, jsxNode, callees);
+          const literals = getLiteralsByESCallExpression(ctx, jsxNode, callees);
           lintLiterals(ctx, literals);
-
         },
         JSXOpeningElement(node: Node) {
           const jsxNode = node as JSXOpeningElement;
           const jsxAttributes = getJSXAttributes(ctx, classAttributes, jsxNode);
 
           for(const attribute of jsxAttributes){
-            const literals = getJSXClassAttributeLiterals(ctx, attribute);
+            const literals = getLiteralsByJSXClassAttribute(ctx, attribute);
             lintLiterals(ctx, literals);
           }
 
@@ -106,12 +105,18 @@ export const tailwindSortClasses: ESLintRule<Options> = {
       };
 
       const svelte = {
+        CallExpression(node: Node) {
+          const svelteNode = node as CallExpression;
+
+          const literals = getLiteralsByESCallExpression(ctx, svelteNode, callees);
+          lintLiterals(ctx, literals);
+        },
         SvelteStartTag(node: Node) {
           const svelteNode = node as unknown as SvelteStartTag;
-          const svelteAttributes = getSvelteAttributes(ctx, classAttributes, svelteNode);
+          const svelteAttributes = getAttributesBySvelteTag(ctx, classAttributes, svelteNode);
 
           for(const attribute of svelteAttributes){
-            const literals = getSvelteClassAttributeLiterals(ctx, attribute);
+            const literals = getLiteralsBySvelteClassAttribute(ctx, attribute);
             lintLiterals(ctx, literals);
           }
         }
@@ -120,10 +125,10 @@ export const tailwindSortClasses: ESLintRule<Options> = {
       const vue = {
         VStartTag(node: Node) {
           const vueNode = node as unknown as VStartTag;
-          const vueAttributes = getVueAttributes(ctx, classAttributes, vueNode);
+          const vueAttributes = getAttributesByVueStartTag(ctx, classAttributes, vueNode);
 
           for(const attribute of vueAttributes){
-            const literals = getVueClassAttributeLiterals(ctx, attribute);
+            const literals = getLiteralsByVueClassAttribute(ctx, attribute);
             lintLiterals(ctx, literals);
           }
         }
@@ -132,10 +137,10 @@ export const tailwindSortClasses: ESLintRule<Options> = {
       const html = {
         Tag(node: Node) {
           const htmlNode = node as unknown as TagNode;
-          const htmlAttributes = getHTMLAttributes(ctx, classAttributes, htmlNode);
+          const htmlAttributes = getAttributesByHTMLTag(ctx, classAttributes, htmlNode);
 
           for(const htmlAttribute of htmlAttributes){
-            const literals = getHTMLClassAttributeLiterals(ctx, htmlAttribute);
+            const literals = getLiteralsByHTMLClassAttribute(ctx, htmlAttribute);
             lintLiterals(ctx, literals);
           }
         }
@@ -169,24 +174,20 @@ export const tailwindSortClasses: ESLintRule<Options> = {
           properties: {
             callees: {
               default: getOptions().callees,
-              description: "List of function names whose arguments should also be considered.",
+              description: "List of function names or regular expressions whose arguments should also be considered.",
               items: {
                 oneOf: [
                   {
-                    items: {
-                      items: [
-                        { type: "string" },
-                        { type: "string" }
-                      ],
-                      type: "array"
-                    },
+                    description: "List of function names whose arguments should also be considered.",
+                    items: [
+                      { type: "string" },
+                      { type: "string" }
+                    ],
                     type: "array"
                   },
                   {
-                    items: {
-                      type: "string"
-                    },
-                    type: "array"
+                    description: "List of function names whose arguments should also be considered.",
+                    type: "string"
                   }
                 ]
               },

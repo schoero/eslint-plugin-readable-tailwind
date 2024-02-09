@@ -1,13 +1,11 @@
-import { getHTMLAttributes, getHTMLClassAttributeLiterals } from "readable-tailwind:flavors:html.js";
-import {
-  getJSXAttributes,
-  getJSXClassAttributeLiterals,
-  getLiteralsByJSXCallExpressionAndStringCallee
-} from "readable-tailwind:flavors:jsx.js";
-import { getSvelteAttributes, getSvelteClassAttributeLiterals } from "readable-tailwind:flavors:svelte.js";
-import { getVueAttributes, getVueClassAttributeLiterals } from "readable-tailwind:flavors:vue.js";
+import { calleesIncludes } from "lib/utils/utils.js";
+import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "src/parsers/html.js";
+import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "src/parsers/svelte.js";
+import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "src/parsers/vue.js";
+
+import { getJSXAttributes, getLiteralsByJSXClassAttribute } from "readable-tailwind:flavors:jsx";
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "readable-tailwind:utils:config.js";
-import { calleesIncludes, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
+import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
@@ -53,7 +51,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
           const jsxAttributes = getJSXAttributes(ctx, classAttributes, jsxNode);
 
           for(const attribute of jsxAttributes){
-            const literals = getJSXClassAttributeLiterals(ctx, attribute);
+            const literals = getLiteralsByJSXClassAttribute(ctx, attribute);
             lintLiterals(ctx, literals);
           }
         }
@@ -62,10 +60,10 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
       const svelte = {
         SvelteStartTag(node: Node) {
           const svelteNode = node as unknown as SvelteStartTag;
-          const svelteAttributes = getSvelteAttributes(ctx, classAttributes, svelteNode);
+          const svelteAttributes = getAttributesBySvelteTag(ctx, classAttributes, svelteNode);
 
           for(const attribute of svelteAttributes){
-            const literals = getSvelteClassAttributeLiterals(ctx, attribute);
+            const literals = getLiteralsBySvelteClassAttribute(ctx, attribute);
             lintLiterals(ctx, literals);
           }
         }
@@ -74,10 +72,10 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
       const vue = {
         VStartTag(node: Node) {
           const vueNode = node as unknown as VStartTag;
-          const vueAttributes = getVueAttributes(ctx, classAttributes, vueNode);
+          const vueAttributes = getAttributesByVueStartTag(ctx, classAttributes, vueNode);
 
           for(const attribute of vueAttributes){
-            const literals = getVueClassAttributeLiterals(ctx, attribute);
+            const literals = getLiteralsByVueClassAttribute(ctx, attribute);
             lintLiterals(ctx, literals);
           }
         }
@@ -86,10 +84,10 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
       const html = {
         Tag(node: Node) {
           const htmlTagNode = node as unknown as TagNode;
-          const htmlAttributes = getHTMLAttributes(ctx, classAttributes, htmlTagNode);
+          const htmlAttributes = getAttributesByHTMLTag(ctx, classAttributes, htmlTagNode);
 
           for(const htmlAttribute of htmlAttributes){
-            const literals = getHTMLClassAttributeLiterals(ctx, htmlAttribute);
+            const literals = getLiteralsByHTMLClassAttribute(ctx, htmlAttribute);
             lintLiterals(ctx, literals);
           }
         }

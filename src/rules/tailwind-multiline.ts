@@ -1,11 +1,10 @@
-import { getHTMLAttributes, getHTMLClassAttributeLiterals } from "readable-tailwind:flavors:html.js";
-import {
-  getJSXAttributes,
-  getJSXClassAttributeLiterals,
-  getLiteralsByJSXCallExpressionAndStringCallee
-} from "readable-tailwind:flavors:jsx.js";
-import { getSvelteAttributes, getSvelteClassAttributeLiterals } from "readable-tailwind:flavors:svelte.js";
-import { getVueAttributes, getVueClassAttributeLiterals } from "readable-tailwind:flavors:vue.js";
+import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "src/parsers/html.js";
+import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "src/parsers/svelte.js";
+import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "src/parsers/vue.js";
+
+import { getLiteralsByJSXCallExpressionAndStringCallee } from "readable-tailwind:flavors:es";
+import { getJSXAttributes } from "readable-tailwind:flavors:jsx";
+import { getLiteralsByJSXClassAttribute } from "readable-tailwind:flavors:jsx";
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "readable-tailwind:utils:config.js";
 import { calleesIncludes, findLineStartPosition, findLiteralStartPosition } from "readable-tailwind:utils:utils";
 import { splitClasses } from "readable-tailwind:utils:utils.js";
@@ -65,7 +64,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
             if(!attributeValue){ continue; }
             if(typeof attributeName !== "string"){ continue; }
 
-            const literals = getJSXClassAttributeLiterals(ctx, jsxAttribute);
+            const literals = getLiteralsByJSXClassAttribute(ctx, jsxAttribute);
             lintLiterals(ctx, literals);
           }
         }
@@ -74,14 +73,14 @@ export const tailwindMultiline: ESLintRule<Options> = {
       const svelte = {
         SvelteStartTag(node: Node) {
           const svelteNode = node as unknown as SvelteStartTag;
-          const svelteAttributes = getSvelteAttributes(ctx, classAttributes, svelteNode);
+          const svelteAttributes = getAttributesBySvelteTag(ctx, classAttributes, svelteNode);
 
           for(const svelteAttribute of svelteAttributes){
             const attributeName = svelteAttribute.key.name;
 
             if(typeof attributeName !== "string"){ continue; }
 
-            const literals = getSvelteClassAttributeLiterals(ctx, svelteAttribute);
+            const literals = getLiteralsBySvelteClassAttribute(ctx, svelteAttribute);
             lintLiterals(ctx, literals);
           }
         }
@@ -90,10 +89,10 @@ export const tailwindMultiline: ESLintRule<Options> = {
       const vue = {
         VStartTag(node: Node) {
           const vueNode = node as unknown as VStartTag;
-          const vueAttributes = getVueAttributes(ctx, classAttributes, vueNode);
+          const vueAttributes = getAttributesByVueStartTag(ctx, classAttributes, vueNode);
 
           for(const attribute of vueAttributes){
-            const literals = getVueClassAttributeLiterals(ctx, attribute);
+            const literals = getLiteralsByVueClassAttribute(ctx, attribute);
             lintLiterals(ctx, literals);
           }
         }
@@ -102,10 +101,10 @@ export const tailwindMultiline: ESLintRule<Options> = {
       const html = {
         Tag(node: Node) {
           const htmlTagNode = node as unknown as TagNode;
-          const htmlAttributes = getHTMLAttributes(ctx, classAttributes, htmlTagNode);
+          const htmlAttributes = getAttributesByHTMLTag(ctx, classAttributes, htmlTagNode);
 
           for(const htmlAttribute of htmlAttributes){
-            const literals = getHTMLClassAttributeLiterals(ctx, htmlAttribute);
+            const literals = getLiteralsByHTMLClassAttribute(ctx, htmlAttribute);
             lintLiterals(ctx, literals);
           }
         }

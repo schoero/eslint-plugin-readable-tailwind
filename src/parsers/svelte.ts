@@ -1,13 +1,14 @@
 import {
-  getLiteralByJSXTemplateElement,
-  getStringLiteralByJSXStringLiteral,
-  isSimpleStringLiteral
-} from "readable-tailwind:flavors:jsx.js";
+  getLiteralByESTemplateElement,
+  getStringLiteralByESStringLiteral,
+  hasESNodeParentExtension,
+  isESSimpleStringLiteral
+} from "readable-tailwind:flavors:es.js";
 import { getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { Node as ESTreeNode } from "estree";
-import type { BaseNode as JSXBaseNode, Node as JSXNode, TemplateLiteral as JSXTemplateLiteral } from "estree-jsx";
+import type { TemplateLiteral as JSXTemplateLiteral } from "estree-jsx";
 import type {
   SvelteAttribute,
   SvelteDirective,
@@ -19,10 +20,10 @@ import type {
   SvelteStyleDirective
 } from "svelte-eslint-parser/lib/ast/index.js";
 
-import type { Literal, Node, QuoteMeta, StringLiteral, TemplateLiteral } from "readable-tailwind:types:ast.js";
+import type { Literal, Node, StringLiteral, TemplateLiteral } from "readable-tailwind:types:ast.js";
 
 
-export function getSvelteAttributes(ctx: Rule.RuleContext, classAttributes: string[], node: SvelteStartTag): SvelteAttribute[] {
+export function getAttributesBySvelteTag(ctx: Rule.RuleContext, classAttributes: string[], node: SvelteStartTag): SvelteAttribute[] {
   return node.attributes.reduce<SvelteAttribute[]>((acc, attribute) => {
     if(isSvelteAttribute(attribute) && classAttributes.includes(attribute.key.name)){
       acc.push(attribute);
@@ -32,7 +33,7 @@ export function getSvelteAttributes(ctx: Rule.RuleContext, classAttributes: stri
 }
 
 
-export function getSvelteClassAttributeLiterals(ctx: Rule.RuleContext, attribute: SvelteAttribute): Literal[] {
+export function getLiteralsBySvelteClassAttribute(ctx: Rule.RuleContext, attribute: SvelteAttribute): Literal[] {
 
   const value = attribute.value[0];
 
@@ -51,8 +52,8 @@ export function getSvelteClassAttributeLiterals(ctx: Rule.RuleContext, attribute
   }
 
   // class={"a b"}
-  if(value.type === "SvelteMustacheTag" && value.expression.type === "Literal" && isSimpleStringLiteral(value.expression)){
-    const stringLiteral = getStringLiteralByJSXStringLiteral(ctx, value.expression);
+  if(value.type === "SvelteMustacheTag" && value.expression.type === "Literal" && isESSimpleStringLiteral(value.expression)){
+    const stringLiteral = getStringLiteralByESStringLiteral(ctx, value.expression);
 
     if(stringLiteral){
       return [stringLiteral];
@@ -84,22 +85,12 @@ function getStringLiteralBySvelteStringLiteral(ctx: Rule.RuleContext, node: Svel
 
 }
 
-function getQuotesByNode(ctx: Rule.RuleContext, node: JSXBaseNode): QuoteMeta {
-  const openingQuote = ctx.sourceCode.getTokenByRangeStart((node.range?.[0] ?? 0) - 1);
-  const closingQuote = ctx.sourceCode.getTokenByRangeStart(node.range?.[1] ?? 0);
-
-  return {
-    closingQuote: closingQuote?.value === "'" || closingQuote?.value === '"' ? closingQuote.value : undefined,
-    openingQuote: openingQuote?.value === "'" || openingQuote?.value === '"' ? openingQuote.value : undefined
-  };
-}
-
 function getLiteralsBySvelteMustacheTag(ctx: Rule.RuleContext, node: JSXTemplateLiteral): TemplateLiteral[] {
   return node.quasis.map(quasi => {
-    if(!hasNodeParentExtension(quasi)){
+    if(!hasESNodeParentExtension(quasi)){
       return;
     }
-    return getLiteralByJSXTemplateElement(ctx, quasi);
+    return getLiteralByESTemplateElement(ctx, quasi);
   }).filter((literal): literal is TemplateLiteral => literal !== undefined);
 }
 
@@ -111,8 +102,4 @@ function isSvelteAttribute(attribute:
   | SvelteSpreadAttribute
   | SvelteStyleDirective): attribute is SvelteAttribute {
   return "key" in attribute && "name" in attribute.key && typeof attribute.key.name === "string";
-}
-
-function hasNodeParentExtension(node: JSXNode): node is Rule.Node & Rule.NodeParentExtension {
-  return "parent" in node;
 }

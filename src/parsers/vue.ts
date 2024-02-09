@@ -7,7 +7,7 @@ import type { VAttribute, VDirective, VLiteral, VStartTag } from "vue-eslint-par
 import type { Literal, Node, StringLiteral } from "readable-tailwind:types:ast.js";
 
 
-export function getVueAttributes(ctx: Rule.RuleContext, classAttributes: string[], node: VStartTag): VAttribute[] {
+export function getAttributesByVueStartTag(ctx: Rule.RuleContext, classAttributes: string[], node: VStartTag): VAttribute[] {
   return node.attributes.reduce<VAttribute[]>((acc, attribute) => {
     if(isVueAttribute(attribute) && classAttributes.includes(attribute.key.name)){
       acc.push(attribute);
@@ -17,13 +17,12 @@ export function getVueAttributes(ctx: Rule.RuleContext, classAttributes: string[
 }
 
 
-export function getVueClassAttributeLiterals(ctx: Rule.RuleContext, attribute: VAttribute): Literal[] {
+export function getLiteralsByVueClassAttribute(ctx: Rule.RuleContext, attribute: VAttribute): Literal[] {
 
   if(attribute.value === null){
     return [];
   }
 
-  // class="a b"
   const value = attribute.value;
   const stringLiteral = getStringLiteralByVueStringLiteral(ctx, value);
 
