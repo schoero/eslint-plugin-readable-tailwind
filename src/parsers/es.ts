@@ -1,10 +1,8 @@
-import { isJSXExpressionContainerWithESTemplateLiteral } from "readable-tailwind:flavors:jsx";
-import { deduplicateLiterals, getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
+import { getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
 
 import type { AST, Rule } from "eslint";
 import type {
   BaseNode as ESBaseNode,
-  CallExpression as ESCallExpression,
   Expression as ESExpression,
   Node as ESNode,
   SimpleLiteral as ESSimpleLiteral,
@@ -14,93 +12,7 @@ import type {
 } from "estree";
 
 import type { BracesMeta, Literal, Node, StringLiteral, TemplateLiteral } from "readable-tailwind:types:ast";
-import type { CalleeRegex, Callees } from "readable-tailwind:types:rule.js";
 
-
-export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCallExpression, callees: Callees): Literal[] {
-  const literals = callees.reduce<Literal[]>((literals, callee) => {
-
-    if(node.callee.type !== "Identifier"){ return literals; }
-
-    if(typeof callee === "string"){
-      if(callee !== node.callee.name){ return literals; }
-
-      literals.push(...getLiteralsByESCallExpressionAndStringCallee(ctx, node.arguments));
-    } else {
-      literals.push(...getLiteralsByESCallExpressionAndRegexCallee(ctx, node, callee));
-    }
-
-    return literals;
-  }, []);
-
-  return deduplicateLiterals(literals);
-}
-
-function getLiteralsByESCallExpressionAndStringCallee(ctx: Rule.RuleContext, args: (ESExpression | ESSpreadElement)[]): Literal[] {
-  return args.reduce<Literal[]>((acc, arg) => {
-    if(arg.type === "SpreadElement"){ return acc; }
-    const literals = getLiteralsByESExpression(ctx, arg);
-    return [...acc, ...literals];
-  }, []);
-}
-
-function getLiteralsByESCallExpressionAndRegexCallee(ctx: Rule.RuleContext, node: ESNode, regexCallee: CalleeRegex): Literal[] {
-
-  const [containerRegexString, stringLiteralRegexString] = regexCallee;
-
-  const sourceCode = ctx.sourceCode.getText(node);
-
-  const containerRegex = new RegExp(containerRegexString, "g");
-  const stringLiteralRegex = new RegExp(stringLiteralRegexString, "g");
-  const containers = sourceCode.matchAll(containerRegex);
-
-  const matchedLiterals: Literal[] = [];
-
-  for(const container of containers){
-    const stringLiterals = container[0].matchAll(stringLiteralRegex);
-
-    for(const stringLiteral of stringLiterals){
-      if(!stringLiteral.index){ continue; }
-
-      const node = ctx.sourceCode.getNodeByRangeIndex(stringLiteral.index);
-
-      if(!node){ continue; }
-
-      const literals = isESSimpleStringLiteral(node)
-        ? getStringLiteralByESStringLiteral(ctx, node)
-        : isJSXExpressionContainerWithESTemplateLiteral(node)
-          ? getLiteralsByESTemplateLiteral(ctx, node.expression)
-          : undefined;
-
-      if(literals === undefined){ continue; }
-
-      matchedLiterals.push(
-        ...Array.isArray(literals) ? literals : [literals]
-      );
-    }
-
-  }
-
-  return matchedLiterals;
-
-}
-
-function getLiteralsByESExpression(ctx: Rule.RuleContext, node: ESExpression): Literal[] {
-
-  if(isESSimpleStringLiteral(node)){
-    const simpleStringLiteral = getStringLiteralByESStringLiteral(ctx, node);
-    if(simpleStringLiteral){
-      return [simpleStringLiteral];
-    }
-  }
-
-  if(isESTemplateLiteral(node)){
-    return getLiteralsByESTemplateLiteral(ctx, node);
-  }
-
-  return [];
-
-}
 
 export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: ESSimpleStringLiteral): StringLiteral | undefined {
 
@@ -158,6 +70,14 @@ export function getLiteralByESTemplateElement(ctx: Rule.RuleContext, node: ESTem
 
 }
 
+export function getLiteralsByESCallExpressionAndStringCallee(ctx: Rule.RuleContext, args: (ESExpression | ESSpreadElement)[]): Literal[] {
+  return args.reduce<Literal[]>((acc, arg) => {
+    if(arg.type === "SpreadElement"){ return acc; }
+    const literals = getLiteralsByESExpression(ctx, arg);
+    return [...acc, ...literals];
+  }, []);
+}
+
 export function getLiteralsByESTemplateLiteral(ctx: Rule.RuleContext, node: ESTemplateLiteral): TemplateLiteral[] {
   return node.quasis.map(quasi => {
     if(!hasESNodeParentExtension(quasi)){
@@ -165,6 +85,23 @@ export function getLiteralsByESTemplateLiteral(ctx: Rule.RuleContext, node: ESTe
     }
     return getLiteralByESTemplateElement(ctx, quasi);
   }).filter((literal): literal is TemplateLiteral => literal !== undefined);
+}
+
+export function getLiteralsByESExpression(ctx: Rule.RuleContext, node: ESExpression): Literal[] {
+
+  if(isESSimpleStringLiteral(node)){
+    const simpleStringLiteral = getStringLiteralByESStringLiteral(ctx, node);
+    if(simpleStringLiteral){
+      return [simpleStringLiteral];
+    }
+  }
+
+  if(isESTemplateLiteral(node)){
+    return getLiteralsByESTemplateLiteral(ctx, node);
+  }
+
+  return [];
+
 }
 
 export interface ESSimpleStringLiteral extends Rule.NodeParentExtension, ESSimpleLiteral {

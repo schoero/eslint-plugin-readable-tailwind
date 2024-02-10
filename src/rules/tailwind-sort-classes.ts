@@ -1,15 +1,22 @@
 import { resolve } from "node:path";
 
 import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "src/parsers/html.js";
-import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "src/parsers/svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "src/parsers/vue.js";
 import defaultConfig from "tailwindcss/defaultConfig.js";
 import setupContextUtils from "tailwindcss/lib/lib/setupContextUtils.js";
 import loadConfig from "tailwindcss/loadConfig.js";
 import resolveConfig from "tailwindcss/resolveConfig.js";
 
-import { getLiteralsByESCallExpression } from "readable-tailwind:flavors:es";
-import { getJSXAttributes, getLiteralsByJSXClassAttribute } from "readable-tailwind:flavors:jsx";
+import {
+  getJSXAttributes,
+  getLiteralsByJSXCallExpression,
+  getLiteralsByJSXClassAttribute
+} from "readable-tailwind:parsers:jsx";
+import {
+  getAttributesBySvelteTag,
+  getLiteralsBySvelteCallExpression,
+  getLiteralsBySvelteClassAttribute
+} from "readable-tailwind:parsers:svelte.js";
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "readable-tailwind:utils:config.js";
 import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
@@ -89,7 +96,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
         CallExpression(node: Node) {
           const jsxNode = node as CallExpression;
 
-          const literals = getLiteralsByESCallExpression(ctx, jsxNode, callees);
+          const literals = getLiteralsByJSXCallExpression(ctx, jsxNode, callees);
           lintLiterals(ctx, literals);
         },
         JSXOpeningElement(node: Node) {
@@ -108,7 +115,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
         CallExpression(node: Node) {
           const svelteNode = node as CallExpression;
 
-          const literals = getLiteralsByESCallExpression(ctx, svelteNode, callees);
+          const literals = getLiteralsBySvelteCallExpression(ctx, svelteNode, callees);
           lintLiterals(ctx, literals);
         },
         SvelteStartTag(node: Node) {

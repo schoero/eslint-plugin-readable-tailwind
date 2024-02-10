@@ -3,7 +3,7 @@ import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "src/par
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "src/parsers/svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "src/parsers/vue.js";
 
-import { getJSXAttributes, getLiteralsByJSXClassAttribute } from "readable-tailwind:flavors:jsx";
+import { getJSXAttributes, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx";
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "readable-tailwind:utils:config.js";
 import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 

@@ -8,7 +8,7 @@
     "noEmit": true,
     "noImplicitAny": false,
     "paths": {
-      "readable-tailwind:flavors:*": ["src/parsers/*"],
+      "readable-tailwind:parsers:*": ["src/parsers/*"],
       "readable-tailwind:rules:*": ["src/rules/*"],
       "readable-tailwind:tests:*": ["src/tests/*"],
       "readable-tailwind:types:*": ["src/types/*"],

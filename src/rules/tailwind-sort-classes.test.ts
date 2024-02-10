@@ -314,7 +314,7 @@ describe(tailwindSortClasses.name, () => {
 
   });
 
-  it.only("should also work in call signature arguments matched by a regex", () => {
+  it("should also work in call signature arguments matched by a regex", () => {
 
     const dirtyDefined = `defined(
       "b a",
@@ -353,8 +353,8 @@ describe(tailwindSortClasses.name, () => {
         invalid: [
           {
             errors: 4,
-            // jsx: dirtyDefined,
-            // jsxOutput: cleanDefined,
+            jsx: dirtyDefined,
+            jsxOutput: cleanDefined,
             options: [{
               callees: [
                 ["defined\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]

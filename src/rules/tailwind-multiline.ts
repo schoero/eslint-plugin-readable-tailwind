@@ -2,9 +2,9 @@ import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "src/par
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "src/parsers/svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "src/parsers/vue.js";
 
-import { getLiteralsByJSXCallExpressionAndStringCallee } from "readable-tailwind:flavors:es";
-import { getJSXAttributes } from "readable-tailwind:flavors:jsx";
-import { getLiteralsByJSXClassAttribute } from "readable-tailwind:flavors:jsx";
+import { getLiteralsByESCallExpressionAndStringCallee } from "readable-tailwind:parsers:es";
+import { getJSXAttributes } from "readable-tailwind:parsers:jsx";
+import { getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx";
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "readable-tailwind:utils:config.js";
 import { calleesIncludes, findLineStartPosition, findLiteralStartPosition } from "readable-tailwind:utils:utils";
 import { splitClasses } from "readable-tailwind:utils:utils.js";
@@ -46,7 +46,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
           if(callee.type !== "Identifier"){ return; }
           if(!calleesIncludes(callees, callee.name)){ return; }
 
-          const literals = getLiteralsByJSXCallExpressionAndStringCallee(ctx, node.arguments);
+          const literals = getLiteralsByESCallExpressionAndStringCallee(ctx, node.arguments);
           lintLiterals(ctx, literals);
         }
       };
