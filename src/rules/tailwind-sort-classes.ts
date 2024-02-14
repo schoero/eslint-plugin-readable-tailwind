@@ -87,9 +87,9 @@ export const tailwindSortClasses: ESLintRule<Options> = {
 
       const callExpression = {
         CallExpression(node: Node) {
-          const jsxNode = node as CallExpression;
+          const callExpressionNode = node as CallExpression;
 
-          const literals = getLiteralsByESCallExpression(ctx, jsxNode, callees);
+          const literals = getLiteralsByESCallExpression(ctx, callExpressionNode, callees);
           lintLiterals(ctx, literals);
         }
       };
@@ -103,7 +103,6 @@ export const tailwindSortClasses: ESLintRule<Options> = {
             const literals = getLiteralsByJSXClassAttribute(ctx, attribute);
             lintLiterals(ctx, literals);
           }
-
         }
       };
 
@@ -146,6 +145,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
       // Vue
       if(typeof ctx.parserServices?.defineTemplateBodyVisitor === "function"){
         return {
+          ...callExpression,
           ...ctx.parserServices.defineTemplateBodyVisitor(vue)
         };
       }
