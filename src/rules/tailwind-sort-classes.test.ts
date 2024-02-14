@@ -6,7 +6,7 @@ import { tailwindSortClasses } from "readable-tailwind:rules:tailwind-sort-class
 
 describe(tailwindSortClasses.name, () => {
 
-  it("should sort simple class names as defined", () => expect(
+  it("should sort simple class names in string literals by the defined order", () => expect(
     void lint(
       tailwindSortClasses,
       TEST_SYNTAXES,
@@ -75,6 +75,25 @@ describe(tailwindSortClasses.name, () => {
       }
     )
   ).toBeUndefined());
+
+  it("should improve the sorting by grouping all classes with the same modifier together", () => {
+    expect(void lint(tailwindSortClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 1,
+          html: "<div class=\"c:a a:a b:a a:b c:b b:b\" />",
+          htmlOutput: "<div class=\"a:a a:b b:a b:b c:a c:b\" />",
+          jsx: "const Test = () => <div class=\"c:a a:a b:a a:b c:b b:b\" />;",
+          jsxOutput: "const Test = () => <div class=\"a:a a:b b:a b:b c:a c:b\" />;",
+          options: [{ order: "improved" }],
+          svelte: "<div class=\"c:a a:a b:a a:b c:b b:b\" />",
+          svelteOutput: "<div class=\"a:a a:b b:a b:b c:a c:b\" />"
+          // vue: "<template><div class=\"c:a a:a b:a a:b c:b b:b\" /></template>",
+          // vueOutput: "<template><div class=\"a:a a:b b:a b:b c:a c:b\" /></template>"
+        }
+      ]
+    })).toBeUndefined();
+  });
 
   it("should keep the quotes as they are", () => expect(
     void lint(
@@ -163,7 +182,7 @@ describe(tailwindSortClasses.name, () => {
     })
   ).toBeUndefined());
 
-  it("should sort multiline strings but keep the whitespace", () => {
+  it("should sort multiline strings but keep the whitespace as it is", () => {
     const unsortedMultilineString = `
       d c
       b a
@@ -233,26 +252,7 @@ describe(tailwindSortClasses.name, () => {
     ).toBeUndefined();
   });
 
-  it("should improve the sorting by grouping all classes with the same modifier together", () => {
-    expect(void lint(tailwindSortClasses, TEST_SYNTAXES, {
-      invalid: [
-        {
-          errors: 1,
-          html: "<div class=\"c:a a:a b:a a:b c:b b:b\" />",
-          htmlOutput: "<div class=\"a:a a:b b:a b:b c:a c:b\" />",
-          jsx: "const Test = () => <div class=\"c:a a:a b:a a:b c:b b:b\" />;",
-          jsxOutput: "const Test = () => <div class=\"a:a a:b b:a b:b c:a c:b\" />;",
-          options: [{ order: "improved" }],
-          svelte: "<div class=\"c:a a:a b:a a:b c:b b:b\" />",
-          svelteOutput: "<div class=\"a:a a:b b:a b:b c:a c:b\" />"
-          // vue: "<template><div class=\"c:a a:a b:a a:b c:b b:b\" /></template>",
-          // vueOutput: "<template><div class=\"a:a a:b b:a b:b c:a c:b\" /></template>"
-        }
-      ]
-    })).toBeUndefined();
-  });
-
-  it("should also work in defined call signature arguments", () => {
+  it("should sort in string literals in defined call signature arguments", () => {
 
     const dirtyDefined = "defined('b a d c');";
     const cleanDefined = "defined('a b c d');";
@@ -314,7 +314,7 @@ describe(tailwindSortClasses.name, () => {
 
   });
 
-  it("should also work in call signature arguments matched by a regex", () => {
+  it("should sort in string literals in call signature arguments matched by a regex", () => {
 
     const dirtyDefined = `defined(
       "b a",
@@ -372,7 +372,65 @@ describe(tailwindSortClasses.name, () => {
 
   });
 
-  it("should also work in defined call signature arguments in template literals", () => {
+  it("should sort in template literals in call signature arguments matched by a regex", () => {
+
+    const dirtyDefined = `defined(
+      \`b a\`,
+      {
+        "nested": {
+          "property": \`b a\`,
+        },
+        "deeply": {
+          "nested": {
+            "property": \`b a\`,
+            "another-property": \`b a\`
+          },
+        }
+      }
+    );`;
+
+    const cleanDefined = `defined(
+      \`a b\`,
+      {
+        "nested": {
+          "property": \`a b\`,
+        },
+        "deeply": {
+          "nested": {
+            "property": \`a b\`,
+            "another-property": \`a b\`
+          },
+        }
+      }
+    );`;
+
+    expect(void lint(
+      tailwindSortClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 4,
+            jsx: dirtyDefined,
+            jsxOutput: cleanDefined,
+            options: [{
+              callees: [
+                ["defined\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
+              ],
+              order: "asc"
+            }],
+            svelte: `<script>${dirtyDefined}</script>`,
+            svelteOutput: `<script>${cleanDefined}</script>`
+            // vue: `<script>${dirtyDefined}</script>`,
+            // vueOutput: `<script>${cleanDefined}</script>`
+          }
+        ]
+      }
+    )).toBeUndefined();
+
+  });
+
+  it("should sort in call signature arguments in template literals", () => {
 
     const dirtyDefined = "${defined('f e')}";
     const cleanDefined = "${defined('e f')}";

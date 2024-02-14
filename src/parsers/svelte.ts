@@ -1,21 +1,14 @@
 import {
   getLiteralByESTemplateElement,
-  getLiteralsByESCallExpressionAndStringCallee,
-  getLiteralsByESTemplateLiteral,
   getStringLiteralByESStringLiteral,
   hasESNodeParentExtension,
   isESNode,
   isESSimpleStringLiteral
 } from "readable-tailwind:parsers:es.js";
-import { deduplicateLiterals, getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
+import { getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
-import type {
-  BaseNode as ESBaseNode,
-  CallExpression as ESCallExpression,
-  Node as ESNode,
-  TemplateLiteral as ESTemplateLiteral
-} from "estree";
+import type { BaseNode as ESBaseNode, Node as ESNode, TemplateLiteral as ESTemplateLiteral } from "estree";
 import type {
   SvelteAttribute,
   SvelteDirective,
@@ -30,7 +23,6 @@ import type {
 
 import type { ESSimpleStringLiteral } from "readable-tailwind:parsers:es.js";
 import type { Literal, Node, StringLiteral, TemplateLiteral } from "readable-tailwind:types:ast.js";
-import type { CalleeRegex, Callees } from "readable-tailwind:types:rule.js";
 
 
 export function getAttributesBySvelteTag(ctx: Rule.RuleContext, classAttributes: string[], node: SvelteStartTag): SvelteAttribute[] {
@@ -67,70 +59,6 @@ export function getLiteralsBySvelteClassAttribute(ctx: Rule.RuleContext, attribu
   }
 
   return [];
-
-}
-
-export function getLiteralsBySvelteCallExpression(ctx: Rule.RuleContext, node: ESCallExpression, callees: Callees): Literal[] {
-  const literals = callees.reduce<Literal[]>((literals, callee) => {
-
-    if(node.callee.type !== "Identifier"){ return literals; }
-
-    if(typeof callee === "string"){
-      if(callee !== node.callee.name){ return literals; }
-
-      literals.push(...getLiteralsByESCallExpressionAndStringCallee(ctx, node.arguments));
-    } else {
-      literals.push(...getLiteralsBySvelteCallExpressionAndRegexCallee(ctx, node, callee));
-    }
-
-    return literals;
-  }, []);
-
-  return deduplicateLiterals(literals);
-}
-
-function getLiteralsBySvelteCallExpressionAndRegexCallee(ctx: Rule.RuleContext, node: ESNode, regexCallee: CalleeRegex): Literal[] {
-
-  const [containerRegexString, stringLiteralRegexString] = regexCallee;
-
-  const sourceCode = ctx.sourceCode.getText(node);
-
-  const containerRegex = new RegExp(containerRegexString, "g");
-  const stringLiteralRegex = new RegExp(stringLiteralRegexString, "g");
-  const containers = sourceCode.matchAll(containerRegex);
-
-  const matchedLiterals: Literal[] = [];
-
-  for(const container of containers){
-    const stringLiterals = container[0].matchAll(stringLiteralRegex);
-
-    for(const stringLiteral of stringLiterals){
-      if(!stringLiteral.index){ continue; }
-
-      const literalNode = ctx.sourceCode.getNodeByRangeIndex((node.range?.[0] ?? 0) + stringLiteral.index);
-
-      if(!literalNode){ continue; }
-
-      const literals = isESSimpleStringLiteral(literalNode)
-        ? getStringLiteralByESStringLiteral(ctx, literalNode)
-        : isSvelteMustacheTagWithESTemplateLiteral(literalNode)
-          ? getLiteralsByESTemplateLiteral(ctx, literalNode.expression)
-          : undefined;
-
-      if(isSvelteMustacheTagWithESTemplateLiteral(literalNode)){
-        console.log(literalNode);
-      }
-
-      if(literals === undefined){ continue; }
-
-      matchedLiterals.push(
-        ...Array.isArray(literals) ? literals : [literals]
-      );
-    }
-
-  }
-
-  return matchedLiterals;
 
 }
 

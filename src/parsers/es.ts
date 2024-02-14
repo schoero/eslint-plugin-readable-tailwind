@@ -1,8 +1,9 @@
-import { getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
+import { deduplicateLiterals, getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
 
 import type { AST, Rule } from "eslint";
 import type {
   BaseNode as ESBaseNode,
+  CallExpression as ESCallExpression,
   Expression as ESExpression,
   Node as ESNode,
   SimpleLiteral as ESSimpleLiteral,
@@ -12,6 +13,7 @@ import type {
 } from "estree";
 
 import type { BracesMeta, Literal, Node, StringLiteral, TemplateLiteral } from "readable-tailwind:types:ast";
+import type { CalleeRegex, Callees } from "readable-tailwind:types:rule.js";
 
 
 export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: ESSimpleStringLiteral): StringLiteral | undefined {
@@ -38,6 +40,66 @@ export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: E
     raw,
     type: "StringLiteral"
   };
+
+}
+
+export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCallExpression, callees: Callees): Literal[] {
+  const literals = callees.reduce<Literal[]>((literals, callee) => {
+
+    if(node.callee.type !== "Identifier"){ return literals; }
+
+    if(typeof callee === "string"){
+      if(callee !== node.callee.name){ return literals; }
+
+      literals.push(...getLiteralsByESCallExpressionAndStringCallee(ctx, node.arguments));
+    } else {
+      literals.push(...getLiteralsByESCallExpressionAndRegexCallee(ctx, node, callee));
+    }
+
+    return literals;
+  }, []);
+
+  return deduplicateLiterals(literals);
+}
+
+function getLiteralsByESCallExpressionAndRegexCallee(ctx: Rule.RuleContext, node: ESNode, regexCallee: CalleeRegex): Literal[] {
+
+  const [containerRegexString, stringLiteralRegexString] = regexCallee;
+
+  const sourceCode = ctx.sourceCode.getText(node);
+
+  const containerRegex = new RegExp(containerRegexString, "g");
+  const stringLiteralRegex = new RegExp(stringLiteralRegexString, "g");
+  const containers = sourceCode.matchAll(containerRegex);
+
+  const matchedLiterals: Literal[] = [];
+
+  for(const container of containers){
+    const stringLiterals = container[0].matchAll(stringLiteralRegex);
+
+    for(const stringLiteral of stringLiterals){
+      if(!stringLiteral.index){ continue; }
+
+      const literalNode = ctx.sourceCode.getNodeByRangeIndex((node.range?.[0] ?? 0) + stringLiteral.index);
+
+      if(!literalNode){ continue; }
+
+      const literals = isESSimpleStringLiteral(literalNode)
+        ? getStringLiteralByESStringLiteral(ctx, literalNode)
+        : isESTemplateElement(literalNode) && hasESNodeParentExtension(literalNode)
+          ? getLiteralByESTemplateElement(ctx, literalNode)
+          : undefined;
+
+      if(literals === undefined){ continue; }
+
+      matchedLiterals.push(
+        ...Array.isArray(literals) ? literals : [literals]
+      );
+    }
+
+  }
+
+  return matchedLiterals;
 
 }
 
@@ -116,6 +178,10 @@ export function isESSimpleStringLiteral(node: ESBaseNode): node is ESSimpleStrin
 
 export function isESTemplateLiteral(node: ESBaseNode): node is ESTemplateLiteral {
   return node.type === "TemplateLiteral";
+}
+
+export function isESTemplateElement(node: ESBaseNode): node is ESTemplateElement {
+  return node.type === "TemplateElement";
 }
 
 export function isESNode(node: unknown): node is ESNode {

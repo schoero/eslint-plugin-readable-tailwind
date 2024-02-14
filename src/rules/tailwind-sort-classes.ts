@@ -7,16 +7,9 @@ import setupContextUtils from "tailwindcss/lib/lib/setupContextUtils.js";
 import loadConfig from "tailwindcss/loadConfig.js";
 import resolveConfig from "tailwindcss/resolveConfig.js";
 
-import {
-  getJSXAttributes,
-  getLiteralsByJSXCallExpression,
-  getLiteralsByJSXClassAttribute
-} from "readable-tailwind:parsers:jsx";
-import {
-  getAttributesBySvelteTag,
-  getLiteralsBySvelteCallExpression,
-  getLiteralsBySvelteClassAttribute
-} from "readable-tailwind:parsers:svelte.js";
+import { getLiteralsByESCallExpression } from "readable-tailwind:parsers:es.js";
+import { getJSXAttributes, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx";
+import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "readable-tailwind:utils:config.js";
 import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
@@ -92,13 +85,16 @@ export const tailwindSortClasses: ESLintRule<Options> = {
         }
       };
 
-      const jsx = {
+      const callExpression = {
         CallExpression(node: Node) {
           const jsxNode = node as CallExpression;
 
-          const literals = getLiteralsByJSXCallExpression(ctx, jsxNode, callees);
+          const literals = getLiteralsByESCallExpression(ctx, jsxNode, callees);
           lintLiterals(ctx, literals);
-        },
+        }
+      };
+
+      const jsx = {
         JSXOpeningElement(node: Node) {
           const jsxNode = node as JSXOpeningElement;
           const jsxAttributes = getJSXAttributes(ctx, classAttributes, jsxNode);
@@ -112,12 +108,6 @@ export const tailwindSortClasses: ESLintRule<Options> = {
       };
 
       const svelte = {
-        CallExpression(node: Node) {
-          const svelteNode = node as CallExpression;
-
-          const literals = getLiteralsBySvelteCallExpression(ctx, svelteNode, callees);
-          lintLiterals(ctx, literals);
-        },
         SvelteStartTag(node: Node) {
           const svelteNode = node as unknown as SvelteStartTag;
           const svelteAttributes = getAttributesBySvelteTag(ctx, classAttributes, svelteNode);
@@ -161,6 +151,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
       }
 
       return {
+        ...callExpression,
         ...jsx,
         ...svelte,
         ...html
