@@ -68,33 +68,40 @@ function getLiteralsByESCallExpressionAndRegexCallee(ctx: Rule.RuleContext, node
 
   const sourceCode = ctx.sourceCode.getText(node);
 
-  const containerRegex = new RegExp(containerRegexString, "g");
-  const stringLiteralRegex = new RegExp(stringLiteralRegexString, "g");
+  const containerRegex = new RegExp(containerRegexString, "gd");
+  const stringLiteralRegex = new RegExp(stringLiteralRegexString, "gd");
   const containers = sourceCode.matchAll(containerRegex);
 
   const matchedLiterals: Literal[] = [];
 
   for(const container of containers){
-    const stringLiterals = container[0].matchAll(stringLiteralRegex);
+    const matches = container[0].matchAll(stringLiteralRegex);
 
-    for(const stringLiteral of stringLiterals){
-      if(!stringLiteral.index){ continue; }
+    for(const groups of matches){
+      if(!groups.indices || groups.indices.length < 2){ continue; }
 
-      const literalNode = ctx.sourceCode.getNodeByRangeIndex((node.range?.[0] ?? 0) + stringLiteral.index);
+      // Remove the full match
+      groups.indices.shift();
 
-      if(!literalNode){ continue; }
+      for(const [startIndex] of groups.indices){
 
-      const literals = isESSimpleStringLiteral(literalNode)
-        ? getStringLiteralByESStringLiteral(ctx, literalNode)
-        : isESTemplateElement(literalNode) && hasESNodeParentExtension(literalNode)
-          ? getLiteralByESTemplateElement(ctx, literalNode)
-          : undefined;
+        const literalNode = ctx.sourceCode.getNodeByRangeIndex((node.range?.[0] ?? 0) + startIndex);
 
-      if(literals === undefined){ continue; }
+        if(!literalNode){ continue; }
 
-      matchedLiterals.push(
-        ...Array.isArray(literals) ? literals : [literals]
-      );
+        const literals = isESSimpleStringLiteral(literalNode)
+          ? getStringLiteralByESStringLiteral(ctx, literalNode)
+          : isESTemplateElement(literalNode) && hasESNodeParentExtension(literalNode)
+            ? getLiteralByESTemplateElement(ctx, literalNode)
+            : undefined;
+
+        if(literals === undefined){ continue; }
+
+        matchedLiterals.push(
+          ...Array.isArray(literals) ? literals : [literals]
+        );
+
+      }
     }
 
   }

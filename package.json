@@ -49,6 +49,9 @@
     "test": "vitest -c ./vite.config.ts",
     "typecheck": "tsc --noEmit"
   },
+  "engines": {
+    "node": ">=16"
+  },
   "files": [
     "lib"
   ],
