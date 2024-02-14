@@ -68,8 +68,8 @@ function getLiteralsByESCallExpressionAndRegexCallee(ctx: Rule.RuleContext, node
 
   const sourceCode = ctx.sourceCode.getText(node);
 
-  const containerRegex = new RegExp(containerRegexString, "gd");
-  const stringLiteralRegex = new RegExp(stringLiteralRegexString, "gd");
+  const containerRegex = new RegExp(containerRegexString, "gdm");
+  const stringLiteralRegex = new RegExp(stringLiteralRegexString, "gdm");
   const containers = sourceCode.matchAll(containerRegex);
 
   const matchedLiterals: Literal[] = [];

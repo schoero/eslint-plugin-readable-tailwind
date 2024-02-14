@@ -338,7 +338,7 @@ describe(tailwindSortClasses.name, () => {
     );`;
 
     const cleanDefined = `defined(
-      "b a",
+      "a b",
       {
         "nested": {
           "matched": "a b",
@@ -364,7 +364,7 @@ describe(tailwindSortClasses.name, () => {
       {
         invalid: [
           {
-            errors: 3,
+            errors: 4,
             jsx: dirtyDefined,
             jsxOutput: cleanDefined,
             options: [{
@@ -372,6 +372,10 @@ describe(tailwindSortClasses.name, () => {
                 [
                   "defined\\(([^)]*)\\)",
                   "\"matched\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
+                ],
+                [
+                  "defined\\(([^)]*)\\)",
+                  "^\\s*[\"'`]([^\"'`]+)[\"'`](?!:)"
                 ]
               ],
               order: "asc"
