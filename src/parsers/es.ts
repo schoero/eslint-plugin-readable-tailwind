@@ -80,10 +80,7 @@ function getLiteralsByESCallExpressionAndRegexCallee(ctx: Rule.RuleContext, node
     for(const groups of matches){
       if(!groups.indices || groups.indices.length < 2){ continue; }
 
-      // Remove the full match
-      groups.indices.shift();
-
-      for(const [startIndex] of groups.indices){
+      for(const [startIndex] of groups.indices.slice(1)){
 
         const literalNode = ctx.sourceCode.getNodeByRangeIndex((node.range?.[0] ?? 0) + startIndex);
 
