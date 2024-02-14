@@ -320,27 +320,27 @@ describe(tailwindSortClasses.name, () => {
       "b a",
       {
         "nested": {
-          "property": "b a",
+          "matched": "b a",
         },
         "deeply": {
           "nested": {
-            "property": "b a",
-            "another-property": "b a"
+            "matched": "b a",
+            "unmatched": "b a"
           },
         }
       }
     );`;
 
     const cleanDefined = `defined(
-      "a b",
+      "b a",
       {
         "nested": {
-          "property": "a b",
+          "matched": "a b",
         },
         "deeply": {
           "nested": {
-            "property": "a b",
-            "another-property": "a b"
+            "matched": "a b",
+            "unmatched": "b a"
           },
         }
       }
@@ -352,12 +352,15 @@ describe(tailwindSortClasses.name, () => {
       {
         invalid: [
           {
-            errors: 4,
+            errors: 2,
             jsx: dirtyDefined,
             jsxOutput: cleanDefined,
             options: [{
               callees: [
-                ["defined\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
+                [
+                  "defined\\(([^)]*)\\)",
+                  "\"matched\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
+                ]
               ],
               order: "asc"
             }],
@@ -378,28 +381,40 @@ describe(tailwindSortClasses.name, () => {
       \`b a\`,
       {
         "nested": {
-          "property": \`b a\`,
+          "matched": \`b a\`,
         },
         "deeply": {
           "nested": {
-            "property": \`b a\`,
-            "another-property": \`b a\`
+            "unmatched": \`b a\`,
+            "matched": \`b a\`
           },
+        },
+        "multiline": {
+          "matched": \`
+            d a
+            b c
+          \`
         }
       }
     );`;
 
     const cleanDefined = `defined(
-      \`a b\`,
+      \`b a\`,
       {
         "nested": {
-          "property": \`a b\`,
+          "matched": \`a b\`,
         },
         "deeply": {
           "nested": {
-            "property": \`a b\`,
-            "another-property": \`a b\`
+            "unmatched": \`b a\`,
+            "matched": \`a b\`
           },
+        },
+        "multiline": {
+          "matched": \`
+            a b
+            c d
+          \`
         }
       }
     );`;
@@ -410,12 +425,15 @@ describe(tailwindSortClasses.name, () => {
       {
         invalid: [
           {
-            errors: 4,
+            errors: 3,
             jsx: dirtyDefined,
             jsxOutput: cleanDefined,
             options: [{
               callees: [
-                ["defined\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
+                [
+                  "defined\\(([^)]*)\\)",
+                  "\"matched\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
+                ]
               ],
               order: "asc"
             }],
