@@ -324,69 +324,8 @@ describe(tailwindSortClasses.name, () => {
         },
         "deeply": {
           "nested": {
-            "matched": "b a",
-            "unmatched": "b a"
-          },
-        }
-      }
-    );`;
-
-    const cleanDefined = `defined(
-      "b a",
-      {
-        "nested": {
-          "matched": "a b",
-        },
-        "deeply": {
-          "nested": {
-            "matched": "a b",
-            "unmatched": "b a"
-          },
-        }
-      }
-    );`;
-
-    expect(void lint(
-      tailwindSortClasses,
-      TEST_SYNTAXES,
-      {
-        invalid: [
-          {
-            errors: 2,
-            jsx: dirtyDefined,
-            jsxOutput: cleanDefined,
-            options: [{
-              callees: [
-                [
-                  "defined\\(([^)]*)\\)",
-                  "\"matched\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
-                ]
-              ],
-              order: "asc"
-            }],
-            svelte: `<script>${dirtyDefined}</script>`,
-            svelteOutput: `<script>${cleanDefined}</script>`,
-            vue: `<script>${dirtyDefined}</script>`,
-            vueOutput: `<script>${cleanDefined}</script>`
-          }
-        ]
-      }
-    )).toBeUndefined();
-
-  });
-
-  it("should sort in template literals in call signature arguments matched by a regex", () => {
-
-    const dirtyDefined = `defined(
-      \`b a\`,
-      {
-        "nested": {
-          "matched": \`b a\`,
-        },
-        "deeply": {
-          "nested": {
-            "unmatched": \`b a\`,
-            "matched": \`b a\`
+            "unmatched": "b a",
+            "matched": "b a"
           },
         },
         "multiline": {
@@ -399,15 +338,15 @@ describe(tailwindSortClasses.name, () => {
     );`;
 
     const cleanDefined = `defined(
-      \`b a\`,
+      "b a",
       {
         "nested": {
-          "matched": \`a b\`,
+          "matched": "a b",
         },
         "deeply": {
           "nested": {
-            "unmatched": \`b a\`,
-            "matched": \`a b\`
+            "unmatched": "b a",
+            "matched": "a b"
           },
         },
         "multiline": {
