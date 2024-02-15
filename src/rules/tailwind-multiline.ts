@@ -137,7 +137,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
           properties: {
             callees: {
               default: getOptions().callees,
-              description: "List of function names or regular expressions whose arguments should also be considered.",
+              description: "List of function names whose arguments should also be considered.",
               items: {
                 oneOf: [
                   {

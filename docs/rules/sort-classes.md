@@ -12,12 +12,46 @@
 
 Enforce the order of tailwind classes. It is possible to sort classes alphabetically or logically.
 
-Order:
+### Options
+
+#### callees
+
+List of function names whose arguments should also be considered.
+  
+**Default**: `["clsx", "cva", "ctl", "twMerge"]`
+  
+Can also be a tuple of regular expressions. The first regular expression matches the whole container, the second regular expression will match the string literals. Multiple groups can be used to match multiple string literals.
+This is inspired by [Class Variance Authority](https://cva.style/docs/getting-started/installation#intellisense).
+
+```jsonc
+{
+  "callees": [
+    [
+      // matches all arguments in the parentheses of the cva function call
+      "cva\\(([^)]*)\\)",
+      // matches all string literals in matched container
+      "[\"'`]([^\"'`]*).*?[\"'`]"
+    ]
+  ]
+}
+```
+
+#### classAttributes
+
+The name of the attribute that contains the tailwind classes.
+
+**Default**: `["class", "className"]`
+
+#### Order
 
 - `asc`: Sort classes alphabetically in ascending order.
 - `desc`: Sort classes alphabetically in descending order.
 - `official`: Sort classes according to the official sorting order from tailwindcss.
 - `improved`: Same as `official` but also sorts by data-attributes.
+
+#### tailwindConfig
+
+The path to the tailwind config file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.
 
 <br/>
 
@@ -52,18 +86,3 @@ Order:
 // ✅ GOOD: with option { order: 'improved' }
 <div class="text-black underline focus:font-bold focus:text-opacity-70 hover:font-bold hover:text-opacity-70"/>;
 ```
-
-<br/>
-
-## Options
-
-<!-- begin auto-generated rule options list -->
-
-| Name              | Description                                                                                                                                      | Type     | Choices                               | Default                           |
-| :---------------- | :----------------------------------------------------------------------------------------------------------------------------------------------- | :------- | :------------------------------------ | :-------------------------------- |
-| `callees`         | List of function names or regular expressions whose arguments should also be considered.                                                         | Array    |                                       | [`clsx`, `cva`, `ctl`, `twMerge`] |
-| `classAttributes` | The name of the attribute that contains the tailwind classes.                                                                                    | String[] |                                       | [`class`, `className`]            |
-| `order`           | The algorithm to use when sorting classes.                                                                                                       | String   | `asc`, `desc`, `official`, `improved` | `improved`                        |
-| `tailwindConfig`  | The path to the tailwind config file. If not specified, the plugin will try to find it automatically or falls back to the default configuration. | String   |                                       |                                   |
-
-<!-- end auto-generated rule options list -->
