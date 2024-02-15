@@ -15,13 +15,13 @@ import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { VStartTag } from "vue-eslint-parser/ast";
 
 import type { Literal } from "readable-tailwind:types:ast.js";
-import type { ESLintRule } from "readable-tailwind:types:rule.js";
+import type { Callees, ESLintRule } from "readable-tailwind:types:rule.js";
 
 
 export type Options = [
   {
     allowMultiline?: boolean;
-    callees?: string[];
+    callees?: Callees;
     classAttributes?: string[];
   }
 ];

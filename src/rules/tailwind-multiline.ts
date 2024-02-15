@@ -16,12 +16,12 @@ import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { VStartTag } from "vue-eslint-parser/ast";
 
 import type { Literal, Meta } from "readable-tailwind:types:ast.js";
-import type { ESLintRule } from "readable-tailwind:types:rule.js";
+import type { Callees, ESLintRule } from "readable-tailwind:types:rule.js";
 
 
 export type Options = [
   {
-    callees?: string[];
+    callees?: Callees;
     classAttributes?: string[];
     classesPerLine?: number;
     group?: "emptyLine" | "never" | "newLine";
@@ -226,6 +226,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       if(
         literal.parent.type === "JSXAttribute" ||
         literal.parent.type === "JSXExpressionContainer" ||
+        literal.parent.type === "Property" ||
         literal.parent.type === "CallExpression" ||
         literal.parent.type === "SvelteMustacheTag"){
         lines.line.addMeta({ openingQuote: "`" });
@@ -307,6 +308,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       if(
         literal.parent.type === "JSXAttribute" ||
         literal.parent.type === "JSXExpressionContainer" ||
+        literal.parent.type === "Property" ||
         literal.parent.type === "CallExpression" ||
         literal.parent.type === "SvelteMustacheTag"){
         lines.line.addMeta({ closingQuote: "`" });
