@@ -53,23 +53,6 @@ export function isLiteral(node: Node): node is Literal {
   return node.type === "Literal";
 }
 
-// export function calleesIncludes(callees: string[], name: string): boolean {
-
-//   for(const callee of callees){
-//     if(callee.startsWith("/") && callee.endsWith("/")){
-//       const regex = new RegExp(callee.slice(1, -1));
-//       if(regex.test(name)){
-//         return true;
-//       }
-//     } else if(callee === name){
-//       return true;
-//     }
-//   }
-
-//   return false;
-
-// }
-
 export function deduplicateLiterals(literals: Literal[]): Literal[] {
   return literals.filter((l1, index) => {
     return literals.findIndex(l2 => {
