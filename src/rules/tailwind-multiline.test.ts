@@ -138,7 +138,7 @@ describe(tailwindMultiline.name, () => {
             errors: 1,
             jsx: `const Test = () => <div class={${dirtyDefined}} />;`,
             jsxOutput: `const Test = () => <div class={${cleanDefined}} />;`,
-            options: [{ callees: ["/defined/"], classesPerLine: 3, indent: 2 }],
+            options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }],
             svelte: `<div class={${dirtyDefined}} />`,
             svelteOutput: `<div class={${cleanDefined}} />`
           }
@@ -146,7 +146,7 @@ describe(tailwindMultiline.name, () => {
         valid: [
           {
             jsx: `const Test = () => <div class={${dirtyUndefined}} />;`,
-            options: [{ callees: ["/defined/"], classesPerLine: 3, indent: 2 }],
+            options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }],
             svelte: `<div class={${dirtyUndefined}} />`
           }
         ]

@@ -2,16 +2,15 @@ import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "src/par
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "src/parsers/svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "src/parsers/vue.js";
 
-import { getLiteralsByESCallExpressionAndStringCallee } from "readable-tailwind:parsers:es";
-import { getJSXAttributes } from "readable-tailwind:parsers:jsx";
-import { getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx";
+import { getLiteralsByESCallExpression } from "readable-tailwind:parsers:es.js";
+import { getJSXAttributes, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx";
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "readable-tailwind:utils:config.js";
-import { calleesIncludes, findLineStartPosition, findLiteralStartPosition } from "readable-tailwind:utils:utils";
+import { findLineStartPosition, findLiteralStartPosition } from "readable-tailwind:utils:utils";
 import { splitClasses } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { Node } from "estree";
+import type { CallExpression, Node } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { VStartTag } from "vue-eslint-parser/ast";
@@ -39,14 +38,11 @@ export const tailwindMultiline: ESLintRule<Options> = {
 
       const { callees, classAttributes } = getOptions(ctx);
 
-      const callExpressions = {
-        CallExpression(node) {
-          const { callee } = node;
+      const callExpression = {
+        CallExpression(node: Node) {
+          const callExpressionNode = node as CallExpression;
 
-          if(callee.type !== "Identifier"){ return; }
-          if(!calleesIncludes(callees, callee.name)){ return; }
-
-          const literals = getLiteralsByESCallExpressionAndStringCallee(ctx, node.arguments);
+          const literals = getLiteralsByESCallExpression(ctx, callExpressionNode, callees);
           lintLiterals(ctx, literals);
         }
       };
@@ -113,13 +109,13 @@ export const tailwindMultiline: ESLintRule<Options> = {
       // Vue
       if(typeof ctx.parserServices?.defineTemplateBodyVisitor === "function"){
         return {
-          ...callExpressions,
+          ...callExpression,
           ...ctx.parserServices.defineTemplateBodyVisitor(vue)
         };
       }
 
       return {
-        ...callExpressions,
+        ...callExpression,
         ...jsx,
         ...svelte,
         ...vue,
@@ -141,9 +137,22 @@ export const tailwindMultiline: ESLintRule<Options> = {
           properties: {
             callees: {
               default: getOptions().callees,
-              description: "List of function names whose arguments should also be considered.",
+              description: "List of function names or regular expressions whose arguments should also be considered.",
               items: {
-                type: "string"
+                oneOf: [
+                  {
+                    description: "List of function names whose arguments should also be considered.",
+                    items: [
+                      { type: "string" },
+                      { type: "string" }
+                    ],
+                    type: "array"
+                  },
+                  {
+                    description: "List of function names whose arguments should also be considered.",
+                    type: "string"
+                  }
+                ]
               },
               type: "array"
             },

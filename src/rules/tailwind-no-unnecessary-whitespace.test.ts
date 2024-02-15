@@ -207,7 +207,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
           errors: 1,
           jsx: dirtyDefined,
           jsxOutput: cleanDefined,
-          options: [{ callees: ["/defined/"] }],
+          options: [{ callees: ["defined"] }],
           svelte: `<script>${dirtyDefined}</script>`,
           svelteOutput: `<script>${cleanDefined}</script>`,
           vue: `<script>${dirtyDefined}</script>`,
@@ -217,7 +217,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       valid: [
         {
           jsx: dirtyUndefined,
-          options: [{ callees: ["/defined/"] }],
+          options: [{ callees: ["defined"] }],
           svelte: `<script>${dirtyUndefined}</script>`,
           vue: `<script>${dirtyUndefined}</script>`
         }
