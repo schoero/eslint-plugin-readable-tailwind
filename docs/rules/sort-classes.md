@@ -23,7 +23,7 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
   List of function names whose arguments should also be considered.
   
-  **Type**: `string[] | [string, string][]`
+  **Type**: `string[] | [string, string][]`  
   **Default**: `["clsx", "cva", "ctl", "twMerge"]`
   
   Can also be a tuple of regular expressions. The first regular expression matches the whole container, the second regular expression will match the string literals. Multiple groups can be used to match multiple string literals.  
@@ -48,7 +48,7 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
   The name of the attribute that contains the tailwind classes.
 
-  **Type**: `string[]`
+  **Type**: `string[]`  
   **Default**: `["class", "className"]`
 
 <br/>
@@ -60,7 +60,7 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
   - `official`: Sort classes according to the official sorting order from tailwindcss.
   - `improved`: Same as `official` but also sorts by data-attributes.
 
-  **Type**: `"asc" | "desc" | "official" | "improved"`
+  **Type**: `"asc" | "desc" | "official" | "improved"`  
   **Default**: `"improved"`
 
 <br/>
@@ -69,7 +69,7 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
   The path to the tailwind config file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.
 
-  **Type**: `string`
+  **Type**: `string`  
   **Default**: `undefined`
 
 <br/>
