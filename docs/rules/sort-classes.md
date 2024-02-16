@@ -67,7 +67,8 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
 - `tailwindConfig`
 
-  The path to the tailwind config file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.
+  The path to the tailwind config file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.  
+  The tailwind config is used to determine the sorting order.
 
   **Type**: `string`  
   **Default**: `undefined`
