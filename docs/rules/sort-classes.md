@@ -12,7 +12,11 @@
 
 Enforce the order of tailwind classes. It is possible to sort classes alphabetically or logically.
 
+<br/>
+
 ### Options
+
+<br/>
 
 - `callees`
 
@@ -36,11 +40,15 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
   }
   ```
 
+<br/>
+
 - `classAttributes`
 
   The name of the attribute that contains the tailwind classes.
 
   **Default**: `["class", "className"]`
+
+<br/>
 
 - `order`
 
@@ -48,6 +56,8 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
   - `desc`: Sort classes alphabetically in descending order.
   - `official`: Sort classes according to the official sorting order from tailwindcss.
   - `improved`: Same as `official` but also sorts by data-attributes.
+
+<br/>
 
 - `tailwindConfig`
 
