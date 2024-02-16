@@ -14,44 +14,44 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
 ### Options
 
-#### callees
+- `callees`
 
-List of function names whose arguments should also be considered.
+  List of function names whose arguments should also be considered.
   
-**Default**: `["clsx", "cva", "ctl", "twMerge"]`
+  **Default**: `["clsx", "cva", "ctl", "twMerge"]`
   
-Can also be a tuple of regular expressions. The first regular expression matches the whole container, the second regular expression will match the string literals. Multiple groups can be used to match multiple string literals.
-This is inspired by [Class Variance Authority](https://cva.style/docs/getting-started/installation#intellisense).
+  Can also be a tuple of regular expressions. The first regular expression matches the whole container, the second regular expression will match the string literals. Multiple groups can be used to match multiple string literals.  
+  This is inspired by [Class Variance Authority](https://cva.style/docs/getting-started/installation#intellisense).
 
-```jsonc
-{
-  "callees": [
-    [
-      // matches all arguments in the parentheses of the cva function call
-      "cva\\(([^)]*)\\)",
-      // matches all string literals in matched container
-      "[\"'`]([^\"'`]*).*?[\"'`]"
+  ```jsonc
+  {
+    "callees": [
+      [
+        // matches all arguments in the parentheses of the cva function call
+        "cva\\(([^)]*)\\)",
+        // matches all string literals in matched container
+        "[\"'`]([^\"'`]*).*?[\"'`]"
+      ]
     ]
-  ]
-}
-```
+  }
+  ```
 
-#### classAttributes
+- `classAttributes`
 
-The name of the attribute that contains the tailwind classes.
+  The name of the attribute that contains the tailwind classes.
 
-**Default**: `["class", "className"]`
+  **Default**: `["class", "className"]`
 
-#### Order
+- `order`
 
-- `asc`: Sort classes alphabetically in ascending order.
-- `desc`: Sort classes alphabetically in descending order.
-- `official`: Sort classes according to the official sorting order from tailwindcss.
-- `improved`: Same as `official` but also sorts by data-attributes.
+  - `asc`: Sort classes alphabetically in ascending order.
+  - `desc`: Sort classes alphabetically in descending order.
+  - `official`: Sort classes according to the official sorting order from tailwindcss.
+  - `improved`: Same as `official` but also sorts by data-attributes.
 
-#### tailwindConfig
+- `tailwindConfig`
 
-The path to the tailwind config file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.
+  The path to the tailwind config file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.
 
 <br/>
 
