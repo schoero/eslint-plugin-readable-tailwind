@@ -1,7 +1,6 @@
 import type { Rule } from "eslint";
 
 import type { Literal, Node, QuoteMeta } from "readable-tailwind:types:ast.js";
-import type { Callees } from "readable-tailwind:types:rule.js";
 
 
 export function getWhitespace(classes: string) {
@@ -61,26 +60,4 @@ export function deduplicateLiterals(literals: Literal[]): Literal[] {
         l1.range[1] === l2.range[1];
     }) === index;
   });
-}
-
-export function isValidCalleeRegex(callee: Callees[number]): callee is [string, string] {
-
-  if(typeof callee === "object" &&
-    Array.isArray(callee) &&
-    // eslint-disable-next-line eslint-plugin-typescript/no-unnecessary-condition
-    callee.length === 2
-  ){
-
-    try {
-      new RegExp(callee[0]);
-      new RegExp(callee[1]);
-      return true;
-    } catch {
-      return false;
-    }
-
-  }
-
-  return false;
-
 }
