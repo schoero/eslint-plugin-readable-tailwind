@@ -127,7 +127,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
               default: getOptions().callees,
               description: "List of function names whose arguments should also be considered.",
               items: {
-                oneOf: [
+                anyOf: [
                   {
                     description: "List of regular expressions that matches string literals that should also be considered.",
                     items: [
