@@ -7,6 +7,7 @@
     "@schoero/configs/cspell"
   ],
   "words": [
+    "autofix",
     "callees",
     "classnames",
     "clsx",

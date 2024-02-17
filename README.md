@@ -59,7 +59,7 @@ Please read the documentation for the specific flavor you are using:
 
 ## Rules
 
-| Name | Description | `error` | `warning` | auto-fix |
+| Name | Description | `error` | `warning` | autofix |
 | :--- | :--- | :---: | :---: | :---: |
 | [multiline](docs/rules/multiline.md) | Enforce consistent line wrapping for tailwind classes. | ✔ | ✔ | ✔ |
 | [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | ✔ | ✔ | ✔ |
