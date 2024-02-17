@@ -21,7 +21,6 @@
   "main": "./lib/index.cjs",
   "scripts": {
     "build": "vite build",
-    "docs": "eslint-doc-generator",
     "eslint": "eslint .",
     "eslint:ci": "npm run eslint -- --max-warnings 0",
     "eslint:fix": "npm run eslint -- --fix",
@@ -68,7 +67,6 @@
     "cspell": "^8.3.2",
     "es-html-parser": "^0.0.9",
     "eslint": "^8.56.0",
-    "eslint-doc-generator": "^1.6.2",
     "eslint-plugin-eslint-plugin": "^5.3.0",
     "proper-tags": "^2.0.2",
     "svelte": "^4.2.11",

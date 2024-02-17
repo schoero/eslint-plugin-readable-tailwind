@@ -59,21 +59,11 @@ Please read the documentation for the specific flavor you are using:
 
 ## Rules
 
-<!-- begin auto-generated rules list -->
-
-💼 Configurations enabled in.\
-⚠️ Configurations set to warn in.\
-![error](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/assets/checkmark-error.svg) Set in the `error` configuration.\
-![warning](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/assets/checkmark-warning.svg) Set in the `warning` configuration.\
-🔧 Automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/user-guide/command-line-interface#--fix).
-
-| Name                                                                 | Description                                            | 💼                                                                                                        | ⚠️                                                                                                            | 🔧 |
-| :------------------------------------------------------------------- | :----------------------------------------------------- | :-------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------ | :- |
-| [multiline](docs/rules/multiline.md)                                 | Enforce consistent line wrapping for tailwind classes. | ![error](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/assets/checkmark-error.svg) | ![warning](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/assets/checkmark-warning.svg) | 🔧 |
-| [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes.   | ![error](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/assets/checkmark-error.svg) | ![warning](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/assets/checkmark-warning.svg) | 🔧 |
-| [sort-classes](docs/rules/sort-classes.md)                           | Enforce a consistent order for tailwind classes.       | ![error](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/assets/checkmark-error.svg) | ![warning](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/assets/checkmark-warning.svg) | 🔧 |
-
-<!-- end auto-generated rules list -->
+| Name | Description | `error` | `warning` | auto-fix |
+| :--- | :--- | :---: | :---: | :---: |
+| [multiline](docs/rules/multiline.md) | Enforce consistent line wrapping for tailwind classes. | ✔ | ✔ | ✔ |
+| [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | ✔ | ✔ | ✔ |
+| [sort-classes](docs/rules/sort-classes.md) | Enforce a consistent order for tailwind classes. | ✔ | ✔ | ✔ |
 
 <br/>
 <br/>
