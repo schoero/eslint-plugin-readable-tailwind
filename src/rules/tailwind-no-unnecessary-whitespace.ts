@@ -129,10 +129,10 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
               items: {
                 oneOf: [
                   {
-                    description: "List of function names whose arguments should also be considered.",
+                    description: "List of regular expressions that matches string literals that should also be considered.",
                     items: [
-                      { type: "string" },
-                      { type: "string" }
+                      { description: "Regular expression that filters the callee and matches the string literals in a group.", type: "string" },
+                      { description: "Regular expression that matches each string literal in a group.", type: "string" }
                     ],
                     type: "array"
                   },
