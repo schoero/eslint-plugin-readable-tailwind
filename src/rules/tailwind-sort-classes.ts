@@ -15,8 +15,8 @@ import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { Node } from "estree";
-import type { CallExpression, JSXOpeningElement } from "estree-jsx";
+import type { CallExpression, Node } from "estree";
+import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { Config } from "tailwindcss/types/config.js";
 import type { VStartTag } from "vue-eslint-parser/ast";
