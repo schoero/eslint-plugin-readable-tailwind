@@ -306,6 +306,46 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       }
     }
 
+    // collapse lines if there is no reason for line wrapping
+    collapse: if(lines.length === 3){
+
+      // disallow collapsing if the first line contains more classes than the classesPerLine
+      if(lines.at(1).classCount > classesPerLine && classesPerLine !== 0){
+        break collapse;
+      }
+
+      // disallow collapsing if the first line including the element and all previous characters is longer than the printWidth
+      if(literalStartPosition + lines.at(1).length > printWidth && printWidth !== 0){
+        break collapse;
+      }
+
+      // add quotes from the first and last line to the second line
+      lines.at(1).addMeta({
+        closingQuote: literal.closingQuote,
+        openingQuote: literal.openingQuote
+      });
+
+      const fixedClasses = lines.at(1).toString(false);
+
+      if(literal.raw === fixedClasses){
+        continue;
+      }
+
+      ctx.report({
+        data: {
+          notReadable: literal.content
+        },
+        fix(fixer) {
+          return fixer.replaceTextRange(literal.range, fixedClasses);
+        },
+        loc: literal.loc,
+        message: "Unnecessary line wrapping: \"{{ notReadable }}\"."
+      });
+
+      return;
+
+    }
+
     // Skip line wrapping if it is not necessary
     skip: if(lines.length === 3){
 
@@ -355,7 +395,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           : fixer.replaceTextRange(literal.range, fixedClasses);
       },
       loc: literal.loc,
-      message: "Invalid line wrapping: \"{{ notReadable }}\"."
+      message: "Missing line wrapping: \"{{ notReadable }}\"."
     });
 
   }
@@ -405,7 +445,9 @@ class Lines {
   }
 
   public at(index: number) {
-    return this.lines[index];
+    return index >= 0
+      ? this.lines[index]
+      : this.lines[this.lines.length + index];
   }
 
   public get line() {
@@ -428,7 +470,6 @@ class Lines {
       line => line.toString()
     ).join("\n");
   }
-
 }
 
 class Line {
@@ -484,9 +525,11 @@ class Line {
     return line;
   }
 
-  public toString() {
+  public toString(indent: boolean = true) {
     return this.join([
-      this.meta.indentation,
+      indent
+        ? this.meta.indentation
+        : "",
       this.meta.openingQuote,
       this.join([
         this.meta.closingBraces,
