@@ -42,6 +42,38 @@ describe(tailwindMultiline.name, () => {
     )).toBeUndefined();
   });
 
+  it("should collapse unnecessarily wrapped short lines", () => {
+
+    const trim = createTrimTag(4);
+
+    const dirty = trim`
+      a b
+    `;
+
+    const clean = "a b";
+
+    expect(void lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            html: `<div class="${dirty}" />`,
+            htmlOutput: `<div class="${clean}" />`,
+            jsx: `const Test = () => <div class={\`${dirty}\`} />;`,
+            jsxOutput: `const Test = () => <div class={\`${clean}\`} />;`,
+            options: [{ printWidth: 60 }],
+            svelte: `<div class="${dirty}" />`,
+            svelteOutput: `<div class="${clean}" />`,
+            vue: `<template><div class="${dirty}" /></template>`,
+            vueOutput: `<template><div class="${clean}" /></template>`
+          }
+        ]
+      }
+    )).toBeUndefined();
+  });
+
   it("should include previous characters to decide if lines should be wrapped", () => {
 
     const trim = createTrimTag(4);
@@ -292,14 +324,17 @@ describe(tailwindMultiline.name, () => {
         valid: [
           {
             jsx: `const Test = () => <div class={\`${multiline}\`} />;`,
+            options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<div class={\`${multiline}\`} />`
           },
           {
             html: `<div class="${multiline}" />`,
+            options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<div class="${multiline}" />`
           },
           {
             html: `<div class='${multiline}' />`,
+            options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<div class='${multiline}' />`
           }
         ]
