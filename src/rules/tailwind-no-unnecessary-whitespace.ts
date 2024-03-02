@@ -1,28 +1,27 @@
-import { getHTMLAttributes, getHTMLClassAttributeLiterals } from "readable-tailwind:flavors:html.js";
-import {
-  getJSXAttributes,
-  getJSXClassAttributeLiterals,
-  getLiteralsByJSXCallExpression
-} from "readable-tailwind:flavors:jsx.js";
-import { getSvelteAttributes, getSvelteClassAttributeLiterals } from "readable-tailwind:flavors:svelte.js";
-import { getVueAttributes, getVueClassAttributeLiterals } from "readable-tailwind:flavors:vue.js";
+import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "src/parsers/html.js";
+import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "src/parsers/svelte.js";
+import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "src/parsers/vue.js";
+
+import { getLiteralsByESCallExpression } from "readable-tailwind:parsers:es.js";
+import { getJSXAttributes, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx";
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "readable-tailwind:utils:config.js";
 import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { Node } from "estree";
+import type { CallExpression, Node } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
-import type { Literal } from "src/types/ast.js";
-import type { ESLintRule } from "src/types/rule.js";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { VStartTag } from "vue-eslint-parser/ast";
+
+import type { Literal } from "readable-tailwind:types:ast.js";
+import type { Callees, ESLintRule } from "readable-tailwind:types:rule.js";
 
 
 export type Options = [
   {
     allowMultiline?: boolean;
-    callees?: string[];
+    callees?: Callees;
     classAttributes?: string[];
   }
 ];
@@ -34,14 +33,11 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
 
       const { callees, classAttributes } = getOptions(ctx);
 
-      const callExpressions = {
-        CallExpression(node) {
-          const { callee } = node;
+      const callExpression = {
+        CallExpression(node: Node) {
+          const callExpressionNode = node as CallExpression;
 
-          if(callee.type !== "Identifier"){ return; }
-          if(!callees.includes(callee.name)){ return; }
-
-          const literals = getLiteralsByJSXCallExpression(ctx, node.arguments);
+          const literals = getLiteralsByESCallExpression(ctx, callExpressionNode, callees);
           lintLiterals(ctx, literals);
         }
       };
@@ -52,7 +48,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
           const jsxAttributes = getJSXAttributes(ctx, classAttributes, jsxNode);
 
           for(const attribute of jsxAttributes){
-            const literals = getJSXClassAttributeLiterals(ctx, attribute);
+            const literals = getLiteralsByJSXClassAttribute(ctx, attribute);
             lintLiterals(ctx, literals);
           }
         }
@@ -61,10 +57,10 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
       const svelte = {
         SvelteStartTag(node: Node) {
           const svelteNode = node as unknown as SvelteStartTag;
-          const svelteAttributes = getSvelteAttributes(ctx, classAttributes, svelteNode);
+          const svelteAttributes = getAttributesBySvelteTag(ctx, classAttributes, svelteNode);
 
           for(const attribute of svelteAttributes){
-            const literals = getSvelteClassAttributeLiterals(ctx, attribute);
+            const literals = getLiteralsBySvelteClassAttribute(ctx, attribute);
             lintLiterals(ctx, literals);
           }
         }
@@ -73,10 +69,10 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
       const vue = {
         VStartTag(node: Node) {
           const vueNode = node as unknown as VStartTag;
-          const vueAttributes = getVueAttributes(ctx, classAttributes, vueNode);
+          const vueAttributes = getAttributesByVueStartTag(ctx, classAttributes, vueNode);
 
           for(const attribute of vueAttributes){
-            const literals = getVueClassAttributeLiterals(ctx, attribute);
+            const literals = getLiteralsByVueClassAttribute(ctx, attribute);
             lintLiterals(ctx, literals);
           }
         }
@@ -85,10 +81,10 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
       const html = {
         Tag(node: Node) {
           const htmlTagNode = node as unknown as TagNode;
-          const htmlAttributes = getHTMLAttributes(ctx, classAttributes, htmlTagNode);
+          const htmlAttributes = getAttributesByHTMLTag(ctx, classAttributes, htmlTagNode);
 
           for(const htmlAttribute of htmlAttributes){
-            const literals = getHTMLClassAttributeLiterals(ctx, htmlAttribute);
+            const literals = getLiteralsByHTMLClassAttribute(ctx, htmlAttribute);
             lintLiterals(ctx, literals);
           }
         }
@@ -97,13 +93,13 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
       // Vue
       if(typeof ctx.parserServices?.defineTemplateBodyVisitor === "function"){
         return {
-          ...callExpressions,
+          ...callExpression,
           ...ctx.parserServices.defineTemplateBodyVisitor(vue)
         };
       }
 
       return {
-        ...callExpressions,
+        ...callExpression,
         ...jsx,
         ...svelte,
         ...html
@@ -131,7 +127,20 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
               default: getOptions().callees,
               description: "List of function names whose arguments should also be considered.",
               items: {
-                type: "string"
+                anyOf: [
+                  {
+                    description: "List of regular expressions that matches string literals that should also be considered.",
+                    items: [
+                      { description: "Regular expression that filters the callee and matches the string literals in a group.", type: "string" },
+                      { description: "Regular expression that matches each string literal in a group.", type: "string" }
+                    ],
+                    type: "array"
+                  },
+                  {
+                    description: "List of function names whose arguments should also be considered.",
+                    type: "string"
+                  }
+                ]
               },
               type: "array"
             },

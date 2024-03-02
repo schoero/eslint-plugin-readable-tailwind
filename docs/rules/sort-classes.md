@@ -1,28 +1,67 @@
 # readable-tailwind/sort-classes
 
-💼⚠️ This rule is enabled in the ![error](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/assets/checkmark-error.svg) `error` config. This rule _warns_ in the ![warning](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/assets/checkmark-warning.svg) `warning` config.
-
-🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
-
-<!-- end auto-generated rule header -->
-
-<br/>
-
-## Description
-
 Enforce the order of tailwind classes. It is possible to sort classes alphabetically or logically.
-
-Order:
-
-- `asc`: Sort classes alphabetically in ascending order.
-- `desc`: Sort classes alphabetically in descending order.
-- `official`: Sort classes according to the official sorting order from tailwindcss.
-- `improved`: Same as `official` but also sorts by data-attributes.
 
 <br/>
 
 > [!WARNING]
 > If you also use [eslint-plugin-tailwindcss](https://github.com/francoismassart/eslint-plugin-tailwindcss) you should disable the rule [eslint-plugin-tailwindcss/classnames-order](https://github.com/francoismassart/eslint-plugin-tailwindcss/blob/master/docs/rules/classnames-order.md), and use this rule instead. Otherwise, the two rules may conflict with each other.
+
+## Options
+
+- `callees`
+
+  List of function names whose arguments should also be considered.
+  
+  **Type**: `string[] | [string, string][]`  
+  **Default**: `["clsx", "cva", "ctl", "twMerge"]`
+  
+  Can also be a tuple of regular expressions. The first regular expression matches the whole container, the second regular expression will match the string literals. Multiple groups can be used to match multiple string literals.  
+  This is inspired by [Class Variance Authority](https://cva.style/docs/getting-started/installation#intellisense).
+
+  ```jsonc
+  {
+    "callees": [
+      [
+        // matches all arguments inside the parentheses of the cva function call
+        "cva\\(([^)]*)\\)",
+        // matches all string literals in matched container
+        "[\"'`]([^\"'`]*).*?[\"'`]"
+      ]
+    ]
+  }
+  ```
+
+<br/>
+
+- `classAttributes`
+
+  The name of the attribute that contains the tailwind classes.
+
+  **Type**: `string[]`  
+  **Default**: `["class", "className"]`
+
+<br/>
+
+- `order`
+
+  - `asc`: Sort classes alphabetically in ascending order.
+  - `desc`: Sort classes alphabetically in descending order.
+  - `official`: Sort classes according to the official sorting order from tailwindcss.
+  - `improved`: Same as `official` but also sorts by data-attributes.
+
+  **Type**: `"asc" | "desc" | "official" | "improved"`  
+  **Default**: `"improved"`
+
+<br/>
+
+- `tailwindConfig`
+
+  The path to the tailwind config file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.  
+  The tailwind config is used to determine the sorting order.
+
+  **Type**: `string`  
+  **Default**: `undefined`
 
 <br/>
 
@@ -52,18 +91,3 @@ Order:
 // ✅ GOOD: with option { order: 'improved' }
 <div class="text-black underline focus:font-bold focus:text-opacity-70 hover:font-bold hover:text-opacity-70"/>;
 ```
-
-<br/>
-
-## Options
-
-<!-- begin auto-generated rule options list -->
-
-| Name              | Description                                                                                                                                      | Type     | Choices                               | Default                           |
-| :---------------- | :----------------------------------------------------------------------------------------------------------------------------------------------- | :------- | :------------------------------------ | :-------------------------------- |
-| `callees`         | List of function names whose arguments should also be considered.                                                                                | String[] |                                       | [`clsx`, `cva`, `ctl`, `twMerge`] |
-| `classAttributes` | The name of the attribute that contains the tailwind classes.                                                                                    | String[] |                                       | [`class`, `className`]            |
-| `order`           | The algorithm to use when sorting classes.                                                                                                       | String   | `asc`, `desc`, `official`, `improved` | `improved`                        |
-| `tailwindConfig`  | The path to the tailwind config file. If not specified, the plugin will try to find it automatically or falls back to the default configuration. | String   |                                       |                                   |
-
-<!-- end auto-generated rule options list -->

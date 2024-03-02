@@ -1,9 +1,10 @@
 import type { AttributeNode, TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { Literal, QuoteMeta } from "src/types/ast.js";
+
+import type { Literal, QuoteMeta } from "readable-tailwind:types:ast.js";
 
 
-export function getHTMLAttributes(ctx: Rule.RuleContext, classAttributes: string[], node: TagNode): AttributeNode[] {
+export function getAttributesByHTMLTag(ctx: Rule.RuleContext, classAttributes: string[], node: TagNode): AttributeNode[] {
   return node.attributes.reduce<AttributeNode[]>((acc, attribute) => {
     if(classAttributes.includes(attribute.key.value)){
       acc.push(attribute);
@@ -13,7 +14,7 @@ export function getHTMLAttributes(ctx: Rule.RuleContext, classAttributes: string
 }
 
 
-export function getHTMLClassAttributeLiterals(ctx: Rule.RuleContext, attribute: AttributeNode): Literal[] {
+export function getLiteralsByHTMLClassAttribute(ctx: Rule.RuleContext, attribute: AttributeNode): Literal[] {
 
   const value = attribute.value;
 
@@ -22,7 +23,7 @@ export function getHTMLClassAttributeLiterals(ctx: Rule.RuleContext, attribute: 
   }
 
   const raw = attribute.startWrapper?.value + value.value + attribute.endWrapper?.value;
-  const { closingQuote, openingQuote } = getAttributeValueQuotes(ctx, attribute);
+  const { closingQuote, openingQuote } = getQuotesByHTMLAttribute(ctx, attribute);
 
   return [{
     closingQuote,
@@ -39,7 +40,7 @@ export function getHTMLClassAttributeLiterals(ctx: Rule.RuleContext, attribute: 
 }
 
 
-function getAttributeValueQuotes(ctx: Rule.RuleContext, attribute: AttributeNode): QuoteMeta {
+function getQuotesByHTMLAttribute(ctx: Rule.RuleContext, attribute: AttributeNode): QuoteMeta {
   const openingQuote = attribute.startWrapper?.value;
   const closingQuote = attribute.endWrapper?.value;
 

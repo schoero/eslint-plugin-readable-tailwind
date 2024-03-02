@@ -172,7 +172,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
     })).toBeUndefined();
   });
 
-  it("should also work in defined call signature arguments", () => {
+  it("should remove unnecessary whitespace in defined call signature arguments", () => {
 
     const dirtyDefined = "defined('  f  e  ');";
     const cleanDefined = "defined('f e');";
@@ -200,6 +200,105 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
         }
       ]
     })).toBeUndefined();
+
+    expect(void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 1,
+          jsx: dirtyDefined,
+          jsxOutput: cleanDefined,
+          options: [{ callees: ["defined"] }],
+          svelte: `<script>${dirtyDefined}</script>`,
+          svelteOutput: `<script>${cleanDefined}</script>`,
+          vue: `<script>${dirtyDefined}</script>`,
+          vueOutput: `<script>${cleanDefined}</script>`
+        }
+      ],
+      valid: [
+        {
+          jsx: dirtyUndefined,
+          options: [{ callees: ["defined"] }],
+          svelte: `<script>${dirtyUndefined}</script>`,
+          vue: `<script>${dirtyUndefined}</script>`
+        }
+      ]
+    })).toBeUndefined();
+
+  });
+
+  it("should remove unnecessary whitespace in string literals in call signature arguments matched by a regex", () => {
+
+    const dirtyDefined = `defined(
+      "  b  a  ",
+      {
+        "nested": {
+          "matched": "  b  a  ",
+        },
+        "deeply": {
+          "nested": {
+            "unmatched": "  b  a  ",
+            "matched": "  b  a  "
+          },
+        },
+        "multiline": {
+          "matched": \`
+            d  a
+            b  c
+          \`
+        }
+      }
+    );`;
+
+    const cleanDefined = `defined(
+      "b a",
+      {
+        "nested": {
+          "matched": "b a",
+        },
+        "deeply": {
+          "nested": {
+            "unmatched": "  b  a  ",
+            "matched": "b a"
+          },
+        },
+        "multiline": {
+          "matched": \`
+            d a
+            b c
+          \`
+        }
+      }
+    );`;
+
+    expect(void lint(
+      tailwindNoUnnecessaryWhitespace,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 4,
+            jsx: dirtyDefined,
+            jsxOutput: cleanDefined,
+            options: [{
+              callees: [
+                [
+                  "defined\\(([^)]*)\\)",
+                  "\"matched\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
+                ],
+                [
+                  "defined\\(([^)]*)\\)",
+                  "^\\s*[\"'`]([^\"'`]+)[\"'`](?!:)"
+                ]
+              ]
+            }],
+            svelte: `<script>${dirtyDefined}</script>`,
+            svelteOutput: `<script>${cleanDefined}</script>`,
+            vue: `<script>${dirtyDefined}</script>`,
+            vueOutput: `<script>${cleanDefined}</script>`
+          }
+        ]
+      }
+    )).toBeUndefined();
 
   });
 

@@ -6,7 +6,7 @@ import eslintParserVue from "vue-eslint-parser";
 
 import eslintParserHTML from "@html-eslint/parser";
 
-import type { ESLintRule } from "src/types/rule.js";
+import type { ESLintRule } from "readable-tailwind:types:rule.js";
 
 
 export const TEST_SYNTAXES = {
@@ -30,7 +30,6 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
   syntaxes: Syntaxes,
   tests: {
     invalid?: (
-      // Omit<FlatRuleTester.InvalidTestCase, "code" | "options" | "output"> &
       {
         [Key in keyof Syntaxes as `${Key & string}Output`]?: string;
       } & {
@@ -42,7 +41,6 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
       }
     )[];
     valid?: (
-      // Omit<FlatRuleTester.ValidTestCase, "code" | "options" | "output"> &
       {
         [Key in keyof Syntaxes]?: string;
       } & {
@@ -94,14 +92,14 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
 
 }
 
-const customIndentStripTransformer = (count: number) => {
+export function createTrimTag(count: number) {
+  return createTag(customIndentStripTransformer(count));
+}
+
+function customIndentStripTransformer(count: number) {
   return {
     onEndResult(endResult: string) {
       return endResult.replace(new RegExp(`^ {${count}}`, "gm"), "");
     }
   };
-};
-
-export function createTrimTag(count: number) {
-  return createTag(customIndentStripTransformer(count));
 }

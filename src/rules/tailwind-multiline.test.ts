@@ -128,6 +128,120 @@ describe(tailwindMultiline.name, () => {
         ]
       }
     )).toBeUndefined();
+
+    expect(void lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            jsx: `const Test = () => <div class={${dirtyDefined}} />;`,
+            jsxOutput: `const Test = () => <div class={${cleanDefined}} />;`,
+            options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }],
+            svelte: `<div class={${dirtyDefined}} />`,
+            svelteOutput: `<div class={${cleanDefined}} />`
+          }
+        ],
+        valid: [
+          {
+            jsx: `const Test = () => <div class={${dirtyUndefined}} />;`,
+            options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }],
+            svelte: `<div class={${dirtyUndefined}} />`
+          }
+        ]
+      }
+    )).toBeUndefined();
+  });
+
+  it("should wrap string literals in call signature arguments matched by a regex", () => {
+
+    const dirtyDefined = `defined(
+      " a b c d e f g h ",
+      {
+        "nested": {
+          "matched": " a b c d e f g h ",
+        },
+        "deeply": {
+          "nested": {
+            "unmatched": " a b c d e f g h ",
+            "matched": " a b c d e f g h "
+          },
+        },
+        "multiline": {
+          "matched": \`
+            a b c d e f g h 
+          \`
+        }
+      }
+    );`;
+
+    const cleanDefined = `defined(
+      \`
+        a b c
+        d e f
+        g h
+      \`,
+      {
+        "nested": {
+          "matched": \`
+            a b c
+            d e f
+            g h
+          \`,
+        },
+        "deeply": {
+          "nested": {
+            "unmatched": " a b c d e f g h ",
+            "matched": \`
+              a b c
+              d e f
+              g h
+            \`
+          },
+        },
+        "multiline": {
+          "matched": \`
+            a b c
+            d e f
+            g h
+          \`
+        }
+      }
+    );`;
+
+    expect(void lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 4,
+            jsx: dirtyDefined,
+            jsxOutput: cleanDefined,
+            options: [{
+              callees: [
+                [
+                  "defined\\(([^)]*)\\)",
+                  "\"matched\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
+                ],
+                [
+                  "defined\\(([^)]*)\\)",
+                  "^\\s*[\"'`]([^\"'`]+)[\"'`](?!:)"
+                ]
+              ],
+              classesPerLine: 3,
+              indent: 2
+            }],
+            svelte: `<script>${dirtyDefined}</script>`,
+            svelteOutput: `<script>${cleanDefined}</script>`,
+            vue: `<script>${dirtyDefined}</script>`,
+            vueOutput: `<script>${cleanDefined}</script>`
+          }
+        ]
+      }
+    )).toBeUndefined();
+
   });
 
   it("should change to a jsx expression correctly", () => {
