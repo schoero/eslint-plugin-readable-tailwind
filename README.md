@@ -34,6 +34,16 @@ It also sorts the classes logically, removes unnecessary whitespaces and groups 
   <img alt="eslint-plugin-readable-tailwind example" width="640px" src="./assets/eslint-plugin-readable-tailwind-demo.webp">
 </div>
 
+<br/>
+<br/>
+
+<div align="center">
+
+  [![sponsor this project](./assets/sponsor.svg)](https://github.com/sponsors/schoero)
+  
+  This project is financed by the community.  
+  If you or your company benefit from this project, please consider becoming a sponsor. Your contribution will help me maintain and develop the project.
+
 </div>
 
 <br/>
@@ -85,3 +95,7 @@ These rules are intended to automatically fix the tailwind classes. If you have 
   }
 }
 ```
+
+## This project is sponsored by the following awesome people and organizations
+
+*No awesome people or organizations have sponsored this project yet.*
