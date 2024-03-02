@@ -31,7 +31,9 @@ It also sorts the classes logically, removes unnecessary whitespaces and groups 
 <br/>
 
 <div align="center">
-  <img alt="eslint-plugin-readable-tailwind example" width="640px" src="https://raw.githubusercontent.com/schoero/eslint-plugin-readable-tailwind/main/assets/eslint-plugin-readable-tailwind-example.png">
+  <img alt="eslint-plugin-readable-tailwind example" width="640px" src="./assets/eslint-plugin-readable-tailwind-demo.webp">
+</div>
+
 </div>
 
 <br/>
