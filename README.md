@@ -42,7 +42,8 @@ It also sorts the classes logically, removes unnecessary whitespaces and groups 
   [![sponsor this project](./assets/sponsor.svg)](https://github.com/sponsors/schoero)
   
   This project is financed by the community.  
-  If you or your company benefit from this project, please consider becoming a sponsor. Your contribution will help me maintain and develop the project.
+  If you or your company benefit from this project, please consider becoming a sponsor.  
+  Your contribution will help me maintain and develop the project.
 
 </div>
 
