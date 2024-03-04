@@ -74,6 +74,38 @@ describe(tailwindMultiline.name, () => {
     )).toBeUndefined();
   });
 
+  it("should wrap and not collapse short lines containing expressions", () => {
+
+    const trim = createTrimTag(4);
+
+    const expression = "${true ? ' true ' : ' false '}";
+    const invalid = trim`
+      a ${expression}
+    `;
+    const valid = trim`
+      a
+      ${expression}
+    `;
+
+    expect(void lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            jsx: `const Test = () => <div class={\`${invalid}\`} />;`,
+            jsxOutput: `const Test = () => <div class={\`${valid}\`} />;`,
+            options: [{ classesPerLine: 3, group: "newLine", indent: 2 }],
+            svelte: `<div class={\`${invalid}\`} />`,
+            svelteOutput: `<div class={\`${valid}\`} />`
+          }
+        ]
+      }
+    )).toBeUndefined();
+
+  });
+
   it("should include previous characters to decide if lines should be wrapped", () => {
 
     const trim = createTrimTag(4);
