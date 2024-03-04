@@ -330,6 +330,11 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         break collapse;
       }
 
+      // disallow collapsing if the literal contains expressions
+      if(literal.type === "TemplateLiteral" && (literal.openingBraces || literal.closingBraces)){
+        break collapse;
+      }
+
       // add quotes from the first and last line to the second line
       lines.at(1).addMeta({
         closingQuote: literal.closingQuote,
