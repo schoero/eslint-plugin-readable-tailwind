@@ -32,7 +32,7 @@
     "markdownlint:fix": "npm run markdownlint -- --fix",
     "postrelease:alpha": "npm run postrelease",
     "postrelease:beta": "npm run postrelease",
-    "postrelease:latest": "eslint --fix package.json &&  markdownlint-cli2-fix 'CHANGELOG.md'",
+    "postrelease:latest": "eslint --fix package.json &&  markdownlint-cli2 'CHANGELOG.md'",
     "prebuild": "npm run typecheck && npm run lint && npm run spellcheck",
     "prerelease:alpha": "npm run test -- --run && npm run build",
     "prerelease:beta": "npm run test -- --run && npm run build",
