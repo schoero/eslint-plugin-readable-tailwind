@@ -75,30 +75,36 @@ function getLiteralsByESCallExpressionAndRegexCallee(ctx: Rule.RuleContext, node
   const matchedLiterals: Literal[] = [];
 
   for(const container of containers){
-    const matches = container[0].matchAll(stringLiteralRegex);
+    if(!container.indices || container.indices.length < 2){ continue; }
 
-    for(const groups of matches){
-      if(!groups.indices || groups.indices.length < 2){ continue; }
+    for(const [containerStartIndex] of container.indices.slice(1)){
 
-      for(const [startIndex] of groups.indices.slice(1)){
+      const matches = container[1].matchAll(stringLiteralRegex);
 
-        const literalNode = ctx.sourceCode.getNodeByRangeIndex((node.range?.[0] ?? 0) + startIndex);
+      for(const groups of matches){
+        if(!groups.indices || groups.indices.length < 2){ continue; }
 
-        if(!literalNode){ continue; }
+        for(const [startIndex] of groups.indices.slice(1)){
 
-        const literals = isESSimpleStringLiteral(literalNode)
-          ? getStringLiteralByESStringLiteral(ctx, literalNode)
-          : isESTemplateElement(literalNode) && hasESNodeParentExtension(literalNode)
-            ? getLiteralByESTemplateElement(ctx, literalNode)
-            : undefined;
+          const literalNode = ctx.sourceCode.getNodeByRangeIndex((node.range?.[0] ?? 0) + containerStartIndex + startIndex);
 
-        if(literals === undefined){ continue; }
+          if(!literalNode){ continue; }
 
-        matchedLiterals.push(
-          ...Array.isArray(literals) ? literals : [literals]
-        );
+          const literals = isESSimpleStringLiteral(literalNode)
+            ? getStringLiteralByESStringLiteral(ctx, literalNode)
+            : isESTemplateElement(literalNode) && hasESNodeParentExtension(literalNode)
+              ? getLiteralByESTemplateElement(ctx, literalNode)
+              : undefined;
 
+          if(literals === undefined){ continue; }
+
+          matchedLiterals.push(
+            ...Array.isArray(literals) ? literals : [literals]
+          );
+
+        }
       }
+
     }
 
   }
