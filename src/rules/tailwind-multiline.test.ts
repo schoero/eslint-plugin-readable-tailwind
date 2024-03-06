@@ -561,4 +561,138 @@ describe(tailwindMultiline.name, () => {
 
   });
 
+  it("should wrap string literals in variable declarations", () => {
+
+    const trim = createTrimTag(4);
+
+    const dirtyDefined = "const defined = 'a b c d e f g h';";
+    const dirtyUndefined = "const notDefined = 'a b c d e f g h';";
+    const cleanDefined = trim`const defined = \`
+      a b c
+      d e f
+      g h
+    \`;`;
+
+    expect(void lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            jsx: dirtyDefined,
+            jsxOutput: cleanDefined,
+            options: [{ classesPerLine: 3, indent: 2, variables: ["defined"] }],
+            svelte: `<script>${dirtyDefined}</script>`,
+            svelteOutput: `<script>${cleanDefined}</script>`,
+            vue: `<script>${dirtyDefined}</script>`,
+            vueOutput: `<script>${cleanDefined}</script>`
+          }
+        ],
+        valid: [
+          {
+            jsx: dirtyUndefined,
+            options: [{ classesPerLine: 3, indent: 2, variables: ["defined"] }],
+            svelte: `<script>${dirtyUndefined}</script>`
+          }
+        ]
+      }
+    )).toBeUndefined();
+
+  });
+
+  it("should wrap string literals in variable declarations matched by a regex", () => {
+
+    const trim = createTrimTag(4);
+
+    const dirtyDefined = "const defined = 'a b c d e f g h';";
+    const dirtyUndefined = "const notDefined = 'a b c d e f g h';";
+    const cleanDefined = trim`const defined = \`
+      a b c
+      d e f
+      g h
+    \`;`;
+
+    const dirtyObject = trim`const defined = {
+      "matched": " a b c d e f g h ",
+      "unmatched": " a b c d e f g h ",
+      "nested": {
+        "matched": " a b c d e f g h ",
+        "unmatched": " a b c d e f g h "
+      }
+    };`;
+
+    const cleanObject = trim`const defined = {
+      "matched": \`
+        a b c
+        d e f
+        g h
+      \`,
+      "unmatched": " a b c d e f g h ",
+      "nested": {
+        "matched": \`
+          a b c
+          d e f
+          g h
+        \`,
+        "unmatched": " a b c d e f g h "
+      }
+    };`;
+
+    expect(void lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            jsx: dirtyDefined,
+            jsxOutput: cleanDefined,
+            options: [{
+              classesPerLine: 3,
+              indent: 2,
+              variables: [
+                [
+                  "defined = ([\\S\\s]*)",
+                  "^\\s*[\"'`]([^\"'`]+)[\"'`]"
+                ]
+              ]
+            }],
+            svelte: `<script>${dirtyDefined}</script>`,
+            svelteOutput: `<script>${cleanDefined}</script>`,
+            vue: `<script>${dirtyDefined}</script>`,
+            vueOutput: `<script>${cleanDefined}</script>`
+          },
+          {
+            errors: 2,
+            jsx: dirtyObject,
+            jsxOutput: cleanObject,
+            options: [{
+              classesPerLine: 3,
+              indent: 2,
+              variables: [
+                [
+                  "defined = ([\\S\\s]*)",
+                  "\"matched\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
+                ]
+              ]
+            }],
+            svelte: `<script>${dirtyObject}</script>`,
+            svelteOutput: `<script>${cleanObject}</script>`,
+            vue: `<script>${dirtyObject}</script>`,
+            vueOutput: `<script>${cleanObject}</script>`
+          }
+        ],
+        valid: [
+          {
+            jsx: dirtyUndefined,
+            options: [{ classesPerLine: 3, indent: 2 }],
+            svelte: `<script>${dirtyUndefined}</script>`
+          }
+        ]
+      }
+    )).toBeUndefined();
+
+  });
+
 });

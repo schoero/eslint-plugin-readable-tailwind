@@ -7,22 +7,22 @@ import setupContextUtils from "tailwindcss/lib/lib/setupContextUtils.js";
 import loadConfig from "tailwindcss/loadConfig.js";
 import resolveConfig from "tailwindcss/resolveConfig.js";
 
-import { getLiteralsByESCallExpression } from "readable-tailwind:parsers:es.js";
+import { getLiteralsByESCallExpression, getLiteralsByESVariableDeclarator } from "readable-tailwind:parsers:es.js";
 import { getJSXAttributes, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx";
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
-import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "readable-tailwind:utils:config.js";
+import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES, DEFAULT_VARIABLE_NAMES } from "readable-tailwind:utils:config.js";
 import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { CallExpression, Node } from "estree";
+import type { CallExpression, Node, VariableDeclarator } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { Config } from "tailwindcss/types/config.js";
 import type { VStartTag } from "vue-eslint-parser/ast";
 
 import type { Literal } from "readable-tailwind:types:ast.js";
-import type { Callees, ESLintRule } from "readable-tailwind:types:rule.js";
+import type { Callees, ESLintRule, Variables } from "readable-tailwind:types:rule.js";
 
 
 export type Options = [
@@ -31,6 +31,7 @@ export type Options = [
     classAttributes?: string[];
     order?: "asc" | "desc" | "improved" | "official" ;
     tailwindConfig?: string;
+    variables?: Variables;
   }
 ];
 
@@ -39,7 +40,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
   rule: {
     create(ctx) {
 
-      const { callees, classAttributes } = getOptions(ctx);
+      const { callees, classAttributes, variables } = getOptions(ctx);
 
       const tailwindConfig = findTailwindConfig(ctx);
       const tailwindContext = createTailwindContext(tailwindConfig);
@@ -90,6 +91,15 @@ export const tailwindSortClasses: ESLintRule<Options> = {
           const callExpressionNode = node as CallExpression;
 
           const literals = getLiteralsByESCallExpression(ctx, callExpressionNode, callees);
+          lintLiterals(ctx, literals);
+        }
+      };
+
+      const variableDeclarators = {
+        VariableDeclarator(node: Node) {
+          const variableDeclaratorNode = node as VariableDeclarator;
+
+          const literals = getLiteralsByESVariableDeclarator(ctx, variableDeclaratorNode, variables);
           lintLiterals(ctx, literals);
         }
       };
@@ -146,12 +156,14 @@ export const tailwindSortClasses: ESLintRule<Options> = {
       if(typeof ctx.parserServices?.defineTemplateBodyVisitor === "function"){
         return {
           ...callExpression,
+          ...variableDeclarators,
           ...ctx.parserServices.defineTemplateBodyVisitor(vue)
         };
       }
 
       return {
         ...callExpression,
+        ...variableDeclarators,
         ...jsx,
         ...svelte,
         ...html
@@ -214,6 +226,27 @@ export const tailwindSortClasses: ESLintRule<Options> = {
               default: getOptions().tailwindConfig,
               description: "The path to the tailwind config file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.",
               type: "string"
+            },
+            variables: {
+              default: getOptions().variables,
+              description: "List of variable names whose values should also be considered.",
+              items: {
+                anyOf: [
+                  {
+                    description: "List of regular expressions that matches string literals that should also be considered.",
+                    items: [
+                      { description: "Regular expression that filters the variable and matches the string literals in a group.", type: "string" },
+                      { description: "Regular expression that matches each string literal in a group.", type: "string" }
+                    ],
+                    type: "array"
+                  },
+                  {
+                    description: "List of variable names whose values should also be considered.",
+                    type: "string"
+                  }
+                ]
+              },
+              type: "array"
             }
           },
           type: "object"
@@ -305,6 +338,7 @@ export function getOptions(ctx?: Rule.RuleContext) {
   const order = options.order ?? "improved";
   const classAttributes = options.classAttributes ?? DEFAULT_CLASS_NAMES;
   const callees = options.callees ?? DEFAULT_CALLEE_NAMES;
+  const variables = options.variables ?? DEFAULT_VARIABLE_NAMES;
 
   const tailwindConfig = options.tailwindConfig;
 
@@ -312,7 +346,8 @@ export function getOptions(ctx?: Rule.RuleContext) {
     callees,
     classAttributes,
     order,
-    tailwindConfig
+    tailwindConfig,
+    variables
   };
 
 }

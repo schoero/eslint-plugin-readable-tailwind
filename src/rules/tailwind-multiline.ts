@@ -2,21 +2,21 @@ import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "src/par
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "src/parsers/svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "src/parsers/vue.js";
 
-import { getLiteralsByESCallExpression } from "readable-tailwind:parsers:es.js";
+import { getLiteralsByESCallExpression, getLiteralsByESVariableDeclarator } from "readable-tailwind:parsers:es.js";
 import { getJSXAttributes, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx";
-import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "readable-tailwind:utils:config.js";
+import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES, DEFAULT_VARIABLE_NAMES } from "readable-tailwind:utils:config.js";
 import { findLineStartPosition, findLiteralStartPosition } from "readable-tailwind:utils:utils";
 import { splitClasses } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { CallExpression, Node } from "estree";
+import type { CallExpression, Node, VariableDeclarator } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { VStartTag } from "vue-eslint-parser/ast";
 
 import type { Literal, Meta } from "readable-tailwind:types:ast.js";
-import type { Callees, ESLintRule } from "readable-tailwind:types:rule.js";
+import type { Callees, ESLintRule, Variables } from "readable-tailwind:types:rule.js";
 
 
 export type Options = [
@@ -28,6 +28,7 @@ export type Options = [
     indent?: number | "tab";
     printWidth?: number;
     trim?: boolean;
+    variables?: Variables;
   }
 ];
 
@@ -36,13 +37,22 @@ export const tailwindMultiline: ESLintRule<Options> = {
   rule: {
     create(ctx) {
 
-      const { callees, classAttributes } = getOptions(ctx);
+      const { callees, classAttributes, variables } = getOptions(ctx);
 
       const callExpression = {
         CallExpression(node: Node) {
           const callExpressionNode = node as CallExpression;
 
           const literals = getLiteralsByESCallExpression(ctx, callExpressionNode, callees);
+          lintLiterals(ctx, literals);
+        }
+      };
+
+      const variableDeclarators = {
+        VariableDeclarator(node: Node) {
+          const variableDeclaratorNode = node as VariableDeclarator;
+
+          const literals = getLiteralsByESVariableDeclarator(ctx, variableDeclaratorNode, variables);
           lintLiterals(ctx, literals);
         }
       };
@@ -110,12 +120,14 @@ export const tailwindMultiline: ESLintRule<Options> = {
       if(typeof ctx.parserServices?.defineTemplateBodyVisitor === "function"){
         return {
           ...callExpression,
+          ...variableDeclarators,
           ...ctx.parserServices.defineTemplateBodyVisitor(vue)
         };
       }
 
       return {
         ...callExpression,
+        ...variableDeclarators,
         ...jsx,
         ...svelte,
         ...vue,
@@ -195,6 +207,27 @@ export const tailwindMultiline: ESLintRule<Options> = {
               default: getOptions().printWidth,
               description: "The maximum line length. Lines are wrapped appropriately to stay within this limit. The value `0` disables line wrapping by `printWidth`.",
               type: "integer"
+            },
+            variables: {
+              default: getOptions().variables,
+              description: "List of variable names whose values should also be considered.",
+              items: {
+                anyOf: [
+                  {
+                    description: "List of regular expressions that matches string literals that should also be considered.",
+                    items: [
+                      { description: "Regular expression that filters the variable and matches the string literals in a group.", type: "string" },
+                      { description: "Regular expression that matches each string literal in a group.", type: "string" }
+                    ],
+                    type: "array"
+                  },
+                  {
+                    description: "List of variable names whose values should also be considered.",
+                    type: "string"
+                  }
+                ]
+              },
+              type: "array"
             }
           },
           type: "object"
@@ -228,7 +261,8 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         literal.parent.type === "JSXExpressionContainer" ||
         literal.parent.type === "Property" ||
         literal.parent.type === "CallExpression" ||
-        literal.parent.type === "SvelteMustacheTag"){
+        literal.parent.type === "SvelteMustacheTag" ||
+        literal.parent.type === "VariableDeclarator"){
         lines.line.addMeta({ openingQuote: "`" });
       } else {
         lines.line.addMeta({ openingQuote: literal.openingQuote });
@@ -310,7 +344,8 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         literal.parent.type === "JSXExpressionContainer" ||
         literal.parent.type === "Property" ||
         literal.parent.type === "CallExpression" ||
-        literal.parent.type === "SvelteMustacheTag"){
+        literal.parent.type === "SvelteMustacheTag" ||
+        literal.parent.type === "VariableDeclarator"){
         lines.line.addMeta({ closingQuote: "`" });
       } else {
         lines.line.addMeta({ closingQuote: literal.closingQuote });
@@ -433,6 +468,7 @@ function getOptions(ctx?: Rule.RuleContext) {
 
   const classAttributes = options.classAttributes ?? DEFAULT_CLASS_NAMES;
   const callees = options.callees ?? DEFAULT_CALLEE_NAMES;
+  const variables = options.variables ?? DEFAULT_VARIABLE_NAMES;
 
   return {
     callees,
@@ -440,7 +476,8 @@ function getOptions(ctx?: Rule.RuleContext) {
     classesPerLine,
     group,
     indent,
-    printWidth
+    printWidth,
+    variables
   };
 
 }
