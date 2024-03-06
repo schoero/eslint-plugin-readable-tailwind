@@ -34,6 +34,31 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
 <br/>
 
+- `variables`
+
+  List of variable names whose initializer should also be considered.
+  
+  **Type**: `string[] | [string, string][]`  
+  **Default**: `["className", "classNames", "classes", "style", "styles"]`
+  
+  Can also be a tuple of regular expressions. The first regular expression matches the whole container, the second regular expression will match the string literals. Multiple groups can be used to match multiple string literals.  
+  This is inspired by [Class Variance Authority](https://cva.style/docs/getting-started/installation#intellisense).
+
+  ```jsonc
+  {
+    "callees": [
+      [
+        // matches the right side of the assignment
+        "myVariable = ([\\S\\s]*)",
+        // matches everything inside the quotes
+        "^\\s*[\"'`]([^\"'`]+)[\"'`]"
+      ]
+    ]
+  }
+  ```
+
+<br/>
+
 - `classAttributes`
 
   The name of the attribute that contains the tailwind classes.
