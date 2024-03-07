@@ -9,6 +9,27 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
 ## Options
 
+- `order`
+
+  - `asc`: Sort classes alphabetically in ascending order.
+  - `desc`: Sort classes alphabetically in descending order.
+  - `official`: Sort classes according to the official sorting order from tailwindcss.
+  - `improved`: Same as `official` but also sorts by data-attributes.
+
+  **Type**: `"asc" | "desc" | "official" | "improved"`  
+  **Default**: `"improved"`
+
+<br/>
+
+- `classAttributes`
+
+  The name of the attribute that contains the tailwind classes.
+
+  **Type**: `string[]`  
+  **Default**: `["class", "className"]`
+
+<br/>
+
 - `callees`
 
   List of function names whose arguments should also be considered.
@@ -56,27 +77,6 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
     ]
   }
   ```
-
-<br/>
-
-- `classAttributes`
-
-  The name of the attribute that contains the tailwind classes.
-
-  **Type**: `string[]`  
-  **Default**: `["class", "className"]`
-
-<br/>
-
-- `order`
-
-  - `asc`: Sort classes alphabetically in ascending order.
-  - `desc`: Sort classes alphabetically in descending order.
-  - `official`: Sort classes according to the official sorting order from tailwindcss.
-  - `improved`: Same as `official` but also sorts by data-attributes.
-
-  **Type**: `"asc" | "desc" | "official" | "improved"`  
-  **Default**: `"improved"`
 
 <br/>
 

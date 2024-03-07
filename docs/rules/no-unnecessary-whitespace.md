@@ -14,6 +14,17 @@ Disallow unnecessary whitespace in between and around tailwind classes.
   **Type**: `boolean`
   **Default**: `true`
 
+<br/>
+
+- `classAttributes`
+
+  The name of the attribute that contains the tailwind classes.
+
+  **Type**: `string[]`  
+  **Default**: `["class", "className"]`
+
+<br/>
+
 - `callees`
 
   List of function names whose arguments should also be considered.
@@ -61,15 +72,6 @@ Disallow unnecessary whitespace in between and around tailwind classes.
     ]
   }
   ```
-
-<br/>
-
-- `classAttributes`
-
-  The name of the attribute that contains the tailwind classes.
-
-  **Type**: `string[]`  
-  **Default**: `["class", "className"]`
 
 <br/>
 

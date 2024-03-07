@@ -6,6 +6,51 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 ## Options
 
+- `classesPerLine`
+
+  The maximum amount of classes per line. Lines are wrapped appropriately to stay within this limit . The value `0` disables line wrapping by `classesPerLine`.
+
+  **Type**: `number`  
+  **Default**: `0`
+
+<br/>
+
+- `group`
+
+  The group separator.
+
+  **Type**: `"emptyLine" | "never" | "newLine"`  
+  **Default**: `emptyLine`  
+
+<br/>
+
+- `indent`
+
+  Determines how the code should be indented.
+
+  **Type**: `number | "tab"`
+  **Default**: `2`
+
+<br/>
+
+- `printWidth`
+
+  The maximum line length. Lines are wrapped appropriately to stay within this limit. The value `0` disables line wrapping by `printWidth`.
+
+  **Type**: `number`
+  **Default**: `80`
+
+<br/>
+
+- `classAttributes`
+
+  The name of the attribute that contains the tailwind classes.
+
+  **Type**: `string[]`  
+  **Default**: `["class", "className"]`
+
+<br/>
+
 - `callees`
 
   List of function names whose arguments should also be considered.
@@ -53,51 +98,6 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
     ]
   }
   ```
-
-<br/>
-
-- `classAttributes`
-
-  The name of the attribute that contains the tailwind classes.
-
-  **Type**: `string[]`  
-  **Default**: `["class", "className"]`
-
-<br/>
-
-- `classesPerLine`
-
-  The maximum amount of classes per line. Lines are wrapped appropriately to stay within this limit . The value `0` disables line wrapping by `classesPerLine`.
-
-  **Type**: `number`  
-  **Default**: `0`
-
-<br/>
-
-- `group`
-
-  The group separator.
-
-  **Type**: `"emptyLine" | "never" | "newLine"`  
-  **Default**: `emptyLine`  
-
-<br/>
-
-- `indent`
-
-  Determines how the code should be indented.
-
-  **Type**: `number | "tab"`
-  **Default**: `2`
-
-<br/>
-
-- `printWidth`
-
-  The maximum line length. Lines are wrapped appropriately to stay within this limit. The value `0` disables line wrapping by `printWidth`.
-
-  **Type**: `number`
-  **Default**: `80`
 
 <br/>
 
