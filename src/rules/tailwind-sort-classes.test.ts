@@ -445,4 +445,166 @@ describe(tailwindSortClasses.name, () => {
 
   });
 
+  it("should sort in matching variable declarations", () => {
+
+    const dirtyDefined = "const defined = \"b a\";";
+    const cleanDefined = "const defined = \"a b\";";
+    const dirtyUndefined = "const notDefined = \"b a\";";
+
+    const dirtyMultiline = `const defined = \`
+      b a
+      d c
+    \`;`;
+
+    const cleanMultiline = `const defined = \`
+      a b
+      c d
+    \`;`;
+
+    expect(void lint(
+      tailwindSortClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            jsx: dirtyDefined,
+            jsxOutput: cleanDefined,
+            options: [{ order: "asc", variables: ["defined"] }],
+            svelte: `<script>${dirtyDefined}</script>`,
+            svelteOutput: `<script>${cleanDefined}</script>`,
+            vue: `<script>${dirtyDefined}</script>`,
+            vueOutput: `<script>${cleanDefined}</script>`
+          },
+          {
+            errors: 1,
+            jsx: dirtyMultiline,
+            jsxOutput: cleanMultiline,
+            options: [{ order: "asc", variables: ["defined"] }],
+            svelte: `<script>${dirtyMultiline}</script>`,
+            svelteOutput: `<script>${cleanMultiline}</script>`,
+            vue: `<script>${dirtyMultiline}</script>`,
+            vueOutput: `<script>${cleanMultiline}</script>`
+          }
+        ],
+        valid: [
+          {
+            jsx: dirtyUndefined,
+            options: [{ order: "asc" }],
+            svelte: `<script>${dirtyUndefined}</script>`,
+            vue: `<script>${dirtyUndefined}</script>`
+          }
+        ]
+      }
+    )).toBeUndefined();
+
+  });
+
+  it("should sort in matching variable declarations matched by a regex", () => {
+
+    const dirtyDefined = "const defined = \"b a\";";
+    const cleanDefined = "const defined = \"a b\";";
+    const dirtyUndefined = "const notDefined = \"b a\";";
+
+    const dirtyObject = `const defined = {
+      "matched": "b a",
+      "unmatched": "b a",
+      "nested": {
+        "matched": "b a",
+        "unmatched": "b a"
+      }
+    };`;
+
+    const cleanObject = `const defined = {
+      "matched": "a b",
+      "unmatched": "b a",
+      "nested": {
+        "matched": "a b",
+        "unmatched": "b a"
+      }
+    };`;
+
+    const dirtyMultiline = `const defined = \`
+      b a
+      d c
+    \`;`;
+
+    const cleanMultiline = `const defined = \`
+      a b
+      c d
+    \`;`;
+
+    expect(void lint(
+      tailwindSortClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            jsx: dirtyDefined,
+            jsxOutput: cleanDefined,
+            options: [{
+              order: "asc",
+              variables: [
+                [
+                  "defined = ([\\S\\s]*)",
+                  "^\\s*[\"'`]([^\"'`]+)[\"'`]"
+                ]
+              ]
+            }],
+            svelte: `<script>${dirtyDefined}</script>`,
+            svelteOutput: `<script>${cleanDefined}</script>`,
+            vue: `<script>${dirtyDefined}</script>`,
+            vueOutput: `<script>${cleanDefined}</script>`
+          },
+          {
+            errors: 2,
+            jsx: dirtyObject,
+            jsxOutput: cleanObject,
+            options: [{
+              order: "asc",
+              variables: [
+                [
+                  "defined = ([\\S\\s]*)",
+                  "\"matched\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
+                ]
+              ]
+            }],
+            svelte: `<script>${dirtyObject}</script>`,
+            svelteOutput: `<script>${cleanObject}</script>`,
+            vue: `<script>${dirtyObject}</script>`,
+            vueOutput: `<script>${cleanObject}</script>`
+          },
+          {
+            errors: 1,
+            jsx: dirtyMultiline,
+            jsxOutput: cleanMultiline,
+            options: [{
+              order: "asc",
+              variables: [
+                [
+                  "defined = ([\\S\\s]*)",
+                  "^\\s*['`\"]([^'`]+)['`\"]"
+                ]
+              ]
+            }],
+            svelte: `<script>${dirtyMultiline}</script>`,
+            svelteOutput: `<script>${cleanMultiline}</script>`,
+            vue: `<script>${dirtyMultiline}</script>`,
+            vueOutput: `<script>${cleanMultiline}</script>`
+          }
+        ],
+        valid: [
+          {
+            jsx: dirtyUndefined,
+            options: [{ order: "asc" }],
+            svelte: `<script>${dirtyUndefined}</script>`,
+            vue: `<script>${dirtyUndefined}</script>`
+          }
+        ]
+      }
+    )).toBeUndefined();
+
+  });
+
 });

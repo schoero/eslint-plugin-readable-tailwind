@@ -2,20 +2,20 @@ import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "src/par
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "src/parsers/svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "src/parsers/vue.js";
 
-import { getLiteralsByESCallExpression } from "readable-tailwind:parsers:es.js";
+import { getLiteralsByESCallExpression, getLiteralsByESVariableDeclarator } from "readable-tailwind:parsers:es.js";
 import { getJSXAttributes, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx";
-import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES } from "readable-tailwind:utils:config.js";
+import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES, DEFAULT_VARIABLE_NAMES } from "readable-tailwind:utils:config.js";
 import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { CallExpression, Node } from "estree";
+import type { CallExpression, Node, VariableDeclarator } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { VStartTag } from "vue-eslint-parser/ast";
 
 import type { Literal } from "readable-tailwind:types:ast.js";
-import type { Callees, ESLintRule } from "readable-tailwind:types:rule.js";
+import type { Callees, ESLintRule, Variables } from "readable-tailwind:types:rule.js";
 
 
 export type Options = [
@@ -23,6 +23,7 @@ export type Options = [
     allowMultiline?: boolean;
     callees?: Callees;
     classAttributes?: string[];
+    variables?: Variables;
   }
 ];
 
@@ -31,13 +32,22 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
   rule: {
     create(ctx) {
 
-      const { callees, classAttributes } = getOptions(ctx);
+      const { callees, classAttributes, variables } = getOptions(ctx);
 
       const callExpression = {
         CallExpression(node: Node) {
           const callExpressionNode = node as CallExpression;
 
           const literals = getLiteralsByESCallExpression(ctx, callExpressionNode, callees);
+          lintLiterals(ctx, literals);
+        }
+      };
+
+      const variableDeclarators = {
+        VariableDeclarator(node: Node) {
+          const variableDeclaratorNode = node as VariableDeclarator;
+
+          const literals = getLiteralsByESVariableDeclarator(ctx, variableDeclaratorNode, variables);
           lintLiterals(ctx, literals);
         }
       };
@@ -94,12 +104,14 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
       if(typeof ctx.parserServices?.defineTemplateBodyVisitor === "function"){
         return {
           ...callExpression,
+          ...variableDeclarators,
           ...ctx.parserServices.defineTemplateBodyVisitor(vue)
         };
       }
 
       return {
         ...callExpression,
+        ...variableDeclarators,
         ...jsx,
         ...svelte,
         ...html
@@ -149,6 +161,27 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
               description: "The name of the attribute that contains the tailwind classes.",
               items: {
                 type: "string"
+              },
+              type: "array"
+            },
+            variables: {
+              default: getOptions().variables,
+              description: "List of variable names whose values should also be considered.",
+              items: {
+                anyOf: [
+                  {
+                    description: "List of regular expressions that matches string literals that should also be considered.",
+                    items: [
+                      { description: "Regular expression that filters the variable and matches the string literals in a group.", type: "string" },
+                      { description: "Regular expression that matches each string literal in a group.", type: "string" }
+                    ],
+                    type: "array"
+                  },
+                  {
+                    description: "List of variable names whose values should also be considered.",
+                    type: "string"
+                  }
+                ]
               },
               type: "array"
             }
@@ -244,11 +277,13 @@ function getOptions(ctx?: Rule.RuleContext) {
   const classAttributes = options.classAttributes ?? DEFAULT_CLASS_NAMES;
   const allowMultiline = options.allowMultiline ?? true;
   const callees = options.callees ?? DEFAULT_CALLEE_NAMES;
+  const variables = options.variables ?? DEFAULT_VARIABLE_NAMES;
 
   return {
     allowMultiline,
     callees,
-    classAttributes
+    classAttributes,
+    variables
   };
 
 }

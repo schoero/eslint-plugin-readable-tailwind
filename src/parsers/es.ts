@@ -9,11 +9,12 @@ import type {
   SimpleLiteral as ESSimpleLiteral,
   SpreadElement as ESSpreadElement,
   TemplateElement as ESTemplateElement,
-  TemplateLiteral as ESTemplateLiteral
+  TemplateLiteral as ESTemplateLiteral,
+  VariableDeclarator as ESVariableDeclarator
 } from "estree";
 
 import type { BracesMeta, Literal, Node, StringLiteral, TemplateLiteral } from "readable-tailwind:types:ast";
-import type { CalleeRegex, Callees } from "readable-tailwind:types:rule.js";
+import type { CalleeRegex, Callees, VariableRegex, Variables } from "readable-tailwind:types:rule.js";
 
 
 export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: ESSimpleStringLiteral): StringLiteral | undefined {
@@ -43,6 +44,28 @@ export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: E
 
 }
 
+export function getLiteralsByESVariableDeclarator(ctx: Rule.RuleContext, node: ESVariableDeclarator, variables: Variables): Literal[] {
+
+  const literals = variables.reduce<Literal[]>((literals, variable) => {
+
+    if(!node.init){ return literals; }
+
+    if(typeof variable === "string"){
+      if(node.id.type !== "Identifier"){ return literals; }
+      if(variable !== node.id.name){ return literals; }
+
+      literals.push(...getLiteralsByESCallExpressionAndStringCallee(ctx, [node.init]));
+    } else {
+      literals.push(...getLiteralsByESCallExpressionAndRegex(ctx, node, variable));
+    }
+
+    return literals;
+  }, []);
+
+  return deduplicateLiterals(literals);
+
+}
+
 export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCallExpression, callees: Callees): Literal[] {
   const literals = callees.reduce<Literal[]>((literals, callee) => {
 
@@ -53,7 +76,7 @@ export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCal
 
       literals.push(...getLiteralsByESCallExpressionAndStringCallee(ctx, node.arguments));
     } else {
-      literals.push(...getLiteralsByESCallExpressionAndRegexCallee(ctx, node, callee));
+      literals.push(...getLiteralsByESCallExpressionAndRegex(ctx, node, callee));
     }
 
     return literals;
@@ -62,7 +85,7 @@ export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCal
   return deduplicateLiterals(literals);
 }
 
-function getLiteralsByESCallExpressionAndRegexCallee(ctx: Rule.RuleContext, node: ESNode, regexCallee: CalleeRegex): Literal[] {
+function getLiteralsByESCallExpressionAndRegex(ctx: Rule.RuleContext, node: ESNode, regexCallee: CalleeRegex | VariableRegex): Literal[] {
 
   const [containerRegexString, stringLiteralRegexString] = regexCallee;
 
