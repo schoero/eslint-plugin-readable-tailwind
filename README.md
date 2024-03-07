@@ -39,11 +39,13 @@ It also sorts the classes logically, removes unnecessary whitespaces and groups 
 
 <div align="center">
 
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./assets/sponsor-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="./assets/sponsor-light.svg">
-    <img alt="eslint-plugin-readable-tailwind logo" src="./assets/sponsor-dark.svg">
-  </picture>
+  <a href="https://github.com/sponsors/schoero">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="./assets/sponsor-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="./assets/sponsor-light.svg">
+      <img alt="eslint-plugin-readable-tailwind logo" src="./assets/sponsor-dark.svg">
+    </picture>
+  </a>
   
   This project is financed by the community.  
   If you or your company benefit from this project, please consider becoming a sponsor.  
