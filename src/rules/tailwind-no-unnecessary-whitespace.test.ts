@@ -24,6 +24,31 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
     })
   ).toBeUndefined());
 
+  it("should collapse empty multiline strings", () => {
+    const dirtyEmptyMultilineString = `
+
+    `;
+    const cleanEmptyMultilineString = "";
+
+    expect(
+      void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+        invalid: [
+          {
+            errors: 1,
+            html: `<div class="${dirtyEmptyMultilineString}" />`,
+            htmlOutput: `<div class="${cleanEmptyMultilineString}" />`,
+            jsx: `const Test = () => <div class="${dirtyEmptyMultilineString}" />;`,
+            jsxOutput: `const Test = () => <div class="${cleanEmptyMultilineString}" />;`,
+            svelte: `<div class="${dirtyEmptyMultilineString}" />`,
+            svelteOutput: `<div class="${cleanEmptyMultilineString}" />`,
+            vue: `<template><div class="${dirtyEmptyMultilineString}" /></template>`,
+            vueOutput: `<template><div class="${cleanEmptyMultilineString}" /></template>`
+          }
+        ]
+      })
+    ).toBeUndefined();
+  });
+
   it("should keep the quotes as they are", () => expect(
     void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
