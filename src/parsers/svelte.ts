@@ -38,6 +38,11 @@ export function getLiteralsBySvelteClassAttribute(ctx: Rule.RuleContext, attribu
 
   const value = attribute.value[0];
 
+  // eslint-disable-next-line eslint-plugin-typescript/no-unnecessary-condition
+  if(!value){ // Empty attribute
+    return [];
+  }
+
   if(isSvelteStringLiteral(value)){
     const stringLiteral = getStringLiteralBySvelteStringLiteral(ctx, value);
 
