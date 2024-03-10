@@ -239,6 +239,10 @@ function splitClassesKeepWhitespace(literal: Literal, allowMultiline: boolean): 
 
   const mixedChunks: string[] = [];
 
+  if(classChunks.length === 0){
+    return [];
+  }
+
   while(whitespaceChunks.length > 0 || classChunks.length > 0){
 
     const whitespaceChunk = whitespaceChunks.shift();

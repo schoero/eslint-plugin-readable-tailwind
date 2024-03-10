@@ -7,6 +7,41 @@ import { tailwindMultiline } from "readable-tailwind:rules:tailwind-multiline.js
 
 describe(tailwindMultiline.name, () => {
 
+  it("should not wrap empty strings", () => {
+    expect(void lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            html: "<div class=\"\" />",
+            jsx: "const Test = () => <div class=\"\" />;",
+            svelte: "<div class=\"\" />",
+            vue: "<template><div class=\"\" /></template>"
+          },
+          {
+            html: "<div class='' />",
+            jsx: "const Test = () => <div class='' />;",
+            svelte: "<div class='' />",
+            vue: "<template><div class='' /></template>"
+          },
+          {
+            jsx: "const Test = () => <div class={\"\"} />;",
+            svelte: "<div class={\"\"} />"
+          },
+          {
+            jsx: "const Test = () => <div class={''} />;",
+            svelte: "<div class={''} />"
+          },
+          {
+            jsx: "const Test = () => <div class={``} />;",
+            svelte: "<div class={``} />"
+          }
+        ]
+      }
+    )).toBeUndefined();
+  });
+
   it("should not wrap short lines", () => {
     expect(void lint(
       tailwindMultiline,

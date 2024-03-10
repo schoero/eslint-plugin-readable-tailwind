@@ -397,7 +397,14 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     }
 
-    // Skip line wrapping if it is not necessary
+    // skip if class string was empty
+    if(lines.length === 2){
+      if(!literal.openingBraces && !literal.closingBraces && literal.content.trim() === ""){
+        continue;
+      }
+    }
+
+    // skip line wrapping if it is not necessary
     skip: if(lines.length === 3){
 
       // disallow skipping for template literals with braces
