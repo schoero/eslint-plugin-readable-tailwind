@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.2.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.2.0...v1.2.1)
+
+### Fixes
+
+- Don't wrap empty attributes ([#8](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/8))
+
+### Documentation
+
+- Link sponsor button ([cc7169f](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/cc7169f))
+
 ## v1.2.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.1.1...v1.2.0)
