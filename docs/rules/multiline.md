@@ -33,6 +33,16 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 <br/>
 
+- `lineBreakStyle`
+
+  The line break style.  
+  The style `windows` will use `\\r\\n` as line breaks and `unix` will use `\\n`.
+
+  **Type**: `"windows" | "unix"`
+  **Default**: `"unix"`
+
+<br/>
+
 - `printWidth`
 
   The maximum line length. Lines are wrapped appropriately to stay within this limit. The value `0` disables line wrapping by `printWidth`.

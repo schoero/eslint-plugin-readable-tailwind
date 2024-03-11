@@ -26,6 +26,7 @@ export type Options = [
     classesPerLine?: number;
     group?: "emptyLine" | "never" | "newLine";
     indent?: number | "tab";
+    lineBreakStyle?: "unix" | "windows";
     printWidth?: number;
     trim?: boolean;
     variables?: Variables;
@@ -203,6 +204,12 @@ export const tailwindMultiline: ESLintRule<Options> = {
               type: "integer"
 
             },
+            lineBreakStyle: {
+              default: getOptions().lineBreakStyle,
+              description: "The line break style. The style `windows` will use `\\r\\n` as line breaks and `unix` will use `\\n`.",
+              enum: ["unix", "windows"],
+              type: "string"
+            },
             printWidth: {
               default: getOptions().printWidth,
               description: "The maximum line length. Lines are wrapped appropriately to stay within this limit. The value `0` disables line wrapping by `printWidth`.",
@@ -240,7 +247,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
 
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
-  const { classesPerLine, group: groupSeparator, indent, printWidth } = getOptions(ctx);
+  const { classesPerLine, group: groupSeparator, indent, lineBreakStyle, printWidth } = getOptions(ctx);
 
   for(const literal of literals){
 
@@ -437,7 +444,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     }
 
-    const fixedClasses = lines.toString();
+    const fixedClasses = lines.toString(lineBreakStyle);
 
     if(literal.raw === fixedClasses){
       continue;
@@ -476,6 +483,7 @@ function getOptions(ctx?: Rule.RuleContext) {
   const classAttributes = options.classAttributes ?? DEFAULT_CLASS_NAMES;
   const callees = options.callees ?? DEFAULT_CALLEE_NAMES;
   const variables = options.variables ?? DEFAULT_VARIABLE_NAMES;
+  const lineBreakStyle = options.lineBreakStyle ?? "unix";
 
   return {
     callees,
@@ -483,6 +491,7 @@ function getOptions(ctx?: Rule.RuleContext) {
     classesPerLine,
     group,
     indent,
+    lineBreakStyle,
     printWidth,
     variables
   };
@@ -525,10 +534,12 @@ class Lines {
     return this;
   }
 
-  public toString() {
+  public toString(lineBreakStyle: Options[0]["lineBreakStyle"] = "unix") {
+    const lineBreaks = lineBreakStyle === "unix" ? "\n" : "\r\n";
+
     return this.lines.map(
       line => line.toString()
-    ).join("\n");
+    ).join(lineBreaks);
   }
 }
 

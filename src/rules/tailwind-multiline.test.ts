@@ -730,4 +730,32 @@ describe(tailwindMultiline.name, () => {
 
   });
 
+  it("should be possible to change the lineBreakStyle to windows", () => {
+
+    const dirty = " a b c d e f g h ";
+    const clean = "\r\n  a b c\r\n  d e f\r\n  g h\r\n";
+
+    expect(void lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            html: `<div class="${dirty}" />`,
+            htmlOutput: `<div class="${clean}" />`,
+            jsx: `const Test = () => <div class="${dirty}" />;`,
+            jsxOutput: `const Test = () => <div class={\`${clean}\`} />;`,
+            options: [{ classesPerLine: 3, indent: 2, lineBreakStyle: "windows" }],
+            svelte: `<div class="${dirty}" />`,
+            svelteOutput: `<div class="${clean}" />`,
+            vue: `<template><div class="${dirty}" /></template>`,
+            vueOutput: `<template><div class="${clean}" /></template>`
+          }
+        ]
+      }
+    )).toBeUndefined();
+
+  });
+
 });
