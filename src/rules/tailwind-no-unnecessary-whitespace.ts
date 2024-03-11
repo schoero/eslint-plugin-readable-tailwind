@@ -239,7 +239,7 @@ function splitClassesKeepWhitespace(literal: Literal, allowMultiline: boolean): 
 
   const mixedChunks: string[] = [];
 
-  if(classChunks.length === 0){
+  if(classChunks.length === 0 && !literal.closingBraces && !literal.openingBraces){
     return [];
   }
 

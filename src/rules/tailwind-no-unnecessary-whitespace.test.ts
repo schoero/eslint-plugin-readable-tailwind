@@ -1,4 +1,4 @@
-import { lint, TEST_SYNTAXES } from "tests/utils.js";
+import { createTrimTag, lint, TEST_SYNTAXES } from "tests/utils.js";
 import { describe, expect, it } from "vitest";
 
 import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
@@ -195,6 +195,45 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
         }
       ]
     })).toBeUndefined();
+  });
+
+  it("should not remove whitespace before in template literal elements", () => {
+
+    const trim = createTrimTag(4);
+
+    const expression = "${true ? ' true ' : ' false '}";
+
+    const validAtStart = trim`
+      ${expression}
+      b
+    `;
+    const validAround = trim`
+      a
+      ${expression}
+      b
+    `;
+    const validAtEnd = trim`
+      a
+      ${expression}
+    `;
+
+    expect(void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+      valid: [
+        {
+          jsx: `const Test = () => <div class={\`${validAtStart}\`} />;`,
+          svelte: `<div class={\`${validAtStart}\`} />`
+        },
+        {
+          jsx: `const Test = () => <div class={\`${validAround}\`} />;`,
+          svelte: `<div class={\`${validAround}\`} />`
+        },
+        {
+          jsx: `const Test = () => <div class={\`${validAtEnd}\`} />;`,
+          svelte: `<div class={\`${validAtEnd}\`} />`
+        }
+      ]
+    })).toBeUndefined();
+
   });
 
   it("should remove unnecessary whitespace in defined call signature arguments", () => {
