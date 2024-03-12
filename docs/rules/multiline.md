@@ -36,7 +36,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 - `lineBreakStyle`
 
   The line break style.  
-  The style `windows` will use `\\r\\n` as line breaks and `unix` will use `\\n`.
+  The style `windows` will use `\r\n` as line breaks and `unix` will use `\n`.
 
   **Type**: `"windows" | "unix"`
   **Default**: `"unix"`
