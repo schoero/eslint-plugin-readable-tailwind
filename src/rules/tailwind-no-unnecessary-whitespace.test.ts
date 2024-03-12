@@ -113,6 +113,183 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
     })
   ).toBeUndefined());
 
+  it("should keep no whitespace at the end of the line in multiline strings", () => {
+
+    const trim = createTrimTag(4);
+
+    const dirty = trim`
+      a      
+      b  
+      c    
+    `;
+
+    const clean = trim`
+      a
+      b
+      c
+    `;
+
+    expect(void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 1,
+          html: `<div class="${dirty}" />`,
+          htmlOutput: `<div class="${clean}" />`,
+          jsx: `const Test = () => <div class={\`${dirty}\`} />;`,
+          jsxOutput: `const Test = () => <div class={\`${clean}\`} />;`,
+          svelte: `<div class={\`${dirty}\`} />`,
+          svelteOutput: `<div class={\`${clean}\`} />`,
+          vue: `<template><div class="${dirty}" /></template>`,
+          vueOutput: `<template><div class="${clean}" /></template>`
+        }
+      ]
+    })).toBeUndefined();
+
+  });
+
+  it("should keep no whitespace at the end of the line in multiline strings with template elements", () => {
+
+    const trim = createTrimTag(4);
+
+    const expression = "${true ? ' true ' : ' false '}";
+
+    const dirtyExpressionAtStart = trim`
+      ${expression}  
+      a  
+    `;
+    const cleanExpressionAtStart = trim`
+      ${expression}
+      a
+    `;
+
+    const dirtyExpressionBetween = trim`
+      a  
+      ${expression}  
+      b  
+    `;
+    const cleanExpressionBetween = trim`
+      a
+      ${expression}
+      b
+    `;
+
+    const dirtyExpressionAtEnd = trim`
+      a  
+      ${expression}  
+    `;
+    const cleanExpressionAtEnd = trim`
+      a
+      ${expression}
+    `;
+
+    expect(void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 1,
+          jsx: `const Test = () => <div class={\`${dirtyExpressionAtStart}\`} />;`,
+          jsxOutput: `const Test = () => <div class={\`${cleanExpressionAtStart}\`} />;`,
+          svelte: `<div class={\`${dirtyExpressionAtStart}\`} />`,
+          svelteOutput: `<div class={\`${cleanExpressionAtStart}\`} />`
+        },
+        {
+          errors: 2,
+          jsx: `const Test = () => <div class={\`${dirtyExpressionBetween}\`} />;`,
+          jsxOutput: `const Test = () => <div class={\`${cleanExpressionBetween}\`} />;`,
+          svelte: `<div class={\`${dirtyExpressionBetween}\`} />`,
+          svelteOutput: `<div class={\`${cleanExpressionBetween}\`} />`
+        },
+        {
+          errors: 2,
+          jsx: `const Test = () => <div class={\`${dirtyExpressionAtEnd}\`} />;`,
+          jsxOutput: `const Test = () => <div class={\`${cleanExpressionAtEnd}\`} />;`,
+          svelte: `<div class={\`${dirtyExpressionAtEnd}\`} />`,
+          svelteOutput: `<div class={\`${cleanExpressionAtEnd}\`} />`
+        }
+      ]
+    })).toBeUndefined();
+
+  });
+
+  it("should remove unnecessary whitespace around template literal elements", () => {
+
+    const expression = "${true ? ' true ' : ' false '}";
+
+    const invalidAtStart = `  ${expression}   a  `;
+    const validAtStart = `${expression} a`;
+
+    const invalidBetween = `  a  ${expression}  b  `;
+    const validBetween = `a ${expression} b`;
+
+    const invalidAtEnd = `  a  ${expression}  `;
+    const validAtEnd = `a ${expression}`;
+
+    expect(void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 2,
+          jsx: `const Test = () => <div class={\`${invalidAtStart}\`} />;`,
+          jsxOutput: `const Test = () => <div class={\`${validAtStart}\`} />;`,
+          svelte: `<div class={\`${invalidAtStart}\`} />`,
+          svelteOutput: `<div class={\`${validAtStart}\`} />`
+        },
+        {
+          errors: 2,
+          jsx: `const Test = () => <div class={\`${invalidBetween}\`} />;`,
+          jsxOutput: `const Test = () => <div class={\`${validBetween}\`} />;`,
+          svelte: `<div class={\`${invalidBetween}\`} />`,
+          svelteOutput: `<div class={\`${validBetween}\`} />`
+        },
+        {
+          errors: 2,
+          jsx: `const Test = () => <div class={\`${invalidAtEnd}\`} />;`,
+          jsxOutput: `const Test = () => <div class={\`${validAtEnd}\`} />;`,
+          svelte: `<div class={\`${invalidAtEnd}\`} />`,
+          svelteOutput: `<div class={\`${validAtEnd}\`} />`
+        }
+      ]
+    })).toBeUndefined();
+
+  });
+
+  it("should not remove leading newlines in template literal elements", () => {
+
+    const trim = createTrimTag(4);
+
+    const expression = "${true ? ' true ' : ' false '}";
+
+    const validSeparateLineAtStart = trim`
+      ${expression}
+      b
+    `;
+    const validSeparateLineBetween = trim`
+      a
+      ${expression}
+      b
+    `;
+    const validSeparateLineAtEnd = trim`
+      a
+      ${expression}
+    `;
+
+    expect(void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+      valid: [
+        {
+          jsx: `const Test = () => <div class={\`${validSeparateLineAtStart}\`} />;`,
+          svelte: `<div class={\`${validSeparateLineAtStart}\`} />`
+        },
+        {
+          jsx: `const Test = () => <div class={\`${validSeparateLineBetween}\`} />;`,
+          svelte: `<div class={\`${validSeparateLineBetween}\`} />`
+        },
+        {
+          jsx: `const Test = () => <div class={\`${validSeparateLineAtEnd}\`} />;`,
+          svelte: `<div class={\`${validSeparateLineAtEnd}\`} />`
+        }
+      ]
+    })).toBeUndefined();
+
+  });
+
   it("should remove whitespace around template elements if they are at the beginning or end", () => expect(
     void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [

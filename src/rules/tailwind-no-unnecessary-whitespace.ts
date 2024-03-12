@@ -253,7 +253,8 @@ function splitClassesKeepWhitespace(literal: Literal, allowMultiline: boolean): 
 
     if(whitespaceChunk){
       if(whitespaceChunk.includes("\n") && allowMultiline === true){
-        mixedChunks.push(whitespaceChunk);
+        const whitespaceWithoutLeadingSpaces = whitespaceChunk.replace(/^ +/, "");
+        mixedChunks.push(whitespaceWithoutLeadingSpaces);
       } else {
         if(!isFirstChunk && !isLastChunk ||
           literal.type === "TemplateLiteral" && literal.closingBraces && isFirstChunk && !isLastChunk ||
