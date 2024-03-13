@@ -17,6 +17,11 @@ export interface Loc {
   };
 }
 
+export interface WhitespaceMeta {
+  leadingWhitespace?: string;
+  trailingWhitespace?: string;
+}
+
 export interface QuoteMeta {
   closingQuote?: LiteralValueQuotes;
   openingQuote?: LiteralValueQuotes;
@@ -26,7 +31,7 @@ export interface BracesMeta {
   openingBraces?: string;
 }
 
-export interface Meta extends QuoteMeta, BracesMeta {
+export interface Meta extends QuoteMeta, BracesMeta, WhitespaceMeta {
   indentation?: string;
 }
 

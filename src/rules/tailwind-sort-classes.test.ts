@@ -182,6 +182,28 @@ describe(tailwindSortClasses.name, () => {
     })
   ).toBeUndefined());
 
+  it("should not rip away sticky classes", () => {
+
+    const expression = "${true ? ' true ' : ' false '}";
+
+    const dirty = `c b a${expression}f e d`;
+    const clean = `b c a${expression}f d e`;
+
+    expect(void lint(tailwindSortClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 2,
+          jsx: `const Test = () => <div class={\`${dirty}\`} />;`,
+          jsxOutput: `const Test = () => <div class={\`${clean}\`} />;`,
+          options: [{ order: "asc" }],
+          svelte: `<div class={\`${dirty}\`} />`,
+          svelteOutput: `<div class={\`${clean}\`} />`
+        }
+      ]
+    })).toBeUndefined();
+
+  });
+
   it("should sort multiline strings but keep the whitespace as it is", () => {
     const unsortedMultilineString = `
       d c
