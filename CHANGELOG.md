@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.2.4
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.2.3...v1.2.4)
+
+### Fixes
+
+- Sticky expressions ([#13](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/13))
+
 ## v1.2.3
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.2.2...v1.2.3)
