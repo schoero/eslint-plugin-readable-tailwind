@@ -315,20 +315,15 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           continue;
         }
 
-        if((
+        if(isFirstGroup && (
           literal.type === "TemplateLiteral" && !literal.closingBraces ||
           literal.type !== "TemplateLiteral"
-        ) && isFirstGroup){
+        )){
           lines.addLine();
           lines.line.indent();
         }
 
-        groupNewLine: if(!isFirstGroup){
-
-          // skip for template literals as they are already handled
-          if(literal.type === "TemplateLiteral" && literal.closingBraces){
-            break groupNewLine;
-          }
+        if(!isFirstGroup){
 
           if(groupSeparator === "emptyLine"){
             lines.addLine();
@@ -374,6 +369,12 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           // wrap before the last sticky class
           if(isLastClass && literal.trailingWhitespace === "" &&
             literal.type === "TemplateLiteral" && literal.openingBraces){
+
+            // skip wrapping for the first class of a group
+            if(isFirstClass){
+              lines.line.addClass(className);
+              continue;
+            }
 
             if(groupSeparator === "emptyLine"){
               lines.addLine();
