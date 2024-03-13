@@ -276,29 +276,54 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       }
     }
 
-    if(literal.type === "TemplateLiteral" && literal.closingBraces){
-      lines.line.addMeta({ closingBraces: literal.closingBraces });
+    leadingTemplateLiteralNewLine: if(literal.type === "TemplateLiteral" && literal.closingBraces){
+
+      lines.line.addMeta({
+        closingBraces: literal.closingBraces,
+        leadingWhitespace: literal.leadingWhitespace
+      });
+
+      // skip newline for sticky classes
+      if(literal.leadingWhitespace === "" && groupedClasses){
+        break leadingTemplateLiteralNewLine;
+      }
+
+      // skip if no classes are present
+      if(!groupedClasses){
+        break leadingTemplateLiteralNewLine;
+      }
+
+      if(groupSeparator === "emptyLine"){
+        lines.addLine();
+      }
+
+      if(groupSeparator === "emptyLine" || groupSeparator === "newLine"){
+        lines.addLine();
+        lines.line.indent();
+      }
     }
 
     if(groupedClasses){
 
-      for(const group of groupedClasses.groups){
+      for(let g = 0; g < groupedClasses.length; g++){
 
-        const isFirstGroup = groupedClasses.groups.indexOf(group) === 0;
+        const group = groupedClasses.at(g)!;
+
+        const isFirstGroup = g === 0;
 
         if(group.classCount === 0){
           continue;
         }
 
-        if((
+        if(isFirstGroup && (
           literal.type === "TemplateLiteral" && !literal.closingBraces ||
           literal.type !== "TemplateLiteral"
-        ) && isFirstGroup){
+        )){
           lines.addLine();
           lines.line.indent();
         }
 
-        if(isFirstGroup && literal.type === "TemplateLiteral" && literal.closingBraces || !isFirstGroup){
+        if(!isFirstGroup){
 
           if(groupSeparator === "emptyLine"){
             lines.addLine();
@@ -311,17 +336,63 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
         }
 
-        for(const className of group.classes){
+        for(let i = 0; i < group.classCount; i++){
+
+          const isFirstClass = i === 0;
+          const isLastClass = i === group.classCount - 1;
+
+          const className = group.at(i)!;
 
           const simulatedLine = lines.line
             .clone()
             .addClass(className)
             .toString();
 
-          if(
-            simulatedLine.length > printWidth && printWidth !== 0 ||
-            lines.line.classCount >= classesPerLine && classesPerLine !== 0
-          ){
+          // wrap after the first sticky class
+          if(isFirstClass && literal.leadingWhitespace === "" &&
+            literal.type === "TemplateLiteral" && literal.closingBraces){
+
+            lines.line.addClass(className);
+
+            if(groupSeparator === "emptyLine"){
+              lines.addLine();
+            }
+
+            if(groupSeparator === "emptyLine" || groupSeparator === "newLine"){
+              lines.addLine();
+              lines.line.indent();
+            }
+
+            continue;
+          }
+
+          // wrap before the last sticky class
+          if(isLastClass && literal.trailingWhitespace === "" &&
+            literal.type === "TemplateLiteral" && literal.openingBraces){
+
+            // skip wrapping for the first class of a group
+            if(isFirstClass){
+              lines.line.addClass(className);
+              continue;
+            }
+
+            if(groupSeparator === "emptyLine"){
+              lines.addLine();
+            }
+
+            if(groupSeparator === "emptyLine" || groupSeparator === "newLine"){
+              lines.addLine();
+              lines.line.indent();
+            }
+
+            lines.line.addClass(className);
+
+            continue;
+          }
+
+          // wrap if the length exceeds the limits
+          if(simulatedLine.length > printWidth && printWidth !== 0 ||
+            lines.line.classCount >= classesPerLine && classesPerLine !== 0){
             lines.addLine();
             lines.line.indent();
           }
@@ -332,13 +403,32 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       }
     }
 
-    if(literal.type === "TemplateLiteral" && literal.openingBraces){
+    trailingTemplateLiteralNewLine: if(literal.type === "TemplateLiteral" && literal.openingBraces){
 
-      if(groupSeparator === "emptyLine" && groupedClasses){ lines.addLine(); }
+      // skip newline for sticky classes
+      if(literal.trailingWhitespace === "" && groupedClasses){
 
-      lines.addLine();
-      lines.line.indent();
-      lines.line.addMeta({ openingBraces: literal.openingBraces });
+        lines.line.addMeta({
+          openingBraces: literal.openingBraces,
+          trailingWhitespace: literal.trailingWhitespace
+        });
+
+        break trailingTemplateLiteralNewLine;
+      }
+
+      if(groupSeparator === "emptyLine" && groupedClasses){
+        lines.addLine();
+      }
+
+      if(groupSeparator === "emptyLine" || groupSeparator === "newLine"){
+        lines.addLine();
+        lines.line.indent();
+      }
+
+      lines.line.addMeta({
+        openingBraces: literal.openingBraces,
+        trailingWhitespace: literal.trailingWhitespace
+      });
 
     }
 
@@ -598,15 +688,13 @@ class Line {
 
   public toString(indent: boolean = true) {
     return this.join([
-      indent
-        ? this.meta.indentation
-        : "",
+      indent ? this.meta.indentation : "",
       this.meta.openingQuote,
-      this.join([
-        this.meta.closingBraces,
-        ...this.classes,
-        this.meta.openingBraces
-      ]),
+      this.meta.closingBraces,
+      this.meta.leadingWhitespace ?? "",
+      this.join(this.classes),
+      this.meta.trailingWhitespace ?? "",
+      this.meta.openingBraces,
       this.meta.closingQuote
     ], "");
   }

@@ -560,6 +560,93 @@ describe(tailwindMultiline.name, () => {
 
   });
 
+  it("should not place expressions on a new line when the expression is not surrounded by a space", () => {
+
+    const trim = createTrimTag(4);
+    const expression = "${true ? ' true ' : ' false '}";
+
+    const singleLineWithExpressionAtBeginningWithStickyClassAtEnd = `${expression}a b c d e f g h `;
+    const multilineWithExpressionAtBeginningWithStickyClassAtEnd = trim`
+      ${expression}a
+
+      b c d
+      e f g
+      h
+    `;
+
+    const singleLineWithExpressionInCenterWithStickyClassAtBeginning = `a b c${expression} d e f g h `;
+    const multilineWithExpressionInCenterWithStickyClassAtBeginning = trim`
+      a b
+
+      c${expression}
+
+      d e f
+      g h
+    `;
+
+    const singleLineWithExpressionInCenterWithStickyClassAtEnd = `a b c ${expression}d e f g h `;
+    const multilineWithExpressionInCenterWithStickyClassAtEnd = trim`
+      a b c
+
+      ${expression}d
+
+      e f g
+      h
+    `;
+
+    const singleLineWithExpressionAtEndWithStickyClassAtBeginning = `a b c d e f g h${expression}`;
+    const multilineWithExpressionAtEndWithStickyClassAtBeginning = trim`
+      a b c
+      d e f
+      g
+
+      h${expression}
+    `;
+
+    expect(void lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 2,
+            jsx: `const Test = () => <div class={\`${singleLineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />;`,
+            jsxOutput: `const Test = () => <div class={\`${multilineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />;`,
+            options: [{ classesPerLine: 3, indent: 2 }],
+            svelte: `<div class={\`${singleLineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`,
+            svelteOutput: `<div class={\`${multilineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`
+          },
+          {
+            errors: 2,
+            jsx: `const Test = () => <div class={\`${singleLineWithExpressionInCenterWithStickyClassAtBeginning}\`} />;`,
+            jsxOutput: `const Test = () => <div class={\`${multilineWithExpressionInCenterWithStickyClassAtBeginning}\`} />;`,
+            options: [{ classesPerLine: 3, indent: 2 }],
+            svelte: `<div class={\`${singleLineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`,
+            svelteOutput: `<div class={\`${multilineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`
+          },
+          {
+            errors: 2,
+            jsx: `const Test = () => <div class={\`${singleLineWithExpressionInCenterWithStickyClassAtEnd}\`} />;`,
+            jsxOutput: `const Test = () => <div class={\`${multilineWithExpressionInCenterWithStickyClassAtEnd}\`} />;`,
+            options: [{ classesPerLine: 3, indent: 2 }],
+            svelte: `<div class={\`${singleLineWithExpressionInCenterWithStickyClassAtEnd}\`} />`,
+            svelteOutput: `<div class={\`${multilineWithExpressionInCenterWithStickyClassAtEnd}\`} />`
+          },
+          {
+            errors: 2,
+            jsx: `const Test = () => <div class={\`${singleLineWithExpressionAtEndWithStickyClassAtBeginning}\`} />;`,
+            jsxOutput: `const Test = () => <div class={\`${multilineWithExpressionAtEndWithStickyClassAtBeginning}\`} />;`,
+            options: [{ classesPerLine: 3, indent: 2 }],
+            svelte: `<div class={\`${singleLineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`,
+            svelteOutput: `<div class={\`${multilineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`
+          }
+        ]
+      }
+    )).toBeUndefined();
+
+  });
+
+
   it("should group correctly", () => {
 
     const trim = createTrimTag(4);

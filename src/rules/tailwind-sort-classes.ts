@@ -51,6 +51,19 @@ export const tailwindSortClasses: ESLintRule<Options> = {
 
           const classChunks = splitClasses(literal.content);
           const whitespaceChunks = splitWhitespaces(literal.content);
+
+          const unsortableClasses: [string, string] = ["", ""];
+
+          // remove sticky classes
+          if(literal.closingBraces && whitespaceChunks[0] === ""){
+            whitespaceChunks.shift();
+            unsortableClasses[0] = classChunks.shift() ?? "";
+          }
+          if(literal.openingBraces && whitespaceChunks[whitespaceChunks.length - 1] === ""){
+            whitespaceChunks.pop();
+            unsortableClasses[1] = classChunks.pop() ?? "";
+          }
+
           const sortedClassChunks = sortClasses(ctx, tailwindContext, classChunks);
 
           const classes: string[] = [];
@@ -63,7 +76,9 @@ export const tailwindSortClasses: ESLintRule<Options> = {
           const fixedClasses = [
             literal.openingQuote ?? "",
             literal.type === "TemplateLiteral" && literal.closingBraces ? literal.closingBraces : "",
+            unsortableClasses[0],
             ...classes,
+            unsortableClasses[1],
             literal.type === "TemplateLiteral" && literal.openingBraces ? literal.openingBraces : "",
             literal.closingQuote ?? ""
           ].join("");
@@ -258,7 +273,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
 };
 
 
-export function sortClasses(ctx: Rule.RuleContext, tailwindContext: TailwindContext, classes: string[]): string[] {
+function sortClasses(ctx: Rule.RuleContext, tailwindContext: TailwindContext, classes: string[]): string[] {
 
   const { order } = getOptions(ctx);
 
