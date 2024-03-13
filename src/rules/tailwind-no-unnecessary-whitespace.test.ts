@@ -251,6 +251,47 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
 
   });
 
+  it("should not create a whitespace around sticky template literal elements", () => {
+
+    const expression = "${true ? ' true ' : ' false '}";
+
+    const invalidAtStart = `  ${expression}a   b  `;
+    const validAtStart = `${expression}a b`;
+
+    const invalidBetween = `  a  b${expression}c  d  `;
+    const validBetween = `a b${expression}c d`;
+
+    const invalidAtEnd = `  a${expression}  `;
+    const validAtEnd = `a${expression}`;
+
+    expect(void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 2,
+          jsx: `const Test = () => <div class={\`${invalidAtStart}\`} />;`,
+          jsxOutput: `const Test = () => <div class={\`${validAtStart}\`} />;`,
+          svelte: `<div class={\`${invalidAtStart}\`} />`,
+          svelteOutput: `<div class={\`${validAtStart}\`} />`
+        },
+        {
+          errors: 2,
+          jsx: `const Test = () => <div class={\`${invalidBetween}\`} />;`,
+          jsxOutput: `const Test = () => <div class={\`${validBetween}\`} />;`,
+          svelte: `<div class={\`${invalidBetween}\`} />`,
+          svelteOutput: `<div class={\`${validBetween}\`} />`
+        },
+        {
+          errors: 2,
+          jsx: `const Test = () => <div class={\`${invalidAtEnd}\`} />;`,
+          jsxOutput: `const Test = () => <div class={\`${validAtEnd}\`} />;`,
+          svelte: `<div class={\`${invalidAtEnd}\`} />`,
+          svelteOutput: `<div class={\`${validAtEnd}\`} />`
+        }
+      ]
+    })).toBeUndefined();
+
+  });
+
   it("should not remove leading newlines in template literal elements", () => {
 
     const trim = createTrimTag(4);
