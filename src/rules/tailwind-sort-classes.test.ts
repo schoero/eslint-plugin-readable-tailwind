@@ -154,8 +154,8 @@ describe(tailwindSortClasses.name, () => {
     void lint(tailwindSortClasses, TEST_SYNTAXES, {
       valid: [
         {
-          jsx: "const Test = () => <div class={true ? \"a\" : \"b\"} />;",
-          svelte: "<div class={true ? \"a\" : \"b\"} />"
+          jsx: "const Test = () => <div class={true ? \"b a\" : \"c b\"} />;",
+          svelte: "<div class={true ? \"b a\" : \"c b\"} />"
         }
       ]
     })
