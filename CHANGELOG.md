@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.2.5
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.2.4...v1.2.5)
+
+### Performance
+
+- Cache tailwind config and context ([#16](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/16))
+
+### Fixes
+
+- Resolving tailwind config ([#15](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/15))
+
 ## v1.2.4
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.2.3...v1.2.4)
