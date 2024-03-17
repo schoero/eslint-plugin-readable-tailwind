@@ -32,7 +32,7 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
 - `callees`
 
-  List of function names whose arguments should also be considered.
+  List of function names whose arguments should also get linted.
   
   **Type**: `string[] | [string, string][]`  
   **Default**: `["clsx", "cva", "ctl", "twMerge"]`
@@ -57,7 +57,7 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
 - `variables`
 
-  List of variable names whose initializer should also be considered.
+  List of variable names whose initializer should also get linted.
   
   **Type**: `string[] | [string, string][]`  
   **Default**: `["className", "classNames", "classes", "style", "styles"]`

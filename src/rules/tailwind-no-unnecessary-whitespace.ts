@@ -137,11 +137,11 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
             },
             callees: {
               default: getOptions().callees,
-              description: "List of function names whose arguments should also be considered.",
+              description: "List of function names whose arguments should also get linted.",
               items: {
                 anyOf: [
                   {
-                    description: "List of regular expressions that matches string literals that should also be considered.",
+                    description: "List of regular expressions that matches string literals that should also get linted.",
                     items: [
                       { description: "Regular expression that filters the callee and matches the string literals in a group.", type: "string" },
                       { description: "Regular expression that matches each string literal in a group.", type: "string" }
@@ -149,7 +149,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
                     type: "array"
                   },
                   {
-                    description: "List of function names whose arguments should also be considered.",
+                    description: "List of function names whose arguments should also get linted.",
                     type: "string"
                   }
                 ]
@@ -166,11 +166,11 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
             },
             variables: {
               default: getOptions().variables,
-              description: "List of variable names whose values should also be considered.",
+              description: "List of variable names whose values should also get linted.",
               items: {
                 anyOf: [
                   {
-                    description: "List of regular expressions that matches string literals that should also be considered.",
+                    description: "List of regular expressions that matches string literals that should also get linted.",
                     items: [
                       { description: "Regular expression that filters the variable and matches the string literals in a group.", type: "string" },
                       { description: "Regular expression that matches each string literal in a group.", type: "string" }
@@ -178,7 +178,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
                     type: "array"
                   },
                   {
-                    description: "List of variable names whose values should also be considered.",
+                    description: "List of variable names whose values should also get linted.",
                     type: "string"
                   }
                 ]

@@ -27,7 +27,7 @@ Disallow unnecessary whitespace in between and around tailwind classes.
 
 - `callees`
 
-  List of function names whose arguments should also be considered.
+  List of function names whose arguments should also get linted.
   
   **Type**: `string[] | [string, string][]`  
   **Default**: `["clsx", "cva", "ctl", "twMerge"]`
@@ -52,7 +52,7 @@ Disallow unnecessary whitespace in between and around tailwind classes.
 
 - `variables`
 
-  List of variable names whose initializer should also be considered.
+  List of variable names whose initializer should also get linted.
   
   **Type**: `string[] | [string, string][]`  
   **Default**: `["className", "classNames", "classes", "style", "styles"]`

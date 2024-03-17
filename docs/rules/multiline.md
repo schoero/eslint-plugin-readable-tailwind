@@ -63,7 +63,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 - `callees`
 
-  List of function names whose arguments should also be considered.
+  List of function names whose arguments should also get linted.
   
   **Type**: `string[] | [string, string][]`  
   **Default**: `["clsx", "cva", "ctl", "twMerge"]`
@@ -88,7 +88,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 - `variables`
 
-  List of variable names whose initializer should also be considered.
+  List of variable names whose initializer should also get linted.
   
   **Type**: `string[] | [string, string][]`  
   **Default**: `["className", "classNames", "classes", "style", "styles"]`
