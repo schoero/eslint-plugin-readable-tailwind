@@ -321,22 +321,26 @@ function sortClasses(ctx: Rule.RuleContext, tailwindContext: TailwindContext, cl
 
 }
 
-function findTailwindConfig(ctx: Rule.RuleContext) {
+function findTailwindConfig(ctx: Rule.RuleContext, directory: string = ctx.cwd) {
 
   const { tailwindConfig } = getOptions(ctx);
 
-  let userConfig: Config | undefined;
+  const userConfig = tailwindConfig
+    ? loadTailwindConfig(resolve(directory, tailwindConfig))
+    : loadTailwindConfig(resolve(directory, "tailwind.config.ts")) ?? loadTailwindConfig(resolve(directory, "tailwind.config.js"));
 
-  userConfig = tailwindConfig
-    ? loadTailwindConfig(resolve(ctx.cwd, tailwindConfig))
-    : undefined;
+  if(userConfig){
+    const loadedConfig = resolveConfig(userConfig);
+    return loadedConfig;
+  }
 
-  userConfig ??= loadTailwindConfig(resolve(ctx.cwd, "tailwind.config.js"));
-  userConfig ??= loadTailwindConfig(resolve(ctx.cwd, "tailwind.config.ts"));
+  const parentDirectory = resolve(directory, "..");
 
-  return userConfig
-    ? resolveConfig(userConfig)
-    : resolveConfig(defaultConfig);
+  if(directory === parentDirectory){
+    return resolveConfig(defaultConfig);
+  }
+
+  return findTailwindConfig(ctx, parentDirectory);
 
 }
 
