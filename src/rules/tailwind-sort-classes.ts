@@ -35,6 +35,9 @@ export type Options = [
   }
 ];
 
+const TAILWIND_CONFIG_CACHE = new Map<string, ReturnType<typeof resolveConfig<Config>>>();
+const TAILWIND_CONTEXT_CACHE = new WeakMap<ReturnType<typeof resolveConfig>, TailwindContext>();
+
 export const tailwindSortClasses: ESLintRule<Options> = {
   name: "sort-classes" as const,
   rule: {
@@ -325,12 +328,19 @@ function findTailwindConfig(ctx: Rule.RuleContext, directory: string = ctx.cwd) 
 
   const { tailwindConfig } = getOptions(ctx);
 
+  const cacheKey = JSON.stringify({ config: tailwindConfig, cwd: ctx.cwd });
+
+  if(TAILWIND_CONFIG_CACHE.has(cacheKey)){
+    return TAILWIND_CONFIG_CACHE.get(cacheKey)!;
+  }
+
   const userConfig = tailwindConfig
     ? loadTailwindConfig(resolve(directory, tailwindConfig))
     : loadTailwindConfig(resolve(directory, "tailwind.config.ts")) ?? loadTailwindConfig(resolve(directory, "tailwind.config.js"));
 
   if(userConfig){
     const loadedConfig = resolveConfig(userConfig);
+    TAILWIND_CONFIG_CACHE.set(cacheKey, loadedConfig);
     return loadedConfig;
   }
 
@@ -377,5 +387,11 @@ interface TailwindContext {
 }
 
 function createTailwindContext(tailwindConfig: ReturnType<typeof resolveConfig>): TailwindContext {
-  return setupContextUtils.createContext(tailwindConfig);
+  if(TAILWIND_CONTEXT_CACHE.has(tailwindConfig)){
+    return TAILWIND_CONTEXT_CACHE.get(tailwindConfig)!;
+  }
+
+  const context = setupContextUtils.createContext(tailwindConfig);
+  TAILWIND_CONTEXT_CACHE.set(tailwindConfig, context);
+  return context;
 }
