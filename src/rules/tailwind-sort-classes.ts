@@ -36,7 +36,7 @@ export type Options = [
 ];
 
 const TAILWIND_CONFIG_CACHE = new Map<string, ReturnType<typeof resolveConfig<Config>>>();
-const TAILWIND_CONTEXT_CACHE = new WeakMap<ReturnType<typeof resolveConfig>, TailwindContext>();
+const TAILWIND_CONTEXT_CACHE = new Map<ReturnType<typeof resolveConfig>, TailwindContext>();
 
 export const tailwindSortClasses: ESLintRule<Options> = {
   name: "sort-classes" as const,
@@ -334,9 +334,14 @@ function findTailwindConfig(ctx: Rule.RuleContext, directory: string = ctx.cwd) 
     return TAILWIND_CONFIG_CACHE.get(cacheKey)!;
   }
 
-  const userConfig = tailwindConfig
+  let userConfig: Config | undefined;
+
+  userConfig ??= tailwindConfig
     ? loadTailwindConfig(resolve(directory, tailwindConfig))
-    : loadTailwindConfig(resolve(directory, "tailwind.config.ts")) ?? loadTailwindConfig(resolve(directory, "tailwind.config.js"));
+    : undefined;
+
+  userConfig ??= loadTailwindConfig(resolve(directory, "tailwind.config.js"));
+  userConfig ??= loadTailwindConfig(resolve(directory, "tailwind.config.ts"));
 
   if(userConfig){
     const loadedConfig = resolveConfig(userConfig);
