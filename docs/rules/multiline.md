@@ -28,7 +28,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
   Determines how the code should be indented.
 
-  **Type**: `number | "tab"`
+  **Type**: `number | "tab"`  
   **Default**: `2`
 
 <br/>
@@ -38,7 +38,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
   The line break style.  
   The style `windows` will use `\r\n` as line breaks and `unix` will use `\n`.
 
-  **Type**: `"windows" | "unix"`
+  **Type**: `"windows" | "unix"`  
   **Default**: `"unix"`
 
 <br/>
@@ -47,7 +47,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
   The maximum line length. Lines are wrapped appropriately to stay within this limit. The value `0` disables line wrapping by `printWidth`.
 
-  **Type**: `number`
+  **Type**: `number`  
   **Default**: `80`
 
 <br/>

@@ -11,7 +11,7 @@ Disallow unnecessary whitespace in between and around tailwind classes.
   Allow multi-line class declarations.  
   If this option is disabled, template literal strings will be collapsed into a single line string wherever possible. Must be set to `true` when used in combination with [readable-tailwind/multiline](./multiline.md).
   
-  **Type**: `boolean`
+  **Type**: `boolean`  
   **Default**: `true`
 
 <br/>
