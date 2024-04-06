@@ -117,11 +117,11 @@ export const tailwindMultiline: ESLintRule<Options> = {
       };
 
       // Vue
-      if(typeof ctx.parserServices?.defineTemplateBodyVisitor === "function"){
+      if(typeof ctx.sourceCode.parserServices?.defineTemplateBodyVisitor === "function"){
         return {
           ...callExpression,
           ...variableDeclarators,
-          ...ctx.parserServices.defineTemplateBodyVisitor(vue)
+          ...ctx.sourceCode.parserServices.defineTemplateBodyVisitor(vue)
         };
       }
 

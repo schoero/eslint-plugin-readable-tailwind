@@ -67,7 +67,7 @@
     "changelogen": "^0.5.5",
     "cspell": "^8.6.1",
     "es-html-parser": "^0.0.9",
-    "eslint": "^8.0.0",
+    "eslint": "^9.0.0",
     "eslint-plugin-eslint-plugin": "^5.5.0",
     "markdownlint": "^0.34.0",
     "proper-tags": "^2.0.2",
