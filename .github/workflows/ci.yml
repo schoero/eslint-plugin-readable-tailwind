@@ -41,7 +41,7 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npm test
+        run: bash test.sh
 
     strategy:
       fail-fast: true

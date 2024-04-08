@@ -51,8 +51,6 @@ export const tailwindSortClasses: ESLintRule<Options> = {
       const tailwindcssPackageInfo = getPackageInfoSync("tailwindcss", { paths: [ctx.cwd] })!;
       const isV4 = tailwindcssPackageInfo.version!.startsWith("4");
 
-      console.log({ isV4 });
-
       let tailwindContext: TailwindContext;
 
       if(isV4){
