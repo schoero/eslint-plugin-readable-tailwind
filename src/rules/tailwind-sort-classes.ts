@@ -1,10 +1,10 @@
 import { resolve } from "node:path";
 
-import defaultConfig from "tailwindcss/defaultConfig.js";
-import setupContextUtils from "tailwindcss/lib/lib/setupContextUtils.js";
-import loadConfig from "tailwindcss/loadConfig.js";
-import resolveConfig from "tailwindcss/resolveConfig.js";
-
+// import defaultConfig from "tailwindcss/defaultConfig.js";
+// import setupContextUtils from "tailwindcss/lib/lib/setupContextUtils.js";
+// import loadConfig from "tailwindcss/loadConfig.js";
+// import resolveConfig from "tailwindcss/resolveConfig.js";
+// import type { Config } from "tailwindcss/types/config.js";
 import { getLiteralsByESCallExpression, getLiteralsByESVariableDeclarator } from "readable-tailwind:parsers:es.js";
 import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readable-tailwind:parsers:html.js";
 import { getJSXAttributes, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx";
@@ -18,7 +18,6 @@ import type { Rule } from "eslint";
 import type { CallExpression, Node, VariableDeclarator } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
-import type { Config } from "tailwindcss/types/config.js";
 import type { VStartTag } from "vue-eslint-parser/ast";
 
 import type { Literal } from "readable-tailwind:types:ast.js";
@@ -35,8 +34,8 @@ export type Options = [
   }
 ];
 
-const TAILWIND_CONFIG_CACHE = new Map<string, ReturnType<typeof resolveConfig<Config>>>();
-const TAILWIND_CONTEXT_CACHE = new Map<ReturnType<typeof resolveConfig>, TailwindContext>();
+const TAILWIND_CONFIG_CACHE = new Map<string, ReturnType<typeof import("tailwindcss/resolveConfig")>>();
+const TAILWIND_CONTEXT_CACHE = new Map<ReturnType<typeof import("tailwindcss/resolveConfig")>, TailwindContext>();
 
 export const tailwindSortClasses: ESLintRule<Options> = {
   name: "sort-classes" as const,
@@ -334,7 +333,7 @@ function findTailwindConfig(ctx: Rule.RuleContext, directory: string = ctx.cwd) 
     return TAILWIND_CONFIG_CACHE.get(cacheKey)!;
   }
 
-  let userConfig: Config | undefined;
+  let userConfig: import("tailwindcss/types/config").Config | undefined;
 
   userConfig ??= tailwindConfig
     ? loadTailwindConfig(resolve(directory, tailwindConfig))
@@ -342,6 +341,8 @@ function findTailwindConfig(ctx: Rule.RuleContext, directory: string = ctx.cwd) 
 
   userConfig ??= loadTailwindConfig(resolve(directory, "tailwind.config.js"));
   userConfig ??= loadTailwindConfig(resolve(directory, "tailwind.config.ts"));
+
+  const resolveConfig = require("tailwindcss/resolveConfig.js") as typeof import("tailwindcss/resolveConfig");
 
   if(userConfig){
     const loadedConfig = resolveConfig(userConfig);
@@ -352,6 +353,7 @@ function findTailwindConfig(ctx: Rule.RuleContext, directory: string = ctx.cwd) 
   const parentDirectory = resolve(directory, "..");
 
   if(directory === parentDirectory){
+    const defaultConfig = require("tailwindcss/defaultConfig.js");
     return resolveConfig(defaultConfig);
   }
 
@@ -361,6 +363,7 @@ function findTailwindConfig(ctx: Rule.RuleContext, directory: string = ctx.cwd) 
 
 function loadTailwindConfig(path: string) {
   try {
+    const loadConfig = require("tailwindcss/loadConfig.js") as typeof import("tailwindcss/loadConfig");
     return loadConfig(path);
   } catch (error){}
 }
@@ -388,14 +391,15 @@ export function getOptions(ctx?: Rule.RuleContext) {
 
 interface TailwindContext {
   getClassOrder(classes: string[]): [className: string, order: bigint | null][];
-  tailwindConfig: Config;
+  tailwindConfig: import("tailwindcss/types/config").Config;
 }
 
-function createTailwindContext(tailwindConfig: ReturnType<typeof resolveConfig>): TailwindContext {
+function createTailwindContext(tailwindConfig: ReturnType<typeof import("tailwindcss/resolveConfig")>): TailwindContext {
   if(TAILWIND_CONTEXT_CACHE.has(tailwindConfig)){
     return TAILWIND_CONTEXT_CACHE.get(tailwindConfig)!;
   }
 
+  const setupContextUtils = require("tailwindcss/lib/lib/setupContextUtils.js");
   const context = setupContextUtils.createContext(tailwindConfig);
   TAILWIND_CONTEXT_CACHE.set(tailwindConfig, context);
   return context;
