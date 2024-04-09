@@ -1,5 +1,4 @@
-// @ts-expect-error - types not available yet
-import { FlatRuleTester } from "eslint/use-at-your-own-risk";
+import { RuleTester } from "eslint";
 import { createTag } from "proper-tags";
 import eslintParserSvelte from "svelte-eslint-parser";
 import eslintParserVue from "vue-eslint-parser";
@@ -53,7 +52,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
   for(const invalid of tests.invalid ?? []){
     for(const syntax of Object.keys(syntaxes)){
 
-      const ruleTester = new FlatRuleTester(syntaxes[syntax]);
+      const ruleTester = new RuleTester(syntaxes[syntax]);
 
       if(!invalid[syntax] || !invalid[`${syntax}Output`]){
         continue;
@@ -61,7 +60,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
 
       ruleTester.run(eslintRule.name, eslintRule.rule, {
         invalid: [{
-          code: invalid[syntax],
+          code: invalid[syntax]!,
           errors: invalid.errors,
           options: invalid.options ?? [],
           output: invalid[`${syntax}Output`]
@@ -74,7 +73,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
   for(const valid of tests.valid ?? []){
     for(const syntax of Object.keys(syntaxes)){
 
-      const ruleTester = new FlatRuleTester(syntaxes[syntax]);
+      const ruleTester = new RuleTester(syntaxes[syntax]);
 
       if(!valid[syntax]){
         continue;
@@ -83,7 +82,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
       ruleTester.run(eslintRule.name, eslintRule.rule, {
         invalid: [],
         valid: [{
-          code: valid[syntax],
+          code: valid[syntax]!,
           options: valid.options ?? []
         }]
       });

@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.3.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.2.5...v1.3.0)
+
+### Features
+
+- Add eslint 9 support ([#19](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/19))
+
+### Chore
+
+- Update dependencies ([be69b11](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/be69b11))
+
 ## v1.2.5
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.2.4...v1.2.5)
