@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.3.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.3.0...v1.3.1)
+
+### Fixes
+
+- Accept tabs ([#21](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/21))
+
 ## v1.3.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.2.5...v1.3.0)
