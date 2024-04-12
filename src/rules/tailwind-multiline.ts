@@ -199,9 +199,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
                   minimum: 0,
                   type: "integer"
                 }
-              ],
-              type: "integer"
-
+              ]
             },
             lineBreakStyle: {
               default: getOptions().lineBreakStyle,
