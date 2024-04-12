@@ -845,4 +845,32 @@ describe(tailwindMultiline.name, () => {
 
   });
 
+  it("should be possible to change the indentation style to tabs", () => {
+
+    const dirty = " a b c d e f g h ";
+    const clean = "\n\ta b c\n\td e f\n\tg h\n";
+
+    expect(void lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            html: `<div class="${dirty}" />`,
+            htmlOutput: `<div class="${clean}" />`,
+            jsx: `const Test = () => <div class="${dirty}" />;`,
+            jsxOutput: `const Test = () => <div class={\`${clean}\`} />;`,
+            options: [{ classesPerLine: 3, indent: "tab" }],
+            svelte: `<div class="${dirty}" />`,
+            svelteOutput: `<div class="${clean}" />`,
+            vue: `<template><div class="${dirty}" /></template>`,
+            vueOutput: `<template><div class="${clean}" /></template>`
+          }
+        ]
+      }
+    )).toBeUndefined();
+
+  });
+
 });
