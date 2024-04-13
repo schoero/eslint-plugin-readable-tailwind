@@ -2,8 +2,6 @@
   "recommendations": [
     "dbaeumer.vscode-eslint",
     "streetsidesoftware.code-spell-checker",
-    "davidanson.vscode-markdownlint",
-    "dnek.auto-region-folder",
-    "Tobermory.es6-string-html"
+    "davidanson.vscode-markdownlint"
   ]
 }

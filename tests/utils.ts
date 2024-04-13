@@ -1,6 +1,7 @@
 import { RuleTester } from "eslint";
 import { createTag } from "proper-tags";
 import eslintParserSvelte from "svelte-eslint-parser";
+import { afterAll, describe, it } from "vitest";
 import eslintParserVue from "vue-eslint-parser";
 
 import eslintParserHTML from "@html-eslint/parser";
@@ -22,7 +23,6 @@ export const TEST_SYNTAXES = {
     languageOptions: { parser: eslintParserVue }
   }
 } as const;
-
 
 export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, unknown>>(
   eslintRule: Rule,
@@ -52,7 +52,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
   for(const invalid of tests.invalid ?? []){
     for(const syntax of Object.keys(syntaxes)){
 
-      const ruleTester = new RuleTester(syntaxes[syntax]);
+      const ruleTester = createRuleTester(syntaxes[syntax]);
 
       if(!invalid[syntax] || !invalid[`${syntax}Output`]){
         continue;
@@ -63,7 +63,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
           code: invalid[syntax]!,
           errors: invalid.errors,
           options: invalid.options ?? [],
-          output: invalid[`${syntax}Output`]
+          output: invalid[`${syntax}Output`]!
         }],
         valid: []
       });
@@ -73,7 +73,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
   for(const valid of tests.valid ?? []){
     for(const syntax of Object.keys(syntaxes)){
 
-      const ruleTester = new RuleTester(syntaxes[syntax]);
+      const ruleTester = createRuleTester(syntaxes[syntax]);
 
       if(!valid[syntax]){
         continue;
@@ -101,4 +101,19 @@ function customIndentStripTransformer(count: number) {
       return endResult.replace(new RegExp(`^ {${count}}`, "gm"), "");
     }
   };
+}
+
+function createRuleTester(options?: any) {
+  const ruleTester = new RuleTester(options);
+
+  // @ts-expect-error - types are not up to date yet
+  ruleTester.afterAll = afterAll;
+  // @ts-expect-error - types are not up to date yet
+  ruleTester.describe = describe;
+  // @ts-expect-error - types are not up to date yet
+  ruleTester.it = it;
+  // @ts-expect-error - types are not up to date yet
+  ruleTester.itOnly = it.only;
+
+  return ruleTester;
 }
