@@ -16,8 +16,8 @@ describe(tailwindSortClasses.name, () => {
             errors: 1,
             html: `<img class="b a" />`,
             htmlOutput: `<img class="a b" />`,
-            jsx: `<img class="b a" />`,
-            jsxOutput: `<img class="a b" />`,
+            jsx: `() => <img class="b a" />`,
+            jsxOutput: `() => <img class="a b" />`,
             options: [{ order: "asc" }],
             svelte: `<img class="b a" />`,
             svelteOutput: `<img class="a b" />`,
@@ -28,8 +28,8 @@ describe(tailwindSortClasses.name, () => {
             errors: 1,
             html: `<img class="a b" />`,
             htmlOutput: `<img class="b a" />`,
-            jsx: `<img class="a b" />`,
-            jsxOutput: `<img class="b a" />`,
+            jsx: `() => <img class="a b" />`,
+            jsxOutput: `() => <img class="b a" />`,
             options: [{ order: "desc" }],
             svelte: `<img class="a b" />`,
             svelteOutput: `<img class="b a" />`,
@@ -40,8 +40,8 @@ describe(tailwindSortClasses.name, () => {
             errors: 1,
             html: `<img class="w-full absolute" />`,
             htmlOutput: `<img class="absolute w-full" />`,
-            jsx: `<img class="w-full absolute" />`,
-            jsxOutput: `<img class="absolute w-full" />`,
+            jsx: `() => <img class="w-full absolute" />`,
+            jsxOutput: `() => <img class="absolute w-full" />`,
             options: [{ order: "official" }],
             svelte: `<img class="w-full absolute" />`,
             svelteOutput: `<img class="absolute w-full" />`,
@@ -52,21 +52,21 @@ describe(tailwindSortClasses.name, () => {
         valid: [
           {
             html: `<img class="a b" />`,
-            jsx: `<img class="a b" />`,
+            jsx: `() => <img class="a b" />`,
             options: [{ order: "asc" }],
             svelte: `<img class="a b" />`,
             vue: `<template><img class="a b" /></template>`
           },
           {
             html: `img class="b a" />`,
-            jsx: `<img class="b a" />`,
+            jsx: `() => <img class="b a" />`,
             options: [{ order: "desc" }],
             svelte: `img class="b a" />`,
             vue: `<template><img class="b a" /></template>`
           },
           {
             html: `<img class="absolute w-full" />`,
-            jsx: `<img class="absolute w-full" />`,
+            jsx: `() => <img class="absolute w-full" />`,
             options: [{ order: "official" }],
             svelte: `<img class="absolute w-full" />`,
             vue: `<template><img class="absolute w-full" /></template>`
@@ -83,8 +83,8 @@ describe(tailwindSortClasses.name, () => {
           errors: 1,
           html: `<img class="c:a a:a b:a a:b c:b b:b" />`,
           htmlOutput: `<img class="a:a a:b b:a b:b c:a c:b" />`,
-          jsx: `<img class="c:a a:a b:a a:b c:b b:b" />`,
-          jsxOutput: `<img class="a:a a:b b:a b:b c:a c:b" />`,
+          jsx: `() => <img class="c:a a:a b:a a:b c:b b:b" />`,
+          jsxOutput: `() => <img class="a:a a:b b:a b:b c:a c:b" />`,
           options: [{ order: "improved" }],
           svelte: `<img class="c:a a:a b:a a:b c:b b:b" />`,
           svelteOutput: `<img class="a:a a:b b:a b:b c:a c:b" />`,
@@ -105,8 +105,8 @@ describe(tailwindSortClasses.name, () => {
             errors: 1,
             html: `<img class="b a" />`,
             htmlOutput: `<img class="a b" />`,
-            jsx: `<img class="b a" />`,
-            jsxOutput: `<img class="a b" />`,
+            jsx: `() => <img class="b a" />`,
+            jsxOutput: `() => <img class="a b" />`,
             options: [{ order: "asc" }],
             svelte: `<img class="b a" />`,
             svelteOutput: `<img class="a b" />`,
@@ -117,8 +117,8 @@ describe(tailwindSortClasses.name, () => {
             errors: 1,
             html: `<img class='b a' />`,
             htmlOutput: `<img class='a b' />`,
-            jsx: `<img class='b a' />`,
-            jsxOutput: `<img class='a b' />`,
+            jsx: `() => <img class='b a' />`,
+            jsxOutput: `() => <img class='a b' />`,
             options: [{ order: "asc" }],
             svelte: `<img class='b a' />`,
             svelteOutput: `<img class='a b' />`,
@@ -127,22 +127,22 @@ describe(tailwindSortClasses.name, () => {
           },
           {
             errors: 1,
-            jsx: `<img class={\`b a\`} />`,
-            jsxOutput: `<img class={\`a b\`} />`,
+            jsx: `() => <img class={\`b a\`} />`,
+            jsxOutput: `() => <img class={\`a b\`} />`,
             options: [{ order: "asc" }],
             svelte: `<img class={\`b a\`} />`,
             svelteOutput: `<img class={\`a b\`} />`
           },
           {
             errors: 1,
-            jsx: `<img class={"b a"} />`,
-            jsxOutput: `<img class={"a b"} />`,
+            jsx: `() => <img class={"b a"} />`,
+            jsxOutput: `() => <img class={"a b"} />`,
             options: [{ order: "asc" }]
           },
           {
             errors: 1,
-            jsx: `<img class={'b a'} />`,
-            jsxOutput: `<img class={'a b'} />`,
+            jsx: `() => <img class={'b a'} />`,
+            jsxOutput: `() => <img class={'a b'} />`,
             options: [{ order: "asc" }]
           }
         ]
@@ -154,7 +154,7 @@ describe(tailwindSortClasses.name, () => {
     lint(tailwindSortClasses, TEST_SYNTAXES, {
       valid: [
         {
-          jsx: `<img class={true ? "b a" : "c b"} />`,
+          jsx: `() => <img class={true ? "b a" : "c b"} />`,
           svelte: `<img class={true ? "b a" : "c b"} />`
         }
       ]
@@ -166,8 +166,8 @@ describe(tailwindSortClasses.name, () => {
       invalid: [
         {
           errors: 2,
-          jsx: `<img class={\`c a \${true ? "e" : "f"} d b \`} />`,
-          jsxOutput: `<img class={\`a c \${true ? "e" : "f"} b d \`} />`,
+          jsx: `() => <img class={\`c a \${true ? "e" : "f"} d b \`} />`,
+          jsxOutput: `() => <img class={\`a c \${true ? "e" : "f"} b d \`} />`,
           options: [{ order: "asc" }],
           svelte: `<img class={\`c a \${true ? "e" : "f"} d b \`} />`,
           svelteOutput: `<img class={\`a c \${true ? "e" : "f"} b d \`} />`
@@ -175,7 +175,7 @@ describe(tailwindSortClasses.name, () => {
       ],
       valid: [
         {
-          jsx: `<img class={\`a c \${true ? "e" : "f"} b \`} />`,
+          jsx: `() => <img class={\`a c \${true ? "e" : "f"} b \`} />`,
           svelte: `<img class={\`a c \${true ? "e" : "f"} b \`} />`
         }
       ]
@@ -193,8 +193,8 @@ describe(tailwindSortClasses.name, () => {
       invalid: [
         {
           errors: 2,
-          jsx: `<img class={\`${dirty}\`} />`,
-          jsxOutput: `<img class={\`${clean}\`} />`,
+          jsx: `() => <img class={\`${dirty}\`} />`,
+          jsxOutput: `() => <img class={\`${clean}\`} />`,
           options: [{ order: "asc" }],
           svelte: `<img class={\`${dirty}\`} />`,
           svelteOutput: `<img class={\`${clean}\`} />`
@@ -241,8 +241,8 @@ describe(tailwindSortClasses.name, () => {
           },
           {
             errors: 1,
-            jsx: `<img class={\`${unsortedMultilineString}\`} />`,
-            jsxOutput: `<img class={\`${sortedMultilineString}\`} />`,
+            jsx: `() => <img class={\`${unsortedMultilineString}\`} />`,
+            jsxOutput: `() => <img class={\`${sortedMultilineString}\`} />`,
             options: [{ order: "asc" }],
             svelte: `<img class={\`${unsortedMultilineString}\`} />`,
             svelteOutput: `<img class={\`${sortedMultilineString}\`} />`
@@ -262,7 +262,7 @@ describe(tailwindSortClasses.name, () => {
             vue: `<template><img class='${sortedMultilineString}' /></template>`
           },
           {
-            jsx: `<img class={\`${sortedMultilineString}\`} />`,
+            jsx: `() => <img class={\`${sortedMultilineString}\`} />`,
             options: [{ order: "asc" }],
             svelte: `<img class={\`${sortedMultilineString}\`} />`
           }
@@ -443,16 +443,16 @@ describe(tailwindSortClasses.name, () => {
         invalid: [
           {
             errors: 3,
-            jsx: `<img class={\`${dirtyDefinedMultiline}\`} />`,
-            jsxOutput: `<img class={\`${cleanDefinedMultiline}\`} />`,
+            jsx: `() => <img class={\`${dirtyDefinedMultiline}\`} />`,
+            jsxOutput: `() => <img class={\`${cleanDefinedMultiline}\`} />`,
             options: [{ callees: ["defined"], order: "asc" }],
             svelte: `<img class={\`${dirtyDefinedMultiline}\`} />`,
             svelteOutput: `<img class={\`${cleanDefinedMultiline}\`} />`
           },
           {
             errors: 2,
-            jsx: `<img class={\`${dirtyUndefinedMultiline}\`} />`,
-            jsxOutput: `<img class={\`${cleanUndefinedMultiline}\`} />`,
+            jsx: `() => <img class={\`${dirtyUndefinedMultiline}\`} />`,
+            jsxOutput: `() => <img class={\`${cleanUndefinedMultiline}\`} />`,
             options: [{ callees: ["defined"], order: "asc" }],
             svelte: `<img class={\`${dirtyUndefinedMultiline}\`} />`,
             svelteOutput: `<img class={\`${cleanUndefinedMultiline}\`} />`
