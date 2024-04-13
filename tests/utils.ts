@@ -1,10 +1,11 @@
-import { RuleTester } from "eslint";
 import { createTag } from "proper-tags";
 import eslintParserSvelte from "svelte-eslint-parser";
 import { afterAll, describe, it } from "vitest";
 import eslintParserVue from "vue-eslint-parser";
 
 import eslintParserHTML from "@html-eslint/parser";
+
+import { RuleTester } from "./node_modules/eslint";
 
 import type { ESLintRule } from "readable-tailwind:types:rule.js";
 
@@ -106,13 +107,9 @@ function customIndentStripTransformer(count: number) {
 function createRuleTester(options?: any) {
   const ruleTester = new RuleTester(options);
 
-  // @ts-expect-error - types are not up to date yet
   ruleTester.afterAll = afterAll;
-  // @ts-expect-error - types are not up to date yet
   ruleTester.describe = describe;
-  // @ts-expect-error - types are not up to date yet
   ruleTester.it = it;
-  // @ts-expect-error - types are not up to date yet
   ruleTester.itOnly = it.only;
 
   return ruleTester;
