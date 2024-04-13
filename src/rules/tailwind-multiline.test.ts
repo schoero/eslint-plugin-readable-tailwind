@@ -1,6 +1,6 @@
 import { createTrimTag } from "tests/utils";
 import { lint, TEST_SYNTAXES } from "tests/utils.js";
-import { describe, expect, it } from "vitest";
+import { describe, it } from "vitest";
 
 import { tailwindMultiline } from "readable-tailwind:rules:tailwind-multiline.js";
 
@@ -8,73 +8,73 @@ import { tailwindMultiline } from "readable-tailwind:rules:tailwind-multiline.js
 describe(tailwindMultiline.name, () => {
 
   it("should not wrap empty strings", () => {
-    expect(void lint(
+    lint(
       tailwindMultiline,
       TEST_SYNTAXES,
       {
         valid: [
           {
             html: "<div class=\"\" />",
-            jsx: "const Test = () => <div class=\"\" />;",
+            jsx: "<div class=\"\" />",
             svelte: "<div class=\"\" />",
             vue: "<template><div class=\"\" /></template>"
           },
           {
             html: "<div class='' />",
-            jsx: "const Test = () => <div class='' />;",
+            jsx: "<div class='' />",
             svelte: "<div class='' />",
             vue: "<template><div class='' /></template>"
           },
           {
-            jsx: "const Test = () => <div class={\"\"} />;",
+            jsx: "<div class={\"\"} />",
             svelte: "<div class={\"\"} />"
           },
           {
-            jsx: "const Test = () => <div class={''} />;",
+            jsx: "<div class={''} />",
             svelte: "<div class={''} />"
           },
           {
-            jsx: "const Test = () => <div class={``} />;",
+            jsx: "<div class={``} />",
             svelte: "<div class={``} />"
           }
         ]
       }
-    )).toBeUndefined();
+    );
   });
 
   it("should not wrap short lines", () => {
-    expect(void lint(
+    lint(
       tailwindMultiline,
       TEST_SYNTAXES,
       {
         valid: [
           {
             html: "<div class=\"a b c\" />",
-            jsx: "const Test = () => <div class=\"a b c\" />;",
+            jsx: "<div class=\"a b c\" />",
             svelte: "<div class=\"a b c\" />",
             vue: "<template><div class=\"a b c\" /></template>"
           },
           {
             html: "<div class='a b c' />",
-            jsx: "const Test = () => <div class='a b c' />;",
+            jsx: "<div class='a b c' />",
             svelte: "<div class='a b c' />",
             vue: "<template><div class='a b c' /></template>"
           },
           {
-            jsx: "const Test = () => <div class={\"a b c\"} />;",
+            jsx: "<div class={\"a b c\"} />",
             svelte: "<div class={\"a b c\"} />"
           },
           {
-            jsx: "const Test = () => <div class={'a b c'} />;",
+            jsx: "<div class={'a b c'} />",
             svelte: "<div class={'a b c'} />"
           },
           {
-            jsx: "const Test = () => <div class={`a b c`} />;",
+            jsx: "<div class={`a b c`} />",
             svelte: "<div class={`a b c`} />"
           }
         ]
       }
-    )).toBeUndefined();
+    );
   });
 
   it("should collapse unnecessarily wrapped short lines", () => {
@@ -87,7 +87,7 @@ describe(tailwindMultiline.name, () => {
 
     const clean = "a b";
 
-    expect(void lint(
+    lint(
       tailwindMultiline,
       TEST_SYNTAXES,
       {
@@ -96,8 +96,8 @@ describe(tailwindMultiline.name, () => {
             errors: 1,
             html: `<div class="${dirty}" />`,
             htmlOutput: `<div class="${clean}" />`,
-            jsx: `const Test = () => <div class={\`${dirty}\`} />;`,
-            jsxOutput: `const Test = () => <div class={\`${clean}\`} />;`,
+            jsx: `<div class={\`${dirty}\`} />`,
+            jsxOutput: `<div class={\`${clean}\`} />`,
             options: [{ printWidth: 60 }],
             svelte: `<div class="${dirty}" />`,
             svelteOutput: `<div class="${clean}" />`,
@@ -106,7 +106,7 @@ describe(tailwindMultiline.name, () => {
           }
         ]
       }
-    )).toBeUndefined();
+    );
   });
 
   it("should wrap and not collapse short lines containing expressions", () => {
@@ -114,30 +114,32 @@ describe(tailwindMultiline.name, () => {
     const trim = createTrimTag(4);
 
     const expression = "${true ? ' true ' : ' false '}";
-    const invalid = trim`
+
+    const incorrect = trim`
       a ${expression}
     `;
-    const valid = trim`
+
+    const correct = trim`
       a
       ${expression}
     `;
 
-    expect(void lint(
+    lint(
       tailwindMultiline,
       TEST_SYNTAXES,
       {
         invalid: [
           {
             errors: 1,
-            jsx: `const Test = () => <div class={\`${invalid}\`} />;`,
-            jsxOutput: `const Test = () => <div class={\`${valid}\`} />;`,
+            jsx: `<div class={\`${incorrect}\`} />`,
+            jsxOutput: `<div class={\`${correct}\`} />`,
             options: [{ classesPerLine: 3, group: "newLine", indent: 2 }],
-            svelte: `<div class={\`${invalid}\`} />`,
-            svelteOutput: `<div class={\`${valid}\`} />`
+            svelte: `<div class={\`${incorrect}\`} />`,
+            svelteOutput: `<div class={\`${correct}\`} />`
           }
         ]
       }
-    )).toBeUndefined();
+    );
 
   });
 
@@ -150,7 +152,7 @@ describe(tailwindMultiline.name, () => {
       this string literal is exactly 54 characters in length
     `;
 
-    expect(void lint(
+    lint(
       tailwindMultiline,
       TEST_SYNTAXES,
       {
@@ -159,8 +161,8 @@ describe(tailwindMultiline.name, () => {
             errors: 1,
             html: `<div class="${dirty}" />`,
             htmlOutput: `<div class="${clean}" />`,
-            jsx: `const Test = () => <div class="${dirty}" />;`,
-            jsxOutput: `const Test = () => <div class={\`${clean}\`} />;`,
+            jsx: `<div class="${dirty}" />`,
+            jsxOutput: `<div class={\`${clean}\`} />`,
             options: [{ printWidth: 60 }],
             svelte: `<div class="${dirty}" />`,
             svelteOutput: `<div class="${clean}" />`,
@@ -169,25 +171,25 @@ describe(tailwindMultiline.name, () => {
           }
         ]
       }
-    )).toBeUndefined();
+    );
   });
 
   it("should disable the `printWidth` limit when set to `0`", () => {
-    expect(void lint(
+    lint(
       tailwindMultiline,
       TEST_SYNTAXES,
       {
         valid: [
           {
             html: "<div class=\"this string literal is longer than 80 characters and would be wrapped using the default printWidth\" />",
-            jsx: "const Test = () => <div class=\"this string literal is longer than 80 characters and would be wrapped using the default printWidth\" />;",
+            jsx: "<div class=\"this string literal is longer than 80 characters and would be wrapped using the default printWidth\" />",
             options: [{ printWidth: 0 }],
             svelte: "<div class=\"this string literal is longer than 80 characters and would be wrapped using the default printWidth\" />",
             vue: "<template><div class=\"this string literal is longer than 80 characters and would be wrapped using the default printWidth\" /></template>"
           }
         ]
       }
-    )).toBeUndefined();
+    );
   });
 
   it("should change the quotes in defined call signatures to template literals", () => {
@@ -204,15 +206,15 @@ describe(tailwindMultiline.name, () => {
 
     const dirtyUndefined = "notDefined('a b c d e f g h')";
 
-    expect(void lint(
+    lint(
       tailwindMultiline,
       TEST_SYNTAXES,
       {
         invalid: [
           {
             errors: 1,
-            jsx: `const Test = () => <div class={${dirtyDefined}} />;`,
-            jsxOutput: `const Test = () => <div class={${cleanDefined}} />;`,
+            jsx: `<div class={${dirtyDefined}} />`,
+            jsxOutput: `<div class={${cleanDefined}} />`,
             options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }],
             svelte: `<div class={${dirtyDefined}} />`,
             svelteOutput: `<div class={${cleanDefined}} />`
@@ -220,23 +222,23 @@ describe(tailwindMultiline.name, () => {
         ],
         valid: [
           {
-            jsx: `const Test = () => <div class={${dirtyUndefined}} />;`,
+            jsx: `<div class={${dirtyUndefined}} />`,
             options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }],
             svelte: `<div class={${dirtyUndefined}} />`
           }
         ]
       }
-    )).toBeUndefined();
+    );
 
-    expect(void lint(
+    lint(
       tailwindMultiline,
       TEST_SYNTAXES,
       {
         invalid: [
           {
             errors: 1,
-            jsx: `const Test = () => <div class={${dirtyDefined}} />;`,
-            jsxOutput: `const Test = () => <div class={${cleanDefined}} />;`,
+            jsx: `<div class={${dirtyDefined}} />`,
+            jsxOutput: `<div class={${cleanDefined}} />`,
             options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }],
             svelte: `<div class={${dirtyDefined}} />`,
             svelteOutput: `<div class={${cleanDefined}} />`
@@ -244,13 +246,14 @@ describe(tailwindMultiline.name, () => {
         ],
         valid: [
           {
-            jsx: `const Test = () => <div class={${dirtyUndefined}} />;`,
+            jsx: `<div class={${dirtyUndefined}} />`,
             options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }],
             svelte: `<div class={${dirtyUndefined}} />`
           }
         ]
       }
-    )).toBeUndefined();
+    );
+
   });
 
   it("should wrap string literals in call signature arguments matched by a regex", () => {
@@ -309,7 +312,7 @@ describe(tailwindMultiline.name, () => {
       }
     );`;
 
-    expect(void lint(
+    lint(
       tailwindMultiline,
       TEST_SYNTAXES,
       {
@@ -339,7 +342,7 @@ describe(tailwindMultiline.name, () => {
           }
         ]
       }
-    )).toBeUndefined();
+    );
 
   });
 
@@ -354,35 +357,35 @@ describe(tailwindMultiline.name, () => {
       g h
     `;
 
-    expect(void lint(
+    lint(
       tailwindMultiline,
       TEST_SYNTAXES,
       {
         invalid: [
           {
             errors: 1,
-            jsx: `const Test = () => <div class="${singleLine}" />;`,
-            jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
+            jsx: `<div class="${singleLine}" />`,
+            jsxOutput: `<div class={\`${multiline}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
             errors: 1,
-            jsx: `const Test = () => <div class='${singleLine}' />;`,
-            jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
+            jsx: `<div class='${singleLine}' />`,
+            jsxOutput: `<div class={\`${multiline}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
             errors: 1,
-            jsx: `const Test = () => <div class={"${singleLine}"} />;`,
-            jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
+            jsx: `<div class={"${singleLine}"} />`,
+            jsxOutput: `<div class={\`${multiline}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<div class={"${singleLine}"} />`,
             svelteOutput: `<div class={\`${multiline}\`} />`
           },
           {
             errors: 1,
-            jsx: `const Test = () => <div class={'${singleLine}'} />;`,
-            jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
+            jsx: `<div class={'${singleLine}'} />`,
+            jsxOutput: `<div class={\`${multiline}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<div class={'${singleLine}'} />`,
             svelteOutput: `<div class={\`${multiline}\`} />`
@@ -390,7 +393,7 @@ describe(tailwindMultiline.name, () => {
         ],
         valid: [
           {
-            jsx: `const Test = () => <div class={\`${multiline}\`} />;`,
+            jsx: `<div class={\`${multiline}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<div class={\`${multiline}\`} />`
           },
@@ -406,7 +409,7 @@ describe(tailwindMultiline.name, () => {
           }
         ]
       }
-    )).toBeUndefined();
+    );
   });
 
   it("should wrap long lines on to multiple lines", () => {
@@ -420,14 +423,14 @@ describe(tailwindMultiline.name, () => {
       g h
     `;
 
-    expect(void lint(tailwindMultiline, TEST_SYNTAXES, {
+    lint(tailwindMultiline, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
           html: `<div class="${singleLine}" />`,
           htmlOutput: `<div class="${multiline}" />`,
-          jsx: `const Test = () => <div class="${singleLine}" />;`,
-          jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
+          jsx: `<div class="${singleLine}" />`,
+          jsxOutput: `<div class={\`${multiline}\`} />`,
           options: [{ classesPerLine: 3, indent: 2 }],
           svelte: `<div class="${singleLine}" />`,
           svelteOutput: `<div class="${multiline}" />`,
@@ -438,8 +441,8 @@ describe(tailwindMultiline.name, () => {
           errors: 1,
           html: `<div class='${singleLine}' />`,
           htmlOutput: `<div class='${multiline}' />`,
-          jsx: `const Test = () => <div class='${singleLine}' />;`,
-          jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
+          jsx: `<div class='${singleLine}' />`,
+          jsxOutput: `<div class={\`${multiline}\`} />`,
           options: [{ classesPerLine: 3, indent: 2 }],
           svelte: `<div class='${singleLine}' />`,
           svelteOutput: `<div class='${multiline}' />`,
@@ -448,30 +451,30 @@ describe(tailwindMultiline.name, () => {
         },
         {
           errors: 1,
-          jsx: `const Test = () => <div class={\`${singleLine}\`} />;`,
-          jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
+          jsx: `<div class={\`${singleLine}\`} />`,
+          jsxOutput: `<div class={\`${multiline}\`} />`,
           options: [{ classesPerLine: 3, indent: 2 }],
           svelte: `<div class={\`${singleLine}\`} />`,
           svelteOutput: `<div class={\`${multiline}\`} />`
         },
         {
           errors: 1,
-          jsx: `const Test = () => <div class={"${singleLine}"} />;`,
-          jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
+          jsx: `<div class={"${singleLine}"} />`,
+          jsxOutput: `<div class={\`${multiline}\`} />`,
           options: [{ classesPerLine: 3, indent: 2 }],
           svelte: `<div class={"${singleLine}"} />`,
           svelteOutput: `<div class={\`${multiline}\`} />`
         },
         {
           errors: 1,
-          jsx: `const Test = () => <div class={'${singleLine}'} />;`,
-          jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
+          jsx: `<div class={'${singleLine}'} />`,
+          jsxOutput: `<div class={\`${multiline}\`} />`,
           options: [{ classesPerLine: 3, indent: 2 }],
           svelte: `<div class={'${singleLine}'} />`,
           svelteOutput: `<div class={\`${multiline}\`} />`
         }
       ]
-    })).toBeUndefined();
+    });
   });
 
   it("should wrap expressions correctly", () => {
@@ -517,46 +520,46 @@ describe(tailwindMultiline.name, () => {
       g h
     `;
 
-    expect(void lint(
+    lint(
       tailwindMultiline,
       TEST_SYNTAXES,
       {
         invalid: [
           {
             errors: 2,
-            jsx: `const Test = () => <div class={\`${singleLineWithExpressionAtBeginning}\`} />;`,
-            jsxOutput: `const Test = () => <div class={\`${multilineWithExpressionAtBeginning}\`} />;`,
+            jsx: `<div class={\`${singleLineWithExpressionAtBeginning}\`} />`,
+            jsxOutput: `<div class={\`${multilineWithExpressionAtBeginning}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<div class={\`${singleLineWithExpressionAtBeginning}\`} />`,
             svelteOutput: `<div class={\`${multilineWithExpressionAtBeginning}\`} />`
           },
           {
             errors: 2,
-            jsx: `const Test = () => <div class={\`${singleLineWithExpressionInCenter}\`} />;`,
-            jsxOutput: `const Test = () => <div class={\`${multilineWithExpressionInCenter}\`} />;`,
+            jsx: `<div class={\`${singleLineWithExpressionInCenter}\`} />`,
+            jsxOutput: `<div class={\`${multilineWithExpressionInCenter}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<div class={\`${singleLineWithExpressionInCenter}\`} />`,
             svelteOutput: `<div class={\`${multilineWithExpressionInCenter}\`} />`
           },
           {
             errors: 2,
-            jsx: `const Test = () => <div class={\`${singleLineWithExpressionAtEnd}\`} />;`,
-            jsxOutput: `const Test = () => <div class={\`${multilineWithExpressionAtEnd}\`} />;`,
+            jsx: `<div class={\`${singleLineWithExpressionAtEnd}\`} />`,
+            jsxOutput: `<div class={\`${multilineWithExpressionAtEnd}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<div class={\`${singleLineWithExpressionAtEnd}\`} />`,
             svelteOutput: `<div class={\`${multilineWithExpressionAtEnd}\`} />`
           },
           {
             errors: 2,
-            jsx: `const Test = () => <div class={\`${singleLineWithClassesAroundExpression}\`} />;`,
-            jsxOutput: `const Test = () => <div class={\`${multilineWithClassesAroundExpression}\`} />;`,
+            jsx: `<div class={\`${singleLineWithClassesAroundExpression}\`} />`,
+            jsxOutput: `<div class={\`${multilineWithClassesAroundExpression}\`} />`,
             options: [{ classesPerLine: 4, indent: 2 }],
             svelte: `<div class={\`${singleLineWithClassesAroundExpression}\`} />`,
             svelteOutput: `<div class={\`${multilineWithClassesAroundExpression}\`} />`
           }
         ]
       }
-    )).toBeUndefined();
+    );
 
   });
 
@@ -603,46 +606,46 @@ describe(tailwindMultiline.name, () => {
       h${expression}
     `;
 
-    expect(void lint(
+    lint(
       tailwindMultiline,
       TEST_SYNTAXES,
       {
         invalid: [
           {
             errors: 2,
-            jsx: `const Test = () => <div class={\`${singleLineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />;`,
-            jsxOutput: `const Test = () => <div class={\`${multilineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />;`,
+            jsx: `<div class={\`${singleLineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`,
+            jsxOutput: `<div class={\`${multilineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<div class={\`${singleLineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`,
             svelteOutput: `<div class={\`${multilineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`
           },
           {
             errors: 2,
-            jsx: `const Test = () => <div class={\`${singleLineWithExpressionInCenterWithStickyClassAtBeginning}\`} />;`,
-            jsxOutput: `const Test = () => <div class={\`${multilineWithExpressionInCenterWithStickyClassAtBeginning}\`} />;`,
+            jsx: `<div class={\`${singleLineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`,
+            jsxOutput: `<div class={\`${multilineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<div class={\`${singleLineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`,
             svelteOutput: `<div class={\`${multilineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`
           },
           {
             errors: 2,
-            jsx: `const Test = () => <div class={\`${singleLineWithExpressionInCenterWithStickyClassAtEnd}\`} />;`,
-            jsxOutput: `const Test = () => <div class={\`${multilineWithExpressionInCenterWithStickyClassAtEnd}\`} />;`,
+            jsx: `<div class={\`${singleLineWithExpressionInCenterWithStickyClassAtEnd}\`} />`,
+            jsxOutput: `<div class={\`${multilineWithExpressionInCenterWithStickyClassAtEnd}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<div class={\`${singleLineWithExpressionInCenterWithStickyClassAtEnd}\`} />`,
             svelteOutput: `<div class={\`${multilineWithExpressionInCenterWithStickyClassAtEnd}\`} />`
           },
           {
             errors: 2,
-            jsx: `const Test = () => <div class={\`${singleLineWithExpressionAtEndWithStickyClassAtBeginning}\`} />;`,
-            jsxOutput: `const Test = () => <div class={\`${multilineWithExpressionAtEndWithStickyClassAtBeginning}\`} />;`,
+            jsx: `<div class={\`${singleLineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`,
+            jsxOutput: `<div class={\`${multilineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<div class={\`${singleLineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`,
             svelteOutput: `<div class={\`${multilineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`
           }
         ]
       }
-    )).toBeUndefined();
+    );
 
   });
 
@@ -660,7 +663,7 @@ describe(tailwindMultiline.name, () => {
       g-3:a g-3:b
     `;
 
-    expect(void lint(
+    lint(
       tailwindMultiline,
       TEST_SYNTAXES,
       {
@@ -669,8 +672,8 @@ describe(tailwindMultiline.name, () => {
             errors: 1,
             html: `<div class="${singleLine}" />`,
             htmlOutput: `<div class="${multiline}" />`,
-            jsx: `const Test = () => <div class={\`${singleLine}\`} />;`,
-            jsxOutput: `const Test = () => <div class={\`${multiline}\`} />;`,
+            jsx: `<div class={\`${singleLine}\`} />`,
+            jsxOutput: `<div class={\`${multiline}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<div class="${singleLine}" />`,
             svelteOutput: `<div class="${multiline}" />`,
@@ -679,7 +682,7 @@ describe(tailwindMultiline.name, () => {
           }
         ]
       }
-    )).toBeUndefined();
+    );
 
   });
 
@@ -695,7 +698,7 @@ describe(tailwindMultiline.name, () => {
       g h
     \`;`;
 
-    expect(void lint(
+    lint(
       tailwindMultiline,
       TEST_SYNTAXES,
       {
@@ -719,7 +722,7 @@ describe(tailwindMultiline.name, () => {
           }
         ]
       }
-    )).toBeUndefined();
+    );
 
   });
 
@@ -761,7 +764,7 @@ describe(tailwindMultiline.name, () => {
       }
     };`;
 
-    expect(void lint(
+    lint(
       tailwindMultiline,
       TEST_SYNTAXES,
       {
@@ -813,7 +816,7 @@ describe(tailwindMultiline.name, () => {
           }
         ]
       }
-    )).toBeUndefined();
+    );
 
   });
 
@@ -822,7 +825,7 @@ describe(tailwindMultiline.name, () => {
     const dirty = " a b c d e f g h ";
     const clean = "\r\n  a b c\r\n  d e f\r\n  g h\r\n";
 
-    expect(void lint(
+    lint(
       tailwindMultiline,
       TEST_SYNTAXES,
       {
@@ -831,8 +834,8 @@ describe(tailwindMultiline.name, () => {
             errors: 1,
             html: `<div class="${dirty}" />`,
             htmlOutput: `<div class="${clean}" />`,
-            jsx: `const Test = () => <div class="${dirty}" />;`,
-            jsxOutput: `const Test = () => <div class={\`${clean}\`} />;`,
+            jsx: `<div class="${dirty}" />`,
+            jsxOutput: `<div class={\`${clean}\`} />`,
             options: [{ classesPerLine: 3, indent: 2, lineBreakStyle: "windows" }],
             svelte: `<div class="${dirty}" />`,
             svelteOutput: `<div class="${clean}" />`,
@@ -841,7 +844,7 @@ describe(tailwindMultiline.name, () => {
           }
         ]
       }
-    )).toBeUndefined();
+    );
 
   });
 
@@ -850,7 +853,7 @@ describe(tailwindMultiline.name, () => {
     const dirty = " a b c d e f g h ";
     const clean = "\n\ta b c\n\td e f\n\tg h\n";
 
-    expect(void lint(
+    lint(
       tailwindMultiline,
       TEST_SYNTAXES,
       {
@@ -869,8 +872,7 @@ describe(tailwindMultiline.name, () => {
           }
         ]
       }
-    )).toBeUndefined();
-
+    )
   });
-
+  
 });
