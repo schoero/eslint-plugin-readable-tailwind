@@ -14,62 +14,62 @@ describe(tailwindSortClasses.name, () => {
         invalid: [
           {
             errors: 1,
-            html: "<img class=\"b a\" />",
-            htmlOutput: "<img class=\"a b\" />",
-            jsx: "<img class=\"b a\" />",
-            jsxOutput: "<img class=\"a b\" />",
+            html: `<img class="b a" />`,
+            htmlOutput: `<img class="a b" />`,
+            jsx: `<img class="b a" />`,
+            jsxOutput: `<img class="a b" />`,
             options: [{ order: "asc" }],
-            svelte: "<img class=\"b a\" />",
-            svelteOutput: "<img class=\"a b\" />",
-            vue: "<template><img class=\"b a\" /></template>",
-            vueOutput: "<template><img class=\"a b\" /></template>"
+            svelte: `<img class="b a" />`,
+            svelteOutput: `<img class="a b" />`,
+            vue: `<template><img class="b a" /></template>`,
+            vueOutput: `<template><img class="a b" /></template>`
           },
           {
             errors: 1,
-            html: "<img class=\"a b\" />",
-            htmlOutput: "<img class=\"b a\" />",
-            jsx: "<img class=\"a b\" />",
-            jsxOutput: "<img class=\"b a\" />",
+            html: `<img class="a b" />`,
+            htmlOutput: `<img class="b a" />`,
+            jsx: `<img class="a b" />`,
+            jsxOutput: `<img class="b a" />`,
             options: [{ order: "desc" }],
-            svelte: "<img class=\"a b\" />",
-            svelteOutput: "<img class=\"b a\" />",
-            vue: "<template><img class=\"a b\" /></template>",
-            vueOutput: "<template><img class=\"b a\" /></template>"
+            svelte: `<img class="a b" />`,
+            svelteOutput: `<img class="b a" />`,
+            vue: `<template><img class="a b" /></template>`,
+            vueOutput: `<template><img class="b a" /></template>`
           },
           {
             errors: 1,
-            html: "<img class=\"w-full absolute\" />",
-            htmlOutput: "<img class=\"absolute w-full\" />",
-            jsx: "<img class=\"w-full absolute\" />",
-            jsxOutput: "<img class=\"absolute w-full\" />",
+            html: `<img class="w-full absolute" />`,
+            htmlOutput: `<img class="absolute w-full" />`,
+            jsx: `<img class="w-full absolute" />`,
+            jsxOutput: `<img class="absolute w-full" />`,
             options: [{ order: "official" }],
-            svelte: "<img class=\"w-full absolute\" />",
-            svelteOutput: "<img class=\"absolute w-full\" />",
-            vue: "<template><img class=\"w-full absolute\" /></template>",
-            vueOutput: "<template><img class=\"absolute w-full\" /></template>"
+            svelte: `<img class="w-full absolute" />`,
+            svelteOutput: `<img class="absolute w-full" />`,
+            vue: `<template><img class="w-full absolute" /></template>`,
+            vueOutput: `<template><img class="absolute w-full" /></template>`
           }
         ],
         valid: [
           {
-            html: "<img class=\"a b\" />",
-            jsx: "<img class=\"a b\" />",
+            html: `<img class="a b" />`,
+            jsx: `<img class="a b" />`,
             options: [{ order: "asc" }],
-            svelte: "<img class=\"a b\" />",
-            vue: "<template><img class=\"a b\" /></template>"
+            svelte: `<img class="a b" />`,
+            vue: `<template><img class="a b" /></template>`
           },
           {
-            html: "img class=\"b a\" />",
-            jsx: "<img class=\"b a\" />",
+            html: `img class="b a" />`,
+            jsx: `<img class="b a" />`,
             options: [{ order: "desc" }],
-            svelte: "img class=\"b a\" />",
-            vue: "<template><img class=\"b a\" /></template>"
+            svelte: `img class="b a" />`,
+            vue: `<template><img class="b a" /></template>`
           },
           {
-            html: "<img class=\"absolute w-full\" />",
-            jsx: "<img class=\"absolute w-full\" />",
+            html: `<img class="absolute w-full" />`,
+            jsx: `<img class="absolute w-full" />`,
             options: [{ order: "official" }],
-            svelte: "<img class=\"absolute w-full\" />",
-            vue: "<template><img class=\"absolute w-full\" /></template>"
+            svelte: `<img class="absolute w-full" />`,
+            vue: `<template><img class="absolute w-full" /></template>`
           }
         ]
       }
@@ -81,15 +81,15 @@ describe(tailwindSortClasses.name, () => {
       invalid: [
         {
           errors: 1,
-          html: "<img class=\"c:a a:a b:a a:b c:b b:b\" />",
-          htmlOutput: "<img class=\"a:a a:b b:a b:b c:a c:b\" />",
-          jsx: "<img class=\"c:a a:a b:a a:b c:b b:b\" />",
-          jsxOutput: "<img class=\"a:a a:b b:a b:b c:a c:b\" />",
+          html: `<img class="c:a a:a b:a a:b c:b b:b" />`,
+          htmlOutput: `<img class="a:a a:b b:a b:b c:a c:b" />`,
+          jsx: `<img class="c:a a:a b:a a:b c:b b:b" />`,
+          jsxOutput: `<img class="a:a a:b b:a b:b c:a c:b" />`,
           options: [{ order: "improved" }],
-          svelte: "<img class=\"c:a a:a b:a a:b c:b b:b\" />",
-          svelteOutput: "<img class=\"a:a a:b b:a b:b c:a c:b\" />",
-          vue: "<template><img class=\"c:a a:a b:a a:b c:b b:b\" /></template>",
-          vueOutput: "<template><img class=\"a:a a:b b:a b:b c:a c:b\" /></template>"
+          svelte: `<img class="c:a a:a b:a a:b c:b b:b" />`,
+          svelteOutput: `<img class="a:a a:b b:a b:b c:a c:b" />`,
+          vue: `<template><img class="c:a a:a b:a a:b c:b b:b" /></template>`,
+          vueOutput: `<template><img class="a:a a:b b:a b:b c:a c:b" /></template>`
         }
       ]
     });
@@ -103,46 +103,46 @@ describe(tailwindSortClasses.name, () => {
         invalid: [
           {
             errors: 1,
-            html: "<img class=\"b a\" />",
-            htmlOutput: "<img class=\"a b\" />",
-            jsx: "<img class=\"b a\" />",
-            jsxOutput: "<img class=\"a b\" />",
+            html: `<img class="b a" />`,
+            htmlOutput: `<img class="a b" />`,
+            jsx: `<img class="b a" />`,
+            jsxOutput: `<img class="a b" />`,
             options: [{ order: "asc" }],
-            svelte: "<img class=\"b a\" />",
-            svelteOutput: "<img class=\"a b\" />",
-            vue: "<template><img class=\"b a\" /></template>",
-            vueOutput: "<template><img class=\"a b\" /></template>"
+            svelte: `<img class="b a" />`,
+            svelteOutput: `<img class="a b" />`,
+            vue: `<template><img class="b a" /></template>`,
+            vueOutput: `<template><img class="a b" /></template>`
           },
           {
             errors: 1,
-            html: "<img class='b a' />",
-            htmlOutput: "<img class='a b' />",
-            jsx: "<img class='b a' />",
-            jsxOutput: "<img class='a b' />",
+            html: `<img class='b a' />`,
+            htmlOutput: `<img class='a b' />`,
+            jsx: `<img class='b a' />`,
+            jsxOutput: `<img class='a b' />`,
             options: [{ order: "asc" }],
-            svelte: "<img class='b a' />",
-            svelteOutput: "<img class='a b' />",
-            vue: "<template><img class='b a' /></template>",
-            vueOutput: "<template><img class='a b' /></template>"
+            svelte: `<img class='b a' />`,
+            svelteOutput: `<img class='a b' />`,
+            vue: `<template><img class='b a' /></template>`,
+            vueOutput: `<template><img class='a b' /></template>`
           },
           {
             errors: 1,
-            jsx: "<img class={`b a`} />",
-            jsxOutput: "<img class={`a b`} />",
+            jsx: `<img class={\`b a\`} />`,
+            jsxOutput: `<img class={\`a b\`} />`,
             options: [{ order: "asc" }],
-            svelte: "<img class={`b a`} />",
-            svelteOutput: "<img class={`a b`} />"
+            svelte: `<img class={\`b a\`} />`,
+            svelteOutput: `<img class={\`a b\`} />`
           },
           {
             errors: 1,
-            jsx: "<img class={\"b a\"} />",
-            jsxOutput: "<img class={\"a b\"} />",
+            jsx: `<img class={"b a"} />`,
+            jsxOutput: `<img class={"a b"} />`,
             options: [{ order: "asc" }]
           },
           {
             errors: 1,
-            jsx: "<img class={'b a'} />",
-            jsxOutput: "<img class={'a b'} />",
+            jsx: `<img class={'b a'} />`,
+            jsxOutput: `<img class={'a b'} />`,
             options: [{ order: "asc" }]
           }
         ]
@@ -154,8 +154,8 @@ describe(tailwindSortClasses.name, () => {
     lint(tailwindSortClasses, TEST_SYNTAXES, {
       valid: [
         {
-          jsx: "<img class={true ? \"b a\" : \"c b\"} />",
-          svelte: "<img class={true ? \"b a\" : \"c b\"} />"
+          jsx: `<img class={true ? "b a" : "c b"} />`,
+          svelte: `<img class={true ? "b a" : "c b"} />`
         }
       ]
     });
@@ -166,17 +166,17 @@ describe(tailwindSortClasses.name, () => {
       invalid: [
         {
           errors: 2,
-          jsx: "<img class={`c a ${true ? 'e' : 'f'} d b `} />",
-          jsxOutput: "<img class={`a c ${true ? 'e' : 'f'} b d `} />",
+          jsx: `<img class={\`c a \${true ? "e" : "f"} d b \`} />`,
+          jsxOutput: `<img class={\`a c \${true ? "e" : "f"} b d \`} />`,
           options: [{ order: "asc" }],
-          svelte: "<img class={`c a ${true ? 'e' : 'f'} d b `} />",
-          svelteOutput: "<img class={`a c ${true ? 'e' : 'f'} b d `} />"
+          svelte: `<img class={\`c a \${true ? "e" : "f"} d b \`} />`,
+          svelteOutput: `<img class={\`a c \${true ? "e" : "f"} b d \`} />`
         }
       ],
       valid: [
         {
-          jsx: "<img class={`a c ${true ? 'e' : 'f'} b `} />",
-          svelte: "<img class={`a c ${true ? 'e' : 'f'} b `} />"
+          jsx: `<img class={\`a c \${true ? "e" : "f"} b \`} />`,
+          svelte: `<img class={\`a c \${true ? "e" : "f"} b \`} />`
         }
       ]
     });

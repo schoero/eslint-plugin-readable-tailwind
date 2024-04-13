@@ -63,21 +63,21 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
         },
         {
           errors: 1,
-          html: "<img class='  b  a  ' />",
-          htmlOutput: "<img class='b a' />",
-          jsx: "<img class='  b  a  ' />",
-          jsxOutput: "<img class='b a' />",
-          svelte: "<img class='  b  a  ' />",
-          svelteOutput: "<img class='b a' />",
-          vue: "<template><img class='  b  a  ' /></template>",
-          vueOutput: "<template><img class='b a' /></template>"
+          html: `<img class='  b  a  ' />`,
+          htmlOutput: `<img class='b a' />`,
+          jsx: `<img class='  b  a  ' />`,
+          jsxOutput: `<img class='b a' />`,
+          svelte: `<img class='  b  a  ' />`,
+          svelteOutput: `<img class='b a' />`,
+          vue: `<template><img class='  b  a  ' /></template>`,
+          vueOutput: `<template><img class='b a' /></template>`
         },
         {
           errors: 1,
-          jsx: "<img class={`  b  a  `} />",
-          jsxOutput: "<img class={`b a`} />",
-          svelte: "<img class={`  b  a  `} />",
-          svelteOutput: "<img class={`b a`} />"
+          jsx: `<img class={\`  b  a  \`} />`,
+          jsxOutput: `<img class={\`b a\`} />`,
+          svelte: `<img class={\`  b  a  \`} />`,
+          svelteOutput: `<img class={\`b a\`} />`
         },
         {
           errors: 1,
@@ -88,10 +88,10 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
         },
         {
           errors: 1,
-          jsx: "<img class={'  b  a  '} />",
-          jsxOutput: "<img class={'b a'} />",
-          svelte: "<img class={'  b  a  '} />",
-          svelteOutput: "<img class={'b a'} />"
+          jsx: `<img class={'  b  a  '} />`,
+          jsxOutput: `<img class={'b a'} />`,
+          svelte: `<img class={'  b  a  '} />`,
+          svelteOutput: `<img class={'b a'} />`
         }
       ]
     });
@@ -102,10 +102,10 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       invalid: [
         {
           errors: 2,
-          jsx: "<img class={`  b  a  ${'  c  '}  d  `} />",
-          jsxOutput: "<img class={`b a ${'  c  '} d`} />",
-          svelte: "<img class={`  b  a  ${'  c  '}  d  `} />",
-          svelteOutput: "<img class={`b a ${'  c  '} d`} />"
+          jsx: `<img class={\`  b  a  \${"  c  "}  d  \`} />`,
+          jsxOutput: `<img class={\`b a \${"  c  "} d\`} />`,
+          svelte: `<img class={\`  b  a  \${"  c  "}  d  \`} />`,
+          svelteOutput: `<img class={\`b a \${"  c  "} d\`} />`
         }
       ]
     });
@@ -335,10 +335,10 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       invalid: [
         {
           errors: 3,
-          jsx: "<img class={`  ${' b '}  a  d  ${'  c  '}  `} />",
-          jsxOutput: "<img class={`${' b '} a d ${'  c  '}`} />",
-          svelte: "<img class={`  ${' b '}  a  d  ${'  c  '}  `} />",
-          svelteOutput: "<img class={`${' b '} a d ${'  c  '}`} />"
+          jsx: `<img class={\`  \${" b "}  a  d  \${"  c  "}  \`} />`,
+          jsxOutput: `<img class={\`\${" b "} a d \${"  c  "}\`} />`,
+          svelte: `<img class={\`  \${" b "}  a  d  \${"  c  "}  \`} />`,
+          svelteOutput: `<img class={\`\${" b "} a d \${"  c  "}\`} />`
         }
       ]
     });

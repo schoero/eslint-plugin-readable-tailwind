@@ -14,28 +14,28 @@ describe(tailwindMultiline.name, () => {
       {
         valid: [
           {
-            html: "<img class=\"\" />",
-            jsx: "<img class=\"\" />",
-            svelte: "<img class=\"\" />",
-            vue: "<template><img class=\"\" /></template>"
+            html: `<img class="" />`,
+            jsx: `<img class="" />`,
+            svelte: `<img class="" />`,
+            vue: `<template><img class="" /></template>`
           },
           {
-            html: "<img class='' />",
-            jsx: "<img class='' />",
-            svelte: "<img class='' />",
-            vue: "<template><img class='' /></template>"
+            html: `<img class='' />`,
+            jsx: `<img class='' />`,
+            svelte: `<img class='' />`,
+            vue: `<template><img class='' /></template>`
           },
           {
-            jsx: "<img class={\"\"} />",
-            svelte: "<img class={\"\"} />"
+            jsx: `<img class={""} />`,
+            svelte: `<img class={""} />`
           },
           {
-            jsx: "<img class={''} />",
-            svelte: "<img class={''} />"
+            jsx: `<img class={''} />`,
+            svelte: `<img class={''} />`
           },
           {
-            jsx: "<img class={``} />",
-            svelte: "<img class={``} />"
+            jsx: `<img class={\`\`} />`,
+            svelte: `<img class={\`\`} />`
           }
         ]
       }
@@ -49,28 +49,28 @@ describe(tailwindMultiline.name, () => {
       {
         valid: [
           {
-            html: "<img class=\"a b c\" />",
-            jsx: "<img class=\"a b c\" />",
-            svelte: "<img class=\"a b c\" />",
-            vue: "<template><img class=\"a b c\" /></template>"
+            html: `<img class="a b c" />`,
+            jsx: `<img class="a b c" />`,
+            svelte: `<img class="a b c" />`,
+            vue: `<template><img class="a b c" /></template>`
           },
           {
-            html: "<img class='a b c' />",
-            jsx: "<img class='a b c' />",
-            svelte: "<img class='a b c' />",
-            vue: "<template><img class='a b c' /></template>"
+            html: `<img class='a b c' />`,
+            jsx: `<img class='a b c' />`,
+            svelte: `<img class='a b c' />`,
+            vue: `<template><img class='a b c' /></template>`
           },
           {
-            jsx: "<img class={\"a b c\"} />",
-            svelte: "<img class={\"a b c\"} />"
+            jsx: `<img class={"a b c"} />`,
+            svelte: `<img class={"a b c"} />`
           },
           {
-            jsx: "<img class={'a b c'} />",
-            svelte: "<img class={'a b c'} />"
+            jsx: `<img class={'a b c'} />`,
+            svelte: `<img class={'a b c'} />`
           },
           {
-            jsx: "<img class={`a b c`} />",
-            svelte: "<img class={`a b c`} />"
+            jsx: `<img class={\`a b c\`} />`,
+            svelte: `<img class={\`a b c\`} />`
           }
         ]
       }
@@ -181,11 +181,11 @@ describe(tailwindMultiline.name, () => {
       {
         valid: [
           {
-            html: "<img class=\"this string literal is longer than 80 characters and would be wrapped using the default printWidth\" />",
-            jsx: "<img class=\"this string literal is longer than 80 characters and would be wrapped using the default printWidth\" />",
+            html: `<img class="this string literal is longer than 80 characters and would be wrapped using the default printWidth" />`,
+            jsx: `<img class="this string literal is longer than 80 characters and would be wrapped using the default printWidth" />`,
             options: [{ printWidth: 0 }],
-            svelte: "<img class=\"this string literal is longer than 80 characters and would be wrapped using the default printWidth\" />",
-            vue: "<template><img class=\"this string literal is longer than 80 characters and would be wrapped using the default printWidth\" /></template>"
+            svelte: `<img class="this string literal is longer than 80 characters and would be wrapped using the default printWidth" />`,
+            vue: `<template><img class="this string literal is longer than 80 characters and would be wrapped using the default printWidth" /></template>`
           }
         ]
       }
