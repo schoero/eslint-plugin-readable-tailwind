@@ -872,7 +872,7 @@ describe(tailwindMultiline.name, () => {
           }
         ]
       }
-    )
+    );
   });
-  
+
 });
