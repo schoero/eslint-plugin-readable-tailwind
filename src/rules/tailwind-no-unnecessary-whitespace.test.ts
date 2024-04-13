@@ -11,14 +11,14 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       invalid: [
         {
           errors: 1,
-          html: `<div class="  b  a  " />`,
-          htmlOutput: `<div class="b a" />`,
-          jsx: `<div class="  b  a  " />`,
-          jsxOutput: `<div class="b a" />`,
-          svelte: `<div class="  b  a  " />`,
-          svelteOutput: `<div class="b a" />`,
-          vue: `<template><div class="  b  a  " /></template>`,
-          vueOutput: `<template><div class="b a" /></template>`
+          html: `<img class="  b  a  " />`,
+          htmlOutput: `<img class="b a" />`,
+          jsx: `<img class="  b  a  " />`,
+          jsxOutput: `<img class="b a" />`,
+          svelte: `<img class="  b  a  " />`,
+          svelteOutput: `<img class="b a" />`,
+          vue: `<template><img class="  b  a  " /></template>`,
+          vueOutput: `<template><img class="b a" /></template>`
         }
       ]
     });
@@ -34,14 +34,14 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       invalid: [
         {
           errors: 1,
-          html: `<div class="${dirtyEmptyMultilineString}" />`,
-          htmlOutput: `<div class="${cleanEmptyMultilineString}" />`,
-          jsx: `<div class="${dirtyEmptyMultilineString}" />`,
-          jsxOutput: `<div class="${cleanEmptyMultilineString}" />`,
-          svelte: `<div class="${dirtyEmptyMultilineString}" />`,
-          svelteOutput: `<div class="${cleanEmptyMultilineString}" />`,
-          vue: `<template><div class="${dirtyEmptyMultilineString}" /></template>`,
-          vueOutput: `<template><div class="${cleanEmptyMultilineString}" /></template>`
+          html: `<img class="${dirtyEmptyMultilineString}" />`,
+          htmlOutput: `<img class="${cleanEmptyMultilineString}" />`,
+          jsx: `<img class="${dirtyEmptyMultilineString}" />`,
+          jsxOutput: `<img class="${cleanEmptyMultilineString}" />`,
+          svelte: `<img class="${dirtyEmptyMultilineString}" />`,
+          svelteOutput: `<img class="${cleanEmptyMultilineString}" />`,
+          vue: `<template><img class="${dirtyEmptyMultilineString}" /></template>`,
+          vueOutput: `<template><img class="${cleanEmptyMultilineString}" /></template>`
         }
       ]
     });
@@ -52,46 +52,46 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       invalid: [
         {
           errors: 1,
-          html: `<div class="  b  a  " />`,
-          htmlOutput: `<div class="b a" />`,
-          jsx: `<div class="  b  a  " />`,
-          jsxOutput: `<div class="b a" />`,
-          svelte: `<div class="  b  a  " />`,
-          svelteOutput: `<div class="b a" />`,
-          vue: `<template><div class="  b  a  " /></template>`,
-          vueOutput: `<template><div class="b a" /></template>`
+          html: `<img class="  b  a  " />`,
+          htmlOutput: `<img class="b a" />`,
+          jsx: `<img class="  b  a  " />`,
+          jsxOutput: `<img class="b a" />`,
+          svelte: `<img class="  b  a  " />`,
+          svelteOutput: `<img class="b a" />`,
+          vue: `<template><img class="  b  a  " /></template>`,
+          vueOutput: `<template><img class="b a" /></template>`
         },
         {
           errors: 1,
-          html: "<div class='  b  a  ' />",
-          htmlOutput: "<div class='b a' />",
-          jsx: "<div class='  b  a  ' />",
-          jsxOutput: "<div class='b a' />",
-          svelte: "<div class='  b  a  ' />",
-          svelteOutput: "<div class='b a' />",
-          vue: "<template><div class='  b  a  ' /></template>",
-          vueOutput: "<template><div class='b a' /></template>"
+          html: "<img class='  b  a  ' />",
+          htmlOutput: "<img class='b a' />",
+          jsx: "<img class='  b  a  ' />",
+          jsxOutput: "<img class='b a' />",
+          svelte: "<img class='  b  a  ' />",
+          svelteOutput: "<img class='b a' />",
+          vue: "<template><img class='  b  a  ' /></template>",
+          vueOutput: "<template><img class='b a' /></template>"
         },
         {
           errors: 1,
-          jsx: "<div class={`  b  a  `} />",
-          jsxOutput: "<div class={`b a`} />",
-          svelte: "<div class={`  b  a  `} />",
-          svelteOutput: "<div class={`b a`} />"
+          jsx: "<img class={`  b  a  `} />",
+          jsxOutput: "<img class={`b a`} />",
+          svelte: "<img class={`  b  a  `} />",
+          svelteOutput: "<img class={`b a`} />"
         },
         {
           errors: 1,
-          jsx: `<div class={"  b  a  "} />`,
-          jsxOutput: `<div class={"b a"} />`,
-          svelte: `<div class={"  b  a  "} />`,
-          svelteOutput: `<div class={"b a"} />`
+          jsx: `<img class={"  b  a  "} />`,
+          jsxOutput: `<img class={"b a"} />`,
+          svelte: `<img class={"  b  a  "} />`,
+          svelteOutput: `<img class={"b a"} />`
         },
         {
           errors: 1,
-          jsx: "<div class={'  b  a  '} />",
-          jsxOutput: "<div class={'b a'} />",
-          svelte: "<div class={'  b  a  '} />",
-          svelteOutput: "<div class={'b a'} />"
+          jsx: "<img class={'  b  a  '} />",
+          jsxOutput: "<img class={'b a'} />",
+          svelte: "<img class={'  b  a  '} />",
+          svelteOutput: "<img class={'b a'} />"
         }
       ]
     });
@@ -102,10 +102,10 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       invalid: [
         {
           errors: 2,
-          jsx: "<div class={`  b  a  ${'  c  '}  d  `} />",
-          jsxOutput: "<div class={`b a ${'  c  '} d`} />",
-          svelte: "<div class={`  b  a  ${'  c  '}  d  `} />",
-          svelteOutput: "<div class={`b a ${'  c  '} d`} />"
+          jsx: "<img class={`  b  a  ${'  c  '}  d  `} />",
+          jsxOutput: "<img class={`b a ${'  c  '} d`} />",
+          svelte: "<img class={`  b  a  ${'  c  '}  d  `} />",
+          svelteOutput: "<img class={`b a ${'  c  '} d`} />"
         }
       ]
     });
@@ -131,14 +131,14 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       invalid: [
         {
           errors: 1,
-          html: `<div class="${dirty}" />`,
-          htmlOutput: `<div class="${clean}" />`,
-          jsx: `<div class={\`${dirty}\`} />`,
-          jsxOutput: `<div class={\`${clean}\`} />`,
-          svelte: `<div class={\`${dirty}\`} />`,
-          svelteOutput: `<div class={\`${clean}\`} />`,
-          vue: `<template><div class="${dirty}" /></template>`,
-          vueOutput: `<template><div class="${clean}" /></template>`
+          html: `<img class="${dirty}" />`,
+          htmlOutput: `<img class="${clean}" />`,
+          jsx: `<img class={\`${dirty}\`} />`,
+          jsxOutput: `<img class={\`${clean}\`} />`,
+          svelte: `<img class={\`${dirty}\`} />`,
+          svelteOutput: `<img class={\`${clean}\`} />`,
+          vue: `<template><img class="${dirty}" /></template>`,
+          vueOutput: `<template><img class="${clean}" /></template>`
         }
       ]
     });
@@ -184,24 +184,24 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       invalid: [
         {
           errors: 1,
-          jsx: `<div class={\`${dirtyExpressionAtStart}\`} />`,
-          jsxOutput: `<div class={\`${cleanExpressionAtStart}\`} />`,
-          svelte: `<div class={\`${dirtyExpressionAtStart}\`} />`,
-          svelteOutput: `<div class={\`${cleanExpressionAtStart}\`} />`
+          jsx: `<img class={\`${dirtyExpressionAtStart}\`} />`,
+          jsxOutput: `<img class={\`${cleanExpressionAtStart}\`} />`,
+          svelte: `<img class={\`${dirtyExpressionAtStart}\`} />`,
+          svelteOutput: `<img class={\`${cleanExpressionAtStart}\`} />`
         },
         {
           errors: 2,
-          jsx: `<div class={\`${dirtyExpressionBetween}\`} />`,
-          jsxOutput: `<div class={\`${cleanExpressionBetween}\`} />`,
-          svelte: `<div class={\`${dirtyExpressionBetween}\`} />`,
-          svelteOutput: `<div class={\`${cleanExpressionBetween}\`} />`
+          jsx: `<img class={\`${dirtyExpressionBetween}\`} />`,
+          jsxOutput: `<img class={\`${cleanExpressionBetween}\`} />`,
+          svelte: `<img class={\`${dirtyExpressionBetween}\`} />`,
+          svelteOutput: `<img class={\`${cleanExpressionBetween}\`} />`
         },
         {
           errors: 2,
-          jsx: `<div class={\`${dirtyExpressionAtEnd}\`} />`,
-          jsxOutput: `<div class={\`${cleanExpressionAtEnd}\`} />`,
-          svelte: `<div class={\`${dirtyExpressionAtEnd}\`} />`,
-          svelteOutput: `<div class={\`${cleanExpressionAtEnd}\`} />`
+          jsx: `<img class={\`${dirtyExpressionAtEnd}\`} />`,
+          jsxOutput: `<img class={\`${cleanExpressionAtEnd}\`} />`,
+          svelte: `<img class={\`${dirtyExpressionAtEnd}\`} />`,
+          svelteOutput: `<img class={\`${cleanExpressionAtEnd}\`} />`
         }
       ]
     });
@@ -225,24 +225,24 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       invalid: [
         {
           errors: 2,
-          jsx: `<div class={\`${invalidAtStart}\`} />`,
-          jsxOutput: `<div class={\`${validAtStart}\`} />`,
-          svelte: `<div class={\`${invalidAtStart}\`} />`,
-          svelteOutput: `<div class={\`${validAtStart}\`} />`
+          jsx: `<img class={\`${invalidAtStart}\`} />`,
+          jsxOutput: `<img class={\`${validAtStart}\`} />`,
+          svelte: `<img class={\`${invalidAtStart}\`} />`,
+          svelteOutput: `<img class={\`${validAtStart}\`} />`
         },
         {
           errors: 2,
-          jsx: `<div class={\`${invalidBetween}\`} />`,
-          jsxOutput: `<div class={\`${validBetween}\`} />`,
-          svelte: `<div class={\`${invalidBetween}\`} />`,
-          svelteOutput: `<div class={\`${validBetween}\`} />`
+          jsx: `<img class={\`${invalidBetween}\`} />`,
+          jsxOutput: `<img class={\`${validBetween}\`} />`,
+          svelte: `<img class={\`${invalidBetween}\`} />`,
+          svelteOutput: `<img class={\`${validBetween}\`} />`
         },
         {
           errors: 2,
-          jsx: `<div class={\`${invalidAtEnd}\`} />`,
-          jsxOutput: `<div class={\`${validAtEnd}\`} />`,
-          svelte: `<div class={\`${invalidAtEnd}\`} />`,
-          svelteOutput: `<div class={\`${validAtEnd}\`} />`
+          jsx: `<img class={\`${invalidAtEnd}\`} />`,
+          jsxOutput: `<img class={\`${validAtEnd}\`} />`,
+          svelte: `<img class={\`${invalidAtEnd}\`} />`,
+          svelteOutput: `<img class={\`${validAtEnd}\`} />`
         }
       ]
     });
@@ -266,24 +266,24 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       invalid: [
         {
           errors: 2,
-          jsx: `<div class={\`${invalidAtStart}\`} />`,
-          jsxOutput: `<div class={\`${validAtStart}\`} />`,
-          svelte: `<div class={\`${invalidAtStart}\`} />`,
-          svelteOutput: `<div class={\`${validAtStart}\`} />`
+          jsx: `<img class={\`${invalidAtStart}\`} />`,
+          jsxOutput: `<img class={\`${validAtStart}\`} />`,
+          svelte: `<img class={\`${invalidAtStart}\`} />`,
+          svelteOutput: `<img class={\`${validAtStart}\`} />`
         },
         {
           errors: 2,
-          jsx: `<div class={\`${invalidBetween}\`} />`,
-          jsxOutput: `<div class={\`${validBetween}\`} />`,
-          svelte: `<div class={\`${invalidBetween}\`} />`,
-          svelteOutput: `<div class={\`${validBetween}\`} />`
+          jsx: `<img class={\`${invalidBetween}\`} />`,
+          jsxOutput: `<img class={\`${validBetween}\`} />`,
+          svelte: `<img class={\`${invalidBetween}\`} />`,
+          svelteOutput: `<img class={\`${validBetween}\`} />`
         },
         {
           errors: 2,
-          jsx: `<div class={\`${invalidAtEnd}\`} />`,
-          jsxOutput: `<div class={\`${validAtEnd}\`} />`,
-          svelte: `<div class={\`${invalidAtEnd}\`} />`,
-          svelteOutput: `<div class={\`${validAtEnd}\`} />`
+          jsx: `<img class={\`${invalidAtEnd}\`} />`,
+          jsxOutput: `<img class={\`${validAtEnd}\`} />`,
+          svelte: `<img class={\`${invalidAtEnd}\`} />`,
+          svelteOutput: `<img class={\`${validAtEnd}\`} />`
         }
       ]
     });
@@ -313,16 +313,16 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       valid: [
         {
-          jsx: `<div class={\`${validSeparateLineAtStart}\`} />`,
-          svelte: `<div class={\`${validSeparateLineAtStart}\`} />`
+          jsx: `<img class={\`${validSeparateLineAtStart}\`} />`,
+          svelte: `<img class={\`${validSeparateLineAtStart}\`} />`
         },
         {
-          jsx: `<div class={\`${validSeparateLineBetween}\`} />`,
-          svelte: `<div class={\`${validSeparateLineBetween}\`} />`
+          jsx: `<img class={\`${validSeparateLineBetween}\`} />`,
+          svelte: `<img class={\`${validSeparateLineBetween}\`} />`
         },
         {
-          jsx: `<div class={\`${validSeparateLineAtEnd}\`} />`,
-          svelte: `<div class={\`${validSeparateLineAtEnd}\`} />`
+          jsx: `<img class={\`${validSeparateLineAtEnd}\`} />`,
+          svelte: `<img class={\`${validSeparateLineAtEnd}\`} />`
         }
       ]
     });
@@ -335,10 +335,10 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       invalid: [
         {
           errors: 3,
-          jsx: "<div class={`  ${' b '}  a  d  ${'  c  '}  `} />",
-          jsxOutput: "<div class={`${' b '} a d ${'  c  '}`} />",
-          svelte: "<div class={`  ${' b '}  a  d  ${'  c  '}  `} />",
-          svelteOutput: "<div class={`${' b '} a d ${'  c  '}`} />"
+          jsx: "<img class={`  ${' b '}  a  d  ${'  c  '}  `} />",
+          jsxOutput: "<img class={`${' b '} a d ${'  c  '}`} />",
+          svelte: "<img class={`  ${' b '}  a  d  ${'  c  '}  `} />",
+          svelteOutput: "<img class={`${' b '} a d ${'  c  '}`} />"
         }
       ]
     });
@@ -361,54 +361,54 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       invalid: [
         {
           errors: 1,
-          html: `<div class="${uncleanedMultilineString}" />`,
-          htmlOutput: `<div class="${cleanedMultilineString}" />`,
-          svelte: `<div class="${uncleanedMultilineString}" />`,
-          svelteOutput: `<div class="${cleanedMultilineString}" />`,
-          vue: `<template><div class="${uncleanedMultilineString}" /></template>`,
-          vueOutput: `<template><div class="${cleanedMultilineString}" /></template>`
+          html: `<img class="${uncleanedMultilineString}" />`,
+          htmlOutput: `<img class="${cleanedMultilineString}" />`,
+          svelte: `<img class="${uncleanedMultilineString}" />`,
+          svelteOutput: `<img class="${cleanedMultilineString}" />`,
+          vue: `<template><img class="${uncleanedMultilineString}" /></template>`,
+          vueOutput: `<template><img class="${cleanedMultilineString}" /></template>`
         },
         {
           errors: 1,
-          html: `<div class='${uncleanedMultilineString}' />`,
-          htmlOutput: `<div class='${cleanedMultilineString}' />`,
-          svelte: `<div class='${uncleanedMultilineString}' />`,
-          svelteOutput: `<div class='${cleanedMultilineString}' />`,
-          vue: `<template><div class='${uncleanedMultilineString}' /></template>`,
-          vueOutput: `<template><div class='${cleanedMultilineString}' /></template>`
+          html: `<img class='${uncleanedMultilineString}' />`,
+          htmlOutput: `<img class='${cleanedMultilineString}' />`,
+          svelte: `<img class='${uncleanedMultilineString}' />`,
+          svelteOutput: `<img class='${cleanedMultilineString}' />`,
+          vue: `<template><img class='${uncleanedMultilineString}' /></template>`,
+          vueOutput: `<template><img class='${cleanedMultilineString}' /></template>`
         },
         {
           errors: 1,
-          jsx: `<div class={\`${uncleanedMultilineString}\`} />`,
-          jsxOutput: `<div class={\`${cleanedMultilineString}\`} />`,
-          svelte: `<div class={\`${uncleanedMultilineString}\`} />`,
-          svelteOutput: `<div class={\`${cleanedMultilineString}\`} />`
+          jsx: `<img class={\`${uncleanedMultilineString}\`} />`,
+          jsxOutput: `<img class={\`${cleanedMultilineString}\`} />`,
+          svelte: `<img class={\`${uncleanedMultilineString}\`} />`,
+          svelteOutput: `<img class={\`${cleanedMultilineString}\`} />`
         },
         {
           errors: 1,
-          html: `<div class='${uncleanedMultilineString}' />`,
-          htmlOutput: `<div class='${cleanedSinglelineString}' />`,
-          jsx: `<div class={\`${uncleanedMultilineString}\`} />`,
-          jsxOutput: `<div class={\`${cleanedSinglelineString}\`} />`,
+          html: `<img class='${uncleanedMultilineString}' />`,
+          htmlOutput: `<img class='${cleanedSinglelineString}' />`,
+          jsx: `<img class={\`${uncleanedMultilineString}\`} />`,
+          jsxOutput: `<img class={\`${cleanedSinglelineString}\`} />`,
           options: [{ allowMultiline: false }],
-          svelte: `<div class={\`${uncleanedMultilineString}\`} />`,
-          svelteOutput: `<div class={\`${cleanedSinglelineString}\`} />`,
-          vue: `<template><div class='${uncleanedMultilineString}' /></template>`,
-          vueOutput: `<template><div class='${cleanedSinglelineString}' /></template>`
+          svelte: `<img class={\`${uncleanedMultilineString}\`} />`,
+          svelteOutput: `<img class={\`${cleanedSinglelineString}\`} />`,
+          vue: `<template><img class='${uncleanedMultilineString}' /></template>`,
+          vueOutput: `<template><img class='${cleanedSinglelineString}' /></template>`
         }
       ],
       valid: [
         {
-          html: `<div class="${cleanedMultilineString}" />`,
-          jsx: `<div class={\`${cleanedMultilineString}\`} />`,
-          svelte: `<div class="${cleanedMultilineString}" />`,
-          vue: `<template><div class="${cleanedMultilineString}" /></template>`
+          html: `<img class="${cleanedMultilineString}" />`,
+          jsx: `<img class={\`${cleanedMultilineString}\`} />`,
+          svelte: `<img class="${cleanedMultilineString}" />`,
+          vue: `<template><img class="${cleanedMultilineString}" /></template>`
         },
         {
-          html: `<div class="${cleanedSinglelineString}" />`,
-          jsx: `<div class="${cleanedSinglelineString}" />`,
-          svelte: `<div class="${cleanedSinglelineString}" />`,
-          vue: `<template><div class="${cleanedSinglelineString}" /></template>`
+          html: `<img class="${cleanedSinglelineString}" />`,
+          jsx: `<img class="${cleanedSinglelineString}" />`,
+          svelte: `<img class="${cleanedSinglelineString}" />`,
+          vue: `<template><img class="${cleanedSinglelineString}" /></template>`
         }
       ]
     });
@@ -437,16 +437,16 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       valid: [
         {
-          jsx: `<div class={\`${validAtStart}\`} />`,
-          svelte: `<div class={\`${validAtStart}\`} />`
+          jsx: `<img class={\`${validAtStart}\`} />`,
+          svelte: `<img class={\`${validAtStart}\`} />`
         },
         {
-          jsx: `<div class={\`${validAround}\`} />`,
-          svelte: `<div class={\`${validAround}\`} />`
+          jsx: `<img class={\`${validAround}\`} />`,
+          svelte: `<img class={\`${validAround}\`} />`
         },
         {
-          jsx: `<div class={\`${validAtEnd}\`} />`,
-          svelte: `<div class={\`${validAtEnd}\`} />`
+          jsx: `<img class={\`${validAtEnd}\`} />`,
+          svelte: `<img class={\`${validAtEnd}\`} />`
         }
       ]
     });
@@ -611,17 +611,17 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       invalid: [
         {
           errors: 1,
-          jsx: `<div class={\`${dirtyDefinedMultiline}\`} />`,
-          jsxOutput: `<div class={\`${cleanDefinedMultiline}\`} />`,
+          jsx: `<img class={\`${dirtyDefinedMultiline}\`} />`,
+          jsxOutput: `<img class={\`${cleanDefinedMultiline}\`} />`,
           options: [{ callees: ["defined"] }],
-          svelte: `<div class={\`${dirtyDefinedMultiline}\`} />`,
-          svelteOutput: `<div class={\`${cleanDefinedMultiline}\`} />`
+          svelte: `<img class={\`${dirtyDefinedMultiline}\`} />`,
+          svelteOutput: `<img class={\`${cleanDefinedMultiline}\`} />`
         }
       ],
       valid: [
         {
-          jsx: `<div class={\`${dirtyUndefinedMultiline}\`} />`,
-          svelte: `<div class={\`${dirtyUndefinedMultiline}\`} />`
+          jsx: `<img class={\`${dirtyUndefinedMultiline}\`} />`,
+          svelte: `<img class={\`${dirtyUndefinedMultiline}\`} />`
         }
       ]
     });

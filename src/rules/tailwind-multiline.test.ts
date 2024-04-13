@@ -14,28 +14,28 @@ describe(tailwindMultiline.name, () => {
       {
         valid: [
           {
-            html: "<div class=\"\" />",
-            jsx: "<div class=\"\" />",
-            svelte: "<div class=\"\" />",
-            vue: "<template><div class=\"\" /></template>"
+            html: "<img class=\"\" />",
+            jsx: "<img class=\"\" />",
+            svelte: "<img class=\"\" />",
+            vue: "<template><img class=\"\" /></template>"
           },
           {
-            html: "<div class='' />",
-            jsx: "<div class='' />",
-            svelte: "<div class='' />",
-            vue: "<template><div class='' /></template>"
+            html: "<img class='' />",
+            jsx: "<img class='' />",
+            svelte: "<img class='' />",
+            vue: "<template><img class='' /></template>"
           },
           {
-            jsx: "<div class={\"\"} />",
-            svelte: "<div class={\"\"} />"
+            jsx: "<img class={\"\"} />",
+            svelte: "<img class={\"\"} />"
           },
           {
-            jsx: "<div class={''} />",
-            svelte: "<div class={''} />"
+            jsx: "<img class={''} />",
+            svelte: "<img class={''} />"
           },
           {
-            jsx: "<div class={``} />",
-            svelte: "<div class={``} />"
+            jsx: "<img class={``} />",
+            svelte: "<img class={``} />"
           }
         ]
       }
@@ -49,28 +49,28 @@ describe(tailwindMultiline.name, () => {
       {
         valid: [
           {
-            html: "<div class=\"a b c\" />",
-            jsx: "<div class=\"a b c\" />",
-            svelte: "<div class=\"a b c\" />",
-            vue: "<template><div class=\"a b c\" /></template>"
+            html: "<img class=\"a b c\" />",
+            jsx: "<img class=\"a b c\" />",
+            svelte: "<img class=\"a b c\" />",
+            vue: "<template><img class=\"a b c\" /></template>"
           },
           {
-            html: "<div class='a b c' />",
-            jsx: "<div class='a b c' />",
-            svelte: "<div class='a b c' />",
-            vue: "<template><div class='a b c' /></template>"
+            html: "<img class='a b c' />",
+            jsx: "<img class='a b c' />",
+            svelte: "<img class='a b c' />",
+            vue: "<template><img class='a b c' /></template>"
           },
           {
-            jsx: "<div class={\"a b c\"} />",
-            svelte: "<div class={\"a b c\"} />"
+            jsx: "<img class={\"a b c\"} />",
+            svelte: "<img class={\"a b c\"} />"
           },
           {
-            jsx: "<div class={'a b c'} />",
-            svelte: "<div class={'a b c'} />"
+            jsx: "<img class={'a b c'} />",
+            svelte: "<img class={'a b c'} />"
           },
           {
-            jsx: "<div class={`a b c`} />",
-            svelte: "<div class={`a b c`} />"
+            jsx: "<img class={`a b c`} />",
+            svelte: "<img class={`a b c`} />"
           }
         ]
       }
@@ -94,15 +94,15 @@ describe(tailwindMultiline.name, () => {
         invalid: [
           {
             errors: 1,
-            html: `<div class="${dirty}" />`,
-            htmlOutput: `<div class="${clean}" />`,
-            jsx: `<div class={\`${dirty}\`} />`,
-            jsxOutput: `<div class={\`${clean}\`} />`,
+            html: `<img class="${dirty}" />`,
+            htmlOutput: `<img class="${clean}" />`,
+            jsx: `<img class={\`${dirty}\`} />`,
+            jsxOutput: `<img class={\`${clean}\`} />`,
             options: [{ printWidth: 60 }],
-            svelte: `<div class="${dirty}" />`,
-            svelteOutput: `<div class="${clean}" />`,
-            vue: `<template><div class="${dirty}" /></template>`,
-            vueOutput: `<template><div class="${clean}" /></template>`
+            svelte: `<img class="${dirty}" />`,
+            svelteOutput: `<img class="${clean}" />`,
+            vue: `<template><img class="${dirty}" /></template>`,
+            vueOutput: `<template><img class="${clean}" /></template>`
           }
         ]
       }
@@ -131,11 +131,11 @@ describe(tailwindMultiline.name, () => {
         invalid: [
           {
             errors: 1,
-            jsx: `<div class={\`${incorrect}\`} />`,
-            jsxOutput: `<div class={\`${correct}\`} />`,
+            jsx: `<img class={\`${incorrect}\`} />`,
+            jsxOutput: `<img class={\`${correct}\`} />`,
             options: [{ classesPerLine: 3, group: "newLine", indent: 2 }],
-            svelte: `<div class={\`${incorrect}\`} />`,
-            svelteOutput: `<div class={\`${correct}\`} />`
+            svelte: `<img class={\`${incorrect}\`} />`,
+            svelteOutput: `<img class={\`${correct}\`} />`
           }
         ]
       }
@@ -159,15 +159,15 @@ describe(tailwindMultiline.name, () => {
         invalid: [
           {
             errors: 1,
-            html: `<div class="${dirty}" />`,
-            htmlOutput: `<div class="${clean}" />`,
-            jsx: `<div class="${dirty}" />`,
-            jsxOutput: `<div class={\`${clean}\`} />`,
+            html: `<img class="${dirty}" />`,
+            htmlOutput: `<img class="${clean}" />`,
+            jsx: `<img class="${dirty}" />`,
+            jsxOutput: `<img class={\`${clean}\`} />`,
             options: [{ printWidth: 60 }],
-            svelte: `<div class="${dirty}" />`,
-            svelteOutput: `<div class="${clean}" />`,
-            vue: `<template><div class="${dirty}" /></template>`,
-            vueOutput: `<template><div class="${clean}" /></template>`
+            svelte: `<img class="${dirty}" />`,
+            svelteOutput: `<img class="${clean}" />`,
+            vue: `<template><img class="${dirty}" /></template>`,
+            vueOutput: `<template><img class="${clean}" /></template>`
           }
         ]
       }
@@ -181,11 +181,11 @@ describe(tailwindMultiline.name, () => {
       {
         valid: [
           {
-            html: "<div class=\"this string literal is longer than 80 characters and would be wrapped using the default printWidth\" />",
-            jsx: "<div class=\"this string literal is longer than 80 characters and would be wrapped using the default printWidth\" />",
+            html: "<img class=\"this string literal is longer than 80 characters and would be wrapped using the default printWidth\" />",
+            jsx: "<img class=\"this string literal is longer than 80 characters and would be wrapped using the default printWidth\" />",
             options: [{ printWidth: 0 }],
-            svelte: "<div class=\"this string literal is longer than 80 characters and would be wrapped using the default printWidth\" />",
-            vue: "<template><div class=\"this string literal is longer than 80 characters and would be wrapped using the default printWidth\" /></template>"
+            svelte: "<img class=\"this string literal is longer than 80 characters and would be wrapped using the default printWidth\" />",
+            vue: "<template><img class=\"this string literal is longer than 80 characters and would be wrapped using the default printWidth\" /></template>"
           }
         ]
       }
@@ -213,18 +213,18 @@ describe(tailwindMultiline.name, () => {
         invalid: [
           {
             errors: 1,
-            jsx: `<div class={${dirtyDefined}} />`,
-            jsxOutput: `<div class={${cleanDefined}} />`,
+            jsx: `<img class={${dirtyDefined}} />`,
+            jsxOutput: `<img class={${cleanDefined}} />`,
             options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }],
-            svelte: `<div class={${dirtyDefined}} />`,
-            svelteOutput: `<div class={${cleanDefined}} />`
+            svelte: `<img class={${dirtyDefined}} />`,
+            svelteOutput: `<img class={${cleanDefined}} />`
           }
         ],
         valid: [
           {
-            jsx: `<div class={${dirtyUndefined}} />`,
+            jsx: `<img class={${dirtyUndefined}} />`,
             options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }],
-            svelte: `<div class={${dirtyUndefined}} />`
+            svelte: `<img class={${dirtyUndefined}} />`
           }
         ]
       }
@@ -237,18 +237,18 @@ describe(tailwindMultiline.name, () => {
         invalid: [
           {
             errors: 1,
-            jsx: `<div class={${dirtyDefined}} />`,
-            jsxOutput: `<div class={${cleanDefined}} />`,
+            jsx: `<img class={${dirtyDefined}} />`,
+            jsxOutput: `<img class={${cleanDefined}} />`,
             options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }],
-            svelte: `<div class={${dirtyDefined}} />`,
-            svelteOutput: `<div class={${cleanDefined}} />`
+            svelte: `<img class={${dirtyDefined}} />`,
+            svelteOutput: `<img class={${cleanDefined}} />`
           }
         ],
         valid: [
           {
-            jsx: `<div class={${dirtyUndefined}} />`,
+            jsx: `<img class={${dirtyUndefined}} />`,
             options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }],
-            svelte: `<div class={${dirtyUndefined}} />`
+            svelte: `<img class={${dirtyUndefined}} />`
           }
         ]
       }
@@ -364,48 +364,48 @@ describe(tailwindMultiline.name, () => {
         invalid: [
           {
             errors: 1,
-            jsx: `<div class="${singleLine}" />`,
-            jsxOutput: `<div class={\`${multiline}\`} />`,
+            jsx: `<img class="${singleLine}" />`,
+            jsxOutput: `<img class={\`${multiline}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
             errors: 1,
-            jsx: `<div class='${singleLine}' />`,
-            jsxOutput: `<div class={\`${multiline}\`} />`,
+            jsx: `<img class='${singleLine}' />`,
+            jsxOutput: `<img class={\`${multiline}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
             errors: 1,
-            jsx: `<div class={"${singleLine}"} />`,
-            jsxOutput: `<div class={\`${multiline}\`} />`,
+            jsx: `<img class={"${singleLine}"} />`,
+            jsxOutput: `<img class={\`${multiline}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<div class={"${singleLine}"} />`,
-            svelteOutput: `<div class={\`${multiline}\`} />`
+            svelte: `<img class={"${singleLine}"} />`,
+            svelteOutput: `<img class={\`${multiline}\`} />`
           },
           {
             errors: 1,
-            jsx: `<div class={'${singleLine}'} />`,
-            jsxOutput: `<div class={\`${multiline}\`} />`,
+            jsx: `<img class={'${singleLine}'} />`,
+            jsxOutput: `<img class={\`${multiline}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<div class={'${singleLine}'} />`,
-            svelteOutput: `<div class={\`${multiline}\`} />`
+            svelte: `<img class={'${singleLine}'} />`,
+            svelteOutput: `<img class={\`${multiline}\`} />`
           }
         ],
         valid: [
           {
-            jsx: `<div class={\`${multiline}\`} />`,
+            jsx: `<img class={\`${multiline}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<div class={\`${multiline}\`} />`
+            svelte: `<img class={\`${multiline}\`} />`
           },
           {
-            html: `<div class="${multiline}" />`,
+            html: `<img class="${multiline}" />`,
             options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<div class="${multiline}" />`
+            svelte: `<img class="${multiline}" />`
           },
           {
-            html: `<div class='${multiline}' />`,
+            html: `<img class='${multiline}' />`,
             options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<div class='${multiline}' />`
+            svelte: `<img class='${multiline}' />`
           }
         ]
       }
@@ -427,51 +427,51 @@ describe(tailwindMultiline.name, () => {
       invalid: [
         {
           errors: 1,
-          html: `<div class="${singleLine}" />`,
-          htmlOutput: `<div class="${multiline}" />`,
-          jsx: `<div class="${singleLine}" />`,
-          jsxOutput: `<div class={\`${multiline}\`} />`,
+          html: `<img class="${singleLine}" />`,
+          htmlOutput: `<img class="${multiline}" />`,
+          jsx: `<img class="${singleLine}" />`,
+          jsxOutput: `<img class={\`${multiline}\`} />`,
           options: [{ classesPerLine: 3, indent: 2 }],
-          svelte: `<div class="${singleLine}" />`,
-          svelteOutput: `<div class="${multiline}" />`,
-          vue: `<template><div class="${singleLine}" /></template>`,
-          vueOutput: `<template><div class="${multiline}" /></template>`
+          svelte: `<img class="${singleLine}" />`,
+          svelteOutput: `<img class="${multiline}" />`,
+          vue: `<template><img class="${singleLine}" /></template>`,
+          vueOutput: `<template><img class="${multiline}" /></template>`
         },
         {
           errors: 1,
-          html: `<div class='${singleLine}' />`,
-          htmlOutput: `<div class='${multiline}' />`,
-          jsx: `<div class='${singleLine}' />`,
-          jsxOutput: `<div class={\`${multiline}\`} />`,
+          html: `<img class='${singleLine}' />`,
+          htmlOutput: `<img class='${multiline}' />`,
+          jsx: `<img class='${singleLine}' />`,
+          jsxOutput: `<img class={\`${multiline}\`} />`,
           options: [{ classesPerLine: 3, indent: 2 }],
-          svelte: `<div class='${singleLine}' />`,
-          svelteOutput: `<div class='${multiline}' />`,
-          vue: `<template><div class='${singleLine}' /></template>`,
-          vueOutput: `<template><div class='${multiline}' /></template>`
+          svelte: `<img class='${singleLine}' />`,
+          svelteOutput: `<img class='${multiline}' />`,
+          vue: `<template><img class='${singleLine}' /></template>`,
+          vueOutput: `<template><img class='${multiline}' /></template>`
         },
         {
           errors: 1,
-          jsx: `<div class={\`${singleLine}\`} />`,
-          jsxOutput: `<div class={\`${multiline}\`} />`,
+          jsx: `<img class={\`${singleLine}\`} />`,
+          jsxOutput: `<img class={\`${multiline}\`} />`,
           options: [{ classesPerLine: 3, indent: 2 }],
-          svelte: `<div class={\`${singleLine}\`} />`,
-          svelteOutput: `<div class={\`${multiline}\`} />`
+          svelte: `<img class={\`${singleLine}\`} />`,
+          svelteOutput: `<img class={\`${multiline}\`} />`
         },
         {
           errors: 1,
-          jsx: `<div class={"${singleLine}"} />`,
-          jsxOutput: `<div class={\`${multiline}\`} />`,
+          jsx: `<img class={"${singleLine}"} />`,
+          jsxOutput: `<img class={\`${multiline}\`} />`,
           options: [{ classesPerLine: 3, indent: 2 }],
-          svelte: `<div class={"${singleLine}"} />`,
-          svelteOutput: `<div class={\`${multiline}\`} />`
+          svelte: `<img class={"${singleLine}"} />`,
+          svelteOutput: `<img class={\`${multiline}\`} />`
         },
         {
           errors: 1,
-          jsx: `<div class={'${singleLine}'} />`,
-          jsxOutput: `<div class={\`${multiline}\`} />`,
+          jsx: `<img class={'${singleLine}'} />`,
+          jsxOutput: `<img class={\`${multiline}\`} />`,
           options: [{ classesPerLine: 3, indent: 2 }],
-          svelte: `<div class={'${singleLine}'} />`,
-          svelteOutput: `<div class={\`${multiline}\`} />`
+          svelte: `<img class={'${singleLine}'} />`,
+          svelteOutput: `<img class={\`${multiline}\`} />`
         }
       ]
     });
@@ -527,35 +527,35 @@ describe(tailwindMultiline.name, () => {
         invalid: [
           {
             errors: 2,
-            jsx: `<div class={\`${singleLineWithExpressionAtBeginning}\`} />`,
-            jsxOutput: `<div class={\`${multilineWithExpressionAtBeginning}\`} />`,
+            jsx: `<img class={\`${singleLineWithExpressionAtBeginning}\`} />`,
+            jsxOutput: `<img class={\`${multilineWithExpressionAtBeginning}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<div class={\`${singleLineWithExpressionAtBeginning}\`} />`,
-            svelteOutput: `<div class={\`${multilineWithExpressionAtBeginning}\`} />`
+            svelte: `<img class={\`${singleLineWithExpressionAtBeginning}\`} />`,
+            svelteOutput: `<img class={\`${multilineWithExpressionAtBeginning}\`} />`
           },
           {
             errors: 2,
-            jsx: `<div class={\`${singleLineWithExpressionInCenter}\`} />`,
-            jsxOutput: `<div class={\`${multilineWithExpressionInCenter}\`} />`,
+            jsx: `<img class={\`${singleLineWithExpressionInCenter}\`} />`,
+            jsxOutput: `<img class={\`${multilineWithExpressionInCenter}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<div class={\`${singleLineWithExpressionInCenter}\`} />`,
-            svelteOutput: `<div class={\`${multilineWithExpressionInCenter}\`} />`
+            svelte: `<img class={\`${singleLineWithExpressionInCenter}\`} />`,
+            svelteOutput: `<img class={\`${multilineWithExpressionInCenter}\`} />`
           },
           {
             errors: 2,
-            jsx: `<div class={\`${singleLineWithExpressionAtEnd}\`} />`,
-            jsxOutput: `<div class={\`${multilineWithExpressionAtEnd}\`} />`,
+            jsx: `<img class={\`${singleLineWithExpressionAtEnd}\`} />`,
+            jsxOutput: `<img class={\`${multilineWithExpressionAtEnd}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<div class={\`${singleLineWithExpressionAtEnd}\`} />`,
-            svelteOutput: `<div class={\`${multilineWithExpressionAtEnd}\`} />`
+            svelte: `<img class={\`${singleLineWithExpressionAtEnd}\`} />`,
+            svelteOutput: `<img class={\`${multilineWithExpressionAtEnd}\`} />`
           },
           {
             errors: 2,
-            jsx: `<div class={\`${singleLineWithClassesAroundExpression}\`} />`,
-            jsxOutput: `<div class={\`${multilineWithClassesAroundExpression}\`} />`,
+            jsx: `<img class={\`${singleLineWithClassesAroundExpression}\`} />`,
+            jsxOutput: `<img class={\`${multilineWithClassesAroundExpression}\`} />`,
             options: [{ classesPerLine: 4, indent: 2 }],
-            svelte: `<div class={\`${singleLineWithClassesAroundExpression}\`} />`,
-            svelteOutput: `<div class={\`${multilineWithClassesAroundExpression}\`} />`
+            svelte: `<img class={\`${singleLineWithClassesAroundExpression}\`} />`,
+            svelteOutput: `<img class={\`${multilineWithClassesAroundExpression}\`} />`
           }
         ]
       }
@@ -613,35 +613,35 @@ describe(tailwindMultiline.name, () => {
         invalid: [
           {
             errors: 2,
-            jsx: `<div class={\`${singleLineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`,
-            jsxOutput: `<div class={\`${multilineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`,
+            jsx: `<img class={\`${singleLineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`,
+            jsxOutput: `<img class={\`${multilineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<div class={\`${singleLineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`,
-            svelteOutput: `<div class={\`${multilineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`
+            svelte: `<img class={\`${singleLineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`,
+            svelteOutput: `<img class={\`${multilineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`
           },
           {
             errors: 2,
-            jsx: `<div class={\`${singleLineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`,
-            jsxOutput: `<div class={\`${multilineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`,
+            jsx: `<img class={\`${singleLineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`,
+            jsxOutput: `<img class={\`${multilineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<div class={\`${singleLineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`,
-            svelteOutput: `<div class={\`${multilineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`
+            svelte: `<img class={\`${singleLineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`,
+            svelteOutput: `<img class={\`${multilineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`
           },
           {
             errors: 2,
-            jsx: `<div class={\`${singleLineWithExpressionInCenterWithStickyClassAtEnd}\`} />`,
-            jsxOutput: `<div class={\`${multilineWithExpressionInCenterWithStickyClassAtEnd}\`} />`,
+            jsx: `<img class={\`${singleLineWithExpressionInCenterWithStickyClassAtEnd}\`} />`,
+            jsxOutput: `<img class={\`${multilineWithExpressionInCenterWithStickyClassAtEnd}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<div class={\`${singleLineWithExpressionInCenterWithStickyClassAtEnd}\`} />`,
-            svelteOutput: `<div class={\`${multilineWithExpressionInCenterWithStickyClassAtEnd}\`} />`
+            svelte: `<img class={\`${singleLineWithExpressionInCenterWithStickyClassAtEnd}\`} />`,
+            svelteOutput: `<img class={\`${multilineWithExpressionInCenterWithStickyClassAtEnd}\`} />`
           },
           {
             errors: 2,
-            jsx: `<div class={\`${singleLineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`,
-            jsxOutput: `<div class={\`${multilineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`,
+            jsx: `<img class={\`${singleLineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`,
+            jsxOutput: `<img class={\`${multilineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<div class={\`${singleLineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`,
-            svelteOutput: `<div class={\`${multilineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`
+            svelte: `<img class={\`${singleLineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`,
+            svelteOutput: `<img class={\`${multilineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`
           }
         ]
       }
@@ -670,15 +670,15 @@ describe(tailwindMultiline.name, () => {
         invalid: [
           {
             errors: 1,
-            html: `<div class="${singleLine}" />`,
-            htmlOutput: `<div class="${multiline}" />`,
-            jsx: `<div class={\`${singleLine}\`} />`,
-            jsxOutput: `<div class={\`${multiline}\`} />`,
+            html: `<img class="${singleLine}" />`,
+            htmlOutput: `<img class="${multiline}" />`,
+            jsx: `<img class={\`${singleLine}\`} />`,
+            jsxOutput: `<img class={\`${multiline}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<div class="${singleLine}" />`,
-            svelteOutput: `<div class="${multiline}" />`,
-            vue: `<template><div class="${singleLine}" /></template>`,
-            vueOutput: `<template><div class="${multiline}" /></template>`
+            svelte: `<img class="${singleLine}" />`,
+            svelteOutput: `<img class="${multiline}" />`,
+            vue: `<template><img class="${singleLine}" /></template>`,
+            vueOutput: `<template><img class="${multiline}" /></template>`
           }
         ]
       }
@@ -832,15 +832,15 @@ describe(tailwindMultiline.name, () => {
         invalid: [
           {
             errors: 1,
-            html: `<div class="${dirty}" />`,
-            htmlOutput: `<div class="${clean}" />`,
-            jsx: `<div class="${dirty}" />`,
-            jsxOutput: `<div class={\`${clean}\`} />`,
+            html: `<img class="${dirty}" />`,
+            htmlOutput: `<img class="${clean}" />`,
+            jsx: `<img class="${dirty}" />`,
+            jsxOutput: `<img class={\`${clean}\`} />`,
             options: [{ classesPerLine: 3, indent: 2, lineBreakStyle: "windows" }],
-            svelte: `<div class="${dirty}" />`,
-            svelteOutput: `<div class="${clean}" />`,
-            vue: `<template><div class="${dirty}" /></template>`,
-            vueOutput: `<template><div class="${clean}" /></template>`
+            svelte: `<img class="${dirty}" />`,
+            svelteOutput: `<img class="${clean}" />`,
+            vue: `<template><img class="${dirty}" /></template>`,
+            vueOutput: `<template><img class="${clean}" /></template>`
           }
         ]
       }
@@ -860,15 +860,15 @@ describe(tailwindMultiline.name, () => {
         invalid: [
           {
             errors: 1,
-            html: `<div class="${dirty}" />`,
-            htmlOutput: `<div class="${clean}" />`,
-            jsx: `const Test = () => <div class="${dirty}" />;`,
-            jsxOutput: `const Test = () => <div class={\`${clean}\`} />;`,
+            html: `<img class="${dirty}" />`,
+            htmlOutput: `<img class="${clean}" />`,
+            jsx: `const Test = () => <img class="${dirty}" />;`,
+            jsxOutput: `const Test = () => <img class={\`${clean}\`} />;`,
             options: [{ classesPerLine: 3, indent: "tab" }],
-            svelte: `<div class="${dirty}" />`,
-            svelteOutput: `<div class="${clean}" />`,
-            vue: `<template><div class="${dirty}" /></template>`,
-            vueOutput: `<template><div class="${clean}" /></template>`
+            svelte: `<img class="${dirty}" />`,
+            svelteOutput: `<img class="${clean}" />`,
+            vue: `<template><img class="${dirty}" /></template>`,
+            vueOutput: `<template><img class="${clean}" /></template>`
           }
         ]
       }

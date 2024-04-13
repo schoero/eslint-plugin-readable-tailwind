@@ -14,62 +14,62 @@ describe(tailwindSortClasses.name, () => {
         invalid: [
           {
             errors: 1,
-            html: "<div class=\"b a\" />",
-            htmlOutput: "<div class=\"a b\" />",
-            jsx: "<div class=\"b a\" />",
-            jsxOutput: "<div class=\"a b\" />",
+            html: "<img class=\"b a\" />",
+            htmlOutput: "<img class=\"a b\" />",
+            jsx: "<img class=\"b a\" />",
+            jsxOutput: "<img class=\"a b\" />",
             options: [{ order: "asc" }],
-            svelte: "<div class=\"b a\" />",
-            svelteOutput: "<div class=\"a b\" />",
-            vue: "<template><div class=\"b a\" /></template>",
-            vueOutput: "<template><div class=\"a b\" /></template>"
+            svelte: "<img class=\"b a\" />",
+            svelteOutput: "<img class=\"a b\" />",
+            vue: "<template><img class=\"b a\" /></template>",
+            vueOutput: "<template><img class=\"a b\" /></template>"
           },
           {
             errors: 1,
-            html: "<div class=\"a b\" />",
-            htmlOutput: "<div class=\"b a\" />",
-            jsx: "<div class=\"a b\" />",
-            jsxOutput: "<div class=\"b a\" />",
+            html: "<img class=\"a b\" />",
+            htmlOutput: "<img class=\"b a\" />",
+            jsx: "<img class=\"a b\" />",
+            jsxOutput: "<img class=\"b a\" />",
             options: [{ order: "desc" }],
-            svelte: "<div class=\"a b\" />",
-            svelteOutput: "<div class=\"b a\" />",
-            vue: "<template><div class=\"a b\" /></template>",
-            vueOutput: "<template><div class=\"b a\" /></template>"
+            svelte: "<img class=\"a b\" />",
+            svelteOutput: "<img class=\"b a\" />",
+            vue: "<template><img class=\"a b\" /></template>",
+            vueOutput: "<template><img class=\"b a\" /></template>"
           },
           {
             errors: 1,
-            html: "<div class=\"w-full absolute\" />",
-            htmlOutput: "<div class=\"absolute w-full\" />",
-            jsx: "<div class=\"w-full absolute\" />",
-            jsxOutput: "<div class=\"absolute w-full\" />",
+            html: "<img class=\"w-full absolute\" />",
+            htmlOutput: "<img class=\"absolute w-full\" />",
+            jsx: "<img class=\"w-full absolute\" />",
+            jsxOutput: "<img class=\"absolute w-full\" />",
             options: [{ order: "official" }],
-            svelte: "<div class=\"w-full absolute\" />",
-            svelteOutput: "<div class=\"absolute w-full\" />",
-            vue: "<template><div class=\"w-full absolute\" /></template>",
-            vueOutput: "<template><div class=\"absolute w-full\" /></template>"
+            svelte: "<img class=\"w-full absolute\" />",
+            svelteOutput: "<img class=\"absolute w-full\" />",
+            vue: "<template><img class=\"w-full absolute\" /></template>",
+            vueOutput: "<template><img class=\"absolute w-full\" /></template>"
           }
         ],
         valid: [
           {
-            html: "<div class=\"a b\" />",
-            jsx: "<div class=\"a b\" />",
+            html: "<img class=\"a b\" />",
+            jsx: "<img class=\"a b\" />",
             options: [{ order: "asc" }],
-            svelte: "<div class=\"a b\" />",
-            vue: "<template><div class=\"a b\" /></template>"
+            svelte: "<img class=\"a b\" />",
+            vue: "<template><img class=\"a b\" /></template>"
           },
           {
-            html: "div class=\"b a\" />",
-            jsx: "<div class=\"b a\" />",
+            html: "img class=\"b a\" />",
+            jsx: "<img class=\"b a\" />",
             options: [{ order: "desc" }],
-            svelte: "div class=\"b a\" />",
-            vue: "<template><div class=\"b a\" /></template>"
+            svelte: "img class=\"b a\" />",
+            vue: "<template><img class=\"b a\" /></template>"
           },
           {
-            html: "<div class=\"absolute w-full\" />",
-            jsx: "<div class=\"absolute w-full\" />",
+            html: "<img class=\"absolute w-full\" />",
+            jsx: "<img class=\"absolute w-full\" />",
             options: [{ order: "official" }],
-            svelte: "<div class=\"absolute w-full\" />",
-            vue: "<template><div class=\"absolute w-full\" /></template>"
+            svelte: "<img class=\"absolute w-full\" />",
+            vue: "<template><img class=\"absolute w-full\" /></template>"
           }
         ]
       }
@@ -81,15 +81,15 @@ describe(tailwindSortClasses.name, () => {
       invalid: [
         {
           errors: 1,
-          html: "<div class=\"c:a a:a b:a a:b c:b b:b\" />",
-          htmlOutput: "<div class=\"a:a a:b b:a b:b c:a c:b\" />",
-          jsx: "<div class=\"c:a a:a b:a a:b c:b b:b\" />",
-          jsxOutput: "<div class=\"a:a a:b b:a b:b c:a c:b\" />",
+          html: "<img class=\"c:a a:a b:a a:b c:b b:b\" />",
+          htmlOutput: "<img class=\"a:a a:b b:a b:b c:a c:b\" />",
+          jsx: "<img class=\"c:a a:a b:a a:b c:b b:b\" />",
+          jsxOutput: "<img class=\"a:a a:b b:a b:b c:a c:b\" />",
           options: [{ order: "improved" }],
-          svelte: "<div class=\"c:a a:a b:a a:b c:b b:b\" />",
-          svelteOutput: "<div class=\"a:a a:b b:a b:b c:a c:b\" />",
-          vue: "<template><div class=\"c:a a:a b:a a:b c:b b:b\" /></template>",
-          vueOutput: "<template><div class=\"a:a a:b b:a b:b c:a c:b\" /></template>"
+          svelte: "<img class=\"c:a a:a b:a a:b c:b b:b\" />",
+          svelteOutput: "<img class=\"a:a a:b b:a b:b c:a c:b\" />",
+          vue: "<template><img class=\"c:a a:a b:a a:b c:b b:b\" /></template>",
+          vueOutput: "<template><img class=\"a:a a:b b:a b:b c:a c:b\" /></template>"
         }
       ]
     });
@@ -103,46 +103,46 @@ describe(tailwindSortClasses.name, () => {
         invalid: [
           {
             errors: 1,
-            html: "<div class=\"b a\" />",
-            htmlOutput: "<div class=\"a b\" />",
-            jsx: "<div class=\"b a\" />",
-            jsxOutput: "<div class=\"a b\" />",
+            html: "<img class=\"b a\" />",
+            htmlOutput: "<img class=\"a b\" />",
+            jsx: "<img class=\"b a\" />",
+            jsxOutput: "<img class=\"a b\" />",
             options: [{ order: "asc" }],
-            svelte: "<div class=\"b a\" />",
-            svelteOutput: "<div class=\"a b\" />",
-            vue: "<template><div class=\"b a\" /></template>",
-            vueOutput: "<template><div class=\"a b\" /></template>"
+            svelte: "<img class=\"b a\" />",
+            svelteOutput: "<img class=\"a b\" />",
+            vue: "<template><img class=\"b a\" /></template>",
+            vueOutput: "<template><img class=\"a b\" /></template>"
           },
           {
             errors: 1,
-            html: "<div class='b a' />",
-            htmlOutput: "<div class='a b' />",
-            jsx: "<div class='b a' />",
-            jsxOutput: "<div class='a b' />",
+            html: "<img class='b a' />",
+            htmlOutput: "<img class='a b' />",
+            jsx: "<img class='b a' />",
+            jsxOutput: "<img class='a b' />",
             options: [{ order: "asc" }],
-            svelte: "<div class='b a' />",
-            svelteOutput: "<div class='a b' />",
-            vue: "<template><div class='b a' /></template>",
-            vueOutput: "<template><div class='a b' /></template>"
+            svelte: "<img class='b a' />",
+            svelteOutput: "<img class='a b' />",
+            vue: "<template><img class='b a' /></template>",
+            vueOutput: "<template><img class='a b' /></template>"
           },
           {
             errors: 1,
-            jsx: "<div class={`b a`} />",
-            jsxOutput: "<div class={`a b`} />",
+            jsx: "<img class={`b a`} />",
+            jsxOutput: "<img class={`a b`} />",
             options: [{ order: "asc" }],
-            svelte: "<div class={`b a`} />",
-            svelteOutput: "<div class={`a b`} />"
+            svelte: "<img class={`b a`} />",
+            svelteOutput: "<img class={`a b`} />"
           },
           {
             errors: 1,
-            jsx: "<div class={\"b a\"} />",
-            jsxOutput: "<div class={\"a b\"} />",
+            jsx: "<img class={\"b a\"} />",
+            jsxOutput: "<img class={\"a b\"} />",
             options: [{ order: "asc" }]
           },
           {
             errors: 1,
-            jsx: "<div class={'b a'} />",
-            jsxOutput: "<div class={'a b'} />",
+            jsx: "<img class={'b a'} />",
+            jsxOutput: "<img class={'a b'} />",
             options: [{ order: "asc" }]
           }
         ]
@@ -154,8 +154,8 @@ describe(tailwindSortClasses.name, () => {
     lint(tailwindSortClasses, TEST_SYNTAXES, {
       valid: [
         {
-          jsx: "<div class={true ? \"b a\" : \"c b\"} />",
-          svelte: "<div class={true ? \"b a\" : \"c b\"} />"
+          jsx: "<img class={true ? \"b a\" : \"c b\"} />",
+          svelte: "<img class={true ? \"b a\" : \"c b\"} />"
         }
       ]
     });
@@ -166,17 +166,17 @@ describe(tailwindSortClasses.name, () => {
       invalid: [
         {
           errors: 2,
-          jsx: "<div class={`c a ${true ? 'e' : 'f'} d b `} />",
-          jsxOutput: "<div class={`a c ${true ? 'e' : 'f'} b d `} />",
+          jsx: "<img class={`c a ${true ? 'e' : 'f'} d b `} />",
+          jsxOutput: "<img class={`a c ${true ? 'e' : 'f'} b d `} />",
           options: [{ order: "asc" }],
-          svelte: "<div class={`c a ${true ? 'e' : 'f'} d b `} />",
-          svelteOutput: "<div class={`a c ${true ? 'e' : 'f'} b d `} />"
+          svelte: "<img class={`c a ${true ? 'e' : 'f'} d b `} />",
+          svelteOutput: "<img class={`a c ${true ? 'e' : 'f'} b d `} />"
         }
       ],
       valid: [
         {
-          jsx: "<div class={`a c ${true ? 'e' : 'f'} b `} />",
-          svelte: "<div class={`a c ${true ? 'e' : 'f'} b `} />"
+          jsx: "<img class={`a c ${true ? 'e' : 'f'} b `} />",
+          svelte: "<img class={`a c ${true ? 'e' : 'f'} b `} />"
         }
       ]
     });
@@ -193,11 +193,11 @@ describe(tailwindSortClasses.name, () => {
       invalid: [
         {
           errors: 2,
-          jsx: `<div class={\`${dirty}\`} />`,
-          jsxOutput: `<div class={\`${clean}\`} />`,
+          jsx: `<img class={\`${dirty}\`} />`,
+          jsxOutput: `<img class={\`${clean}\`} />`,
           options: [{ order: "asc" }],
-          svelte: `<div class={\`${dirty}\`} />`,
-          svelteOutput: `<div class={\`${clean}\`} />`
+          svelte: `<img class={\`${dirty}\`} />`,
+          svelteOutput: `<img class={\`${clean}\`} />`
         }
       ]
     });
@@ -221,50 +221,50 @@ describe(tailwindSortClasses.name, () => {
         invalid: [
           {
             errors: 1,
-            html: `<div class="${unsortedMultilineString}" />`,
-            htmlOutput: `<div class="${sortedMultilineString}" />`,
+            html: `<img class="${unsortedMultilineString}" />`,
+            htmlOutput: `<img class="${sortedMultilineString}" />`,
             options: [{ order: "asc" }],
-            svelte: `<div class="${unsortedMultilineString}" />`,
-            svelteOutput: `<div class="${sortedMultilineString}" />`,
-            vue: `<template><div class="${unsortedMultilineString}" /></template>`,
-            vueOutput: `<template><div class="${sortedMultilineString}" /></template>`
+            svelte: `<img class="${unsortedMultilineString}" />`,
+            svelteOutput: `<img class="${sortedMultilineString}" />`,
+            vue: `<template><img class="${unsortedMultilineString}" /></template>`,
+            vueOutput: `<template><img class="${sortedMultilineString}" /></template>`
           },
           {
             errors: 1,
-            html: `<div class='${unsortedMultilineString}' />`,
-            htmlOutput: `<div class='${sortedMultilineString}' />`,
+            html: `<img class='${unsortedMultilineString}' />`,
+            htmlOutput: `<img class='${sortedMultilineString}' />`,
             options: [{ order: "asc" }],
-            svelte: `<div class='${unsortedMultilineString}' />`,
-            svelteOutput: `<div class='${sortedMultilineString}' />`,
-            vue: `<template><div class='${unsortedMultilineString}' /></template>`,
-            vueOutput: `<template><div class='${sortedMultilineString}' /></template>`
+            svelte: `<img class='${unsortedMultilineString}' />`,
+            svelteOutput: `<img class='${sortedMultilineString}' />`,
+            vue: `<template><img class='${unsortedMultilineString}' /></template>`,
+            vueOutput: `<template><img class='${sortedMultilineString}' /></template>`
           },
           {
             errors: 1,
-            jsx: `<div class={\`${unsortedMultilineString}\`} />`,
-            jsxOutput: `<div class={\`${sortedMultilineString}\`} />`,
+            jsx: `<img class={\`${unsortedMultilineString}\`} />`,
+            jsxOutput: `<img class={\`${sortedMultilineString}\`} />`,
             options: [{ order: "asc" }],
-            svelte: `<div class={\`${unsortedMultilineString}\`} />`,
-            svelteOutput: `<div class={\`${sortedMultilineString}\`} />`
+            svelte: `<img class={\`${unsortedMultilineString}\`} />`,
+            svelteOutput: `<img class={\`${sortedMultilineString}\`} />`
           }
         ],
         valid: [
           {
-            html: `<div class="${sortedMultilineString}" />`,
+            html: `<img class="${sortedMultilineString}" />`,
             options: [{ order: "asc" }],
-            svelte: `<div class="${sortedMultilineString}" />`,
-            vue: `<template><div class="${sortedMultilineString}" /></template>`
+            svelte: `<img class="${sortedMultilineString}" />`,
+            vue: `<template><img class="${sortedMultilineString}" /></template>`
           },
           {
-            html: `<div class='${sortedMultilineString}' />`,
+            html: `<img class='${sortedMultilineString}' />`,
             options: [{ order: "asc" }],
-            svelte: `<div class='${sortedMultilineString}' />`,
-            vue: `<template><div class='${sortedMultilineString}' /></template>`
+            svelte: `<img class='${sortedMultilineString}' />`,
+            vue: `<template><img class='${sortedMultilineString}' /></template>`
           },
           {
-            jsx: `<div class={\`${sortedMultilineString}\`} />`,
+            jsx: `<img class={\`${sortedMultilineString}\`} />`,
             options: [{ order: "asc" }],
-            svelte: `<div class={\`${sortedMultilineString}\`} />`
+            svelte: `<img class={\`${sortedMultilineString}\`} />`
           }
         ]
       }
@@ -443,19 +443,19 @@ describe(tailwindSortClasses.name, () => {
         invalid: [
           {
             errors: 3,
-            jsx: `<div class={\`${dirtyDefinedMultiline}\`} />`,
-            jsxOutput: `<div class={\`${cleanDefinedMultiline}\`} />`,
+            jsx: `<img class={\`${dirtyDefinedMultiline}\`} />`,
+            jsxOutput: `<img class={\`${cleanDefinedMultiline}\`} />`,
             options: [{ callees: ["defined"], order: "asc" }],
-            svelte: `<div class={\`${dirtyDefinedMultiline}\`} />`,
-            svelteOutput: `<div class={\`${cleanDefinedMultiline}\`} />`
+            svelte: `<img class={\`${dirtyDefinedMultiline}\`} />`,
+            svelteOutput: `<img class={\`${cleanDefinedMultiline}\`} />`
           },
           {
             errors: 2,
-            jsx: `<div class={\`${dirtyUndefinedMultiline}\`} />`,
-            jsxOutput: `<div class={\`${cleanUndefinedMultiline}\`} />`,
+            jsx: `<img class={\`${dirtyUndefinedMultiline}\`} />`,
+            jsxOutput: `<img class={\`${cleanUndefinedMultiline}\`} />`,
             options: [{ callees: ["defined"], order: "asc" }],
-            svelte: `<div class={\`${dirtyUndefinedMultiline}\`} />`,
-            svelteOutput: `<div class={\`${cleanUndefinedMultiline}\`} />`
+            svelte: `<img class={\`${dirtyUndefinedMultiline}\`} />`,
+            svelteOutput: `<img class={\`${cleanUndefinedMultiline}\`} />`
           }
         ]
       }
