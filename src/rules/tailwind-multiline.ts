@@ -351,6 +351,11 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
             lines.line.addClass(className);
 
+            // don't add a new line if the first class is also the last
+            if(isLastClass){
+              break;
+            }
+
             if(groupSeparator === "emptyLine"){
               lines.addLine();
             }
