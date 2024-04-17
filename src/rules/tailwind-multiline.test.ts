@@ -649,6 +649,30 @@ describe(tailwindMultiline.name, () => {
 
   });
 
+  it("should not add an unnecessary new line after a sticky class", () => {
+
+    const trim = createTrimTag(4);
+    const expression = "${true ? ' true ' : ' false '}";
+
+    const multilineWithWithStickyClassAtEnd = trim`
+      ${expression}a
+    `;
+
+    lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            jsx: `() => <img class={\`${multilineWithWithStickyClassAtEnd}\`} />`,
+            options: [{ classesPerLine: 3, indent: 2 }],
+            svelte: `<img class={\`${multilineWithWithStickyClassAtEnd}\`} />`
+          }
+        ]
+      }
+    );
+
+  });
 
   it("should group correctly", () => {
 
