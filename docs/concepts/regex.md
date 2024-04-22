@@ -6,6 +6,8 @@ Regular expressions are defined as a tuple of a matching pattern for the whole c
 
 This is inspired by [Class Variance Authority](https://cva.style/docs/getting-started/installation#intellisense).
 
+<br/>
+
 ## Type
 
 ```ts
@@ -14,6 +16,8 @@ type Regex = [
   literalRegex: string
 ][];
 ```
+
+<br/>
 
 ## Examples
 
@@ -34,6 +38,8 @@ type Regex = [
 <img myAttribute={{ myProperty: "this will get linted" }} />;
 ```
 
+<br/>
+
 ```jsonc
 {
   "callees": [
@@ -50,6 +56,8 @@ type Regex = [
 ```tsx
 const test = myFunction({ myProperty: "this will get linted" });
 ```
+
+<br/>
 
 ```jsonc
 {
@@ -69,6 +77,8 @@ const myVariable = {
   myProperty: "this will get linted"
 };
 ```
+
+<br/>
 
 ## Limitations
 

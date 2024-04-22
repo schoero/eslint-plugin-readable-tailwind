@@ -5,6 +5,8 @@ This allows additional filtering, such as literals in conditions or logical expr
 
 Matchers are defined as a tuple of a name and a list of configurations for predefined matchers.  
 
+<br/>
+
 ## Type
 
 ```ts
@@ -17,6 +19,8 @@ type Matchers = [
 ][];
 ```
 
+<br/>
+
 ### Types of matchers
 
 There are currently 3 types of matchers:
@@ -25,11 +29,15 @@ There are currently 3 types of matchers:
 - `objectValues`: matches all object values
 - `strings`: matches all string literals that are not object keys or values
 
+<br/>
+
 #### Path pattern
 
 It is possible to provide a `pathPattern` to the `objectKeys` and `objectValues` matchers to only match keys/values that match the `pathPattern`. This allows for more fine-grained control for common utilities like [Class Variance Authority](https://cva.style/docs/getting-started/installation#intellisense).
 
 For example, the following matcher will only match object values for the `compoundVariants.class` key:
+
+<br/>
 
 ```json
 {
@@ -51,7 +59,11 @@ For example, the following matcher will only match object values for the `compou
 } />;
 ```
 
+<br/>
+
 The object path is a string that represents the path to the object key or value. The path is constructed by concatenating the keys of the object with a dot (`.`) in between. For example, the object `{ a: { b: "value" } }` would have the path `a.b`. Array indices are represented by square brackets (`[]`). For example, the object `{ a: [{ b: "value" }] }` would have the path `a[0].b`.
+
+<br/>
 
 ## Examples
 
@@ -77,6 +89,8 @@ The object path is a string that represents the path to the object key or value.
 <img myAttribute={{ myProperty: "this will get linted" }} />;
 ```
 
+<br/>
+
 ```jsonc
 {
   "callees": [
@@ -100,6 +114,8 @@ const myVariable = {
   myProperty: "this will get linted"
 };
 ```
+
+<br/>
 
 ```jsonc
 {

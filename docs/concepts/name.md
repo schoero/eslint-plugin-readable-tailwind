@@ -2,11 +2,15 @@
 
 This is the simplest form to define string literals to lint. Callees, variables or class attributes with that name will be linted.
 
+<br/>
+
 ## Type
 
 ```ts
 type Name = string;
 ```
+
+<br/>
 
 ## Examples
 
@@ -20,6 +24,8 @@ type Name = string;
 <img myAttribute="this will get linted" />;
 ```
 
+<br/>
+
 ```jsonc
 {
   "callees": ["myFunction"]
@@ -30,6 +36,8 @@ type Name = string;
 const test = myFunction("this will get linted");
 ```
 
+<br/>
+
 ```jsonc
 {
   "variables": ["myVariable"]
@@ -39,6 +47,8 @@ const test = myFunction("this will get linted");
 ```tsx
 const myVariable = "this will get linted";
 ```
+
+<br/>
 
 ## Limitations
 
