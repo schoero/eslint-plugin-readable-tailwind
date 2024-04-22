@@ -21,7 +21,7 @@ export const CN_OBJECT_KEYS = [
   ]
 ] satisfies CalleeMatchers;
 
-/** @see https://github.com/lukeed/cn */
+/** @see https://ui.shadcn.com/docs/installation/manual */
 export const CN = [
   CN_STRINGS,
   CN_OBJECT_KEYS
