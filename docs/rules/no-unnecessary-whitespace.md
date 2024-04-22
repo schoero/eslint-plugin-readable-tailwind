@@ -39,7 +39,7 @@ Disallow unnecessary whitespace in between and around tailwind classes.
   List of variable names which initializer should also get linted.
   
   **Type**: Array of [Name](../concepts/name.md), [Regex](../concepts/regex.md) or [Matchers](../concepts/matchers.md)  
-  **Default**:  [strings Matcher](../concepts/matchers.md#types-of-matchers) for`"className", "classNames", "classes", "style", "styles"`
+  **Default**:  [strings Matcher](../concepts/matchers.md#types-of-matchers) for `"className", "classNames", "classes", "style", "styles"`
 
 <br/>
 
