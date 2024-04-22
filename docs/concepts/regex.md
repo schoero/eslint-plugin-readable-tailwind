@@ -84,4 +84,4 @@ const myVariable = {
 
 While regular expressions are a simple way to match specific nested string literals, they are not as powerful as matchers. Matchers allow for more fine-grained control and are able to filter based on the abstract syntax tree.
 
-Learn more about matchers [here](/docs/concepts/matchers).
+Learn more about matchers [here](./matchers.md).
