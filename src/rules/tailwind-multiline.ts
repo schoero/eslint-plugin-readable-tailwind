@@ -393,10 +393,16 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           }
 
           // wrap if the length exceeds the limits
-          if(simulatedLine.length > printWidth && printWidth !== 0 ||
-            lines.line.classCount >= classesPerLine && classesPerLine !== 0){
-            lines.addLine();
-            lines.line.indent();
+          if(
+            simulatedLine.length > printWidth && printWidth !== 0 ||
+            lines.line.classCount >= classesPerLine && classesPerLine !== 0
+          ){
+
+            // but only if the first class if it is not the first class of a group
+            if(!isFirstClass){
+              lines.addLine();
+              lines.line.indent();
+            }
           }
 
           lines.line.addClass(className);
