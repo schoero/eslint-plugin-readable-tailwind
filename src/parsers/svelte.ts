@@ -12,6 +12,7 @@ import type { BaseNode as ESBaseNode, Node as ESNode, TemplateLiteral as ESTempl
 import type {
   SvelteAttribute,
   SvelteDirective,
+  SvelteGenericsDirective,
   SvelteLiteral,
   SvelteMustacheTagText,
   SvelteShorthandAttribute,
@@ -100,6 +101,7 @@ function getLiteralsBySvelteMustacheTag(ctx: Rule.RuleContext, node: ESTemplateL
 function isSvelteAttribute(attribute:
   | SvelteAttribute
   | SvelteDirective
+  | SvelteGenericsDirective
   | SvelteShorthandAttribute
   | SvelteSpecialDirective
   | SvelteSpreadAttribute
