@@ -57,32 +57,6 @@ The object path is a string that represents the path to the object key or value.
 
 ```jsonc
 {
-  "callees": [
-    [
-      // matches callees with the name `myFunction`
-      "myFunction",
-      // matches the object value for the `myProperty` key
-      [
-        {
-          "match": "objectValues",
-          "pathPattern": "^myProperty|\\.myProperty"
-        }
-      ] 
-    ]
-  ],
-  "variables": [
-    [
-      // matches variables with the name `myVariable`
-      "myVariable",
-      // matches the object value for the `myProperty` key
-      [
-        {
-          "match": "objectValues",
-          "pathPattern": "^myProperty|\\.myProperty"
-        }
-      ] 
-    ]
-  ],
   "classAttributes": [
     [
       // matches attributes with the name `myAttribute`
@@ -99,7 +73,27 @@ The object path is a string that represents the path to the object key or value.
 }
 ```
 
-These patterns would match the following examples:
+```tsx
+<img myAttribute={{ myProperty: "this will get linted" }} />;
+```
+
+```jsonc
+{
+  "callees": [
+    [
+      // matches callees with the name `myFunction`
+      "myFunction",
+      // matches the object value for the `myProperty` key
+      [
+        {
+          "match": "objectValues",
+          "pathPattern": "^myProperty|\\.myProperty"
+        }
+      ] 
+    ]
+  ]
+}
+```
 
 ```tsx
 const myVariable = {
@@ -107,10 +101,24 @@ const myVariable = {
 };
 ```
 
-```tsx
-const test = myFunction({ myProperty: "this will get linted" });
+```jsonc
+{
+  "variables": [
+    [
+      // matches variables with the name `myVariable`
+      "myVariable",
+      // matches the object value for the `myProperty` key
+      [
+        {
+          "match": "objectValues",
+          "pathPattern": "^myProperty|\\.myProperty"
+        }
+      ] 
+    ]
+  ]
+}
 ```
 
 ```tsx
-<img myAttribute={{ myProperty: "this will get linted" }} />;
+const test = myFunction({ myProperty: "this will get linted" });
 ```

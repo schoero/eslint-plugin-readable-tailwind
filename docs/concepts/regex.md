@@ -19,22 +19,6 @@ type Regex = [
 
 ```jsonc
 {
-  "callees": [
-    [
-      // matches all arguments inside the parentheses of the cva function call
-      "myFunction\\(([^)]*)\\)",
-      // matches the object value for the `myProperty` key
-      "\"myProperty\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
-    ]
-  ],
-  "variables": [
-    [
-      // matches the variable name and the right side of the assignment
-      "myVariable = ([\\S\\s]*)",
-      // matches the object value for the `myProperty` key
-      "\"myProperty\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
-    ]
-  ],
   "classAttributes": [
     [
       // matches the attribute name and the attribute value
@@ -46,7 +30,39 @@ type Regex = [
 }
 ```
 
-These patterns would match the following examples:
+```tsx
+<img myAttribute={{ myProperty: "this will get linted" }} />;
+```
+
+```jsonc
+{
+  "callees": [
+    [
+      // matches all arguments inside the parentheses of the cva function call
+      "myFunction\\(([^)]*)\\)",
+      // matches the object value for the `myProperty` key
+      "\"myProperty\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
+    ]
+  ]
+}
+```
+
+```tsx
+const test = myFunction({ myProperty: "this will get linted" });
+```
+
+```jsonc
+{
+  "variables": [
+    [
+      // matches the variable name and the right side of the assignment
+      "myVariable = ([\\S\\s]*)",
+      // matches the object value for the `myProperty` key
+      "\"myProperty\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
+    ]
+  ]
+}
+```
 
 ```tsx
 const myVariable = {
@@ -54,16 +70,8 @@ const myVariable = {
 };
 ```
 
-```tsx
-const test = myFunction({ myProperty: "this will get linted" });
-```
-
-```tsx
-<img myAttribute={{ myProperty: "this will get linted" }} />;
-```
-
 ## Limitations
 
-While regular expressions are a simple and powerful way to match string literals, they are not as powerful as matchers. Matchers allow for more fine-grained control and are able to filter based on the abstract syntax tree.
+While regular expressions are a simple way to match specific nested string literals, they are not as powerful as matchers. Matchers allow for more fine-grained control and are able to filter based on the abstract syntax tree.
 
 Learn more about matchers [here](/docs/concepts/matchers).

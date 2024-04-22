@@ -20,7 +20,7 @@ Disallow unnecessary whitespace in between and around tailwind classes.
 
   The name of the attribute that contains the tailwind classes.
 
-  **Type**: Array of [Name](../concepts/name.md),[Regex](../concepts/regex.md) or [Matchers](../concepts/matchers.md)  
+  **Type**: Array of [Name](../concepts/name.md), [Regex](../concepts/regex.md) or [Matchers](../concepts/matchers.md)  
   **Default**: [strings Matcher](../concepts/matchers.md#types-of-matchers) for `"class", "className"`
 
 <br/>
@@ -29,7 +29,7 @@ Disallow unnecessary whitespace in between and around tailwind classes.
 
   List of function names which arguments should also get linted.
   
-  **Type**: Array of [Name](../concepts/name.md),[Regex](../concepts/regex.md) or [Matchers](../concepts/matchers.md)  
+  **Type**: Array of [Name](../concepts/name.md), [Regex](../concepts/regex.md) or [Matchers](../concepts/matchers.md)  
   **Default**: [Matchers](../concepts/matchers.md#types-of-matchers) for `"cc", "clb", "clsx", "cn", "cnb", "ctl", "cva", "cx", "dcnb", "objstr", "tv", "twJoin", "twMerge"`
 
 <br/>
@@ -38,7 +38,7 @@ Disallow unnecessary whitespace in between and around tailwind classes.
 
   List of variable names which initializer should also get linted.
   
-  **Type**: Array of [Name](../concepts/name.md),[Regex](../concepts/regex.md) or [Matchers](../concepts/matchers.md)  
+  **Type**: Array of [Name](../concepts/name.md), [Regex](../concepts/regex.md) or [Matchers](../concepts/matchers.md)  
   **Default**:  [strings Matcher](../concepts/matchers.md#types-of-matchers) for`"className", "classNames", "classes", "style", "styles"`
 
 <br/>

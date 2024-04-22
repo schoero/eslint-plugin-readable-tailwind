@@ -56,7 +56,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
   The name of the attribute that contains the tailwind classes.
 
-  **Type**: Array of [Name](../concepts/name.md),[Regex](../concepts/regex.md) or [Matchers](../concepts/matchers.md)  
+  **Type**: Array of [Name](../concepts/name.md), [Regex](../concepts/regex.md) or [Matchers](../concepts/matchers.md)  
   **Default**: [strings Matcher](../concepts/matchers.md#types-of-matchers) for `"class", "className"`
 
 <br/>
@@ -65,7 +65,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
   List of function names which arguments should also get linted.
   
-  **Type**: Array of [Name](../concepts/name.md),[Regex](../concepts/regex.md) or [Matchers](../concepts/matchers.md)  
+  **Type**: Array of [Name](../concepts/name.md), [Regex](../concepts/regex.md) or [Matchers](../concepts/matchers.md)  
   **Default**: [Matchers](../concepts/matchers.md#types-of-matchers) for `"cc", "clb", "clsx", "cn", "cnb", "ctl", "cva", "cx", "dcnb", "objstr", "tv", "twJoin", "twMerge"`
 
 <br/>
@@ -74,7 +74,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
   List of variable names which initializer should also get linted.
   
-  **Type**: Array of [Name](../concepts/name.md),[Regex](../concepts/regex.md) or [Matchers](../concepts/matchers.md)  
+  **Type**: Array of [Name](../concepts/name.md), [Regex](../concepts/regex.md) or [Matchers](../concepts/matchers.md)  
   **Default**:  [strings Matcher](../concepts/matchers.md#types-of-matchers) for`"className", "classNames", "classes", "style", "styles"`
 
 <br/>
