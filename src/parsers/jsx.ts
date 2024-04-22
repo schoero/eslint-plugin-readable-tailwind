@@ -1,10 +1,18 @@
 import {
+  getLiteralsByESMatchers,
   getLiteralsByESTemplateLiteral,
   getStringLiteralByESStringLiteral,
   isESNode,
   isESSimpleStringLiteral,
   isESTemplateLiteral
 } from "readable-tailwind:parsers:es";
+import {
+  isClassAttributeMatchers,
+  isClassAttributeName,
+  isClassAttributeRegex
+} from "readable-tailwind:utils:matchers.js";
+import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex";
+import { deduplicateLiterals } from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { TemplateLiteral as ESTemplateLiteral } from "estree";
@@ -12,15 +20,44 @@ import type { BaseNode as JSXBaseNode, JSXAttribute, JSXExpressionContainer, JSX
 
 import type { ESSimpleStringLiteral } from "readable-tailwind:parsers:es";
 import type { Literal } from "readable-tailwind:types:ast";
+import type { ClassAttributes } from "readable-tailwind:types:rule.js";
 
 
-export function getLiteralsByJSXClassAttribute(ctx: Rule.RuleContext, attribute: JSXAttribute): Literal[] {
-
+export function getLiteralsByJSXClassAttribute(ctx: Rule.RuleContext, attribute: JSXAttribute, classAttributes: ClassAttributes): Literal[] {
   const value = attribute.value;
 
-  if(!value){
-    return [];
-  }
+  const literals = classAttributes.reduce<Literal[]>((literals, classAttribute) => {
+    if(!value){ return literals; }
+
+    if(isClassAttributeName(classAttribute)){
+      if(typeof attribute.name.name !== "string" || classAttribute !== attribute.name.name){ return literals; }
+      literals.push(...getLiteralsByJSXAttributeValue(ctx, value));
+    } else if(isClassAttributeRegex(classAttribute)){
+      literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, classAttribute));
+    } else if(isClassAttributeMatchers(classAttribute)){
+      if(typeof attribute.name.name !== "string" || classAttribute[0] !== attribute.name.name){ return literals; }
+      literals.push(...getLiteralsByESMatchers(ctx, value, classAttribute[1]));
+    }
+
+    return literals;
+  }, []);
+
+  return deduplicateLiterals(literals);
+
+}
+
+export function getAttributesByJSXElement(ctx: Rule.RuleContext, node: JSXOpeningElement): JSXAttribute[] {
+  return node.attributes.reduce<JSXAttribute[]>((acc, attribute) => {
+    if(isJSXAttribute(attribute)){
+      acc.push(attribute);
+    }
+    return acc;
+  }, []);
+}
+
+function getLiteralsByJSXAttributeValue(ctx: Rule.RuleContext, value: JSXAttribute["value"]): Literal[] {
+
+  if(!value){ return []; }
 
   if(isESSimpleStringLiteral(value)){
     const stringLiteral = getStringLiteralByESStringLiteral(ctx, value);
@@ -44,17 +81,6 @@ export function getLiteralsByJSXClassAttribute(ctx: Rule.RuleContext, attribute:
 
   return [];
 
-}
-
-export function getJSXAttributes(ctx: Rule.RuleContext, classNames: string[], node: JSXOpeningElement): JSXAttribute[] {
-  return node.attributes.reduce<JSXAttribute[]>((acc, attribute) => {
-    if(isJSXAttribute(attribute) &&
-      typeof attribute.name.name === "string" &&
-      classNames.includes(attribute.name.name)){
-      acc.push(attribute);
-    }
-    return acc;
-  }, []);
 }
 
 function isJSXExpressionContainerWithESSimpleStringLiteral(node: JSXBaseNode): node is JSXExpressionContainer & { expression: ESSimpleStringLiteral; } {

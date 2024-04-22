@@ -11,12 +11,17 @@
     "callees",
     "classnames",
     "clsx",
+    "dcnb",
+    "DCNB",
     "Declarators",
     "ecma",
     "eprt",
     "eslintrc",
+    "espree",
     "estree",
     "linebreak",
+    "objstr",
+    "OBJSTR",
     "quasis"
   ]
 }

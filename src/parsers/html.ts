@@ -4,13 +4,8 @@ import type { Rule } from "eslint";
 import type { Literal, QuoteMeta } from "readable-tailwind:types:ast.js";
 
 
-export function getAttributesByHTMLTag(ctx: Rule.RuleContext, classAttributes: string[], node: TagNode): AttributeNode[] {
-  return node.attributes.reduce<AttributeNode[]>((acc, attribute) => {
-    if(classAttributes.includes(attribute.key.value)){
-      acc.push(attribute);
-    }
-    return acc;
-  }, []);
+export function getAttributesByHTMLTag(ctx: Rule.RuleContext, node: TagNode): AttributeNode[] {
+  return node.attributes;
 }
 
 

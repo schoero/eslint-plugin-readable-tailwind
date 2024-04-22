@@ -4,12 +4,10 @@ import type { Literal, Node, QuoteMeta } from "readable-tailwind:types:ast.js";
 
 
 export function getWhitespace(classes: string) {
-
   const leadingWhitespace = classes.match(/^\s*/)?.[0];
   const trailingWhitespace = classes.match(/\s*$/)?.[0];
 
   return { leadingWhitespace, trailingWhitespace };
-
 }
 
 export function getQuotes(raw: string): QuoteMeta {

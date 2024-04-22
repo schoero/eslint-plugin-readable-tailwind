@@ -1,0 +1,116 @@
+# Matchers
+
+Matchers are a new way to match string literals. They allow finer control than regular expressions as they operate directly on the abstract syntax tree.
+This allows additional filtering, such as literals in conditions or logical expressions. This opens up the possibility to lint any string that may contain tailwindcss classes while also reducing the number of false positives.
+
+Matchers are defined as a tuple of a name and a list of configurations for predefined matchers.  
+
+## Type
+
+```ts
+type Matchers = [
+  name: string,
+  configurations: {
+    match: "objectKeys" | "objectValues" | "strings";
+    pathPattern?: string;
+  }[]
+][];
+```
+
+### Types of matchers
+
+There are currently 3 types of matchers:
+
+- `objectKeys`: matches all object keys
+- `objectValues`: matches all object values
+- `strings`: matches all string literals that are not object keys or values
+
+#### Path pattern
+
+It is possible to provide a `pathPattern` to the `objectKeys` and `objectValues` matchers to only match keys/values that match the `pathPattern`. This allows for more fine-grained control for common utilities like [Class Variance Authority](https://cva.style/docs/getting-started/installation#intellisense).
+
+For example, the following matcher will only match object values for the `compoundVariants.class` key:
+
+```json
+{
+  "match": "objectValues",
+  "pathPattern": "^compoundVariants\\[\\d+\\]\\.(?:className|class)$"
+}
+```
+
+```tsx
+<img class={
+  cva("this will get linted", {
+    compoundVariants: [
+      {
+        class: "but this will get linted",
+        myVariant: "this will not get linted"
+      }
+    ]
+  })
+} />;
+```
+
+The object path is a string that represents the path to the object key or value. The path is constructed by concatenating the keys of the object with a dot (`.`) in between. For example, the object `{ a: { b: "value" } }` would have the path `a.b`. Array indices are represented by square brackets (`[]`). For example, the object `{ a: [{ b: "value" }] }` would have the path `a[0].b`.
+
+## Examples
+
+```jsonc
+{
+  "callees": [
+    [
+      // matches callees with the name `myFunction`
+      "myFunction",
+      // matches the object value for the `myProperty` key
+      [
+        {
+          "match": "objectValues",
+          "pathPattern": "^myProperty|\\.myProperty"
+        }
+      ] 
+    ]
+  ],
+  "variables": [
+    [
+      // matches variables with the name `myVariable`
+      "myVariable",
+      // matches the object value for the `myProperty` key
+      [
+        {
+          "match": "objectValues",
+          "pathPattern": "^myProperty|\\.myProperty"
+        }
+      ] 
+    ]
+  ],
+  "classAttributes": [
+    [
+      // matches attributes with the name `myAttribute`
+      "myAttribute",
+      // matches the object value for the `myProperty` key
+      [
+        {
+          "match": "objectValues",
+          "pathPattern": "^myProperty|\\.myProperty"
+        }
+      ] 
+    ]
+  ]
+}
+```
+
+These patterns would match the following examples:
+
+```tsx
+const myVariable = {
+  myProperty: "this will get linted"
+};
+```
+
+```tsx
+const test = myFunction({ myProperty: "this will get linted" });
+```
+
+```tsx
+<img myAttribute={{ myProperty: "this will get linted" }} />;
+```
