@@ -24,6 +24,7 @@ import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
 import type {
   SvelteAttribute,
   SvelteDirective,
+  SvelteGenericsDirective,
   SvelteLiteral,
   SvelteMustacheTagText,
   SvelteShorthandAttribute,
@@ -131,6 +132,7 @@ function getStringLiteralBySvelteStringLiteral(ctx: Rule.RuleContext, node: Svel
 function isSvelteAttribute(attribute:
   | SvelteAttribute
   | SvelteDirective
+  | SvelteGenericsDirective
   | SvelteShorthandAttribute
   | SvelteSpecialDirective
   | SvelteSpreadAttribute

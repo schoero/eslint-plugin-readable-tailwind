@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.3.2
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.3.1...v1.3.2)
+
+### Fixes
+
+- Remove unnecessary newline after single sticky class ([#23](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/23))
+- Prevent inserting new line if the first class is already too long ([#24](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/24))
+
+### Tests
+
+- Simplify testing ([#22](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/22))
+
 ## v1.3.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.3.0...v1.3.1)

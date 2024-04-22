@@ -174,6 +174,37 @@ describe(tailwindMultiline.name, () => {
     );
   });
 
+  it("should not insert an empty line if the first class is already too long", () => {
+
+    const trim = createTrimTag(4);
+
+    const dirty = "this-string-literal-is-exactly-54-characters-in-length";
+    const clean = trim`
+      this-string-literal-is-exactly-54-characters-in-length
+    `;
+
+    lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            html: `<img class="${dirty}" />`,
+            htmlOutput: `<img class="${clean}" />`,
+            jsx: `() => <img class="${dirty}" />`,
+            jsxOutput: `() => <img class={\`${clean}\`} />`,
+            options: [{ printWidth: 50 }],
+            svelte: `<img class="${dirty}" />`,
+            svelteOutput: `<img class="${clean}" />`,
+            vue: `<template><img class="${dirty}" /></template>`,
+            vueOutput: `<template><img class="${clean}" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
   it("should disable the `printWidth` limit when set to `0`", () => {
     lint(
       tailwindMultiline,
