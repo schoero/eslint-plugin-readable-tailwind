@@ -51,8 +51,8 @@ For example, the following matcher will only match object values for the `compou
   cva("this will get linted", {
     compoundVariants: [
       {
-        class: "but this will get linted",
-        myVariant: "this will not get linted"
+        class: "and this will get linted",
+        myVariant: "but this will not get linted"
       }
     ]
   })
