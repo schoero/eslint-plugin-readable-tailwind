@@ -2,7 +2,7 @@
 # Defaults
 
 Every rule can target multiple class attributes, callee names or variable names.
-The default configuration is designed to work with the most popular tailwind utilities.:
+The default configuration is designed to work with the most popular tailwind utilities:
 
 - [tailwind merge](https://github.com/dcastil/tailwind-merge)
 - [class variance authority](https://github.com/joe-bell/cva)
@@ -15,7 +15,13 @@ The default configuration is designed to work with the most popular tailwind uti
 - [classnames template literals](https://github.com/netlify/classnames-template-literals)
 - [obj str](https://github.com/lukeed/obj-str)
 
+<br/>
+<br/>
+
 If an utility is not supported or you have built your own, you can change the matchers in the configuration. If you want to extend the default config, you can import it from the plugin:
+
+<br/>
+<br/>
 
 ```ts
 import {
@@ -24,6 +30,9 @@ import {
   getDefaultVariables
 } from "eslint-plugin-readable-tailwind/api/defaults";
 ```
+
+<br/>
+<br/>
 
 ## Extending the config
 
