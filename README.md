@@ -108,14 +108,6 @@ This plugin works out of the box with most popular tailwind utilities:
 In the case an utility is not supported or you have built your own, you can change the matchers in the configuration.
 If you want to change the default config, read the [API documentation](docs/api/defaults.md) to learn how to override or extend it.
 
-```ts
-import {
-  getDefaultCallees,
-  getDefaultClassAttributes,
-  getDefaultVariables
-} from "eslint-plugin-readable-tailwind/api/defaults";
-```
-
 <br/>
 <br/>
 
