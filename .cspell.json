@@ -9,8 +9,10 @@
   "words": [
     "autofix",
     "callees",
+    "classcat",
     "classnames",
     "clsx",
+    "cnbuilder",
     "dcnb",
     "DCNB",
     "Declarators",
@@ -22,6 +24,7 @@
     "linebreak",
     "objstr",
     "OBJSTR",
-    "quasis"
+    "quasis",
+    "shadcn"
   ]
 }
