@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 
-import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_ATTRIBUTES, DEFAULT_VARIABLE_NAMES } from "src/config/default-config.js";
+import { DEFAULT_ATTRIBUTE_NAMES, DEFAULT_CALLEE_NAMES, DEFAULT_VARIABLE_NAMES } from "src/config/default-config.js";
 import defaultConfig from "tailwindcss/defaultConfig.js";
 import setupContextUtils from "tailwindcss/lib/lib/setupContextUtils.js";
 import loadConfig from "tailwindcss/loadConfig.js";
@@ -326,7 +326,7 @@ export function getOptions(ctx?: Rule.RuleContext) {
   const options: Options[0] = ctx?.options[0] ?? {};
 
   const order = options.order ?? "improved";
-  const classAttributes = options.classAttributes ?? DEFAULT_CLASS_ATTRIBUTES;
+  const classAttributes = options.classAttributes ?? DEFAULT_ATTRIBUTE_NAMES;
   const callees = options.callees ?? DEFAULT_CALLEE_NAMES;
   const variables = options.variables ?? DEFAULT_VARIABLE_NAMES;
 

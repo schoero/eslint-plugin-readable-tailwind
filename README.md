@@ -87,6 +87,43 @@ Please read the documentation for the specific flavor you are using:
 <br/>
 <br/>
 
+### Config
+
+This plugin works out of the box with most popular tailwind utilities:
+
+- [tailwind merge](https://github.com/dcastil/tailwind-merge)
+- [class variance authority](https://github.com/joe-bell/cva)
+- [tailwind variants](https://github.com/nextui-org/tailwind-variants?tab=readme-ov-file)
+- [shadcn](https://ui.shadcn.com/docs/installation/manual)
+- [classcat](https://github.com/jorgebucaran/classcat)
+- [class list builder](https://github.com/crswll/clb)
+- [clsx](https://github.com/lukeed/clsx)
+- [cnbuilder](https://github.com/xobotyi/cnbuilder)
+- [classnames template literals](https://github.com/netlify/classnames-template-literals)
+- [obj str](https://github.com/lukeed/obj-str)
+
+<br/>
+<br/>
+
+In the case an utility is not supported or you have built your own, you can change the matchers in the configuration.
+If you want to change the default config, read the [API documentation](docs/api/defaults.md) to learn how to override or extend it.
+
+```ts
+import {
+  getDefaultCallees,
+  getDefaultClassAttributes,
+  getDefaultVariables
+} from "eslint-plugin-readable-tailwind/api/defaults";
+```
+
+<br/>
+<br/>
+
+## Drawbacks
+
+The goal of this plugin is to improve the readability of tailwind classes. However, this comes at the cost of a slightly increased bundle size and degraded readability in the final html.
+To mitigate this
+
 ## Editor configuration
 
 ### VSCode

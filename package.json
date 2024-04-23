@@ -16,6 +16,14 @@
     ".": {
       "import": "./lib/index.js",
       "require": "./lib/index.cjs"
+    },
+    "./api/defaults": {
+      "import": "./lib/api/defaults.js",
+      "require": "./lib/api/defaults.cjs"
+    },
+    "./api/types": {
+      "import": "./lib/api/types.js",
+      "require": "./lib/api/types.cjs"
     }
   },
   "main": "./lib/index.cjs",

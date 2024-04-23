@@ -1,4 +1,4 @@
-import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_ATTRIBUTES, DEFAULT_VARIABLE_NAMES } from "src/config/default-config.js";
+import { DEFAULT_ATTRIBUTE_NAMES, DEFAULT_CALLEE_NAMES, DEFAULT_VARIABLE_NAMES } from "src/config/default-config.js";
 
 import { getCalleeSchema, getClassAttributeSchema, getVariableSchema } from "readable-tailwind:config:descriptions.js";
 import { getLiteralsByESCallExpression, getLiteralsByESVariableDeclarator } from "readable-tailwind:parsers:es.js";
@@ -544,7 +544,7 @@ function getOptions(ctx?: Rule.RuleContext) {
   const indent = options.indent ?? 2;
   const group = options.group ?? "emptyLine";
 
-  const classAttributes = options.classAttributes ?? DEFAULT_CLASS_ATTRIBUTES;
+  const classAttributes = options.classAttributes ?? DEFAULT_ATTRIBUTE_NAMES;
   const callees = options.callees ?? DEFAULT_CALLEE_NAMES;
   const variables = options.variables ?? DEFAULT_VARIABLE_NAMES;
   const lineBreakStyle = options.lineBreakStyle ?? "unix";

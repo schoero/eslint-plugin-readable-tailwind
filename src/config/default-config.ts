@@ -32,7 +32,7 @@ export const DEFAULT_CALLEE_NAMES = [
   ...TW_MERGE
 ] satisfies Callees;
 
-export const DEFAULT_CLASS_ATTRIBUTES = [
+export const DEFAULT_ATTRIBUTE_NAMES = [
   [
     "class", [
       {
