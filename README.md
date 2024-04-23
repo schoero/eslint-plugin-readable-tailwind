@@ -119,11 +119,6 @@ import {
 <br/>
 <br/>
 
-## Drawbacks
-
-The goal of this plugin is to improve the readability of tailwind classes. However, this comes at the cost of a slightly increased bundle size and degraded readability in the final html.
-To mitigate this
-
 ## Editor configuration
 
 ### VSCode
