@@ -41,7 +41,7 @@ export function getLiteralNodesByMatchers(ctx: Rule.RuleContext, node: ESBaseNod
 
 export function findMatchingNestedNodes(node: ESNode | Program, matcherFunctions: MatcherFunctions): ESNode[] {
   return Object.entries(node).reduce<ESNode[]>((matchedNodes, [key, value]) => {
-    if(typeof value !== "object" || key === "parent"){
+    if(!value || typeof value !== "object" || key === "parent"){
       return matchedNodes;
     }
 
