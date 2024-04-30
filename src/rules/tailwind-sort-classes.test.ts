@@ -1,186 +1,186 @@
 import { lint, TEST_SYNTAXES } from "tests/utils.js";
-import { describe, expect, it } from "vitest";
+import { describe, it } from "vitest";
 
 import { tailwindSortClasses } from "readable-tailwind:rules:tailwind-sort-classes.js";
 
 
 describe(tailwindSortClasses.name, () => {
 
-  it("should sort simple class names in string literals by the defined order", () => expect(
-    void lint(
+  it("should sort simple class names in string literals by the defined order", () => {
+    lint(
       tailwindSortClasses,
       TEST_SYNTAXES,
       {
         invalid: [
           {
             errors: 1,
-            html: "<div class=\"b a\" />",
-            htmlOutput: "<div class=\"a b\" />",
-            jsx: "const Test = () => <div class=\"b a\" />;",
-            jsxOutput: "const Test = () => <div class=\"a b\" />;",
+            html: `<img class="b a" />`,
+            htmlOutput: `<img class="a b" />`,
+            jsx: `() => <img class="b a" />`,
+            jsxOutput: `() => <img class="a b" />`,
             options: [{ order: "asc" }],
-            svelte: "<div class=\"b a\" />",
-            svelteOutput: "<div class=\"a b\" />",
-            vue: "<template><div class=\"b a\" /></template>",
-            vueOutput: "<template><div class=\"a b\" /></template>"
+            svelte: `<img class="b a" />`,
+            svelteOutput: `<img class="a b" />`,
+            vue: `<template><img class="b a" /></template>`,
+            vueOutput: `<template><img class="a b" /></template>`
           },
           {
             errors: 1,
-            html: "<div class=\"a b\" />",
-            htmlOutput: "<div class=\"b a\" />",
-            jsx: "const Test = () => <div class=\"a b\" />;",
-            jsxOutput: "const Test = () => <div class=\"b a\" />;",
+            html: `<img class="a b" />`,
+            htmlOutput: `<img class="b a" />`,
+            jsx: `() => <img class="a b" />`,
+            jsxOutput: `() => <img class="b a" />`,
             options: [{ order: "desc" }],
-            svelte: "<div class=\"a b\" />",
-            svelteOutput: "<div class=\"b a\" />",
-            vue: "<template><div class=\"a b\" /></template>",
-            vueOutput: "<template><div class=\"b a\" /></template>"
+            svelte: `<img class="a b" />`,
+            svelteOutput: `<img class="b a" />`,
+            vue: `<template><img class="a b" /></template>`,
+            vueOutput: `<template><img class="b a" /></template>`
           },
           {
             errors: 1,
-            html: "<div class=\"w-full absolute\" />",
-            htmlOutput: "<div class=\"absolute w-full\" />",
-            jsx: "const Test = () => <div class=\"w-full absolute\" />;",
-            jsxOutput: "const Test = () => <div class=\"absolute w-full\" />;",
+            html: `<img class="w-full absolute" />`,
+            htmlOutput: `<img class="absolute w-full" />`,
+            jsx: `() => <img class="w-full absolute" />`,
+            jsxOutput: `() => <img class="absolute w-full" />`,
             options: [{ order: "official" }],
-            svelte: "<div class=\"w-full absolute\" />",
-            svelteOutput: "<div class=\"absolute w-full\" />",
-            vue: "<template><div class=\"w-full absolute\" /></template>",
-            vueOutput: "<template><div class=\"absolute w-full\" /></template>"
+            svelte: `<img class="w-full absolute" />`,
+            svelteOutput: `<img class="absolute w-full" />`,
+            vue: `<template><img class="w-full absolute" /></template>`,
+            vueOutput: `<template><img class="absolute w-full" /></template>`
           }
         ],
         valid: [
           {
-            html: "<div class=\"a b\" />",
-            jsx: "const Test = () => <div class=\"a b\" />;",
+            html: `<img class="a b" />`,
+            jsx: `() => <img class="a b" />`,
             options: [{ order: "asc" }],
-            svelte: "<div class=\"a b\" />",
-            vue: "<template><div class=\"a b\" /></template>"
+            svelte: `<img class="a b" />`,
+            vue: `<template><img class="a b" /></template>`
           },
           {
-            html: "div class=\"b a\" />",
-            jsx: "const Test = () => <div class=\"b a\" />;",
+            html: `img class="b a" />`,
+            jsx: `() => <img class="b a" />`,
             options: [{ order: "desc" }],
-            svelte: "div class=\"b a\" />",
-            vue: "<template><div class=\"b a\" /></template>"
+            svelte: `img class="b a" />`,
+            vue: `<template><img class="b a" /></template>`
           },
           {
-            html: "<div class=\"absolute w-full\" />",
-            jsx: "const Test = () => <div class=\"absolute w-full\" />;",
+            html: `<img class="absolute w-full" />`,
+            jsx: `() => <img class="absolute w-full" />`,
             options: [{ order: "official" }],
-            svelte: "<div class=\"absolute w-full\" />",
-            vue: "<template><div class=\"absolute w-full\" /></template>"
+            svelte: `<img class="absolute w-full" />`,
+            vue: `<template><img class="absolute w-full" /></template>`
           }
         ]
       }
-    )
-  ).toBeUndefined());
+    );
+  });
 
   it("should improve the sorting by grouping all classes with the same modifier together", () => {
-    expect(void lint(tailwindSortClasses, TEST_SYNTAXES, {
+    lint(tailwindSortClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
-          html: "<div class=\"c:a a:a b:a a:b c:b b:b\" />",
-          htmlOutput: "<div class=\"a:a a:b b:a b:b c:a c:b\" />",
-          jsx: "const Test = () => <div class=\"c:a a:a b:a a:b c:b b:b\" />;",
-          jsxOutput: "const Test = () => <div class=\"a:a a:b b:a b:b c:a c:b\" />;",
+          html: `<img class="c:a a:a b:a a:b c:b b:b" />`,
+          htmlOutput: `<img class="a:a a:b b:a b:b c:a c:b" />`,
+          jsx: `() => <img class="c:a a:a b:a a:b c:b b:b" />`,
+          jsxOutput: `() => <img class="a:a a:b b:a b:b c:a c:b" />`,
           options: [{ order: "improved" }],
-          svelte: "<div class=\"c:a a:a b:a a:b c:b b:b\" />",
-          svelteOutput: "<div class=\"a:a a:b b:a b:b c:a c:b\" />",
-          vue: "<template><div class=\"c:a a:a b:a a:b c:b b:b\" /></template>",
-          vueOutput: "<template><div class=\"a:a a:b b:a b:b c:a c:b\" /></template>"
+          svelte: `<img class="c:a a:a b:a a:b c:b b:b" />`,
+          svelteOutput: `<img class="a:a a:b b:a b:b c:a c:b" />`,
+          vue: `<template><img class="c:a a:a b:a a:b c:b b:b" /></template>`,
+          vueOutput: `<template><img class="a:a a:b b:a b:b c:a c:b" /></template>`
         }
       ]
-    })).toBeUndefined();
+    });
   });
 
-  it("should keep the quotes as they are", () => expect(
-    void lint(
+  it("should keep the quotes as they are", () => {
+    lint(
       tailwindSortClasses,
       TEST_SYNTAXES,
       {
         invalid: [
           {
             errors: 1,
-            html: "<div class=\"b a\" />",
-            htmlOutput: "<div class=\"a b\" />",
-            jsx: "const Test = () => <div class=\"b a\" />;",
-            jsxOutput: "const Test = () => <div class=\"a b\" />;",
+            html: `<img class="b a" />`,
+            htmlOutput: `<img class="a b" />`,
+            jsx: `() => <img class="b a" />`,
+            jsxOutput: `() => <img class="a b" />`,
             options: [{ order: "asc" }],
-            svelte: "<div class=\"b a\" />",
-            svelteOutput: "<div class=\"a b\" />",
-            vue: "<template><div class=\"b a\" /></template>",
-            vueOutput: "<template><div class=\"a b\" /></template>"
+            svelte: `<img class="b a" />`,
+            svelteOutput: `<img class="a b" />`,
+            vue: `<template><img class="b a" /></template>`,
+            vueOutput: `<template><img class="a b" /></template>`
           },
           {
             errors: 1,
-            html: "<div class='b a' />",
-            htmlOutput: "<div class='a b' />",
-            jsx: "const Test = () => <div class='b a' />;",
-            jsxOutput: "const Test = () => <div class='a b' />;",
+            html: `<img class='b a' />`,
+            htmlOutput: `<img class='a b' />`,
+            jsx: `() => <img class='b a' />`,
+            jsxOutput: `() => <img class='a b' />`,
             options: [{ order: "asc" }],
-            svelte: "<div class='b a' />",
-            svelteOutput: "<div class='a b' />",
-            vue: "<template><div class='b a' /></template>",
-            vueOutput: "<template><div class='a b' /></template>"
+            svelte: `<img class='b a' />`,
+            svelteOutput: `<img class='a b' />`,
+            vue: `<template><img class='b a' /></template>`,
+            vueOutput: `<template><img class='a b' /></template>`
           },
           {
             errors: 1,
-            jsx: "const Test = () => <div class={`b a`} />;",
-            jsxOutput: "const Test = () => <div class={`a b`} />;",
+            jsx: `() => <img class={\`b a\`} />`,
+            jsxOutput: `() => <img class={\`a b\`} />`,
             options: [{ order: "asc" }],
-            svelte: "<div class={`b a`} />",
-            svelteOutput: "<div class={`a b`} />"
+            svelte: `<img class={\`b a\`} />`,
+            svelteOutput: `<img class={\`a b\`} />`
           },
           {
             errors: 1,
-            jsx: "const Test = () => <div class={\"b a\"} />;",
-            jsxOutput: "const Test = () => <div class={\"a b\"} />;",
+            jsx: `() => <img class={"b a"} />`,
+            jsxOutput: `() => <img class={"a b"} />`,
             options: [{ order: "asc" }]
           },
           {
             errors: 1,
-            jsx: "const Test = () => <div class={'b a'} />;",
-            jsxOutput: "const Test = () => <div class={'a b'} />;",
+            jsx: `() => <img class={'b a'} />`,
+            jsxOutput: `() => <img class={'a b'} />`,
             options: [{ order: "asc" }]
           }
         ]
       }
-    )
-  ).toBeUndefined());
+    );
+  });
 
-  it("should keep expressions as they are", () => expect(
-    void lint(tailwindSortClasses, TEST_SYNTAXES, {
+  it("should keep expressions as they are", () => {
+    lint(tailwindSortClasses, TEST_SYNTAXES, {
       valid: [
         {
-          jsx: "const Test = () => <div class={true ? \"b a\" : \"c b\"} />;",
-          svelte: "<div class={true ? \"b a\" : \"c b\"} />"
+          jsx: `() => <img class={true ? "b a" : "c b"} />`,
+          svelte: `<img class={true ? "b a" : "c b"} />`
         }
       ]
-    })
-  ).toBeUndefined());
+    });
+  });
 
-  it("should keep expressions where they are", () => expect(
-    void lint(tailwindSortClasses, TEST_SYNTAXES, {
+  it("should keep expressions where they are", () => {
+    lint(tailwindSortClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 2,
-          jsx: "const Test = () => <div class={`c a ${true ? 'e' : 'f'} d b `} />;",
-          jsxOutput: "const Test = () => <div class={`a c ${true ? 'e' : 'f'} b d `} />;",
+          jsx: `() => <img class={\`c a \${true ? "e" : "f"} d b \`} />`,
+          jsxOutput: `() => <img class={\`a c \${true ? "e" : "f"} b d \`} />`,
           options: [{ order: "asc" }],
-          svelte: "<div class={`c a ${true ? 'e' : 'f'} d b `} />",
-          svelteOutput: "<div class={`a c ${true ? 'e' : 'f'} b d `} />"
+          svelte: `<img class={\`c a \${true ? "e" : "f"} d b \`} />`,
+          svelteOutput: `<img class={\`a c \${true ? "e" : "f"} b d \`} />`
         }
       ],
       valid: [
         {
-          jsx: "const Test = () => <div class={`a c ${true ? 'e' : 'f'} b `} />;",
-          svelte: "<div class={`a c ${true ? 'e' : 'f'} b `} />"
+          jsx: `() => <img class={\`a c \${true ? "e" : "f"} b \`} />`,
+          svelte: `<img class={\`a c \${true ? "e" : "f"} b \`} />`
         }
       ]
-    })
-  ).toBeUndefined());
+    });
+  });
 
   it("should not rip away sticky classes", () => {
 
@@ -189,19 +189,18 @@ describe(tailwindSortClasses.name, () => {
     const dirty = `c b a${expression}f e d`;
     const clean = `b c a${expression}f d e`;
 
-    expect(void lint(tailwindSortClasses, TEST_SYNTAXES, {
+    lint(tailwindSortClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 2,
-          jsx: `const Test = () => <div class={\`${dirty}\`} />;`,
-          jsxOutput: `const Test = () => <div class={\`${clean}\`} />;`,
+          jsx: `() => <img class={\`${dirty}\`} />`,
+          jsxOutput: `() => <img class={\`${clean}\`} />`,
           options: [{ order: "asc" }],
-          svelte: `<div class={\`${dirty}\`} />`,
-          svelteOutput: `<div class={\`${clean}\`} />`
+          svelte: `<img class={\`${dirty}\`} />`,
+          svelteOutput: `<img class={\`${clean}\`} />`
         }
       ]
-    })).toBeUndefined();
-
+    });
   });
 
   it("should sort multiline strings but keep the whitespace as it is", () => {
@@ -215,63 +214,61 @@ describe(tailwindSortClasses.name, () => {
       c d
     `;
 
-    expect(
-      void lint(
-        tailwindSortClasses,
-        TEST_SYNTAXES,
-        {
-          invalid: [
-            {
-              errors: 1,
-              html: `<div class="${unsortedMultilineString}" />`,
-              htmlOutput: `<div class="${sortedMultilineString}" />`,
-              options: [{ order: "asc" }],
-              svelte: `<div class="${unsortedMultilineString}" />`,
-              svelteOutput: `<div class="${sortedMultilineString}" />`,
-              vue: `<template><div class="${unsortedMultilineString}" /></template>`,
-              vueOutput: `<template><div class="${sortedMultilineString}" /></template>`
-            },
-            {
-              errors: 1,
-              html: `<div class='${unsortedMultilineString}' />`,
-              htmlOutput: `<div class='${sortedMultilineString}' />`,
-              options: [{ order: "asc" }],
-              svelte: `<div class='${unsortedMultilineString}' />`,
-              svelteOutput: `<div class='${sortedMultilineString}' />`,
-              vue: `<template><div class='${unsortedMultilineString}' /></template>`,
-              vueOutput: `<template><div class='${sortedMultilineString}' /></template>`
-            },
-            {
-              errors: 1,
-              jsx: `const Test = () => <div class={\`${unsortedMultilineString}\`} />;`,
-              jsxOutput: `const Test = () => <div class={\`${sortedMultilineString}\`} />;`,
-              options: [{ order: "asc" }],
-              svelte: `<div class={\`${unsortedMultilineString}\`} />`,
-              svelteOutput: `<div class={\`${sortedMultilineString}\`} />`
-            }
-          ],
-          valid: [
-            {
-              html: `<div class="${sortedMultilineString}" />`,
-              options: [{ order: "asc" }],
-              svelte: `<div class="${sortedMultilineString}" />`,
-              vue: `<template><div class="${sortedMultilineString}" /></template>`
-            },
-            {
-              html: `<div class='${sortedMultilineString}' />`,
-              options: [{ order: "asc" }],
-              svelte: `<div class='${sortedMultilineString}' />`,
-              vue: `<template><div class='${sortedMultilineString}' /></template>`
-            },
-            {
-              jsx: `const Test = () => <div class={\`${sortedMultilineString}\`} />;`,
-              options: [{ order: "asc" }],
-              svelte: `<div class={\`${sortedMultilineString}\`} />`
-            }
-          ]
-        }
-      )
-    ).toBeUndefined();
+    lint(
+      tailwindSortClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            html: `<img class="${unsortedMultilineString}" />`,
+            htmlOutput: `<img class="${sortedMultilineString}" />`,
+            options: [{ order: "asc" }],
+            svelte: `<img class="${unsortedMultilineString}" />`,
+            svelteOutput: `<img class="${sortedMultilineString}" />`,
+            vue: `<template><img class="${unsortedMultilineString}" /></template>`,
+            vueOutput: `<template><img class="${sortedMultilineString}" /></template>`
+          },
+          {
+            errors: 1,
+            html: `<img class='${unsortedMultilineString}' />`,
+            htmlOutput: `<img class='${sortedMultilineString}' />`,
+            options: [{ order: "asc" }],
+            svelte: `<img class='${unsortedMultilineString}' />`,
+            svelteOutput: `<img class='${sortedMultilineString}' />`,
+            vue: `<template><img class='${unsortedMultilineString}' /></template>`,
+            vueOutput: `<template><img class='${sortedMultilineString}' /></template>`
+          },
+          {
+            errors: 1,
+            jsx: `() => <img class={\`${unsortedMultilineString}\`} />`,
+            jsxOutput: `() => <img class={\`${sortedMultilineString}\`} />`,
+            options: [{ order: "asc" }],
+            svelte: `<img class={\`${unsortedMultilineString}\`} />`,
+            svelteOutput: `<img class={\`${sortedMultilineString}\`} />`
+          }
+        ],
+        valid: [
+          {
+            html: `<img class="${sortedMultilineString}" />`,
+            options: [{ order: "asc" }],
+            svelte: `<img class="${sortedMultilineString}" />`,
+            vue: `<template><img class="${sortedMultilineString}" /></template>`
+          },
+          {
+            html: `<img class='${sortedMultilineString}' />`,
+            options: [{ order: "asc" }],
+            svelte: `<img class='${sortedMultilineString}' />`,
+            vue: `<template><img class='${sortedMultilineString}' /></template>`
+          },
+          {
+            jsx: `() => <img class={\`${sortedMultilineString}\`} />`,
+            options: [{ order: "asc" }],
+            svelte: `<img class={\`${sortedMultilineString}\`} />`
+          }
+        ]
+      }
+    );
   });
 
   it("should sort in string literals in defined call signature arguments", () => {
@@ -280,7 +277,7 @@ describe(tailwindSortClasses.name, () => {
     const cleanDefined = "defined('a b c d');";
     const dirtyUndefined = "notDefined(\"b a d c\");";
 
-    expect(void lint(
+    lint(
       tailwindSortClasses,
       TEST_SYNTAXES,
       {
@@ -305,9 +302,9 @@ describe(tailwindSortClasses.name, () => {
           }
         ]
       }
-    )).toBeUndefined();
+    );
 
-    expect(void lint(
+    lint(
       tailwindSortClasses,
       TEST_SYNTAXES,
       {
@@ -332,8 +329,7 @@ describe(tailwindSortClasses.name, () => {
           }
         ]
       }
-    )).toBeUndefined();
-
+    );
   });
 
   it("should sort in string literals in call signature arguments matched by a regex", () => {
@@ -380,7 +376,7 @@ describe(tailwindSortClasses.name, () => {
       }
     );`;
 
-    expect(void lint(
+    lint(
       tailwindSortClasses,
       TEST_SYNTAXES,
       {
@@ -409,7 +405,7 @@ describe(tailwindSortClasses.name, () => {
           }
         ]
       }
-    )).toBeUndefined();
+    );
 
   });
 
@@ -440,30 +436,30 @@ describe(tailwindSortClasses.name, () => {
       i j
     `;
 
-    expect(void lint(
+    lint(
       tailwindSortClasses,
       TEST_SYNTAXES,
       {
         invalid: [
           {
             errors: 3,
-            jsx: `const Test = () => <div class={\`${dirtyDefinedMultiline}\`} />;`,
-            jsxOutput: `const Test = () => <div class={\`${cleanDefinedMultiline}\`} />;`,
+            jsx: `() => <img class={\`${dirtyDefinedMultiline}\`} />`,
+            jsxOutput: `() => <img class={\`${cleanDefinedMultiline}\`} />`,
             options: [{ callees: ["defined"], order: "asc" }],
-            svelte: `<div class={\`${dirtyDefinedMultiline}\`} />`,
-            svelteOutput: `<div class={\`${cleanDefinedMultiline}\`} />`
+            svelte: `<img class={\`${dirtyDefinedMultiline}\`} />`,
+            svelteOutput: `<img class={\`${cleanDefinedMultiline}\`} />`
           },
           {
             errors: 2,
-            jsx: `const Test = () => <div class={\`${dirtyUndefinedMultiline}\`} />;`,
-            jsxOutput: `const Test = () => <div class={\`${cleanUndefinedMultiline}\`} />;`,
+            jsx: `() => <img class={\`${dirtyUndefinedMultiline}\`} />`,
+            jsxOutput: `() => <img class={\`${cleanUndefinedMultiline}\`} />`,
             options: [{ callees: ["defined"], order: "asc" }],
-            svelte: `<div class={\`${dirtyUndefinedMultiline}\`} />`,
-            svelteOutput: `<div class={\`${cleanUndefinedMultiline}\`} />`
+            svelte: `<img class={\`${dirtyUndefinedMultiline}\`} />`,
+            svelteOutput: `<img class={\`${cleanUndefinedMultiline}\`} />`
           }
         ]
       }
-    )).toBeUndefined();
+    );
 
   });
 
@@ -483,7 +479,7 @@ describe(tailwindSortClasses.name, () => {
       c d
     \`;`;
 
-    expect(void lint(
+    lint(
       tailwindSortClasses,
       TEST_SYNTAXES,
       {
@@ -518,7 +514,7 @@ describe(tailwindSortClasses.name, () => {
           }
         ]
       }
-    )).toBeUndefined();
+    );
 
   });
 
@@ -556,7 +552,7 @@ describe(tailwindSortClasses.name, () => {
       c d
     \`;`;
 
-    expect(void lint(
+    lint(
       tailwindSortClasses,
       TEST_SYNTAXES,
       {
@@ -625,7 +621,7 @@ describe(tailwindSortClasses.name, () => {
           }
         ]
       }
-    )).toBeUndefined();
+    );
 
   });
 

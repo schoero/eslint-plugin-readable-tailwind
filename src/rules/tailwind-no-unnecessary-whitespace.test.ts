@@ -1,28 +1,28 @@
 import { createTrimTag, lint, TEST_SYNTAXES } from "tests/utils.js";
-import { describe, expect, it } from "vitest";
+import { describe, it } from "vitest";
 
 import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
 
 
 describe(tailwindNoUnnecessaryWhitespace.name, () => {
 
-  it("should trim leading and trailing white space in literals", () => expect(
-    void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+  it("should trim leading and trailing white space in literals", () => {
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
-          html: "<div class=\"  b  a  \" />",
-          htmlOutput: "<div class=\"b a\" />",
-          jsx: "const Test = () => <div class=\"  b  a  \" />;",
-          jsxOutput: "const Test = () => <div class=\"b a\" />;",
-          svelte: "<div class=\"  b  a  \" />",
-          svelteOutput: "<div class=\"b a\" />",
-          vue: "<template><div class=\"  b  a  \" /></template>",
-          vueOutput: "<template><div class=\"b a\" /></template>"
+          html: `<img class="  b  a  " />`,
+          htmlOutput: `<img class="b a" />`,
+          jsx: `() => <img class="  b  a  " />`,
+          jsxOutput: `() => <img class="b a" />`,
+          svelte: `<img class="  b  a  " />`,
+          svelteOutput: `<img class="b a" />`,
+          vue: `<template><img class="  b  a  " /></template>`,
+          vueOutput: `<template><img class="b a" /></template>`
         }
       ]
-    })
-  ).toBeUndefined());
+    });
+  });
 
   it("should collapse empty multiline strings", () => {
     const dirtyEmptyMultilineString = `
@@ -30,88 +30,86 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
     `;
     const cleanEmptyMultilineString = "";
 
-    expect(
-      void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
-        invalid: [
-          {
-            errors: 1,
-            html: `<div class="${dirtyEmptyMultilineString}" />`,
-            htmlOutput: `<div class="${cleanEmptyMultilineString}" />`,
-            jsx: `const Test = () => <div class="${dirtyEmptyMultilineString}" />;`,
-            jsxOutput: `const Test = () => <div class="${cleanEmptyMultilineString}" />;`,
-            svelte: `<div class="${dirtyEmptyMultilineString}" />`,
-            svelteOutput: `<div class="${cleanEmptyMultilineString}" />`,
-            vue: `<template><div class="${dirtyEmptyMultilineString}" /></template>`,
-            vueOutput: `<template><div class="${cleanEmptyMultilineString}" /></template>`
-          }
-        ]
-      })
-    ).toBeUndefined();
-  });
-
-  it("should keep the quotes as they are", () => expect(
-    void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
-          html: "<div class=\"  b  a  \" />",
-          htmlOutput: "<div class=\"b a\" />",
-          jsx: "const Test = () => <div class=\"  b  a  \" />;",
-          jsxOutput: "const Test = () => <div class=\"b a\" />;",
-          svelte: "<div class=\"  b  a  \" />",
-          svelteOutput: "<div class=\"b a\" />",
-          vue: "<template><div class=\"  b  a  \" /></template>",
-          vueOutput: "<template><div class=\"b a\" /></template>"
-        },
-        {
-          errors: 1,
-          html: "<div class='  b  a  ' />",
-          htmlOutput: "<div class='b a' />",
-          jsx: "const Test = () => <div class='  b  a  ' />;",
-          jsxOutput: "const Test = () => <div class='b a' />;",
-          svelte: "<div class='  b  a  ' />",
-          svelteOutput: "<div class='b a' />",
-          vue: "<template><div class='  b  a  ' /></template>",
-          vueOutput: "<template><div class='b a' /></template>"
-        },
-        {
-          errors: 1,
-          jsx: "const Test = () => <div class={`  b  a  `} />;",
-          jsxOutput: "const Test = () => <div class={`b a`} />;",
-          svelte: "<div class={`  b  a  `} />",
-          svelteOutput: "<div class={`b a`} />"
-        },
-        {
-          errors: 1,
-          jsx: "const Test = () => <div class={\"  b  a  \"} />;",
-          jsxOutput: "const Test = () => <div class={\"b a\"} />;",
-          svelte: "<div class={\"  b  a  \"} />",
-          svelteOutput: "<div class={\"b a\"} />"
-        },
-        {
-          errors: 1,
-          jsx: "const Test = () => <div class={'  b  a  '} />;",
-          jsxOutput: "const Test = () => <div class={'b a'} />;",
-          svelte: "<div class={'  b  a  '} />",
-          svelteOutput: "<div class={'b a'} />"
+          html: `<img class="${dirtyEmptyMultilineString}" />`,
+          htmlOutput: `<img class="${cleanEmptyMultilineString}" />`,
+          jsx: `() => <img class="${dirtyEmptyMultilineString}" />`,
+          jsxOutput: `() => <img class="${cleanEmptyMultilineString}" />`,
+          svelte: `<img class="${dirtyEmptyMultilineString}" />`,
+          svelteOutput: `<img class="${cleanEmptyMultilineString}" />`,
+          vue: `<template><img class="${dirtyEmptyMultilineString}" /></template>`,
+          vueOutput: `<template><img class="${cleanEmptyMultilineString}" /></template>`
         }
       ]
-    })
-  ).toBeUndefined());
+    });
+  });
 
-  it("should keep one whitespace around template elements", () => expect(
-    void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+  it("should keep the quotes as they are", () => {
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 1,
+          html: `<img class="  b  a  " />`,
+          htmlOutput: `<img class="b a" />`,
+          jsx: `() => <img class="  b  a  " />`,
+          jsxOutput: `() => <img class="b a" />`,
+          svelte: `<img class="  b  a  " />`,
+          svelteOutput: `<img class="b a" />`,
+          vue: `<template><img class="  b  a  " /></template>`,
+          vueOutput: `<template><img class="b a" /></template>`
+        },
+        {
+          errors: 1,
+          html: `<img class='  b  a  ' />`,
+          htmlOutput: `<img class='b a' />`,
+          jsx: `() => <img class='  b  a  ' />`,
+          jsxOutput: `() => <img class='b a' />`,
+          svelte: `<img class='  b  a  ' />`,
+          svelteOutput: `<img class='b a' />`,
+          vue: `<template><img class='  b  a  ' /></template>`,
+          vueOutput: `<template><img class='b a' /></template>`
+        },
+        {
+          errors: 1,
+          jsx: `() => <img class={\`  b  a  \`} />`,
+          jsxOutput: `() => <img class={\`b a\`} />`,
+          svelte: `<img class={\`  b  a  \`} />`,
+          svelteOutput: `<img class={\`b a\`} />`
+        },
+        {
+          errors: 1,
+          jsx: `() => <img class={"  b  a  "} />`,
+          jsxOutput: `() => <img class={"b a"} />`,
+          svelte: `<img class={"  b  a  "} />`,
+          svelteOutput: `<img class={"b a"} />`
+        },
+        {
+          errors: 1,
+          jsx: `() => <img class={'  b  a  '} />`,
+          jsxOutput: `() => <img class={'b a'} />`,
+          svelte: `<img class={'  b  a  '} />`,
+          svelteOutput: `<img class={'b a'} />`
+        }
+      ]
+    });
+  });
+
+  it("should keep one whitespace around template elements", () => {
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 2,
-          jsx: "const Test = () => <div class={`  b  a  ${'  c  '}  d  `} />;",
-          jsxOutput: "const Test = () => <div class={`b a ${'  c  '} d`} />;",
-          svelte: "<div class={`  b  a  ${'  c  '}  d  `} />",
-          svelteOutput: "<div class={`b a ${'  c  '} d`} />"
+          jsx: `() => <img class={\`  b  a  \${"  c  "}  d  \`} />`,
+          jsxOutput: `() => <img class={\`b a \${"  c  "} d\`} />`,
+          svelte: `<img class={\`  b  a  \${"  c  "}  d  \`} />`,
+          svelteOutput: `<img class={\`b a \${"  c  "} d\`} />`
         }
       ]
-    })
-  ).toBeUndefined());
+    });
+  });
 
   it("should keep no whitespace at the end of the line in multiline strings", () => {
 
@@ -129,21 +127,21 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       c
     `;
 
-    expect(void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
-          html: `<div class="${dirty}" />`,
-          htmlOutput: `<div class="${clean}" />`,
-          jsx: `const Test = () => <div class={\`${dirty}\`} />;`,
-          jsxOutput: `const Test = () => <div class={\`${clean}\`} />;`,
-          svelte: `<div class={\`${dirty}\`} />`,
-          svelteOutput: `<div class={\`${clean}\`} />`,
-          vue: `<template><div class="${dirty}" /></template>`,
-          vueOutput: `<template><div class="${clean}" /></template>`
+          html: `<img class="${dirty}" />`,
+          htmlOutput: `<img class="${clean}" />`,
+          jsx: `() => <img class={\`${dirty}\`} />`,
+          jsxOutput: `() => <img class={\`${clean}\`} />`,
+          svelte: `<img class={\`${dirty}\`} />`,
+          svelteOutput: `<img class={\`${clean}\`} />`,
+          vue: `<template><img class="${dirty}" /></template>`,
+          vueOutput: `<template><img class="${clean}" /></template>`
         }
       ]
-    })).toBeUndefined();
+    });
 
   });
 
@@ -182,31 +180,31 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       ${expression}
     `;
 
-    expect(void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
-          jsx: `const Test = () => <div class={\`${dirtyExpressionAtStart}\`} />;`,
-          jsxOutput: `const Test = () => <div class={\`${cleanExpressionAtStart}\`} />;`,
-          svelte: `<div class={\`${dirtyExpressionAtStart}\`} />`,
-          svelteOutput: `<div class={\`${cleanExpressionAtStart}\`} />`
+          jsx: `() => <img class={\`${dirtyExpressionAtStart}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanExpressionAtStart}\`} />`,
+          svelte: `<img class={\`${dirtyExpressionAtStart}\`} />`,
+          svelteOutput: `<img class={\`${cleanExpressionAtStart}\`} />`
         },
         {
           errors: 2,
-          jsx: `const Test = () => <div class={\`${dirtyExpressionBetween}\`} />;`,
-          jsxOutput: `const Test = () => <div class={\`${cleanExpressionBetween}\`} />;`,
-          svelte: `<div class={\`${dirtyExpressionBetween}\`} />`,
-          svelteOutput: `<div class={\`${cleanExpressionBetween}\`} />`
+          jsx: `() => <img class={\`${dirtyExpressionBetween}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanExpressionBetween}\`} />`,
+          svelte: `<img class={\`${dirtyExpressionBetween}\`} />`,
+          svelteOutput: `<img class={\`${cleanExpressionBetween}\`} />`
         },
         {
           errors: 2,
-          jsx: `const Test = () => <div class={\`${dirtyExpressionAtEnd}\`} />;`,
-          jsxOutput: `const Test = () => <div class={\`${cleanExpressionAtEnd}\`} />;`,
-          svelte: `<div class={\`${dirtyExpressionAtEnd}\`} />`,
-          svelteOutput: `<div class={\`${cleanExpressionAtEnd}\`} />`
+          jsx: `() => <img class={\`${dirtyExpressionAtEnd}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanExpressionAtEnd}\`} />`,
+          svelte: `<img class={\`${dirtyExpressionAtEnd}\`} />`,
+          svelteOutput: `<img class={\`${cleanExpressionAtEnd}\`} />`
         }
       ]
-    })).toBeUndefined();
+    });
 
   });
 
@@ -223,31 +221,31 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
     const invalidAtEnd = `  a  ${expression}  `;
     const validAtEnd = `a ${expression}`;
 
-    expect(void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 2,
-          jsx: `const Test = () => <div class={\`${invalidAtStart}\`} />;`,
-          jsxOutput: `const Test = () => <div class={\`${validAtStart}\`} />;`,
-          svelte: `<div class={\`${invalidAtStart}\`} />`,
-          svelteOutput: `<div class={\`${validAtStart}\`} />`
+          jsx: `() => <img class={\`${invalidAtStart}\`} />`,
+          jsxOutput: `() => <img class={\`${validAtStart}\`} />`,
+          svelte: `<img class={\`${invalidAtStart}\`} />`,
+          svelteOutput: `<img class={\`${validAtStart}\`} />`
         },
         {
           errors: 2,
-          jsx: `const Test = () => <div class={\`${invalidBetween}\`} />;`,
-          jsxOutput: `const Test = () => <div class={\`${validBetween}\`} />;`,
-          svelte: `<div class={\`${invalidBetween}\`} />`,
-          svelteOutput: `<div class={\`${validBetween}\`} />`
+          jsx: `() => <img class={\`${invalidBetween}\`} />`,
+          jsxOutput: `() => <img class={\`${validBetween}\`} />`,
+          svelte: `<img class={\`${invalidBetween}\`} />`,
+          svelteOutput: `<img class={\`${validBetween}\`} />`
         },
         {
           errors: 2,
-          jsx: `const Test = () => <div class={\`${invalidAtEnd}\`} />;`,
-          jsxOutput: `const Test = () => <div class={\`${validAtEnd}\`} />;`,
-          svelte: `<div class={\`${invalidAtEnd}\`} />`,
-          svelteOutput: `<div class={\`${validAtEnd}\`} />`
+          jsx: `() => <img class={\`${invalidAtEnd}\`} />`,
+          jsxOutput: `() => <img class={\`${validAtEnd}\`} />`,
+          svelte: `<img class={\`${invalidAtEnd}\`} />`,
+          svelteOutput: `<img class={\`${validAtEnd}\`} />`
         }
       ]
-    })).toBeUndefined();
+    });
 
   });
 
@@ -264,31 +262,31 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
     const invalidAtEnd = `  a${expression}  `;
     const validAtEnd = `a${expression}`;
 
-    expect(void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 2,
-          jsx: `const Test = () => <div class={\`${invalidAtStart}\`} />;`,
-          jsxOutput: `const Test = () => <div class={\`${validAtStart}\`} />;`,
-          svelte: `<div class={\`${invalidAtStart}\`} />`,
-          svelteOutput: `<div class={\`${validAtStart}\`} />`
+          jsx: `() => <img class={\`${invalidAtStart}\`} />`,
+          jsxOutput: `() => <img class={\`${validAtStart}\`} />`,
+          svelte: `<img class={\`${invalidAtStart}\`} />`,
+          svelteOutput: `<img class={\`${validAtStart}\`} />`
         },
         {
           errors: 2,
-          jsx: `const Test = () => <div class={\`${invalidBetween}\`} />;`,
-          jsxOutput: `const Test = () => <div class={\`${validBetween}\`} />;`,
-          svelte: `<div class={\`${invalidBetween}\`} />`,
-          svelteOutput: `<div class={\`${validBetween}\`} />`
+          jsx: `() => <img class={\`${invalidBetween}\`} />`,
+          jsxOutput: `() => <img class={\`${validBetween}\`} />`,
+          svelte: `<img class={\`${invalidBetween}\`} />`,
+          svelteOutput: `<img class={\`${validBetween}\`} />`
         },
         {
           errors: 2,
-          jsx: `const Test = () => <div class={\`${invalidAtEnd}\`} />;`,
-          jsxOutput: `const Test = () => <div class={\`${validAtEnd}\`} />;`,
-          svelte: `<div class={\`${invalidAtEnd}\`} />`,
-          svelteOutput: `<div class={\`${validAtEnd}\`} />`
+          jsx: `() => <img class={\`${invalidAtEnd}\`} />`,
+          jsxOutput: `() => <img class={\`${validAtEnd}\`} />`,
+          svelte: `<img class={\`${invalidAtEnd}\`} />`,
+          svelteOutput: `<img class={\`${validAtEnd}\`} />`
         }
       ]
-    })).toBeUndefined();
+    });
 
   });
 
@@ -312,38 +310,39 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       ${expression}
     `;
 
-    expect(void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       valid: [
         {
-          jsx: `const Test = () => <div class={\`${validSeparateLineAtStart}\`} />;`,
-          svelte: `<div class={\`${validSeparateLineAtStart}\`} />`
+          jsx: `() => <img class={\`${validSeparateLineAtStart}\`} />`,
+          svelte: `<img class={\`${validSeparateLineAtStart}\`} />`
         },
         {
-          jsx: `const Test = () => <div class={\`${validSeparateLineBetween}\`} />;`,
-          svelte: `<div class={\`${validSeparateLineBetween}\`} />`
+          jsx: `() => <img class={\`${validSeparateLineBetween}\`} />`,
+          svelte: `<img class={\`${validSeparateLineBetween}\`} />`
         },
         {
-          jsx: `const Test = () => <div class={\`${validSeparateLineAtEnd}\`} />;`,
-          svelte: `<div class={\`${validSeparateLineAtEnd}\`} />`
+          jsx: `() => <img class={\`${validSeparateLineAtEnd}\`} />`,
+          svelte: `<img class={\`${validSeparateLineAtEnd}\`} />`
         }
       ]
-    })).toBeUndefined();
+    });
 
   });
 
-  it("should remove whitespace around template elements if they are at the beginning or end", () => expect(
-    void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+
+  it("should remove whitespace around template elements if they are at the beginning or end", () => {
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 3,
-          jsx: "const Test = () => <div class={`  ${' b '}  a  d  ${'  c  '}  `} />;",
-          jsxOutput: "const Test = () => <div class={`${' b '} a d ${'  c  '}`} />;",
-          svelte: "<div class={`  ${' b '}  a  d  ${'  c  '}  `} />",
-          svelteOutput: "<div class={`${' b '} a d ${'  c  '}`} />"
+          jsx: `() => <img class={\`  \${" b "}  a  d  \${"  c  "}  \`} />`,
+          jsxOutput: `() => <img class={\`\${" b "} a d \${"  c  "}\`} />`,
+          svelte: `<img class={\`  \${" b "}  a  d  \${"  c  "}  \`} />`,
+          svelteOutput: `<img class={\`\${" b "} a d \${"  c  "}\`} />`
         }
       ]
-    })
-  ).toBeUndefined());
+    });
+  });
 
   it("should remove newlines whenever possible", () => {
     const uncleanedMultilineString = `
@@ -358,61 +357,61 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
 
     const cleanedSinglelineString = "d c b a";
 
-    expect(void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
-          html: `<div class="${uncleanedMultilineString}" />`,
-          htmlOutput: `<div class="${cleanedMultilineString}" />`,
-          svelte: `<div class="${uncleanedMultilineString}" />`,
-          svelteOutput: `<div class="${cleanedMultilineString}" />`,
-          vue: `<template><div class="${uncleanedMultilineString}" /></template>`,
-          vueOutput: `<template><div class="${cleanedMultilineString}" /></template>`
+          html: `<img class="${uncleanedMultilineString}" />`,
+          htmlOutput: `<img class="${cleanedMultilineString}" />`,
+          svelte: `<img class="${uncleanedMultilineString}" />`,
+          svelteOutput: `<img class="${cleanedMultilineString}" />`,
+          vue: `<template><img class="${uncleanedMultilineString}" /></template>`,
+          vueOutput: `<template><img class="${cleanedMultilineString}" /></template>`
         },
         {
           errors: 1,
-          html: `<div class='${uncleanedMultilineString}' />`,
-          htmlOutput: `<div class='${cleanedMultilineString}' />`,
-          svelte: `<div class='${uncleanedMultilineString}' />`,
-          svelteOutput: `<div class='${cleanedMultilineString}' />`,
-          vue: `<template><div class='${uncleanedMultilineString}' /></template>`,
-          vueOutput: `<template><div class='${cleanedMultilineString}' /></template>`
+          html: `<img class='${uncleanedMultilineString}' />`,
+          htmlOutput: `<img class='${cleanedMultilineString}' />`,
+          svelte: `<img class='${uncleanedMultilineString}' />`,
+          svelteOutput: `<img class='${cleanedMultilineString}' />`,
+          vue: `<template><img class='${uncleanedMultilineString}' /></template>`,
+          vueOutput: `<template><img class='${cleanedMultilineString}' /></template>`
         },
         {
           errors: 1,
-          jsx: `const Test = () => <div class={\`${uncleanedMultilineString}\`} />;`,
-          jsxOutput: `const Test = () => <div class={\`${cleanedMultilineString}\`} />;`,
-          svelte: `<div class={\`${uncleanedMultilineString}\`} />`,
-          svelteOutput: `<div class={\`${cleanedMultilineString}\`} />`
+          jsx: `() => <img class={\`${uncleanedMultilineString}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanedMultilineString}\`} />`,
+          svelte: `<img class={\`${uncleanedMultilineString}\`} />`,
+          svelteOutput: `<img class={\`${cleanedMultilineString}\`} />`
         },
         {
           errors: 1,
-          html: `<div class='${uncleanedMultilineString}' />`,
-          htmlOutput: `<div class='${cleanedSinglelineString}' />`,
-          jsx: `const Test = () => <div class={\`${uncleanedMultilineString}\`} />;`,
-          jsxOutput: `const Test = () => <div class={\`${cleanedSinglelineString}\`} />;`,
+          html: `<img class='${uncleanedMultilineString}' />`,
+          htmlOutput: `<img class='${cleanedSinglelineString}' />`,
+          jsx: `() => <img class={\`${uncleanedMultilineString}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanedSinglelineString}\`} />`,
           options: [{ allowMultiline: false }],
-          svelte: `<div class={\`${uncleanedMultilineString}\`} />`,
-          svelteOutput: `<div class={\`${cleanedSinglelineString}\`} />`,
-          vue: `<template><div class='${uncleanedMultilineString}' /></template>`,
-          vueOutput: `<template><div class='${cleanedSinglelineString}' /></template>`
+          svelte: `<img class={\`${uncleanedMultilineString}\`} />`,
+          svelteOutput: `<img class={\`${cleanedSinglelineString}\`} />`,
+          vue: `<template><img class='${uncleanedMultilineString}' /></template>`,
+          vueOutput: `<template><img class='${cleanedSinglelineString}' /></template>`
         }
       ],
       valid: [
         {
-          html: `<div class="${cleanedMultilineString}" />`,
-          jsx: `const Test = () => <div class={\`${cleanedMultilineString}\`} />;`,
-          svelte: `<div class="${cleanedMultilineString}" />`,
-          vue: `<template><div class="${cleanedMultilineString}" /></template>`
+          html: `<img class="${cleanedMultilineString}" />`,
+          jsx: `() => <img class={\`${cleanedMultilineString}\`} />`,
+          svelte: `<img class="${cleanedMultilineString}" />`,
+          vue: `<template><img class="${cleanedMultilineString}" /></template>`
         },
         {
-          html: `<div class="${cleanedSinglelineString}" />`,
-          jsx: `const Test = () => <div class="${cleanedSinglelineString}" />;`,
-          svelte: `<div class="${cleanedSinglelineString}" />`,
-          vue: `<template><div class="${cleanedSinglelineString}" /></template>`
+          html: `<img class="${cleanedSinglelineString}" />`,
+          jsx: `() => <img class="${cleanedSinglelineString}" />`,
+          svelte: `<img class="${cleanedSinglelineString}" />`,
+          vue: `<template><img class="${cleanedSinglelineString}" /></template>`
         }
       ]
-    })).toBeUndefined();
+    });
   });
 
   it("should not remove whitespace before in template literal elements", () => {
@@ -435,22 +434,22 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       ${expression}
     `;
 
-    expect(void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       valid: [
         {
-          jsx: `const Test = () => <div class={\`${validAtStart}\`} />;`,
-          svelte: `<div class={\`${validAtStart}\`} />`
+          jsx: `() => <img class={\`${validAtStart}\`} />`,
+          svelte: `<img class={\`${validAtStart}\`} />`
         },
         {
-          jsx: `const Test = () => <div class={\`${validAround}\`} />;`,
-          svelte: `<div class={\`${validAround}\`} />`
+          jsx: `() => <img class={\`${validAround}\`} />`,
+          svelte: `<img class={\`${validAround}\`} />`
         },
         {
-          jsx: `const Test = () => <div class={\`${validAtEnd}\`} />;`,
-          svelte: `<div class={\`${validAtEnd}\`} />`
+          jsx: `() => <img class={\`${validAtEnd}\`} />`,
+          svelte: `<img class={\`${validAtEnd}\`} />`
         }
       ]
-    })).toBeUndefined();
+    });
 
   });
 
@@ -460,7 +459,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
     const cleanDefined = "defined('f e');";
     const dirtyUndefined = "notDefined(\"  f  e  \");";
 
-    expect(void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -481,9 +480,9 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
           vue: `<script>${dirtyUndefined}</script>`
         }
       ]
-    })).toBeUndefined();
+    });
 
-    expect(void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -504,7 +503,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
           vue: `<script>${dirtyUndefined}</script>`
         }
       ]
-    })).toBeUndefined();
+    });
 
   });
 
@@ -552,7 +551,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       }
     );`;
 
-    expect(void lint(
+    lint(
       tailwindNoUnnecessaryWhitespace,
       TEST_SYNTAXES,
       {
@@ -580,7 +579,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
           }
         ]
       }
-    )).toBeUndefined();
+    );
 
   });
 
@@ -608,24 +607,24 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       j i
     `;
 
-    expect(void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
-          jsx: `const Test = () => <div class={\`${dirtyDefinedMultiline}\`} />;`,
-          jsxOutput: `const Test = () => <div class={\`${cleanDefinedMultiline}\`} />;`,
+          jsx: `() => <img class={\`${dirtyDefinedMultiline}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanDefinedMultiline}\`} />`,
           options: [{ callees: ["defined"] }],
-          svelte: `<div class={\`${dirtyDefinedMultiline}\`} />`,
-          svelteOutput: `<div class={\`${cleanDefinedMultiline}\`} />`
+          svelte: `<img class={\`${dirtyDefinedMultiline}\`} />`,
+          svelteOutput: `<img class={\`${cleanDefinedMultiline}\`} />`
         }
       ],
       valid: [
         {
-          jsx: `const Test = () => <div class={\`${dirtyUndefinedMultiline}\`} />;`,
-          svelte: `<div class={\`${dirtyUndefinedMultiline}\`} />`
+          jsx: `() => <img class={\`${dirtyUndefinedMultiline}\`} />`,
+          svelte: `<img class={\`${dirtyUndefinedMultiline}\`} />`
         }
       ]
-    })).toBeUndefined();
+    });
 
   });
 
@@ -645,7 +644,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       d c
     \`;`;
 
-    expect(void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -675,7 +674,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
           vue: `<script>${dirtyUndefined}</script>`
         }
       ]
-    })).toBeUndefined();
+    });
 
   });
 
@@ -713,7 +712,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       d c
     \`;`;
 
-    expect(void lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -774,7 +773,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
           vue: `<script>${dirtyUndefined}</script>`
         }
       ]
-    })).toBeUndefined();
+    });
 
   });
 
