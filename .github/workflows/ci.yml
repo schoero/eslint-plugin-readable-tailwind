@@ -42,8 +42,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
-        run: bash test.sh
+      - name: Run tests with tailwindcss v3
+        run: |
+          npm install tailwindcss@^3 --no-save
+          npm run test
+
+      - name: Run tests with tailwindcss v4
+        run: |
+          npm install tailwindcss@next --no-save
+          npm run test
 
     strategy:
       fail-fast: true
