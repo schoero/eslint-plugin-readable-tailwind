@@ -97,8 +97,3 @@ export function getTailwindcssVersion() {
   return version;
 
 }
-
-export function importSync<Path extends string>(path: Path) {
-  const customRequire = createRequire(import.meta.url);
-  return customRequire(path);
-}

@@ -1,10 +1,12 @@
+import importSync from "import-sync";
+
 import { getLiteralsByESCallExpression, getLiteralsByESVariableDeclarator } from "readable-tailwind:parsers:es.js";
 import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readable-tailwind:parsers:html.js";
 import { getJSXAttributes, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx";
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "readable-tailwind:parsers:vue.js";
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES, DEFAULT_VARIABLE_NAMES } from "readable-tailwind:utils:config.js";
-import { getTailwindcssVersion, importSync, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
+import { getTailwindcssVersion, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
@@ -319,11 +321,11 @@ function getVersionedGetClassOrder() {
   const tailwindcssVersion = getTailwindcssVersion();
 
   if(tailwindcssVersion && tailwindcssVersion.major >= 4){
-    const getClassOrderV4 = importSync("../utils/tailwind-v4.js");
-    return getClassOrderV4;
+    const { getClassOrder } = importSync("../utils/tailwind-v4.js");
+    return getClassOrder;
   } else {
-    const getClassOrderV3 = importSync("../utils/tailwind-v3.js");
-    return getClassOrderV3;
+    const { getClassOrder } = importSync("../utils/tailwind-v3.js");
+    return getClassOrder;
   }
 
 }
