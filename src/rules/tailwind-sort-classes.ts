@@ -4,15 +4,7 @@ import { getJSXAttributes, getLiteralsByJSXClassAttribute } from "readable-tailw
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "readable-tailwind:parsers:vue.js";
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES, DEFAULT_VARIABLE_NAMES } from "readable-tailwind:utils:config.js";
-import {
-  getClassOrder as getClassOrderV3,
-  initializeTailwindConfig as initializeTailwindConfigV3
-} from "readable-tailwind:utils:tailwind-v3.js";
-import {
-  getClassOrder as getClassOrderV4,
-  initializeTailwindConfig as initializeTailwindConfigV4
-} from "readable-tailwind:utils:tailwind-v4.js";
-import { getTailwindcssVersion, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
+import { getTailwindcssVersion, importSync, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
@@ -42,14 +34,6 @@ export const tailwindSortClasses: ESLintRule<Options> = {
     create(ctx) {
 
       const { callees, classAttributes, tailwindConfig, variables } = getOptions(ctx);
-
-      const tailwindcssVersion = getTailwindcssVersion();
-
-      if(tailwindcssVersion && tailwindcssVersion.major >= 4){
-        initializeTailwindConfigV4(ctx.cwd, tailwindConfig);
-      } else {
-        initializeTailwindConfigV3(ctx.cwd, tailwindConfig);
-      }
 
       const lintLiterals = (ctx: Rule.RuleContext, literals: Literal[]) => {
 
@@ -291,11 +275,9 @@ function sortClasses(ctx: Rule.RuleContext, classes: string[]): string[] {
     return [...classes].sort((a, b) => b.localeCompare(a));
   }
 
-  const tailwindcssVersion = getTailwindcssVersion();
+  const getClassOrder = getVersionedGetClassOrder();
 
-  const officialClassOrder = tailwindcssVersion && tailwindcssVersion.major >= 4
-    ? getClassOrderV4(ctx.cwd, tailwindConfig, classes)
-    : getClassOrderV3(ctx.cwd, tailwindConfig, classes);
+  const officialClassOrder = getClassOrder(ctx.cwd, tailwindConfig, classes);
 
   const officiallySortedClasses = [...officialClassOrder]
     .sort(([, a], [, z]) => {
@@ -329,6 +311,20 @@ function sortClasses(ctx: Rule.RuleContext, classes: string[]): string[] {
     return 0;
 
   });
+
+}
+
+function getVersionedGetClassOrder() {
+
+  const tailwindcssVersion = getTailwindcssVersion();
+
+  if(tailwindcssVersion && tailwindcssVersion.major >= 4){
+    const getClassOrderV4 = importSync("../utils/tailwind-v4.js");
+    return getClassOrderV4;
+  } else {
+    const getClassOrderV3 = importSync("../utils/tailwind-v3.js");
+    return getClassOrderV3;
+  }
 
 }
 

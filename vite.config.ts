@@ -3,7 +3,7 @@ import noBundlePlugin from "vite-plugin-no-bundle";
 
 import { config, defineConfig } from "@schoero/configs/vite";
 
-import type { UserConfig } from "vitest";
+import type { UserConfig } from "vite";
 
 
 export default defineConfig(<UserConfig>{
@@ -11,18 +11,15 @@ export default defineConfig(<UserConfig>{
   build: {
     emptyOutDir: true,
     lib: {
-      entry: ["./src/index.ts"],
+      entry: [
+        "./src/index.ts",
+        "./src/utils/tailwind-v3.ts",
+        "./src/utils/tailwind-v4.ts"
+      ],
       formats: ["es", "cjs"]
     },
     minify: false,
     outDir: "lib/",
-    rollupOptions: {
-      external: [
-        /node_modules/,
-        /tailwindcss/,
-        /^node:.*/
-      ]
-    },
     target: "ES2020"
   },
   plugins: [
@@ -34,5 +31,17 @@ export default defineConfig(<UserConfig>{
       pathsToAliases: true,
       strictOutput: true
     })
-  ]
+  ],
+  resolve: {
+    alias: [
+      {
+        find: "tailwindcss3",
+        replacement: "tailwindcss"
+      },
+      {
+        find: "tailwindcss4",
+        replacement: "tailwindcss"
+      }
+    ]
+  }
 });

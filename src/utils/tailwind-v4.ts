@@ -9,19 +9,6 @@ const CACHE = new Map<
   ReturnType<typeof loadTailwindTheme>
 >();
 
-export function initializeTailwindConfig(cwd: string, themePath?: string): void {
-  const cacheKey = getCacheKey(cwd, themePath);
-
-  if(CACHE.has(cacheKey)){
-    return;
-  }
-
-  const resolvedConfigPath = findTailwindTheme(cwd, themePath);
-  const theme = loadTailwindTheme(resolvedConfigPath);
-
-  CACHE.set(cacheKey, theme);
-}
-
 export function getClassOrder(cwd: string, configPath: string | undefined, classes: string[]) {
   const cacheKey = getCacheKey(cwd, configPath);
 
@@ -36,6 +23,18 @@ function getCacheKey(cwd: string, configPath?: string) {
   return JSON.stringify({ config: configPath, cwd });
 }
 
+function initializeTailwindConfig(cwd: string, themePath?: string): void {
+  const cacheKey = getCacheKey(cwd, themePath);
+
+  if(CACHE.has(cacheKey)){
+    return;
+  }
+
+  const resolvedConfigPath = findTailwindTheme(cwd, themePath);
+  const theme = loadTailwindTheme(resolvedConfigPath);
+
+  CACHE.set(cacheKey, theme);
+}
 
 function findTailwindTheme(cwd: string, themePath?: string) {
 

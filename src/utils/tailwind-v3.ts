@@ -11,20 +11,6 @@ const CACHE = new Map<
   ReturnType<typeof setupContextUtils.createContext>
 >();
 
-export function initializeTailwindConfig(cwd: string, configPath?: string) {
-  const cacheKey = getCacheKey(cwd, configPath);
-
-  if(CACHE.has(cacheKey)){
-    return;
-  }
-
-  const resolvedConfigPath = findTailwindConfig(cwd, configPath);
-  const config = loadTailwindConfig(resolvedConfigPath);
-  const context = createTailwindContext(config);
-
-  CACHE.set(cacheKey, context);
-}
-
 export function getClassOrder(cwd: string, configPath: string | undefined, classes: string[]) {
   const cacheKey = getCacheKey(cwd, configPath);
 
@@ -37,6 +23,20 @@ export function getClassOrder(cwd: string, configPath: string | undefined, class
 
 function getCacheKey(cwd: string, configPath?: string) {
   return JSON.stringify({ config: configPath, cwd });
+}
+
+function initializeTailwindConfig(cwd: string, configPath?: string) {
+  const cacheKey = getCacheKey(cwd, configPath);
+
+  if(CACHE.has(cacheKey)){
+    return;
+  }
+
+  const resolvedConfigPath = findTailwindConfig(cwd, configPath);
+  const config = loadTailwindConfig(resolvedConfigPath);
+  const context = createTailwindContext(config);
+
+  CACHE.set(cacheKey, context);
 }
 
 function findTailwindConfig(cwd: string, configPath?: string) {
@@ -64,7 +64,7 @@ function findTailwindConfig(cwd: string, configPath?: string) {
 
 }
 
-export function loadTailwindConfig(configPath?: string) {
+function loadTailwindConfig(configPath?: string) {
   try {
     if(configPath){
       const config = loadConfig(configPath);
