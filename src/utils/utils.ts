@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve as nodeResolve } from "node:path";
 
@@ -65,7 +66,7 @@ export function deduplicateLiterals(literals: Literal[]): Literal[] {
   });
 }
 
-export function parseSemanticVersion(version: string): { major: number; minor: number; patch: number; identifier?: string; } {
+function parseSemanticVersion(version: string): { major: number; minor: number; patch: number; identifier?: string; } {
   const [major, minor, patchString] = version.split(".");
   const [patch, identifier] = patchString.split("-");
 
@@ -79,4 +80,20 @@ export function resolve(cwd: string, path: string): string | undefined {
   } catch {
     return nodeResolve(cwd, path);
   }
+}
+
+export function getTailwindcssVersion() {
+
+  const packageJsonPath = resolve(process.cwd(), "tailwindcss/package.json");
+
+  if(!packageJsonPath){
+    return;
+  }
+
+  const packageJson = readFileSync(packageJsonPath, "utf-8");
+  const json = JSON.parse(packageJson);
+  const version = parseSemanticVersion(json.version);
+
+  return version;
+
 }

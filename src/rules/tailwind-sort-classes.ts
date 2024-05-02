@@ -12,9 +12,7 @@ import {
   getClassOrder as getClassOrderV4,
   initializeTailwindConfig as initializeTailwindConfigV4
 } from "readable-tailwind:utils:tailwind-v4.js";
-import { parseSemanticVersion, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
-
-import { version as tailwindCssVersion } from "tailwindcss/package.json";
+import { getTailwindcssVersion, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
@@ -37,7 +35,6 @@ export type Options = [
   }
 ];
 
-const TAILWINDCSS_VERSION = parseSemanticVersion(tailwindCssVersion);
 
 export const tailwindSortClasses: ESLintRule<Options> = {
   name: "sort-classes" as const,
@@ -46,7 +43,9 @@ export const tailwindSortClasses: ESLintRule<Options> = {
 
       const { callees, classAttributes, tailwindConfig, variables } = getOptions(ctx);
 
-      if(TAILWINDCSS_VERSION.major >= 4){
+      const tailwindcssVersion = getTailwindcssVersion();
+
+      if(tailwindcssVersion && tailwindcssVersion.major >= 4){
         initializeTailwindConfigV4(ctx.cwd, tailwindConfig);
       } else {
         initializeTailwindConfigV3(ctx.cwd, tailwindConfig);
@@ -292,7 +291,9 @@ function sortClasses(ctx: Rule.RuleContext, classes: string[]): string[] {
     return [...classes].sort((a, b) => b.localeCompare(a));
   }
 
-  const officialClassOrder = TAILWINDCSS_VERSION.major >= 4
+  const tailwindcssVersion = getTailwindcssVersion();
+
+  const officialClassOrder = tailwindcssVersion && tailwindcssVersion.major >= 4
     ? getClassOrderV4(ctx.cwd, tailwindConfig, classes)
     : getClassOrderV3(ctx.cwd, tailwindConfig, classes);
 
