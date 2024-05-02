@@ -6,20 +6,20 @@ import { resolve } from "readable-tailwind:utils:utils.js";
 
 const CACHE = new Map<
   string | undefined,
-  (classes: string[]) => [className: string, order: bigint | null][]
+  ReturnType<typeof loadTailwindTheme>
 >();
 
-export function initializeTailwindConfig(cwd: string, themePath?: string) {
+export function initializeTailwindConfig(cwd: string, themePath?: string): void {
   const cacheKey = getCacheKey(cwd, themePath);
 
   if(CACHE.has(cacheKey)){
-    return CACHE.get(cacheKey)!;
+    return;
   }
 
   const resolvedConfigPath = findTailwindTheme(cwd, themePath);
   const theme = loadTailwindTheme(resolvedConfigPath);
 
-  CACHE.set(cacheKey, theme.getClassOrder);
+  CACHE.set(cacheKey, theme);
 }
 
 export function getClassOrder(cwd: string, configPath: string | undefined, classes: string[]) {
@@ -29,7 +29,7 @@ export function getClassOrder(cwd: string, configPath: string | undefined, class
     initializeTailwindConfig(cwd, configPath);
   }
 
-  return CACHE.get(cacheKey)!(classes);
+  return CACHE.get(cacheKey)!.getClassOrder(classes);
 }
 
 function getCacheKey(cwd: string, configPath?: string) {

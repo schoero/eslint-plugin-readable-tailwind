@@ -8,21 +8,21 @@ import { resolve } from "readable-tailwind:utils:utils.js";
 
 const CACHE = new Map<
   string | undefined,
-  (classes: string[]) => [className: string, order: bigint | null][]
+  ReturnType<typeof setupContextUtils.createContext>
 >();
 
 export function initializeTailwindConfig(cwd: string, configPath?: string) {
   const cacheKey = getCacheKey(cwd, configPath);
 
   if(CACHE.has(cacheKey)){
-    return CACHE.get(cacheKey)!;
+    return;
   }
 
   const resolvedConfigPath = findTailwindConfig(cwd, configPath);
   const config = loadTailwindConfig(resolvedConfigPath);
   const context = createTailwindContext(config);
 
-  CACHE.set(cacheKey, context.getClassOrder);
+  CACHE.set(cacheKey, context);
 }
 
 export function getClassOrder(cwd: string, configPath: string | undefined, classes: string[]) {
@@ -32,7 +32,7 @@ export function getClassOrder(cwd: string, configPath: string | undefined, class
     initializeTailwindConfig(cwd, configPath);
   }
 
-  return CACHE.get(cacheKey)!(classes);
+  return CACHE.get(cacheKey)!.getClassOrder(classes);
 }
 
 function getCacheKey(cwd: string, configPath?: string) {
