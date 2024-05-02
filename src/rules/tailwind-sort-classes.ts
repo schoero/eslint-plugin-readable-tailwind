@@ -1,21 +1,20 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join, resolve } from "node:path";
-
-import fg from "fast-glob";
-// import defaultConfig from "tailwindcss/defaultConfig.js";
-// import setupContextUtils from "tailwindcss/lib/lib/setupContextUtils.js";
-// import loadConfig from "tailwindcss/loadConfig.js";
-// import resolveConfig from "tailwindcss/resolveConfig.js";
-// import type { Config } from "tailwindcss/types/config.js";
-import { getPackageInfoSync, resolveModule } from "local-pkg";
-
 import { getLiteralsByESCallExpression, getLiteralsByESVariableDeclarator } from "readable-tailwind:parsers:es.js";
 import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readable-tailwind:parsers:html.js";
 import { getJSXAttributes, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx";
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "readable-tailwind:parsers:vue.js";
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES, DEFAULT_VARIABLE_NAMES } from "readable-tailwind:utils:config.js";
-import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
+import {
+  getClassOrder as getClassOrderV3,
+  initializeTailwindConfig as initializeTailwindConfigV3
+} from "readable-tailwind:utils:tailwind-v3.js";
+import {
+  getClassOrder as getClassOrderV4,
+  initializeTailwindConfig as initializeTailwindConfigV4
+} from "readable-tailwind:utils:tailwind-v4.js";
+import { parseSemanticVersion, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
+
+import { version as tailwindCssVersion } from "tailwindcss/package.json";
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
@@ -38,40 +37,19 @@ export type Options = [
   }
 ];
 
-const TAILWIND_CONFIG_CACHE = new Map<string, ReturnType<typeof import("tailwindcss/resolveConfig")>>();
-const TAILWIND_CONTEXT_CACHE = new Map<ReturnType<typeof import("tailwindcss/resolveConfig")>, TailwindContext>();
+const TAILWINDCSS_VERSION = parseSemanticVersion(tailwindCssVersion);
 
 export const tailwindSortClasses: ESLintRule<Options> = {
   name: "sort-classes" as const,
   rule: {
     create(ctx) {
 
-      const { callees, classAttributes, variables } = getOptions(ctx);
+      const { callees, classAttributes, tailwindConfig, variables } = getOptions(ctx);
 
-      const tailwindcssPackageInfo = getPackageInfoSync("tailwindcss", { paths: [ctx.cwd] })!;
-      const isV4 = tailwindcssPackageInfo.version!.startsWith("4");
-
-      let tailwindContext: TailwindContext;
-
-      if(isV4){
-        const tailwindcssPackageEntry = resolveModule("tailwindcss", { paths: [ctx.cwd] });
-        if(!tailwindcssPackageEntry){
-          return {};
-        }
-        const { __unstable__loadDesignSystem } = require(tailwindcssPackageEntry.replaceAll(".mjs", ".js"));
-        const presetThemePath = resolveModule("tailwindcss/theme.css", { paths: [ctx.cwd] });
-        if(!presetThemePath){
-          return {};
-        }
-        let css = readFileSync(presetThemePath, "utf8");
-        const cssPath = findTailwindConfigV4(ctx);
-        if(cssPath){
-          css = `${css}\n${readFileSync(cssPath, "utf8")}`;
-        }
-        tailwindContext = __unstable__loadDesignSystem(css);
+      if(TAILWINDCSS_VERSION.major >= 4){
+        initializeTailwindConfigV4(ctx.cwd, tailwindConfig);
       } else {
-        const tailwindConfig = findTailwindConfigV3(ctx);
-        tailwindContext = createTailwindContextV3(tailwindConfig);
+        initializeTailwindConfigV3(ctx.cwd, tailwindConfig);
       }
 
       const lintLiterals = (ctx: Rule.RuleContext, literals: Literal[]) => {
@@ -93,7 +71,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
             unsortableClasses[1] = classChunks.pop() ?? "";
           }
 
-          const sortedClassChunks = sortClasses(ctx, tailwindContext, classChunks);
+          const sortedClassChunks = sortClasses(ctx, classChunks);
 
           const classes: string[] = [];
 
@@ -302,9 +280,9 @@ export const tailwindSortClasses: ESLintRule<Options> = {
 };
 
 
-function sortClasses(ctx: Rule.RuleContext, tailwindContext: TailwindContext, classes: string[]): string[] {
+function sortClasses(ctx: Rule.RuleContext, classes: string[]): string[] {
 
-  const { order } = getOptions(ctx);
+  const { order, tailwindConfig } = getOptions(ctx);
 
   if(order === "asc"){
     return [...classes].sort((a, b) => a.localeCompare(b));
@@ -314,7 +292,10 @@ function sortClasses(ctx: Rule.RuleContext, tailwindContext: TailwindContext, cl
     return [...classes].sort((a, b) => b.localeCompare(a));
   }
 
-  const officialClassOrder = tailwindContext.getClassOrder(classes) as [string, bigint | null][];
+  const officialClassOrder = TAILWINDCSS_VERSION.major >= 4
+    ? getClassOrderV4(ctx.cwd, tailwindConfig, classes)
+    : getClassOrderV3(ctx.cwd, tailwindConfig, classes);
+
   const officiallySortedClasses = [...officialClassOrder]
     .sort(([, a], [, z]) => {
       if(a === z){ return 0; }
@@ -350,79 +331,6 @@ function sortClasses(ctx: Rule.RuleContext, tailwindContext: TailwindContext, cl
 
 }
 
-function findTailwindConfigV4(ctx: Rule.RuleContext) {
-  const configPath = fg
-    .globSync(
-      "./**/*.css",
-      {
-        cwd: ctx.cwd,
-        ignore: ["**/node_modules/**"]
-      }
-    )
-    .map(p => join(ctx.cwd, p))
-    .filter(p => existsSync(p))
-    .filter(p => {
-      const content = readFileSync(p, "utf8");
-      const tailwindCSSRegex = [
-        /^@import "tailwindcss";/,
-        /^@import "tailwindcss\/preflight"/,
-        /^@import "tailwindcss\/utilities"/,
-        /^@import "tailwindcss\/theme"/
-      ];
-      return tailwindCSSRegex.some(regex => regex.test(content));
-    });
-  if(configPath.length === 0){
-    return;
-  }
-  return configPath.at(0)!;
-}
-
-
-function findTailwindConfigV3(ctx: Rule.RuleContext, directory: string = ctx.cwd) {
-
-  const { tailwindConfig } = getOptions(ctx);
-
-  const cacheKey = JSON.stringify({ config: tailwindConfig, cwd: ctx.cwd });
-
-  if(TAILWIND_CONFIG_CACHE.has(cacheKey)){
-    return TAILWIND_CONFIG_CACHE.get(cacheKey)!;
-  }
-
-  let userConfig: import("tailwindcss/types/config").Config | undefined;
-
-  userConfig ??= tailwindConfig
-    ? loadTailwindConfig(resolve(directory, tailwindConfig))
-    : undefined;
-
-  userConfig ??= loadTailwindConfig(resolve(directory, "tailwind.config.js"));
-  userConfig ??= loadTailwindConfig(resolve(directory, "tailwind.config.ts"));
-
-  const resolveConfig = require("tailwindcss/resolveConfig.js") as typeof import("tailwindcss/resolveConfig");
-
-  if(userConfig){
-    const loadedConfig = resolveConfig(userConfig);
-    TAILWIND_CONFIG_CACHE.set(cacheKey, loadedConfig);
-    return loadedConfig;
-  }
-
-  const parentDirectory = resolve(directory, "..");
-
-  if(directory === parentDirectory){
-    const defaultConfig = require("tailwindcss/defaultConfig.js");
-    return resolveConfig(defaultConfig);
-  }
-
-  return findTailwindConfigV3(ctx, parentDirectory);
-
-}
-
-function loadTailwindConfig(path: string) {
-  try {
-    const loadConfig = require("tailwindcss/loadConfig.js") as typeof import("tailwindcss/loadConfig");
-    return loadConfig(path);
-  } catch (error){}
-}
-
 export function getOptions(ctx?: Rule.RuleContext) {
 
   const options: Options[0] = ctx?.options[0] ?? {};
@@ -442,20 +350,4 @@ export function getOptions(ctx?: Rule.RuleContext) {
     variables
   };
 
-}
-
-interface TailwindContext {
-  getClassOrder(classes: string[]): [className: string, order: bigint | null][];
-  tailwindConfig: import("tailwindcss/types/config").Config;
-}
-
-function createTailwindContextV3(tailwindConfig: ReturnType<typeof import("tailwindcss/resolveConfig")>): TailwindContext {
-  if(TAILWIND_CONTEXT_CACHE.has(tailwindConfig)){
-    return TAILWIND_CONTEXT_CACHE.get(tailwindConfig)!;
-  }
-
-  const setupContextUtils = require("tailwindcss/lib/lib/setupContextUtils.js");
-  const context = setupContextUtils.createContext(tailwindConfig);
-  TAILWIND_CONTEXT_CACHE.set(tailwindConfig, context);
-  return context;
 }

@@ -1,3 +1,6 @@
+import { createRequire } from "node:module";
+import { resolve as nodeResolve } from "node:path";
+
 import type { Rule } from "eslint";
 
 import type { Literal, Node, QuoteMeta } from "readable-tailwind:types:ast.js";
@@ -60,4 +63,20 @@ export function deduplicateLiterals(literals: Literal[]): Literal[] {
         l1.range[1] === l2.range[1];
     }) === index;
   });
+}
+
+export function parseSemanticVersion(version: string): { major: number; minor: number; patch: number; identifier?: string; } {
+  const [major, minor, patchString] = version.split(".");
+  const [patch, identifier] = patchString.split("-");
+
+  return { identifier, major: +major, minor: +minor, patch: +patch };
+}
+
+export function resolve(cwd: string, path: string): string | undefined {
+  try {
+    const customRequire = createRequire(import.meta.url);
+    return customRequire.resolve(path, { paths: [cwd] });
+  } catch {
+    return nodeResolve(cwd, path);
+  }
 }
