@@ -3,10 +3,10 @@
   "compilerOptions": {
     "declaration": true,
     "declarationMap": true,
-    "target": "ES2020",
+    "noEmit": false,
     "skipLibCheck": true,
     "sourceMap": true,
-    "noEmit": false
+    "target": "ES2020"
   },
   "include": [
     "src/index.ts"

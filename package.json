@@ -60,7 +60,7 @@
   },
   "devDependencies": {
     "@html-eslint/parser": "^0.24.1",
-    "@schoero/configs": "^1.0.4",
+    "@schoero/configs": "^1.0.7",
     "@types/eslint": "^8.56.10",
     "@types/eslint9": "npm:@types/eslint@^8.56.10",
     "@types/estree-jsx": "^1.0.5",
