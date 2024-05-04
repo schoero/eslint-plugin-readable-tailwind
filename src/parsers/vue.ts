@@ -2,13 +2,13 @@ import { getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { Node as ESTreeNode } from "estree-jsx";
-import type { VAttribute, VDirective, VLiteral, VStartTag } from "vue-eslint-parser/ast";
+import type { AST } from "vue-eslint-parser";
 
 import type { Literal, Node, StringLiteral } from "readable-tailwind:types:ast.js";
 
 
-export function getAttributesByVueStartTag(ctx: Rule.RuleContext, classAttributes: string[], node: VStartTag): VAttribute[] {
-  return node.attributes.reduce<VAttribute[]>((acc, attribute) => {
+export function getAttributesByVueStartTag(ctx: Rule.RuleContext, classAttributes: string[], node: AST.VStartTag): AST.VAttribute[] {
+  return node.attributes.reduce<AST.VAttribute[]>((acc, attribute) => {
     if(isVueAttribute(attribute) && classAttributes.includes(attribute.key.name)){
       acc.push(attribute);
     }
@@ -17,7 +17,7 @@ export function getAttributesByVueStartTag(ctx: Rule.RuleContext, classAttribute
 }
 
 
-export function getLiteralsByVueClassAttribute(ctx: Rule.RuleContext, attribute: VAttribute): Literal[] {
+export function getLiteralsByVueClassAttribute(ctx: Rule.RuleContext, attribute: AST.VAttribute): Literal[] {
 
   if(attribute.value === null){
     return [];
@@ -34,7 +34,7 @@ export function getLiteralsByVueClassAttribute(ctx: Rule.RuleContext, attribute:
 
 }
 
-function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: VLiteral): StringLiteral | undefined {
+function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLiteral): StringLiteral | undefined {
 
   const content = node.value;
   const raw = ctx.sourceCode.getText(node as unknown as ESTreeNode);
@@ -55,6 +55,6 @@ function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: VLitera
 
 }
 
-function isVueAttribute(attribute: VAttribute | VDirective): attribute is VAttribute {
+function isVueAttribute(attribute: AST.VAttribute | AST.VDirective): attribute is AST.VAttribute {
   return "key" in attribute && "name" in attribute.key && typeof attribute.key.name === "string";
 }

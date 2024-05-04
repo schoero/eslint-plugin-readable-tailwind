@@ -1,18 +1,17 @@
 import { getLiteralsByESCallExpression, getLiteralsByESVariableDeclarator } from "readable-tailwind:parsers:es.js";
 import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readable-tailwind:parsers:html.js";
-import { getJSXAttributes, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx";
+import { getJSXAttributes, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx.js";
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "readable-tailwind:parsers:vue.js";
 import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES, DEFAULT_VARIABLE_NAMES } from "readable-tailwind:utils:config.js";
-import { findLineStartPosition, findLiteralStartPosition } from "readable-tailwind:utils:utils";
-import { splitClasses } from "readable-tailwind:utils:utils.js";
+import { findLineStartPosition, findLiteralStartPosition, splitClasses } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
 import type { CallExpression, Node, VariableDeclarator } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
-import type { VStartTag } from "vue-eslint-parser/ast";
+import type { AST } from "vue-eslint-parser";
 
 import type { Literal, Meta } from "readable-tailwind:types:ast.js";
 import type { Callees, ESLintRule, Variables } from "readable-tailwind:types:rule.js";
@@ -94,7 +93,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
 
       const vue = {
         VStartTag(node: Node) {
-          const vueNode = node as unknown as VStartTag;
+          const vueNode = node as unknown as AST.VStartTag;
           const vueAttributes = getAttributesByVueStartTag(ctx, classAttributes, vueNode);
 
           for(const attribute of vueAttributes){

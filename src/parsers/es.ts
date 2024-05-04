@@ -13,7 +13,7 @@ import type {
   VariableDeclarator as ESVariableDeclarator
 } from "estree";
 
-import type { BracesMeta, Literal, Node, StringLiteral, TemplateLiteral } from "readable-tailwind:types:ast";
+import type { BracesMeta, Literal, Node, StringLiteral, TemplateLiteral } from "readable-tailwind:types:ast.js";
 import type { CalleeRegex, Callees, VariableRegex, Variables } from "readable-tailwind:types:rule.js";
 
 

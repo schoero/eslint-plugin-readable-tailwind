@@ -4,14 +4,14 @@ import {
   isESNode,
   isESSimpleStringLiteral,
   isESTemplateLiteral
-} from "readable-tailwind:parsers:es";
+} from "readable-tailwind:parsers:es.js";
 
 import type { Rule } from "eslint";
 import type { TemplateLiteral as ESTemplateLiteral } from "estree";
 import type { BaseNode as JSXBaseNode, JSXAttribute, JSXExpressionContainer, JSXOpeningElement } from "estree-jsx";
 
-import type { ESSimpleStringLiteral } from "readable-tailwind:parsers:es";
-import type { Literal } from "readable-tailwind:types:ast";
+import type { ESSimpleStringLiteral } from "readable-tailwind:parsers:es.js";
+import type { Literal } from "readable-tailwind:types:ast.js";
 
 
 export function getLiteralsByJSXClassAttribute(ctx: Rule.RuleContext, attribute: JSXAttribute): Literal[] {
