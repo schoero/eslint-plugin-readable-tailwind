@@ -45,7 +45,7 @@
     "release:latest": "changelogen --bump --output --no-tag",
     "spellcheck": "cspell lint",
     "spellcheck:ci": "npm run spellcheck -- --no-progress",
-    "test": "glob -c 'node --import tsx --test' **/*.test.ts",
+    "test": "glob -c \"node --import tsx --test\" **/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "engines": {
