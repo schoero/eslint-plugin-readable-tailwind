@@ -46,6 +46,7 @@
     "spellcheck": "cspell lint",
     "spellcheck:ci": "npm run spellcheck -- --no-progress",
     "test": "node --import tsx --test **/*.test.ts",
+    "test:ci": "zsh -c 'node --import tsx --test **/*.test.ts'",
     "typecheck": "tsc --noEmit"
   },
   "engines": {
