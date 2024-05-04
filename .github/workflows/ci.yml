@@ -43,7 +43,7 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npm run test:ci
+        run: npm t
 
     strategy:
       fail-fast: true

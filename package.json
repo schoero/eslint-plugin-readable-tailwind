@@ -45,8 +45,7 @@
     "release:latest": "changelogen --bump --output --no-tag",
     "spellcheck": "cspell lint",
     "spellcheck:ci": "npm run spellcheck -- --no-progress",
-    "test": "node --import tsx --test **/*.test.ts",
-    "test:ci": "zsh -c 'node --import tsx --test **/*.test.ts'",
+    "test": "glob -c 'node --import tsx --test' **/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "engines": {
@@ -72,6 +71,7 @@
     "eslint": "^8.57.0",
     "eslint-plugin-eslint-plugin": "^6.0.0",
     "eslint9": "npm:eslint@^9.2.0",
+    "glob": "^10.3.12",
     "markdownlint": "^0.34.0",
     "proper-tags": "^2.0.2",
     "svelte": "^4.2.15",
