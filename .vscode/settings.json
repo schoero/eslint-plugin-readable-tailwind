@@ -36,10 +36,7 @@
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "typescript.preferences.importModuleSpecifierEnding": "js",
   "typescript.preferences.useAliasesForRenames": true,
-  "typescript.preferences.autoImportFileExcludePatterns": [
-    "@types/node/test.d.ts"
-  ],
-
+  
   // Markdown
   "[markdown]": {
     "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"

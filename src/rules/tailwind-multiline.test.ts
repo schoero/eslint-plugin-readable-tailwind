@@ -1,8 +1,7 @@
-import { createTrimTag } from "tests/utils";
-import { lint, TEST_SYNTAXES } from "tests/utils.js";
-import { describe, it } from "vitest";
+import { describe, it } from "node:test";
 
 import { tailwindMultiline } from "readable-tailwind:rules:tailwind-multiline.js";
+import { createTrimTag, lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
 
 
 describe(tailwindMultiline.name, () => {
