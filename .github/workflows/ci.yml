@@ -21,8 +21,6 @@ jobs:
 
       - name: Lint
         run: npm run lint:ci
-        # allow eslint to fail because not all plugins are compatible with eslint v9 yet
-        continue-on-error: true 
 
       - name: Typecheck
         run: npm run typecheck
