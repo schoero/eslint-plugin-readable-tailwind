@@ -19,6 +19,7 @@ Read more about the new [ESLint flat config format](https://eslint.org/docs/late
 import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
 import eslintParserSvelte from "svelte-eslint-parser";
 
+
 export default [
   {
     languageOptions: {
