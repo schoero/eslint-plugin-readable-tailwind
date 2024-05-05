@@ -1,17 +1,17 @@
-import defaultConfig from "tailwindcss3/defaultConfig.js";
-import setupContextUtils from "tailwindcss3/lib/lib/setupContextUtils.js";
-import loadConfig from "tailwindcss3/loadConfig.js";
-import resolveConfig from "tailwindcss3/resolveConfig.js";
-
-import { resolve } from "readable-tailwind:utils:utils.js";
+import tailwind = require("readable-tailwind:utils:tailwind.cjs");
+import defaultConfig = require("tailwindcss3/defaultConfig.js");
+import setupContextUtils = require("tailwindcss3/lib/lib/setupContextUtils.js");
+import loadConfig = require("tailwindcss3/loadConfig.js");
+import resolveConfig = require("tailwindcss3/resolveConfig.js");
 
 
 const CACHE = new Map<
   string | undefined,
-  ReturnType<typeof setupContextUtils.createContext>
+  any
 >();
 
-export function getClassOrder(cwd: string, configPath: string | undefined, classes: string[]) {
+
+export = function getClassOrder(cwd: string, configPath: string | undefined, classes: string[]) {
   const cacheKey = getCacheKey(cwd, configPath);
 
   if(!CACHE.has(cacheKey)){
@@ -19,7 +19,7 @@ export function getClassOrder(cwd: string, configPath: string | undefined, class
   }
 
   return CACHE.get(cacheKey)!.getClassOrder(classes);
-}
+};
 
 function getCacheKey(cwd: string, configPath?: string) {
   return JSON.stringify({ config: configPath, cwd });
@@ -44,17 +44,17 @@ function findTailwindConfig(cwd: string, configPath?: string) {
   let userConfig: string | undefined;
 
   userConfig ??= configPath
-    ? resolve(cwd, configPath)
+    ? tailwind.resolve(cwd, configPath)
     : undefined;
 
-  userConfig ??= resolve(cwd, "tailwind.config.js");
-  userConfig ??= resolve(cwd, "tailwind.config.ts");
+  userConfig ??= tailwind.resolve(cwd, "./tailwind.config.js");
+  userConfig ??= tailwind.resolve(cwd, "./tailwind.config.ts");
 
   if(userConfig){
     return userConfig;
   }
 
-  const parentDirectory = resolve(cwd, "..");
+  const parentDirectory = tailwind.resolve(cwd, "..");
 
   if(cwd === parentDirectory){
     return;
@@ -70,7 +70,7 @@ function loadTailwindConfig(configPath?: string) {
       const config = loadConfig(configPath);
       return resolveConfig(config);
     }
-  } catch (error){}
+  } catch {}
 
   return resolveConfig(defaultConfig);
 

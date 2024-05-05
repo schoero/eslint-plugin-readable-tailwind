@@ -1,7 +1,7 @@
 {
   "extends": "@schoero/configs/tsconfig",
   "compilerOptions": {
-    
+
     // general
     "noEmit": true,
     "lib": ["ESNext"],

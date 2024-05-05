@@ -1,7 +1,8 @@
-import { bundle } from "lightningcss";
-import { __unstable__loadDesignSystem } from "tailwindcss4";
+import tailwind = require("readable-tailwind:utils:tailwind.cjs");
+import lightningcss = require("lightningcss");
 
-import { resolve } from "readable-tailwind:utils:utils.js";
+
+const tailwindcss = require("tailwindcss4");
 
 
 const CACHE = new Map<
@@ -9,7 +10,8 @@ const CACHE = new Map<
   ReturnType<typeof loadTailwindTheme>
 >();
 
-export function getClassOrder(cwd: string, configPath: string | undefined, classes: string[]) {
+
+export = function getClassOrder(cwd: string, configPath: string | undefined, classes: string[]) {
   const cacheKey = getCacheKey(cwd, configPath);
 
   if(!CACHE.has(cacheKey)){
@@ -17,7 +19,7 @@ export function getClassOrder(cwd: string, configPath: string | undefined, class
   }
 
   return CACHE.get(cacheKey)!.getClassOrder(classes);
-}
+};
 
 function getCacheKey(cwd: string, configPath?: string) {
   return JSON.stringify({ config: configPath, cwd });
@@ -41,10 +43,10 @@ function findTailwindTheme(cwd: string, themePath?: string) {
   let userTheme: string | undefined;
 
   userTheme ??= themePath
-    ? resolve(cwd, themePath)
+    ? tailwind.resolve(cwd, themePath)
     : undefined;
 
-  userTheme ??= resolve(cwd, "tailwindcss/theme.css");
+  userTheme ??= tailwind.resolve(cwd, "tailwindcss/theme.css");
 
   if(userTheme){
     return userTheme;
@@ -58,7 +60,7 @@ function loadTailwindTheme(path: string) {
 
   // https://github.com/tailwindlabs/prettier-plugin-tailwindcss/blob/3c9ce4e488c09851be1d5be37940b39679e10c1c/src/config.js#L180
 
-  const result = bundle({ filename: path });
+  const result = lightningcss.bundle({ filename: path });
 
-  return __unstable__loadDesignSystem(result.code.toString());
+  return tailwindcss.__unstable__loadDesignSystem(result.code.toString());
 }
