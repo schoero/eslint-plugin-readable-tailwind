@@ -56,7 +56,7 @@ function findTailwindConfig(cwd: string, configPath?: string) {
 
   const parentDirectory = tailwind.resolve(cwd, "..");
 
-  if(cwd === parentDirectory){
+  if(cwd === parentDirectory || parentDirectory === undefined){
     return;
   }
 
