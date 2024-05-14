@@ -64,11 +64,20 @@ npm i -D eslint-plugin-readable-tailwind
 
 <br/>
 
-## Usage
+## Quick start
 
-Please read the documentation for the specific flavor you are using:
+1. Check out the [Parsers](#parsers) section below to see how to configure the plugin for your specific flavor.
+1. Read the [Rules](#rules) section to learn about the available rules and how to configure them.
+1. Read the [Utilities](#utilities) section to see which tailwind utilities are supported out of the box and how to extend the default configuration.
 
-- [JSX/TSX](docs/parsers/jsx.md) (React, Qwik, Solid, etc.)
+<br/>
+<br/>
+
+### Parsers
+
+Depending on the flavor you are using, you need to install and configure the corresponding parser:
+
+- [JSX/TSX: React, Qwik, Solid etc.](docs/parsers/jsx.md)
 - [Svelte](docs/parsers/svelte.md)
 - [Vue](docs/parsers/vue.md)
 - [HTML](docs/parsers/html.md)
@@ -76,7 +85,7 @@ Please read the documentation for the specific flavor you are using:
 <br/>
 <br/>
 
-## Rules
+### Rules
 
 | Name | Description | `error` | `warning` | autofix |
 | :--- | :--- | :---: | :---: | :---: |
@@ -87,7 +96,7 @@ Please read the documentation for the specific flavor you are using:
 <br/>
 <br/>
 
-### Config
+### Utilities
 
 This plugin works out of the box with most popular tailwind utilities:
 
@@ -105,17 +114,17 @@ This plugin works out of the box with most popular tailwind utilities:
 <br/>
 <br/>
 
-In the case an utility is not supported or you have built your own, you can change the matchers in the configuration.
-If you want to change the default config, read the [API documentation](./docs/api/defaults.md) to learn how to override or extend it.
+In the case an utility is not supported or you have built your own, you can change which literals will get linted for each rule.
+Read the [API documentation](./docs/api/defaults.md) to learn how to override or extend the default config.
 
 <br/>
 <br/>
 
-## Editor configuration
+### Editor configuration
 
-### VSCode
+#### VSCode
 
-#### Auto-fix on save
+##### Auto-fix on save
 
 These rules are intended to automatically fix the tailwind classes. If you have installed the [VSCode ESLint plugin](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint), you can configure it to automatically fix the classes on save by adding the following options to your `.vscode/settings.json`:
 

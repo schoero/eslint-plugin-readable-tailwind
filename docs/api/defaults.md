@@ -1,7 +1,7 @@
 
 # Defaults
 
-Every rule can target multiple class attributes, callee names or variable names.
+Every [rule](https://github.com/schoero/eslint-plugin-readable-tailwind/tree/feat/matchers?tab=readme-ov-file#rules) can target multiple class attributes, callee names or variable names.
 The default configuration is designed to work with the most popular tailwind utilities:
 
 - [tailwind merge](https://github.com/dcastil/tailwind-merge)
@@ -38,7 +38,13 @@ import {
 
 ```ts
 import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
-import { getDefaultCallees } from "eslint-plugin-readable-tailwind/api/defaults";
+import {
+  getDefaultCallees,
+  getDefaultClassAttributes,
+  getDefaultVariables
+} from "eslint-plugin-readable-tailwind/api/defaults";
+import { MatcherType } from "eslint-plugin-readable-tailwind/api/types";
+
 
 export default [
   {
@@ -60,10 +66,10 @@ export default [
       }],
       "readable-tailwind/no-unnecessary-whitespace": ["warn", {
         ...tailwindOptions,
-        callees: [
-          ...getDefaultCallees(),
+        variables: [
+          ...getDefaultVariables(),
           [
-            "myFunction", [
+            "myVariable", [
               {
                 match: MatcherType.String
               }
@@ -72,10 +78,10 @@ export default [
         ]
       }],
       "readable-tailwind/sort-classes": ["warn", {
-        callees: [
-          ...getDefaultCallees(),
+        attributes: [
+          ...getDefaultClassAttributes(),
           [
-            "myFunction", [
+            "myAttribute", [
               {
                 match: MatcherType.String
               }

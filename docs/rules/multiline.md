@@ -20,7 +20,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
   The group separator.
 
   **Type**: `"emptyLine" | "never" | "newLine"`  
-  **Default**: `emptyLine`  
+  **Default**: `"emptyLine"`  
 
 <br/>
 
