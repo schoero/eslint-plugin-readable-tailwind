@@ -121,6 +121,7 @@ function getStringLiteralBySvelteStringLiteral(ctx: Rule.RuleContext, node: Svel
     ...quotes,
     content,
     loc: node.loc,
+    node: node as unknown as Node,
     parent: node.parent as unknown as Node,
     range: [node.range[0] - 1, node.range[1] + 1], // include quotes in range
     raw,

@@ -97,6 +97,7 @@ function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: VLitera
     ...quotes,
     content,
     loc: node.loc,
+    node: node as unknown as Node,
     parent: node.parent as unknown as Node,
     range: [node.range[0], node.range[1]],
     raw,

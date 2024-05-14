@@ -1,7 +1,11 @@
 import { DEFAULT_ATTRIBUTE_NAMES, DEFAULT_CALLEE_NAMES, DEFAULT_VARIABLE_NAMES } from "src/config/default-config.js";
 
 import { getCalleeSchema, getClassAttributeSchema, getVariableSchema } from "readable-tailwind:config:descriptions.js";
-import { getLiteralsByESCallExpression, getLiteralsByESVariableDeclarator } from "readable-tailwind:parsers:es.js";
+import {
+  getLiteralsByESCallExpression,
+  getLiteralsByESVariableDeclarator,
+  isESObjectKey
+} from "readable-tailwind:parsers:es.js";
 import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readable-tailwind:parsers:html.js";
 import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx";
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
@@ -203,6 +207,11 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
   const { classesPerLine, group: groupSeparator, indent, lineBreakStyle, printWidth } = getOptions(ctx);
 
   for(const literal of literals){
+
+    // skip if literal is object key
+    if(isESObjectKey(literal.node)){
+      continue;
+    }
 
     const lineStartPosition = literal.type === "TemplateLiteral"
       ? findLineStartPosition(ctx, literal.parent) + getIndentation(ctx, indent)

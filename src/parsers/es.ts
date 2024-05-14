@@ -47,7 +47,7 @@ export function getLiteralsByESVariableDeclarator(ctx: Rule.RuleContext, node: E
       literals.push(...getLiteralsByESNodeAndRegex(ctx, node, variable));
     } else if(isVariableMatchers(variable)){
       if(variable[0] !== node.id.name){ return literals; }
-      literals.push(...getLiteralsByMatchers(ctx, node.init, variable[1]));
+      literals.push(...getLiteralsByESMatchers(ctx, node.init, variable[1]));
     }
 
     return literals;
@@ -69,7 +69,7 @@ export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCal
       literals.push(...getLiteralsByESNodeAndRegex(ctx, node, callee));
     } else if(isCalleeMatchers(callee)){
       if(callee[0] !== node.callee.name){ return literals; }
-      literals.push(...getLiteralsByMatchers(ctx, node, callee[1]));
+      literals.push(...getLiteralsByESMatchers(ctx, node, callee[1]));
     }
 
     return literals;
@@ -100,6 +100,7 @@ export function getLiteralsByESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNo
 }
 
 export function getLiteralsByESMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: Matcher[]): Literal[] {
+
   const matcherFunctions = getESMatcherFunctions(matchers);
   const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
 
@@ -109,22 +110,6 @@ export function getLiteralsByESMatchers(ctx: Rule.RuleContext, node: ESBaseNode,
   }, []);
 
   return deduplicateLiterals(literals);
-}
-
-
-function getLiteralsByMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: Matcher[]): Literal[] {
-
-  const matcherFunctions = getESMatcherFunctions(matchers);
-  const matchedLiteralNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
-
-  const matchedLiterals = matchedLiteralNodes.reduce<Literal[]>((matchedLiterals, matchedLiteralNode) => {
-    if(!hasESNodeParentExtension(matchedLiteralNode)){ return matchedLiterals; }
-
-    matchedLiterals.push(...getLiteralsByESLiteralNode(ctx, matchedLiteralNode));
-    return matchedLiterals;
-  }, []);
-
-  return deduplicateLiterals(matchedLiterals);
 
 }
 
@@ -173,6 +158,7 @@ export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: E
     ...whitespaces,
     content,
     loc: node.loc,
+    node: node as unknown as Node,
     parent: node.parent as Node,
     range: node.range,
     raw,
@@ -202,6 +188,7 @@ function getLiteralByESTemplateElement(ctx: Rule.RuleContext, node: ESTemplateEl
     ...braces,
     content,
     loc: node.loc,
+    node: node as unknown as Node,
     parent: node.parent as Node,
     range: node.range,
     raw,
@@ -238,7 +225,7 @@ export interface ESSimpleStringLiteral extends Rule.NodeParentExtension, ESSimpl
   value: string;
 }
 
-export function isESObjectKey(node: ESBaseNode & Rule.NodeParentExtension) {
+export function isESObjectKey(node: Node | ESBaseNode & Rule.NodeParentExtension) {
   return (
     node.parent.type === "Property" &&
     node.parent.parent.type === "ObjectExpression" &&

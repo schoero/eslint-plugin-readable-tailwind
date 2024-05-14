@@ -24,6 +24,8 @@ export function getLiteralsByHTMLClassAttribute(ctx: Rule.RuleContext, attribute
     closingQuote,
     content: value.value,
     loc: value.loc,
+    // @ts-expect-error - Missing in types
+    node: attribute,
     openingQuote,
     // @ts-expect-error - Missing in types
     parent: attribute.parent,

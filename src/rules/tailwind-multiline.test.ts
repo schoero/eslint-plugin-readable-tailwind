@@ -3,6 +3,7 @@ import { lint, TEST_SYNTAXES } from "tests/utils.js";
 import { describe, it } from "vitest";
 
 import { tailwindMultiline } from "readable-tailwind:rules:tailwind-multiline.js";
+import { MatcherType } from "readable-tailwind:types:rule.js";
 
 
 describe(tailwindMultiline.name, () => {
@@ -956,6 +957,48 @@ describe(tailwindMultiline.name, () => {
             jsx: dirtyUndefined,
             options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<script>${dirtyUndefined}</script>`
+          }
+        ]
+      }
+    );
+
+  });
+
+  it("should never wrap in an object key", () => {
+
+    const trim = createTrimTag(4);
+
+    const dirtyObject = trim`const obj = {
+      "a b c d e f g h": "a b c d e f g h"
+    };`;
+    const cleanObject = trim`const obj = {
+      "a b c d e f g h": \`
+        a b c
+        d e f
+        g h
+      \`
+    };`;
+
+    lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            jsx: dirtyObject,
+            jsxOutput: cleanObject,
+            options: [{
+              classesPerLine: 3,
+              indent: 2,
+              variables: [
+                ["obj", [{ match: MatcherType.ObjectKey }, { match: MatcherType.ObjectValue }]]
+              ]
+            }],
+            svelte: `<script>${dirtyObject}</script>`,
+            svelteOutput: `<script>${cleanObject}</script>`,
+            vue: `<script>${dirtyObject}</script>`,
+            vueOutput: `<script>${cleanObject}</script>`
           }
         ]
       }
