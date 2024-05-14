@@ -69,6 +69,7 @@ npm i -D eslint-plugin-readable-tailwind
 1. Check out the [Parsers](#parsers) section below to see how to configure the plugin for your specific flavor.
 1. Read the [Rules](#rules) section to learn about the available rules and how to configure them.
 1. Read the [Utilities](#utilities) section to see which tailwind utilities are supported out of the box and how to extend the default configuration.
+1. Configure your editor to conveniently [auto-fix on save](#auto-fix-on-save).
 
 <br/>
 <br/>
