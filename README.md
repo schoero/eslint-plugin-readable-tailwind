@@ -115,7 +115,7 @@ This plugin works out of the box with most popular tailwind utilities:
 <br/>
 <br/>
 
-In the case an utility is not supported or you have built your own, you can change which literals will get linted for each rule.
+In case an utility is not supported or you have built your own, you can change which literals will get linted for each rule.
 Read the [API documentation](./docs/api/defaults.md) to learn how to override or extend the default config.
 
 <br/>

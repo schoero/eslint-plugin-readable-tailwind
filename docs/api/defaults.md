@@ -2,6 +2,9 @@
 # Defaults
 
 Every [rule](https://github.com/schoero/eslint-plugin-readable-tailwind/tree/feat/matchers?tab=readme-ov-file#rules) can target multiple class attributes, callee names or variable names.
+
+Read the [concepts documentation](../concepts/concepts.md) first to learn why this is important and what different options there are to define where to look for tailwind classes.
+
 The default configuration is designed to work with the most popular tailwind utilities:
 
 - [tailwind merge](https://github.com/dcastil/tailwind-merge)
