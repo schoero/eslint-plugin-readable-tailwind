@@ -4,8 +4,6 @@ The [rules](https://github.com/schoero/eslint-plugin-readable-tailwind/tree/feat
 
 There are different ways to define where to look for tailwind classes.
 
-<br/>
-
 - [Name](#name): Matches simple string literals by the name of the callee, variable or class attribute.
 - [Regular expressions](#regular-expressions): Matches nested string literals by regular expressions.
 - [Matchers](#matchers): Matches nested string literals by the abstract syntax tree.
