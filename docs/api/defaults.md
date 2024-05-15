@@ -68,7 +68,6 @@ export default [
         ]
       }],
       "readable-tailwind/no-unnecessary-whitespace": ["warn", {
-        ...tailwindOptions,
         variables: [
           ...getDefaultVariables(),
           [
