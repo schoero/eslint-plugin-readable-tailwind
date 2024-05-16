@@ -4,14 +4,14 @@ The [rules](https://github.com/schoero/eslint-plugin-readable-tailwind/tree/feat
 
 There are different ways to define where to look for tailwind classes.
 
-- [Name](#name): Matches simple string literals by the name of the callee, variable or class attribute.
-- [Regular expressions](#regular-expressions): Matches nested string literals by regular expressions.
-- [Matchers](#matchers): Matches nested string literals by the abstract syntax tree.
+- [Name](#name): Matches a single string literal by the name of the callee, variable or class attribute.
+- [Regular expressions](#regular-expressions): Matches multiple string literals by regular expressions.
+- [Matchers](#matchers): Matches multiple string literals by the abstract syntax tree.
 
 <br/>
 
 By default, the plugin is configured with various [matchers](#matchers) to work with [most popular tailwind utilities](../api/defaults.md).  
-It is possible that you never have to change this configuration. Check out the [API documentation](../api/defaults.md) if you do need to override or extend the default configuration.
+It is possible that you never have to change this configuration, but if you do need to override or extend the default configuration, you can read the [API documentation](../api/defaults.md).
 
 <br/>
 <br/>
@@ -200,7 +200,8 @@ There are currently 3 types of matchers:
 
 #### Path pattern
 
-It is possible to provide a `pathPattern` to the `objectKeys` and `objectValues` matchers to only match keys/values that match the `pathPattern`. This allows for more fine-grained control for common utilities like [Class Variance Authority](https://cva.style/docs/getting-started/installation#intellisense).
+It is possible to provide a `pathPattern` to the `objectKeys` and `objectValues` matchers, to only match keys/values that match the `pathPattern`. This allows for more fine-grained control for common utilities like [Class Variance Authority](https://cva.style/docs/getting-started/installation#intellisense).  
+The `pathPattern` is a regular expression that is matched against the object path.  
 
 For example, the following matcher will only match object values for the `compoundVariants.class` key:
 
