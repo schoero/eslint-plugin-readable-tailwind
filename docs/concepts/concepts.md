@@ -228,7 +228,23 @@ For example, the following matcher will only match object values for the `compou
 
 <br/>
 
-The object path is a string that represents the path to the object key or value. The path is constructed by concatenating the keys of the object with a dot (`.`) in between. For example, the object `{ a: { b: "value" } }` would have the path `a.b`. Array indices are represented by square brackets (`[]`). For example, the object `{ a: [{ b: "value" }] }` would have the path `a[0].b`.
+The object path is a string that represents the path to the object key or value. The path is constructed by concatenating the keys of the object with a dot (`.`) in between. Array indices are represented by square brackets (`[]`). If a name contains special characters, square brackets with double quotes are used to escape them.
+
+For example, the object path for the `value` key in the following object would be `root["nested-key"].values[0].value`:
+
+```json
+{
+  "root": {
+    "nested-key": {
+      "values": [
+        {
+          "value": "this will get linted"
+        }
+      ]
+    }
+  }
+}
+```
 
 <br/>
 
