@@ -63,6 +63,35 @@ describe("matchers", () => {
 
       });
 
+      it("should put names in quotes if they are not valid identifiers", () => {
+
+        const code = `const obj = {
+            "root-key": {
+              "1nested": {
+                "deeply_nested_value": "value"
+              }
+            }
+          };`;
+
+        const ast = withParentNodeExtension(parse(code, { ecmaVersion: "latest" }) as ESNode);
+
+        const root = findNode(ast, (node: ESNode) => {
+          return hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Literal" && node.value === "root-key";
+        });
+
+        const nested = findNode(ast, (node: ESNode) => {
+          return hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Literal" && node.value === "1nested";
+        });
+
+        const value = findNode(ast, (node: ESNode) => {
+          return hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Literal" && node.value === "deeply_nested_value";
+        });
+
+        expect(getObjectPath(root[0])).toBe(`["root-key"]`);
+        expect(getObjectPath(nested[0])).toBe(`["root-key"]["1nested"]`);
+        expect(getObjectPath(value[0])).toBe(`["root-key"]["1nested"].deeply_nested_value`);
+
+      });
     }
 
     {

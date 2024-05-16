@@ -98,9 +98,9 @@ export function getObjectPath(node: ESNode & Partial<Rule.NodeParentExtension>):
 
   if(node.type === "Property"){
     if(node.key.type === "Identifier"){
-      paths.unshift(node.key.name);
+      paths.unshift(createObjectPathElement(node.key.name));
     } else if(node.key.type === "Literal"){
-      paths.unshift(node.key.value?.toString() ?? node.key.raw);
+      paths.unshift(createObjectPathElement(node.key.value?.toString() ?? node.key.raw));
     } else {
       return "";
     }
@@ -126,21 +126,28 @@ export function getObjectPath(node: ESNode & Partial<Rule.NodeParentExtension>):
 
   paths.unshift(getObjectPath(node.parent));
 
-  return paths.reduce<string>((path, currentPath) => {
-    if(!currentPath){ return path; }
-    if(path === ""){ return currentPath; }
+  return paths.reduce<string[]>((paths, currentPath) => {
+    if(!currentPath){ return paths; }
+
+    if(paths.length === 0){
+      return [currentPath];
+    }
 
     if(currentPath.startsWith("[") && currentPath.endsWith("]")){
-      return `${path}${currentPath}`;
+      return [...paths, currentPath];
     }
 
-    if(currentPath.includes(" ")){
-      return `${path}["${currentPath}"]`;
-    }
+    return [...paths, ".", currentPath];
+  }, []).join("");
 
-    return `${path}.${currentPath}`;
-  }, "");
+}
 
+function createObjectPathElement(path?: string): string {
+  if(!path){ return ""; }
+
+  return path.match(/^[A-Z_a-z]\w*$/)
+    ? path
+    : `["${path}"]`;
 }
 
 export function matchesPathPattern(path: string, pattern: Regex): boolean {
