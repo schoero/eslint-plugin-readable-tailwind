@@ -1,3 +1,6 @@
+import { readdirSync } from "node:fs";
+import { normalize } from "node:path";
+
 import { createTag } from "proper-tags";
 import eslintParserSvelte from "svelte-eslint-parser";
 import { afterAll, describe, it } from "vitest";
@@ -7,7 +10,9 @@ import eslintParserHTML from "@html-eslint/parser";
 
 import { RuleTester } from "./node_modules/eslint";
 
-import type { ESLintRule } from "readable-tailwind:types:rule.js";
+import type { Node as ESNode, Program } from "estree";
+
+import type { ESLintRule, MatcherFunction } from "readable-tailwind:types:rule.js";
 
 
 export const TEST_SYNTAXES = {
@@ -92,6 +97,36 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
 
 }
 
+export function findNode(node: ESNode | Program, matcherFunction: MatcherFunction): ESNode[] {
+  return Object.entries(node).reduce<ESNode[]>((matchedNodes, [key, value]) => {
+    if(typeof value !== "object" || key === "parent"){
+      return matchedNodes;
+    }
+
+    if(matcherFunction(value)){
+      matchedNodes.push(value);
+    }
+
+    matchedNodes.push(...findNode(value, matcherFunction));
+    return matchedNodes;
+  }, []);
+}
+
+export function withParentNodeExtension(node: ESNode, parent: ESNode = node) {
+  for(const key in node){
+    if(typeof node[key] === "object" && key !== "parent"){
+      if(Array.isArray(node[key])){
+        withParentNodeExtension(node[key], parent);
+      } else {
+        node[key].parent = parent;
+        withParentNodeExtension(node[key]);
+      }
+
+    }
+  }
+  return node;
+}
+
 export function createTrimTag(count: number) {
   return createTag(customIndentStripTransformer(count));
 }
@@ -113,4 +148,13 @@ function createRuleTester(options?: any) {
   ruleTester.itOnly = it.only;
 
   return ruleTester;
+}
+
+export function getFilesInDirectory(importURL: string) {
+
+  const path = normalize(importURL);
+  const files = readdirSync(path);
+
+  return files.filter(file => !file.includes(".test.ts"));
+
 }

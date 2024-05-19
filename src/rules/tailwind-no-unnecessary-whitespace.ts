@@ -1,9 +1,11 @@
+import { DEFAULT_ATTRIBUTE_NAMES, DEFAULT_CALLEE_NAMES, DEFAULT_VARIABLE_NAMES } from "src/config/default-config.js";
+
+import { getCalleeSchema, getClassAttributeSchema, getVariableSchema } from "readable-tailwind:config:descriptions.js";
 import { getLiteralsByESCallExpression, getLiteralsByESVariableDeclarator } from "readable-tailwind:parsers:es.js";
 import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readable-tailwind:parsers:html.js";
-import { getJSXAttributes, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx";
+import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx";
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "readable-tailwind:parsers:vue.js";
-import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES, DEFAULT_VARIABLE_NAMES } from "readable-tailwind:utils:config.js";
 import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
@@ -14,16 +16,18 @@ import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { VStartTag } from "vue-eslint-parser/ast";
 
 import type { Literal } from "readable-tailwind:types:ast.js";
-import type { Callees, ESLintRule, Variables } from "readable-tailwind:types:rule.js";
+import type { CalleeOption, ClassAttributeOption, ESLintRule, VariableOption } from "readable-tailwind:types:rule.js";
 
 
 export type Options = [
-  {
-    allowMultiline?: boolean;
-    callees?: Callees;
-    classAttributes?: string[];
-    variables?: Variables;
-  }
+  Partial<
+    CalleeOption &
+    ClassAttributeOption &
+    VariableOption &
+    {
+      allowMultiline?: boolean;
+    }
+  >
 ];
 
 export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
@@ -54,10 +58,10 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
       const jsx = {
         JSXOpeningElement(node: Node) {
           const jsxNode = node as JSXOpeningElement;
-          const jsxAttributes = getJSXAttributes(ctx, classAttributes, jsxNode);
+          const jsxAttributes = getAttributesByJSXElement(ctx, jsxNode);
 
           for(const attribute of jsxAttributes){
-            const literals = getLiteralsByJSXClassAttribute(ctx, attribute);
+            const literals = getLiteralsByJSXClassAttribute(ctx, attribute, classAttributes);
             lintLiterals(ctx, literals);
           }
         }
@@ -66,10 +70,10 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
       const svelte = {
         SvelteStartTag(node: Node) {
           const svelteNode = node as unknown as SvelteStartTag;
-          const svelteAttributes = getAttributesBySvelteTag(ctx, classAttributes, svelteNode);
+          const svelteAttributes = getAttributesBySvelteTag(ctx, svelteNode);
 
           for(const attribute of svelteAttributes){
-            const literals = getLiteralsBySvelteClassAttribute(ctx, attribute);
+            const literals = getLiteralsBySvelteClassAttribute(ctx, attribute, classAttributes);
             lintLiterals(ctx, literals);
           }
         }
@@ -78,10 +82,10 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
       const vue = {
         VStartTag(node: Node) {
           const vueNode = node as unknown as VStartTag;
-          const vueAttributes = getAttributesByVueStartTag(ctx, classAttributes, vueNode);
+          const vueAttributes = getAttributesByVueStartTag(ctx, vueNode);
 
           for(const attribute of vueAttributes){
-            const literals = getLiteralsByVueClassAttribute(ctx, attribute);
+            const literals = getLiteralsByVueClassAttribute(ctx, attribute, classAttributes);
             lintLiterals(ctx, literals);
           }
         }
@@ -90,7 +94,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
       const html = {
         Tag(node: Node) {
           const htmlTagNode = node as unknown as TagNode;
-          const htmlAttributes = getAttributesByHTMLTag(ctx, classAttributes, htmlTagNode);
+          const htmlAttributes = getAttributesByHTMLTag(ctx, htmlTagNode);
 
           for(const htmlAttribute of htmlAttributes){
             const literals = getLiteralsByHTMLClassAttribute(ctx, htmlAttribute);
@@ -134,56 +138,9 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
               description: "Allow multi-line class declarations. If this option is disabled, template literal strings will be collapsed into a single line string wherever possible. Must be set to `true` when used in combination with [readable-tailwind/multiline](./multiline.md).",
               type: "boolean"
             },
-            callees: {
-              default: getOptions().callees,
-              description: "List of function names whose arguments should also get linted.",
-              items: {
-                anyOf: [
-                  {
-                    description: "List of regular expressions that matches string literals that should also get linted.",
-                    items: [
-                      { description: "Regular expression that filters the callee and matches the string literals in a group.", type: "string" },
-                      { description: "Regular expression that matches each string literal in a group.", type: "string" }
-                    ],
-                    type: "array"
-                  },
-                  {
-                    description: "List of function names whose arguments should also get linted.",
-                    type: "string"
-                  }
-                ]
-              },
-              type: "array"
-            },
-            classAttributes: {
-              default: getOptions().classAttributes,
-              description: "The name of the attribute that contains the tailwind classes.",
-              items: {
-                type: "string"
-              },
-              type: "array"
-            },
-            variables: {
-              default: getOptions().variables,
-              description: "List of variable names whose values should also get linted.",
-              items: {
-                anyOf: [
-                  {
-                    description: "List of regular expressions that matches string literals that should also get linted.",
-                    items: [
-                      { description: "Regular expression that filters the variable and matches the string literals in a group.", type: "string" },
-                      { description: "Regular expression that matches each string literal in a group.", type: "string" }
-                    ],
-                    type: "array"
-                  },
-                  {
-                    description: "List of variable names whose values should also get linted.",
-                    type: "string"
-                  }
-                ]
-              },
-              type: "array"
-            }
+            ...getCalleeSchema(getOptions().callees),
+            ...getClassAttributeSchema(getOptions().classAttributes),
+            ...getVariableSchema(getOptions().variables)
           },
           type: "object"
         }
@@ -227,7 +184,6 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
   }
 
 }
-
 
 function splitClassesKeepWhitespace(literal: Literal, allowMultiline: boolean): string[] {
 
@@ -273,12 +229,11 @@ function splitClassesKeepWhitespace(literal: Literal, allowMultiline: boolean): 
 
 }
 
-
 function getOptions(ctx?: Rule.RuleContext) {
 
   const options: Options[0] = ctx?.options[0] ?? {};
 
-  const classAttributes = options.classAttributes ?? DEFAULT_CLASS_NAMES;
+  const classAttributes = options.classAttributes ?? DEFAULT_ATTRIBUTE_NAMES;
   const allowMultiline = options.allowMultiline ?? true;
   const callees = options.callees ?? DEFAULT_CALLEE_NAMES;
   const variables = options.variables ?? DEFAULT_VARIABLE_NAMES;

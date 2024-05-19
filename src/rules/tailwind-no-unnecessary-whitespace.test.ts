@@ -100,12 +100,22 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
   it("should keep one whitespace around template elements", () => {
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
+        // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
+        // 1st pass: fix template literal.
         {
-          errors: 2,
+          errors: 3,
           jsx: `() => <img class={\`  b  a  \${"  c  "}  d  \`} />`,
           jsxOutput: `() => <img class={\`b a \${"  c  "} d\`} />`,
           svelte: `<img class={\`  b  a  \${"  c  "}  d  \`} />`,
           svelteOutput: `<img class={\`b a \${"  c  "} d\`} />`
+        },
+        // 2nd pass: fix inner template element.
+        {
+          errors: 1,
+          jsx: `() => <img class={\`b a \${"  c  "} d\`} />`,
+          jsxOutput: `() => <img class={\`b a \${"c"} d\`} />`,
+          svelte: `<img class={\`b a \${"  c  "} d\`} />`,
+          svelteOutput: `<img class={\`b a \${"c"} d\`} />`
         }
       ]
     });
@@ -145,104 +155,202 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
 
   });
 
-  it("should keep no whitespace at the end of the line in multiline strings with template elements", () => {
+  it("should remove unnecessary whitespace inside and around multiline template literal elements", () => {
 
     const trim = createTrimTag(4);
 
-    const expression = "${true ? ' true ' : ' false '}";
+    const dirtyExpression = "${true ? '  true  ' : '  false  '}";
+    const cleanExpression = "${true ? 'true' : 'false'}";
 
     const dirtyExpressionAtStart = trim`
-      ${expression}  
+      ${dirtyExpression}  
       a  
     `;
-    const cleanExpressionAtStart = trim`
-      ${expression}
+    const cleanExpressionAtStartPass1 = trim`
+      ${cleanExpression}  
+      a  
+    `;
+    const cleanExpressionAtStartPass2 = trim`
+      ${cleanExpression}
       a
     `;
 
     const dirtyExpressionBetween = trim`
       a  
-      ${expression}  
+      ${dirtyExpression}  
       b  
     `;
-    const cleanExpressionBetween = trim`
+    const cleanExpressionBetweenPass1 = trim`
       a
-      ${expression}
+      ${cleanExpression}  
+      b  
+    `;
+    const cleanExpressionBetweenPass2 = trim`
+      a
+      ${cleanExpression}
       b
     `;
 
     const dirtyExpressionAtEnd = trim`
       a  
-      ${expression}  
+      ${dirtyExpression}  
     `;
-    const cleanExpressionAtEnd = trim`
+    const cleanExpressionAtEndPass1 = trim`
       a
-      ${expression}
+      ${cleanExpression}  
+    `;
+    const cleanExpressionAtEndPass2 = trim`
+      a
+      ${cleanExpression}
     `;
 
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
+        // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
+        // 1st pass: fix template literal.
+        {
+          errors: 3,
+          jsx: `() => <img class={\`${dirtyExpressionAtStart}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanExpressionAtStartPass1}\`} />`,
+          svelte: `<img class={\`${dirtyExpressionAtStart}\`} />`,
+          svelteOutput: `<img class={\`${cleanExpressionAtStartPass1}\`} />`
+        },
+        // 2nd pass: fix expression.
         {
           errors: 1,
-          jsx: `() => <img class={\`${dirtyExpressionAtStart}\`} />`,
-          jsxOutput: `() => <img class={\`${cleanExpressionAtStart}\`} />`,
-          svelte: `<img class={\`${dirtyExpressionAtStart}\`} />`,
-          svelteOutput: `<img class={\`${cleanExpressionAtStart}\`} />`
-        },
+          jsx: `() => <img class={\`${cleanExpressionAtStartPass1}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanExpressionAtStartPass2}\`} />`,
+          svelte: `<img class={\`${cleanExpressionAtStartPass1}\`} />`,
+          svelteOutput: `<img class={\`${cleanExpressionAtStartPass2}\`} />`
+        }
+      ]
+    });
+
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+      invalid: [
+        // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
+        // 1st pass: fix leading template element and expression.
         {
-          errors: 2,
+          errors: 4,
           jsx: `() => <img class={\`${dirtyExpressionBetween}\`} />`,
-          jsxOutput: `() => <img class={\`${cleanExpressionBetween}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanExpressionBetweenPass1}\`} />`,
           svelte: `<img class={\`${dirtyExpressionBetween}\`} />`,
-          svelteOutput: `<img class={\`${cleanExpressionBetween}\`} />`
+          svelteOutput: `<img class={\`${cleanExpressionBetweenPass1}\`} />`
         },
+        // 2nd pass: fix trailing template element.
         {
-          errors: 2,
+          errors: 1,
+          jsx: `() => <img class={\`${cleanExpressionBetweenPass1}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanExpressionBetweenPass2}\`} />`,
+          svelte: `<img class={\`${cleanExpressionBetweenPass1}\`} />`,
+          svelteOutput: `<img class={\`${cleanExpressionBetweenPass2}\`} />`
+        }
+      ]
+    });
+
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+      invalid: [
+        // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
+        // 1st pass: fix leading template element and expression.
+        {
+          errors: 4,
           jsx: `() => <img class={\`${dirtyExpressionAtEnd}\`} />`,
-          jsxOutput: `() => <img class={\`${cleanExpressionAtEnd}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanExpressionAtEndPass1}\`} />`,
           svelte: `<img class={\`${dirtyExpressionAtEnd}\`} />`,
-          svelteOutput: `<img class={\`${cleanExpressionAtEnd}\`} />`
+          svelteOutput: `<img class={\`${cleanExpressionAtEndPass1}\`} />`
+        },
+        // 2nd pass: fix trailing template element.
+        {
+          errors: 1,
+          jsx: `() => <img class={\`${cleanExpressionAtEndPass1}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanExpressionAtEndPass2}\`} />`,
+          svelte: `<img class={\`${cleanExpressionAtEndPass1}\`} />`,
+          svelteOutput: `<img class={\`${cleanExpressionAtEndPass2}\`} />`
         }
       ]
     });
 
   });
 
-  it("should remove unnecessary whitespace around template literal elements", () => {
+  it("should remove unnecessary whitespace inside and around single line template literal elements", () => {
 
-    const expression = "${true ? ' true ' : ' false '}";
+    const dirtyExpression = "${true ? ' true ' : ' false '}";
+    const cleanExpression = "${true ? 'true' : 'false'}";
 
-    const invalidAtStart = `  ${expression}   a  `;
-    const validAtStart = `${expression} a`;
+    const dirtyExpressionAtStartAtStart = `  ${dirtyExpression}  a  `;
+    const cleanExpressionAtStartPass1 = `${cleanExpression}  a  `;
+    const cleanExpressionAtStartPass2 = `${cleanExpression} a`;
 
-    const invalidBetween = `  a  ${expression}  b  `;
-    const validBetween = `a ${expression} b`;
+    const dirtyExpressionBetween = `  a  ${dirtyExpression}  b  `;
+    const cleanExpressionBetweenPass1 = `a ${cleanExpression}  b  `;
+    const cleanExpressionBetweenPass2 = `a ${cleanExpression} b`;
 
-    const invalidAtEnd = `  a  ${expression}  `;
-    const validAtEnd = `a ${expression}`;
+    const dirtyExpressionAtEnd = `  a  ${dirtyExpression}  `;
+    const cleanExpressionAtEndPass1 = `a ${cleanExpression}  `;
+    const cleanExpressionAtEndPass2 = `a ${cleanExpression}`;
 
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
+        // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
+        // 1st pass: fix leading template element and expression.
         {
-          errors: 2,
-          jsx: `() => <img class={\`${invalidAtStart}\`} />`,
-          jsxOutput: `() => <img class={\`${validAtStart}\`} />`,
-          svelte: `<img class={\`${invalidAtStart}\`} />`,
-          svelteOutput: `<img class={\`${validAtStart}\`} />`
+          errors: 4,
+          jsx: `() => <img class={\`${dirtyExpressionAtStartAtStart}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanExpressionAtStartPass1}\`} />`,
+          svelte: `<img class={\`${dirtyExpressionAtStartAtStart}\`} />`,
+          svelteOutput: `<img class={\`${cleanExpressionAtStartPass1}\`} />`
         },
+        // 2nd pass: fix trailing template element.
         {
-          errors: 2,
-          jsx: `() => <img class={\`${invalidBetween}\`} />`,
-          jsxOutput: `() => <img class={\`${validBetween}\`} />`,
-          svelte: `<img class={\`${invalidBetween}\`} />`,
-          svelteOutput: `<img class={\`${validBetween}\`} />`
+          errors: 1,
+          jsx: `() => <img class={\`${cleanExpressionAtStartPass1}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanExpressionAtStartPass2}\`} />`,
+          svelte: `<img class={\`${cleanExpressionAtStartPass1}\`} />`,
+          svelteOutput: `<img class={\`${cleanExpressionAtStartPass2}\`} />`
+        }
+      ]
+    });
+
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+      invalid: [
+        // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
+        // 1st pass: fix leading template element and expression.
+        {
+          errors: 4,
+          jsx: `() => <img class={\`${dirtyExpressionBetween}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanExpressionBetweenPass1}\`} />`,
+          svelte: `<img class={\`${dirtyExpressionBetween}\`} />`,
+          svelteOutput: `<img class={\`${cleanExpressionBetweenPass1}\`} />`
         },
+        // 2nd pass: fix trailing template element.
         {
-          errors: 2,
-          jsx: `() => <img class={\`${invalidAtEnd}\`} />`,
-          jsxOutput: `() => <img class={\`${validAtEnd}\`} />`,
-          svelte: `<img class={\`${invalidAtEnd}\`} />`,
-          svelteOutput: `<img class={\`${validAtEnd}\`} />`
+          errors: 1,
+          jsx: `() => <img class={\`${cleanExpressionBetweenPass1}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanExpressionBetweenPass2}\`} />`,
+          svelte: `<img class={\`${cleanExpressionBetweenPass1}\`} />`,
+          svelteOutput: `<img class={\`${cleanExpressionBetweenPass2}\`} />`
+        }
+      ]
+    });
+
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+      invalid: [
+        // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
+        // 1st pass: fix leading template element and expression.
+        {
+          errors: 4,
+          jsx: `() => <img class={\`${dirtyExpressionAtEnd}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanExpressionAtEndPass1}\`} />`,
+          svelte: `<img class={\`${dirtyExpressionAtEnd}\`} />`,
+          svelteOutput: `<img class={\`${cleanExpressionAtEndPass1}\`} />`
+        },
+        // 2nd pass: fix trailing template element.
+        {
+          errors: 1,
+          jsx: `() => <img class={\`${cleanExpressionAtEndPass1}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanExpressionAtEndPass2}\`} />`,
+          svelte: `<img class={\`${cleanExpressionAtEndPass1}\`} />`,
+          svelteOutput: `<img class={\`${cleanExpressionAtEndPass2}\`} />`
         }
       ]
     });
@@ -251,97 +359,87 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
 
   it("should not create a whitespace around sticky template literal elements", () => {
 
-    const expression = "${true ? ' true ' : ' false '}";
+    const dirtyExpression = "${true ? ' true ' : ' false '}";
+    const cleanExpression = "${true ? 'true' : 'false'}";
 
-    const invalidAtStart = `  ${expression}a   b  `;
-    const validAtStart = `${expression}a b`;
+    const dirtyStickyExpressionAtStart = `  ${dirtyExpression}a  b  `;
+    const cleanStickyExpressionAtStartPass1 = `${cleanExpression}a  b  `;
+    const cleanStickyExpressionAtStartPass2 = `${cleanExpression}a b`;
 
-    const invalidBetween = `  a  b${expression}c  d  `;
-    const validBetween = `a b${expression}c d`;
+    const dirtyStickyExpressionBetween = `  a  b${dirtyExpression}c  d  `;
+    const cleanStickyExpressionBetweenPass1 = `a b${cleanExpression}c  d  `;
+    const cleanStickyExpressionBetweenPass2 = `a b${cleanExpression}c d`;
 
-    const invalidAtEnd = `  a${expression}  `;
-    const validAtEnd = `a${expression}`;
+    const dirtyStickyExpressionAtEnd = `  a${dirtyExpression}  `;
+    const cleanStickyExpressionAtEndPass1 = `a${cleanExpression}  `;
+    const cleanStickyExpressionAtEndPass2 = `a${cleanExpression}`;
 
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
+        // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
+        // 1st pass: fix leading template element and expression.
         {
-          errors: 2,
-          jsx: `() => <img class={\`${invalidAtStart}\`} />`,
-          jsxOutput: `() => <img class={\`${validAtStart}\`} />`,
-          svelte: `<img class={\`${invalidAtStart}\`} />`,
-          svelteOutput: `<img class={\`${validAtStart}\`} />`
+          errors: 4,
+          jsx: `() => <img class={\`${dirtyStickyExpressionAtStart}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanStickyExpressionAtStartPass1}\`} />`,
+          svelte: `<img class={\`${dirtyStickyExpressionAtStart}\`} />`,
+          svelteOutput: `<img class={\`${cleanStickyExpressionAtStartPass1}\`} />`
         },
+        // 2nd pass: fix trailing template element.
         {
-          errors: 2,
-          jsx: `() => <img class={\`${invalidBetween}\`} />`,
-          jsxOutput: `() => <img class={\`${validBetween}\`} />`,
-          svelte: `<img class={\`${invalidBetween}\`} />`,
-          svelteOutput: `<img class={\`${validBetween}\`} />`
-        },
-        {
-          errors: 2,
-          jsx: `() => <img class={\`${invalidAtEnd}\`} />`,
-          jsxOutput: `() => <img class={\`${validAtEnd}\`} />`,
-          svelte: `<img class={\`${invalidAtEnd}\`} />`,
-          svelteOutput: `<img class={\`${validAtEnd}\`} />`
+          errors: 1,
+          jsx: `() => <img class={\`${cleanStickyExpressionAtStartPass1}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanStickyExpressionAtStartPass2}\`} />`,
+          svelte: `<img class={\`${cleanStickyExpressionAtStartPass1}\`} />`,
+          svelteOutput: `<img class={\`${cleanStickyExpressionAtStartPass2}\`} />`
         }
       ]
     });
 
-  });
-
-  it("should not remove leading newlines in template literal elements", () => {
-
-    const trim = createTrimTag(4);
-
-    const expression = "${true ? ' true ' : ' false '}";
-
-    const validSeparateLineAtStart = trim`
-      ${expression}
-      b
-    `;
-    const validSeparateLineBetween = trim`
-      a
-      ${expression}
-      b
-    `;
-    const validSeparateLineAtEnd = trim`
-      a
-      ${expression}
-    `;
-
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
-      valid: [
-        {
-          jsx: `() => <img class={\`${validSeparateLineAtStart}\`} />`,
-          svelte: `<img class={\`${validSeparateLineAtStart}\`} />`
-        },
-        {
-          jsx: `() => <img class={\`${validSeparateLineBetween}\`} />`,
-          svelte: `<img class={\`${validSeparateLineBetween}\`} />`
-        },
-        {
-          jsx: `() => <img class={\`${validSeparateLineAtEnd}\`} />`,
-          svelte: `<img class={\`${validSeparateLineAtEnd}\`} />`
-        }
-      ]
-    });
-
-  });
-
-
-  it("should remove whitespace around template elements if they are at the beginning or end", () => {
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
+        // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
+        // 1st pass: fix leading template element and expression.
         {
-          errors: 3,
-          jsx: `() => <img class={\`  \${" b "}  a  d  \${"  c  "}  \`} />`,
-          jsxOutput: `() => <img class={\`\${" b "} a d \${"  c  "}\`} />`,
-          svelte: `<img class={\`  \${" b "}  a  d  \${"  c  "}  \`} />`,
-          svelteOutput: `<img class={\`\${" b "} a d \${"  c  "}\`} />`
+          errors: 4,
+          jsx: `() => <img class={\`${dirtyStickyExpressionBetween}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanStickyExpressionBetweenPass1}\`} />`,
+          svelte: `<img class={\`${dirtyStickyExpressionBetween}\`} />`,
+          svelteOutput: `<img class={\`${cleanStickyExpressionBetweenPass1}\`} />`
+        },
+        // 2nd pass: fix trailing template element.
+        {
+          errors: 1,
+          jsx: `() => <img class={\`${cleanStickyExpressionBetweenPass1}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanStickyExpressionBetweenPass2}\`} />`,
+          svelte: `<img class={\`${cleanStickyExpressionBetweenPass1}\`} />`,
+          svelteOutput: `<img class={\`${cleanStickyExpressionBetweenPass2}\`} />`
         }
       ]
     });
+
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+      invalid: [
+        // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
+        // 1st pass: fix leading template element and expression.
+        {
+          errors: 4,
+          jsx: `() => <img class={\`${dirtyStickyExpressionAtEnd}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanStickyExpressionAtEndPass1}\`} />`,
+          svelte: `<img class={\`${dirtyStickyExpressionAtEnd}\`} />`,
+          svelteOutput: `<img class={\`${cleanStickyExpressionAtEndPass1}\`} />`
+        },
+        // 2nd pass: fix trailing template element.
+        {
+          errors: 1,
+          jsx: `() => <img class={\`${cleanStickyExpressionAtEndPass1}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanStickyExpressionAtEndPass2}\`} />`,
+          svelte: `<img class={\`${cleanStickyExpressionAtEndPass1}\`} />`,
+          svelteOutput: `<img class={\`${cleanStickyExpressionAtEndPass2}\`} />`
+        }
+      ]
+    });
+
   });
 
   it("should remove newlines whenever possible", () => {
@@ -412,45 +510,6 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
         }
       ]
     });
-  });
-
-  it("should not remove whitespace before in template literal elements", () => {
-
-    const trim = createTrimTag(4);
-
-    const expression = "${true ? ' true ' : ' false '}";
-
-    const validAtStart = trim`
-      ${expression}
-      b
-    `;
-    const validAround = trim`
-      a
-      ${expression}
-      b
-    `;
-    const validAtEnd = trim`
-      a
-      ${expression}
-    `;
-
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
-      valid: [
-        {
-          jsx: `() => <img class={\`${validAtStart}\`} />`,
-          svelte: `<img class={\`${validAtStart}\`} />`
-        },
-        {
-          jsx: `() => <img class={\`${validAround}\`} />`,
-          svelte: `<img class={\`${validAround}\`} />`
-        },
-        {
-          jsx: `() => <img class={\`${validAtEnd}\`} />`,
-          svelte: `<img class={\`${validAtEnd}\`} />`
-        }
-      ]
-    });
-
   });
 
   it("should remove unnecessary whitespace in defined call signature arguments", () => {

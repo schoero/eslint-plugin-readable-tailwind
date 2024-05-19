@@ -11,7 +11,11 @@ export default defineConfig(<UserConfig>{
   build: {
     emptyOutDir: true,
     lib: {
-      entry: ["./src/index.ts"],
+      entry: [
+        "./src/index.ts",
+        "./src/api/defaults.ts",
+        "./src/api/types.ts"
+      ],
       formats: ["es", "cjs"]
     },
     minify: false,
