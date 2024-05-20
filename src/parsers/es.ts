@@ -236,6 +236,9 @@ export function isESObjectKey(node: Node | ESBaseNode & Rule.NodeParentExtension
 export function isInsideObjectValue(node: ESBaseNode & Partial<Rule.NodeParentExtension>) {
   if(!hasESNodeParentExtension(node)){ return false; }
 
+  // Allow call expressions as object values
+  if(isESCallExpression(node)){ return false; }
+
   if(
     node.parent.type === "Property" &&
     node.parent.parent.type === "ObjectExpression" &&
