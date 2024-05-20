@@ -1,14 +1,13 @@
 import { readdirSync } from "node:fs";
 import { normalize } from "node:path";
+import { describe, it, only } from "node:test";
 
+import { RuleTester } from "eslint9";
 import { createTag } from "proper-tags";
 import eslintParserSvelte from "svelte-eslint-parser";
-import { afterAll, describe, it } from "vitest";
 import eslintParserVue from "vue-eslint-parser";
 
 import eslintParserHTML from "@html-eslint/parser";
-
-import { RuleTester } from "./node_modules/eslint";
 
 import type { Node as ESNode, Program } from "estree";
 
@@ -142,10 +141,12 @@ function customIndentStripTransformer(count: number) {
 function createRuleTester(options?: any) {
   const ruleTester = new RuleTester(options);
 
-  ruleTester.afterAll = afterAll;
+  // @ts-expect-error - Types not yet updated to eslint9
   ruleTester.describe = describe;
+  // @ts-expect-error - Types not yet updated to eslint9
   ruleTester.it = it;
-  ruleTester.itOnly = it.only;
+  // @ts-expect-error - Types not yet updated to eslint9
+  ruleTester.itOnly = only;
 
   return ruleTester;
 }

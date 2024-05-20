@@ -1,8 +1,13 @@
-import sharedConfig from "@schoero/configs/eslint";
+import { ignore, imports, json, markdown, typescript, yaml } from "@schoero/configs/eslint";
 
 
 export default [
-  ...sharedConfig,
+  ...ignore,
+  ...imports,
+  ...json,
+  ...typescript,
+  ...yaml,
+  ...markdown,
   {
     files: ["**/*.test.{js,jsx,cjs,mjs,ts,tsx}", "**/*.test-d.{ts,tsx}"],
     rules: {
@@ -10,6 +15,12 @@ export default [
       "eslint-plugin-typescript/no-unnecessary-condition": "off",
       "eslint-plugin-typescript/no-useless-template-literals": "off",
       "eslint-plugin-vitest/expect-expect": "off"
+    }
+  },
+  {
+    files: ["**/*.test.ts"],
+    rules: {
+      "eslint-plugin-typescript/no-floating-promises": "off"
     }
   }
 ];

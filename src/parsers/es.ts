@@ -29,7 +29,7 @@ import type {
   VariableDeclarator as ESVariableDeclarator
 } from "estree";
 
-import type { BracesMeta, Literal, Node, StringLiteral, TemplateLiteral } from "readable-tailwind:types:ast";
+import type { BracesMeta, Literal, Node, StringLiteral, TemplateLiteral } from "readable-tailwind:types:ast.js";
 import type { Callees, Matcher, MatcherFunctions, Variables } from "readable-tailwind:types:rule.js";
 
 

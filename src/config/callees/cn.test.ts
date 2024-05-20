@@ -1,8 +1,8 @@
-import { lint, TEST_SYNTAXES } from "tests/utils.js";
-import { describe, it } from "vitest";
+import { describe, it } from "node:test";
 
 import { CN_OBJECT_KEYS, CN_STRINGS } from "readable-tailwind:config:callees/cn.js";
 import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
+import { lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
 
 
 describe("cn", () => {

@@ -1,7 +1,7 @@
-import { createTrimTag, lint, TEST_SYNTAXES } from "tests/utils.js";
-import { describe, it } from "vitest";
+import { describe, it } from "node:test";
 
 import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
+import { createTrimTag, lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
 
 
 describe(tailwindNoUnnecessaryWhitespace.name, () => {

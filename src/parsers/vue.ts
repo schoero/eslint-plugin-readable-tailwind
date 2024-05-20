@@ -20,14 +20,14 @@ import { deduplicateLiterals, getQuotes, getWhitespace } from "readable-tailwind
 
 import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
-import type { VAttribute, VDirective, VLiteral, VStartTag } from "vue-eslint-parser/ast";
+import type { AST } from "vue-eslint-parser";
 
 import type { Literal, Node, StringLiteral } from "readable-tailwind:types:ast.js";
 import type { ClassAttributes, Matcher, MatcherFunctions } from "readable-tailwind:types:rule.js";
 
 
-export function getAttributesByVueStartTag(ctx: Rule.RuleContext, node: VStartTag): VAttribute[] {
-  return node.attributes.reduce<VAttribute[]>((acc, attribute) => {
+export function getAttributesByVueStartTag(ctx: Rule.RuleContext, node: AST.VStartTag): AST.VAttribute[] {
+  return node.attributes.reduce<AST.VAttribute[]>((acc, attribute) => {
     if(isVueAttribute(attribute)){
       acc.push(attribute);
     }
@@ -36,7 +36,7 @@ export function getAttributesByVueStartTag(ctx: Rule.RuleContext, node: VStartTa
 }
 
 
-export function getLiteralsByVueClassAttribute(ctx: Rule.RuleContext, attribute: VAttribute, classAttributes: ClassAttributes): Literal[] {
+export function getLiteralsByVueClassAttribute(ctx: Rule.RuleContext, attribute: AST.VAttribute, classAttributes: ClassAttributes): Literal[] {
 
   if(attribute.value === null){
     return [];
@@ -84,7 +84,7 @@ function getLiteralsByVueMatchers(ctx: Rule.RuleContext, node: ESBaseNode, match
   return deduplicateLiterals(literals);
 }
 
-function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: VLiteral): StringLiteral {
+function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLiteral): StringLiteral {
 
   const content = node.value;
   const raw = ctx.sourceCode.getText(node as unknown as ESNode);
@@ -106,11 +106,11 @@ function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: VLitera
 
 }
 
-function isVueAttribute(attribute: VAttribute | VDirective): attribute is VAttribute {
+function isVueAttribute(attribute: AST.VAttribute | AST.VDirective): attribute is AST.VAttribute {
   return "key" in attribute && "name" in attribute.key && typeof attribute.key.name === "string";
 }
 
-function isVueLiteralNode(node: ESBaseNode): node is VLiteral {
+function isVueLiteralNode(node: ESBaseNode): node is AST.VLiteral {
   return node.type === "VLiteral";
 }
 
