@@ -1,9 +1,8 @@
 import { deepEqual } from "node:assert";
 import { describe, it } from "node:test";
 
-import { getFilesInDirectory } from "tests/utils.js";
-
 import { DEFAULT_CALLEE_NAMES } from "readable-tailwind:config:default-config.js";
+import { getFilesInDirectory } from "readable-tailwind:tests:utils.js";
 
 
 describe("default config", () => {

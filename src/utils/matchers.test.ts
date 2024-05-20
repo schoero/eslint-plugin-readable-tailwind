@@ -2,7 +2,6 @@ import { equal } from "node:assert";
 import { describe, it } from "node:test";
 
 import { parse } from "espree";
-import { findNode, lint, TEST_SYNTAXES, withParentNodeExtension } from "tests/utils";
 
 import {
   hasESNodeParentExtension,
@@ -11,6 +10,7 @@ import {
   isInsideObjectValue
 } from "readable-tailwind:parsers:es.js";
 import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
+import { findNode, lint, TEST_SYNTAXES, withParentNodeExtension } from "readable-tailwind:tests:utils.js";
 import { MatcherType } from "readable-tailwind:types:rule.js";
 import { getObjectPath } from "readable-tailwind:utils:matchers.js";
 

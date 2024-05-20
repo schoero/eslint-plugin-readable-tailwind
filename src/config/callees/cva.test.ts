@@ -1,9 +1,8 @@
 import { describe, it } from "node:test";
 
-import { lint, TEST_SYNTAXES } from "tests/utils.js";
-
 import { CVA_COMPOUND_VARIANTS_CLASS, CVA_STRINGS, CVA_VARIANT_VALUES } from "readable-tailwind:config:callees/cva.js";
 import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
+import { lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
 
 
 describe("cva", () => {

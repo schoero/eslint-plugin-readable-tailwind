@@ -2,13 +2,14 @@
   "extends": "@schoero/configs/tsconfig",
   "compilerOptions": {
 
-
     // paths
     "baseUrl": ".",
     "lib": ["ESNext"],
-    "module": "Preserve",    
+    "module": "Preserve",
+
     // general
     "noEmit": true,
+    "target": "ES2020",
 
     // strictness
     "noImplicitAny": false,
@@ -21,7 +22,6 @@
       "readable-tailwind:types:*": ["src/types/*"],
       "readable-tailwind:utils:*": ["src/utils/*"]
     },
-    "target": "ES2020",
 
     // imports
     "verbatimModuleSyntax": true

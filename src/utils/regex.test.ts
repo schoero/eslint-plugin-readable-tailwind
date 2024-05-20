@@ -1,8 +1,7 @@
 import { describe, it } from "node:test";
 
-import { lint, TEST_SYNTAXES } from "tests/utils.js";
-
 import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
+import { lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
 
 
 describe("regex", () => {
