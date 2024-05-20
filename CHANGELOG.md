@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.4.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.3.2...v1.4.0)
+
+### Features
+
+- Matchers ([#28](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/28))
+
 ## v1.3.2
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.3.1...v1.3.2)

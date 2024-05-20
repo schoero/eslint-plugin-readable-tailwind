@@ -1,3 +1,5 @@
+import { readdirSync } from "node:fs";
+import { normalize } from "node:path";
 import { describe, it, only } from "node:test";
 
 import { RuleTester } from "eslint9";
@@ -7,7 +9,9 @@ import eslintParserVue from "vue-eslint-parser";
 
 import eslintParserHTML from "@html-eslint/parser";
 
-import type { ESLintRule } from "readable-tailwind:types:rule.js";
+import type { Node as ESNode, Program } from "estree";
+
+import type { ESLintRule, MatcherFunction } from "readable-tailwind:types:rule.js";
 
 
 export const TEST_SYNTAXES = {
@@ -92,6 +96,36 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
 
 }
 
+export function findNode(node: ESNode | Program, matcherFunction: MatcherFunction): ESNode[] {
+  return Object.entries(node).reduce<ESNode[]>((matchedNodes, [key, value]) => {
+    if(typeof value !== "object" || key === "parent"){
+      return matchedNodes;
+    }
+
+    if(matcherFunction(value)){
+      matchedNodes.push(value);
+    }
+
+    matchedNodes.push(...findNode(value, matcherFunction));
+    return matchedNodes;
+  }, []);
+}
+
+export function withParentNodeExtension(node: ESNode, parent: ESNode = node) {
+  for(const key in node){
+    if(typeof node[key] === "object" && key !== "parent"){
+      if(Array.isArray(node[key])){
+        withParentNodeExtension(node[key], parent);
+      } else {
+        node[key].parent = parent;
+        withParentNodeExtension(node[key]);
+      }
+
+    }
+  }
+  return node;
+}
+
 export function createTrimTag(count: number) {
   return createTag(customIndentStripTransformer(count));
 }
@@ -115,4 +149,13 @@ function createRuleTester(options?: any) {
   ruleTester.itOnly = only;
 
   return ruleTester;
+}
+
+export function getFilesInDirectory(importURL: string) {
+
+  const path = normalize(importURL);
+  const files = readdirSync(path);
+
+  return files.filter(file => !file.includes(".test.ts"));
+
 }
