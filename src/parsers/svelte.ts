@@ -16,7 +16,7 @@ import {
   isInsideLogicalExpressionLeft,
   matchesPathPattern
 } from "readable-tailwind:utils:matchers.js";
-import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex";
+import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex.js";
 import { deduplicateLiterals, getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
