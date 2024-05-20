@@ -230,6 +230,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       if(
         literal.parent.type === "JSXAttribute" ||
         literal.parent.type === "JSXExpressionContainer" ||
+        literal.parent.type === "ArrayExpression" ||
         literal.parent.type === "Property" ||
         literal.parent.type === "CallExpression" ||
         literal.parent.type === "SvelteMustacheTag" ||
@@ -417,6 +418,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       if(
         literal.parent.type === "JSXAttribute" ||
         literal.parent.type === "JSXExpressionContainer" ||
+        literal.parent.type === "ArrayExpression" ||
         literal.parent.type === "Property" ||
         literal.parent.type === "CallExpression" ||
         literal.parent.type === "SvelteMustacheTag" ||
