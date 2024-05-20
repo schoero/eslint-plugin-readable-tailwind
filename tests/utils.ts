@@ -1,7 +1,6 @@
-import { describe, it, only } from "node:test";
-
 import { readdirSync } from "node:fs";
 import { normalize } from "node:path";
+import { describe, only } from "node:test";
 
 import { RuleTester } from "eslint9";
 import { createTag } from "proper-tags";
