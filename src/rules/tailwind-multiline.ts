@@ -13,6 +13,7 @@ import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readabl
 import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx.js";
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "readable-tailwind:parsers:vue.js";
+import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
 import { findLineStartPosition, findLiteralStartPosition, splitClasses } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
@@ -677,7 +678,10 @@ class Line {
       this.meta.openingQuote,
       this.meta.closingBraces,
       this.meta.leadingWhitespace ?? "",
-      this.join(this.classes),
+      escapeNestedQuotes(
+        this.join(this.classes),
+        this.meta.openingQuote ?? "\""
+      ),
       this.meta.trailingWhitespace ?? "",
       this.meta.openingBraces,
       this.meta.closingQuote
