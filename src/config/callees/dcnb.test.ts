@@ -1,8 +1,8 @@
-import { lint, TEST_SYNTAXES } from "tests/utils.js";
-import { describe, it } from "vitest";
+import { describe, it } from "node:test";
 
 import { DCNB_OBJECT_KEYS, DCNB_STRINGS } from "readable-tailwind:config:callees/dcnb.js";
 import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
+import { lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
 
 
 describe("dcnb", () => {

@@ -3,7 +3,7 @@ import { DEFAULT_ATTRIBUTE_NAMES, DEFAULT_CALLEE_NAMES, DEFAULT_VARIABLE_NAMES }
 import { getCalleeSchema, getClassAttributeSchema, getVariableSchema } from "readable-tailwind:config:descriptions.js";
 import { getLiteralsByESCallExpression, getLiteralsByESVariableDeclarator } from "readable-tailwind:parsers:es.js";
 import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readable-tailwind:parsers:html.js";
-import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx";
+import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx.js";
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "readable-tailwind:parsers:vue.js";
 import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
@@ -13,7 +13,7 @@ import type { Rule } from "eslint";
 import type { CallExpression, Node, VariableDeclarator } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
-import type { VStartTag } from "vue-eslint-parser/ast";
+import type { AST } from "vue-eslint-parser";
 
 import type { Literal } from "readable-tailwind:types:ast.js";
 import type { CalleeOption, ClassAttributeOption, ESLintRule, VariableOption } from "readable-tailwind:types:rule.js";
@@ -81,7 +81,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
 
       const vue = {
         VStartTag(node: Node) {
-          const vueNode = node as unknown as VStartTag;
+          const vueNode = node as unknown as AST.VStartTag;
           const vueAttributes = getAttributesByVueStartTag(ctx, vueNode);
 
           for(const attribute of vueAttributes){

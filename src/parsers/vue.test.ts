@@ -1,7 +1,7 @@
-import { lint, TEST_SYNTAXES } from "tests/utils.js";
-import { describe, it } from "vitest";
+import { describe, it } from "node:test";
 
 import { tailwindSortClasses } from "readable-tailwind:rules:tailwind-sort-classes.js";
+import { lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
 
 
 describe(tailwindSortClasses.name, () => {

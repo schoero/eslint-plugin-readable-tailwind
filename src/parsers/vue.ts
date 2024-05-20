@@ -21,18 +21,18 @@ import { deduplicateLiterals, getQuotes, getWhitespace } from "readable-tailwind
 
 import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
-import type { VAttribute, VDirective, VLiteral, VStartTag } from "vue-eslint-parser/ast";
+import type { AST } from "vue-eslint-parser";
 
 import type { Literal, Node, StringLiteral } from "readable-tailwind:types:ast.js";
 import type { ClassAttributes, Matcher, MatcherFunctions } from "readable-tailwind:types:rule.js";
 
 
-export function getAttributesByVueStartTag(ctx: Rule.RuleContext, node: VStartTag): (VAttribute | VDirective)[] {
+export function getAttributesByVueStartTag(ctx: Rule.RuleContext, node: AST.VStartTag): (AST.VAttribute | AST.VDirective)[] {
   return node.attributes;
 }
 
 
-export function getLiteralsByVueClassAttribute(ctx: Rule.RuleContext, attribute: VAttribute | VDirective, classAttributes: ClassAttributes): Literal[] {
+export function getLiteralsByVueClassAttribute(ctx: Rule.RuleContext, attribute: AST.VAttribute | AST.VDirective, classAttributes: ClassAttributes): Literal[] {
 
   if(attribute.value === null){
     return [];
@@ -84,7 +84,7 @@ function getLiteralsByVueMatchers(ctx: Rule.RuleContext, node: ESBaseNode, match
   return deduplicateLiterals(literals);
 }
 
-function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: VLiteral): StringLiteral {
+function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLiteral): StringLiteral {
 
   const content = node.value;
   const raw = ctx.sourceCode.getText(node as unknown as ESNode);
@@ -106,7 +106,7 @@ function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: VLitera
 
 }
 
-function getVueAttributeName(attribute: VAttribute | VDirective): string | undefined {
+function getVueAttributeName(attribute: AST.VAttribute | AST.VDirective): string | undefined {
   if(isVueAttribute(attribute)){
     return attribute.key.name;
   }
@@ -118,15 +118,15 @@ function getVueAttributeName(attribute: VAttribute | VDirective): string | undef
   }
 }
 
-function isVueAttribute(attribute: VAttribute | VDirective): attribute is VAttribute {
+function isVueAttribute(attribute: AST.VAttribute | AST.VDirective): attribute is AST.VAttribute {
   return attribute.key.type === "VIdentifier";
 }
 
-function isVueDirective(attribute: VAttribute | VDirective): attribute is VDirective {
+function isVueDirective(attribute: AST.VAttribute | AST.VDirective): attribute is AST.VDirective {
   return attribute.key.type === "VDirectiveKey";
 }
 
-function isVueLiteralNode(node: ESBaseNode): node is VLiteral {
+function isVueLiteralNode(node: ESBaseNode): node is AST.VLiteral {
   return node.type === "VLiteral";
 }
 

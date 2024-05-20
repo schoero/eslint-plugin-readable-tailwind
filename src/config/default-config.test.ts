@@ -1,7 +1,8 @@
-import { getFilesInDirectory } from "tests/utils.js";
-import { describe, expect, it } from "vitest";
+import { deepEqual } from "node:assert";
+import { describe, it } from "node:test";
 
 import { DEFAULT_CALLEE_NAMES } from "readable-tailwind:config:default-config.js";
+import { getFilesInDirectory } from "readable-tailwind:tests:utils.js";
 
 
 describe("default config", () => {
@@ -11,12 +12,10 @@ describe("default config", () => {
       .map(callee => callee[0])
       .filter((callee, index, arr) => arr.indexOf(callee) === index);
 
-    console.log(callees.sort().join());
-
     const exportedFiles = getFilesInDirectory("./src/config/callees/");
     const fileNames = exportedFiles.map(file => file.replace(".ts", ""));
 
-    expect(callees.sort()).toEqual(fileNames.sort());
+    deepEqual(callees.sort(), fileNames.sort());
 
   });
 

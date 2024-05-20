@@ -1,6 +1,7 @@
+import { equal } from "node:assert";
+import { describe, it } from "node:test";
+
 import { parse } from "espree";
-import { findNode, lint, TEST_SYNTAXES, withParentNodeExtension } from "tests/utils";
-import { describe, expect, it } from "vitest";
 
 import {
   hasESNodeParentExtension,
@@ -9,6 +10,7 @@ import {
   isInsideObjectValue
 } from "readable-tailwind:parsers:es.js";
 import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
+import { findNode, lint, TEST_SYNTAXES, withParentNodeExtension } from "readable-tailwind:tests:utils.js";
 import { MatcherType } from "readable-tailwind:types:rule.js";
 import { getObjectPath } from "readable-tailwind:utils:matchers.js";
 
@@ -44,9 +46,9 @@ describe("matchers", () => {
           return hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Identifier" && node.name === "value";
         });
 
-        expect(getObjectPath(root[0])).toBe("root");
-        expect(getObjectPath(nested[0])).toBe("root.nested");
-        expect(getObjectPath(value[0])).toBe("root.nested.value");
+        equal(getObjectPath(root[0]), "root");
+        equal(getObjectPath(nested[0]), "root.nested");
+        equal(getObjectPath(value[0]), "root.nested.value");
 
       });
 
@@ -59,7 +61,7 @@ describe("matchers", () => {
         });
 
         const path = getObjectPath(value[0]);
-        expect(path).toBe("root.nested.value");
+        equal(path, "root.nested.value");
 
       });
 
@@ -87,9 +89,9 @@ describe("matchers", () => {
           return hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Literal" && node.value === "deeply_nested_value";
         });
 
-        expect(getObjectPath(root[0])).toBe(`["root-key"]`);
-        expect(getObjectPath(nested[0])).toBe(`["root-key"]["1nested"]`);
-        expect(getObjectPath(value[0])).toBe(`["root-key"]["1nested"].deeply_nested_value`);
+        equal(getObjectPath(root[0]), `["root-key"]`);
+        equal(getObjectPath(nested[0]), `["root-key"]["1nested"]`);
+        equal(getObjectPath(value[0]), `["root-key"]["1nested"].deeply_nested_value`);
 
       });
     }
@@ -119,8 +121,8 @@ describe("matchers", () => {
           return hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Identifier" && node.name === "value2";
         });
 
-        expect(getObjectPath(value1[0])).toBe("root[0].value1");
-        expect(getObjectPath(value2[0])).toBe("root[1].value2");
+        equal(getObjectPath(value1[0]), "root[0].value1");
+        equal(getObjectPath(value2[0]), "root[1].value2");
 
       });
 
