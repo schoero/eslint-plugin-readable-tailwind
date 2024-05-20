@@ -46,6 +46,26 @@ export const DEFAULT_ATTRIBUTE_NAMES = [
         match: MatcherType.String
       }
     ]
+  ],
+  [
+    ":class", [
+      {
+        match: MatcherType.String
+      },
+      {
+        match: MatcherType.ObjectKey
+      }
+    ]
+  ],
+  [
+    "v-bind:class", [
+      {
+        match: MatcherType.String
+      },
+      {
+        match: MatcherType.ObjectKey
+      }
+    ]
   ]
 ] satisfies ClassAttributes;
 
