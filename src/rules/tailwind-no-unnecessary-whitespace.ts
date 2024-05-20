@@ -9,6 +9,7 @@ import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readabl
 import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx.js";
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "readable-tailwind:parsers:vue.js";
+import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
 import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
@@ -167,10 +168,15 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     const classes = splitClassesKeepWhitespace(literal, allowMultiline);
 
+    const escapedClasses = escapeNestedQuotes(
+      classes.join(""),
+      literal.openingQuote ?? "\""
+    );
+
     const fixedClasses = [
       literal.openingQuote ?? "",
       literal.type === "TemplateLiteral" && literal.closingBraces ? literal.closingBraces : "",
-      ...classes,
+      escapedClasses,
       literal.type === "TemplateLiteral" && literal.openingBraces ? literal.openingBraces : "",
       literal.closingQuote ?? ""
     ].join("");

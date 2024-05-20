@@ -16,6 +16,7 @@ import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readabl
 import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx.js";
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "readable-tailwind:parsers:vue.js";
+import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
 import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
@@ -83,15 +84,23 @@ export const tailwindSortClasses: ESLintRule<Options> = {
             sortedClassChunks[i] && classes.push(sortedClassChunks[i]);
           }
 
-          const fixedClasses = [
-            literal.openingQuote ?? "",
-            literal.type === "TemplateLiteral" && literal.closingBraces ? literal.closingBraces : "",
-            unsortableClasses[0],
-            ...classes,
-            unsortableClasses[1],
-            literal.type === "TemplateLiteral" && literal.openingBraces ? literal.openingBraces : "",
-            literal.closingQuote ?? ""
-          ].join("");
+          const escapedClasses = escapeNestedQuotes(
+            [
+              unsortableClasses[0],
+              ...classes,
+              unsortableClasses[1]
+            ].join(""),
+            literal.openingQuote ?? '"'
+          );
+
+          const fixedClasses =
+            [
+              literal.openingQuote ?? "",
+              literal.type === "TemplateLiteral" && literal.closingBraces ? literal.closingBraces : "",
+              escapedClasses,
+              literal.type === "TemplateLiteral" && literal.openingBraces ? literal.openingBraces : "",
+              literal.closingQuote ?? ""
+            ].join("");
 
           if(literal.raw === fixedClasses){
             continue;
