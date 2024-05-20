@@ -375,6 +375,30 @@ describe(tailwindMultiline.name, () => {
 
   });
 
+  it("should change the quotes in arrays to backticks", () => {
+
+    const dirtyArray = `["1 2 3 4 5 6 7 8", "9 10 11 12 13 14 15 16"]`;
+    const cleanArray = `[\`\n  1 2 3\n  4 5 6\n  7 8\n\`, \`\n  9 10 11\n  12 13 14\n  15 16\n\`]`;
+
+    lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 2,
+            jsx: `() => <img class={${dirtyArray}} />`,
+            jsxOutput: `() => <img class={${cleanArray}} />`,
+            options: [{ classesPerLine: 3, indent: 2 }],
+            svelte: `<img class={${dirtyArray}} />`,
+            svelteOutput: `<img class={${cleanArray}} />`
+          }
+        ]
+      }
+    );
+
+  });
+
   it("should wrap string literals in call signature arguments matched by a regex", () => {
 
     const dirtyDefined = `defined(
