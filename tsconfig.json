@@ -2,27 +2,28 @@
   "extends": "@schoero/configs/tsconfig",
   "compilerOptions": {
 
-    // general
-    "noEmit": true,
-    "lib": ["ESNext"],
-    "module": "Preserve",
-    "target": "ES2020",
-
-    // imports
-    "verbatimModuleSyntax": true,
-
     // paths
     "baseUrl": ".",
+    "lib": ["ESNext"],
+    "module": "Preserve",
+
+    // general
+    "noEmit": true,
+    "target": "ES2020",
+
+    // strictness
+    "noImplicitAny": false,
     "paths": {
-      "readable-tailwind:tests:*": ["tests/*"],
       "readable-tailwind:build:*": ["build/*"],
+      "readable-tailwind:config:*": ["src/config/*"],
       "readable-tailwind:parsers:*": ["src/parsers/*"],
       "readable-tailwind:rules:*": ["src/rules/*"],
+      "readable-tailwind:tests:*": ["tests/*"],
       "readable-tailwind:types:*": ["src/types/*"],
       "readable-tailwind:utils:*": ["src/utils/*"]
     },
 
-    // strictness
-    "noImplicitAny": false
+    // imports
+    "verbatimModuleSyntax": true
   }
 }

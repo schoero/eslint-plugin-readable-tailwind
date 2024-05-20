@@ -1,11 +1,64 @@
 import type { Rule } from "eslint";
+import type { Node as ESNode } from "estree";
 
 
-export type CalleeRegex = [string, string];
-export type Callees = CalleeRegex[] | string[];
+export enum MatcherType {
+  /** Matches all object keys that are strings. */
+  ObjectKey = "objectKeys",
+  /** Matches all object values that are strings. */
+  ObjectValue = "objectValues",
+  /** Matches all strings  that are not matched by another matcher. */
+  String = "strings"
+}
 
-export type VariableRegex = [string, string];
-export type Variables = string[] | VariableRegex[];
+export type StringMatcher = {
+  match: MatcherType.String;
+};
+
+export type ObjectKeyMatcher = {
+  match: MatcherType.ObjectKey;
+  pathPattern?: Regex;
+};
+
+export type ObjectValueMatcher = {
+  match: MatcherType.ObjectValue;
+  pathPattern?: Regex;
+};
+
+export type MatcherFunction = (node: ESNode & Rule.NodeParentExtension) => boolean;
+export type MatcherFunctions = MatcherFunction[];
+
+export type Matcher = ObjectKeyMatcher | ObjectValueMatcher | StringMatcher;
+
+export type Regex = string;
+
+export type CalleeName = string;
+export type CalleeMatchers = [callee: CalleeName, matchers: Matcher[]];
+export type CalleeRegex = [containerRegex: Regex, literalRegex: Regex];
+export type Callees = (CalleeMatchers | CalleeName | CalleeRegex)[];
+export type CalleeOption = {
+  callees: Callees;
+};
+
+export type VariableName = string;
+export type VariableMatchers = [variable: VariableName, matchers: Matcher[]];
+export type VariableRegex = [variableNameRegex: Regex, literalRegex: Regex];
+export type Variables = (VariableMatchers | VariableName | VariableRegex)[];
+export type VariableOption = {
+  variables: Variables;
+};
+
+export type ClassAttributeName = string;
+export type ClassAttributeMatchers = [classAttribute: ClassAttributeName, matchers: Matcher[]];
+export type ClassAttributeRegex = [classAttributeRegex: Regex, literalRegex: Regex];
+export type ClassAttributes = (ClassAttributeMatchers | ClassAttributeName | ClassAttributeRegex)[];
+export type ClassAttributeOption = {
+  classAttributes: ClassAttributes;
+};
+
+export type NameConfig = CalleeName | ClassAttributeName | VariableName;
+export type RegexConfig = CalleeRegex | ClassAttributeRegex | VariableRegex;
+export type MatchersConfig = CalleeMatchers | ClassAttributeMatchers | VariableMatchers;
 
 export interface ESLintRule<Options extends any[] = [any]> {
   name: string;

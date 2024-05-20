@@ -1,9 +1,15 @@
-import { getLiteralsByESCallExpression, getLiteralsByESVariableDeclarator } from "readable-tailwind:parsers:es.js";
+import { DEFAULT_ATTRIBUTE_NAMES, DEFAULT_CALLEE_NAMES, DEFAULT_VARIABLE_NAMES } from "src/config/default-config.js";
+
+import { getCalleeSchema, getClassAttributeSchema, getVariableSchema } from "readable-tailwind:config:descriptions.js";
+import {
+  getLiteralsByESCallExpression,
+  getLiteralsByESVariableDeclarator,
+  isESObjectKey
+} from "readable-tailwind:parsers:es.js";
 import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readable-tailwind:parsers:html.js";
-import { getJSXAttributes, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx.js";
+import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx.js";
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "readable-tailwind:parsers:vue.js";
-import { DEFAULT_CALLEE_NAMES, DEFAULT_CLASS_NAMES, DEFAULT_VARIABLE_NAMES } from "readable-tailwind:utils:config.js";
 import { findLineStartPosition, findLiteralStartPosition, splitClasses } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
@@ -14,21 +20,22 @@ import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { AST } from "vue-eslint-parser";
 
 import type { Literal, Meta } from "readable-tailwind:types:ast.js";
-import type { Callees, ESLintRule, Variables } from "readable-tailwind:types:rule.js";
+import type { CalleeOption, ClassAttributeOption, ESLintRule, VariableOption } from "readable-tailwind:types:rule.js";
 
 
 export type Options = [
-  {
-    callees?: Callees;
-    classAttributes?: string[];
-    classesPerLine?: number;
-    group?: "emptyLine" | "never" | "newLine";
-    indent?: number | "tab";
-    lineBreakStyle?: "unix" | "windows";
-    printWidth?: number;
-    trim?: boolean;
-    variables?: Variables;
-  }
+  Partial<
+    CalleeOption &
+    ClassAttributeOption &
+    VariableOption &
+    {
+      classesPerLine?: number;
+      group?: "emptyLine" | "never" | "newLine";
+      indent?: number | "tab";
+      lineBreakStyle?: "unix" | "windows";
+      printWidth?: number;
+    }
+  >
 ];
 
 export const tailwindMultiline: ESLintRule<Options> = {
@@ -59,7 +66,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
       const jsx = {
         JSXOpeningElement(node: Node) {
           const jsxNode = node as JSXOpeningElement;
-          const jsxAttributes = getJSXAttributes(ctx, classAttributes, jsxNode);
+          const jsxAttributes = getAttributesByJSXElement(ctx, jsxNode);
 
           for(const jsxAttribute of jsxAttributes){
 
@@ -69,7 +76,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
             if(!attributeValue){ continue; }
             if(typeof attributeName !== "string"){ continue; }
 
-            const literals = getLiteralsByJSXClassAttribute(ctx, jsxAttribute);
+            const literals = getLiteralsByJSXClassAttribute(ctx, jsxAttribute, classAttributes);
             lintLiterals(ctx, literals);
           }
         }
@@ -78,14 +85,14 @@ export const tailwindMultiline: ESLintRule<Options> = {
       const svelte = {
         SvelteStartTag(node: Node) {
           const svelteNode = node as unknown as SvelteStartTag;
-          const svelteAttributes = getAttributesBySvelteTag(ctx, classAttributes, svelteNode);
+          const svelteAttributes = getAttributesBySvelteTag(ctx, svelteNode);
 
           for(const svelteAttribute of svelteAttributes){
             const attributeName = svelteAttribute.key.name;
 
             if(typeof attributeName !== "string"){ continue; }
 
-            const literals = getLiteralsBySvelteClassAttribute(ctx, svelteAttribute);
+            const literals = getLiteralsBySvelteClassAttribute(ctx, svelteAttribute, classAttributes);
             lintLiterals(ctx, literals);
           }
         }
@@ -94,10 +101,10 @@ export const tailwindMultiline: ESLintRule<Options> = {
       const vue = {
         VStartTag(node: Node) {
           const vueNode = node as unknown as AST.VStartTag;
-          const vueAttributes = getAttributesByVueStartTag(ctx, classAttributes, vueNode);
+          const vueAttributes = getAttributesByVueStartTag(ctx, vueNode);
 
           for(const attribute of vueAttributes){
-            const literals = getLiteralsByVueClassAttribute(ctx, attribute);
+            const literals = getLiteralsByVueClassAttribute(ctx, attribute, classAttributes);
             lintLiterals(ctx, literals);
           }
         }
@@ -106,7 +113,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
       const html = {
         Tag(node: Node) {
           const htmlTagNode = node as unknown as TagNode;
-          const htmlAttributes = getAttributesByHTMLTag(ctx, classAttributes, htmlTagNode);
+          const htmlAttributes = getAttributesByHTMLTag(ctx, htmlTagNode);
 
           for(const htmlAttribute of htmlAttributes){
             const literals = getLiteralsByHTMLClassAttribute(ctx, htmlAttribute);
@@ -146,35 +153,9 @@ export const tailwindMultiline: ESLintRule<Options> = {
         {
           additionalProperties: false,
           properties: {
-            callees: {
-              default: getOptions().callees,
-              description: "List of function names whose arguments should also get linted.",
-              items: {
-                anyOf: [
-                  {
-                    description: "List of regular expressions that matches string literals that should also get linted.",
-                    items: [
-                      { description: "Regular expression that filters the callee and matches the string literals in a group.", type: "string" },
-                      { description: "Regular expression that matches each string literal in a group.", type: "string" }
-                    ],
-                    type: "array"
-                  },
-                  {
-                    description: "List of function names whose arguments should also get linted.",
-                    type: "string"
-                  }
-                ]
-              },
-              type: "array"
-            },
-            classAttributes: {
-              default: getOptions().classAttributes,
-              description: "The name of the attribute that contains the tailwind classes.",
-              items: {
-                type: "string"
-              },
-              type: "array"
-            },
+            ...getCalleeSchema(getOptions().callees),
+            ...getClassAttributeSchema(getOptions().classAttributes),
+            ...getVariableSchema(getOptions().variables),
             classesPerLine: {
               default: getOptions().classesPerLine,
               description: "The maximum amount of classes per line. Lines are wrapped appropriately to stay within this limit . The value `0` disables line wrapping by `classesPerLine`.",
@@ -210,27 +191,6 @@ export const tailwindMultiline: ESLintRule<Options> = {
               default: getOptions().printWidth,
               description: "The maximum line length. Lines are wrapped appropriately to stay within this limit. The value `0` disables line wrapping by `printWidth`.",
               type: "integer"
-            },
-            variables: {
-              default: getOptions().variables,
-              description: "List of variable names whose values should also get linted.",
-              items: {
-                anyOf: [
-                  {
-                    description: "List of regular expressions that matches string literals that should also get linted.",
-                    items: [
-                      { description: "Regular expression that filters the variable and matches the string literals in a group.", type: "string" },
-                      { description: "Regular expression that matches each string literal in a group.", type: "string" }
-                    ],
-                    type: "array"
-                  },
-                  {
-                    description: "List of variable names whose values should also get linted.",
-                    type: "string"
-                  }
-                ]
-              },
-              type: "array"
             }
           },
           type: "object"
@@ -246,6 +206,11 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
   const { classesPerLine, group: groupSeparator, indent, lineBreakStyle, printWidth } = getOptions(ctx);
 
   for(const literal of literals){
+
+    // skip if literal is object key
+    if(isESObjectKey(literal.node)){
+      continue;
+    }
 
     const lineStartPosition = literal.type === "TemplateLiteral"
       ? findLineStartPosition(ctx, literal.parent) + getIndentation(ctx, indent)
@@ -265,7 +230,10 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         literal.parent.type === "Property" ||
         literal.parent.type === "CallExpression" ||
         literal.parent.type === "SvelteMustacheTag" ||
-        literal.parent.type === "VariableDeclarator"){
+        literal.parent.type === "VariableDeclarator" ||
+        literal.parent.type === "ConditionalExpression" ||
+        literal.parent.type === "LogicalExpression"
+      ){
         lines.line.addMeta({ openingQuote: "`" });
       } else {
         lines.line.addMeta({ openingQuote: literal.openingQuote });
@@ -449,7 +417,9 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         literal.parent.type === "Property" ||
         literal.parent.type === "CallExpression" ||
         literal.parent.type === "SvelteMustacheTag" ||
-        literal.parent.type === "VariableDeclarator"){
+        literal.parent.type === "VariableDeclarator" ||
+        literal.parent.type === "ConditionalExpression" ||
+        literal.parent.type === "LogicalExpression"){
         lines.line.addMeta({ closingQuote: "`" });
       } else {
         lines.line.addMeta({ closingQuote: literal.closingQuote });
@@ -458,6 +428,11 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     // collapse lines if there is no reason for line wrapping
     collapse: if(lines.length === 3){
+
+      // disallow collapsing if the original literal was a single line
+      if(!literal.content.includes(getLineBreaks(lineBreakStyle))){
+        break collapse;
+      }
 
       // disallow collapsing if the first line contains more classes than the classesPerLine
       if(lines.at(1).classCount > classesPerLine && classesPerLine !== 0){
@@ -577,7 +552,7 @@ function getOptions(ctx?: Rule.RuleContext) {
   const indent = options.indent ?? 2;
   const group = options.group ?? "emptyLine";
 
-  const classAttributes = options.classAttributes ?? DEFAULT_CLASS_NAMES;
+  const classAttributes = options.classAttributes ?? DEFAULT_ATTRIBUTE_NAMES;
   const callees = options.callees ?? DEFAULT_CALLEE_NAMES;
   const variables = options.variables ?? DEFAULT_VARIABLE_NAMES;
   const lineBreakStyle = options.lineBreakStyle ?? "unix";
@@ -632,7 +607,7 @@ class Lines {
   }
 
   public toString(lineBreakStyle: Options[0]["lineBreakStyle"] = "unix") {
-    const lineBreaks = lineBreakStyle === "unix" ? "\n" : "\r\n";
+    const lineBreaks = getLineBreaks(lineBreakStyle);
 
     return this.lines.map(
       line => line.toString()
@@ -788,4 +763,8 @@ class Group {
     this.classes.push(className);
     return this;
   }
+}
+
+function getLineBreaks(lineBreakStyle: Options[0]["lineBreakStyle"]) {
+  return lineBreakStyle === "unix" ? "\n" : "\r\n";
 }

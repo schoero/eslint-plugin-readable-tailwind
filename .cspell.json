@@ -9,14 +9,22 @@
   "words": [
     "autofix",
     "callees",
+    "classcat",
     "classnames",
     "clsx",
+    "cnbuilder",
+    "dcnb",
+    "DCNB",
     "Declarators",
     "ecma",
     "eslintrc",
+    "espree",
     "estree",
     "lightningcss",
     "linebreak",
-    "quasis"
+    "objstr",
+    "OBJSTR",
+    "quasis",
+    "shadcn"
   ]
 }

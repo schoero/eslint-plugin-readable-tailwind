@@ -5,9 +5,9 @@ export default [
   ...ignore,
   ...imports,
   ...json,
-  ...markdown,
   ...typescript,
   ...yaml,
+  ...markdown,
   {
     files: ["**/*.test.{js,jsx,cjs,mjs,ts,tsx}", "**/*.test-d.{ts,tsx}"],
     rules: {

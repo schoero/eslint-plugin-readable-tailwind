@@ -2,6 +2,7 @@ import { describe, it } from "node:test";
 
 import { tailwindMultiline } from "readable-tailwind:rules:tailwind-multiline.js";
 import { createTrimTag, lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
+import { MatcherType } from "readable-tailwind:types:rule.js";
 
 
 describe(tailwindMultiline.name, () => {
@@ -222,7 +223,7 @@ describe(tailwindMultiline.name, () => {
     );
   });
 
-  it("should change the quotes in defined call signatures to template literals", () => {
+  it("should change the quotes in defined call signatures to backticks", () => {
 
     const trim = createTrimTag(4);
 
@@ -279,6 +280,94 @@ describe(tailwindMultiline.name, () => {
             jsx: `() => <img class={${dirtyUndefined}} />`,
             options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }],
             svelte: `<img class={${dirtyUndefined}} />`
+          }
+        ]
+      }
+    );
+
+  });
+
+  it("should change the quotes in defined variables to backticks", () => {
+
+    const trim = createTrimTag(4);
+
+    const dirtyDefined = `const defined = "a b c d e f g h"`;
+
+    const cleanDefined = trim`const defined = \`
+      a b c
+      d e f
+      g h
+    \``;
+
+    const dirtyUndefined = `const notDefined = "a b c d e f g h"`;
+
+    lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            jsx: dirtyDefined,
+            jsxOutput: cleanDefined,
+            options: [{ classesPerLine: 3, indent: 2, variables: ["defined"] }],
+            svelte: `<script>${dirtyDefined}</script>`,
+            svelteOutput: `<script>${cleanDefined}</script>`
+          }
+        ],
+        valid: [
+          {
+            jsx: dirtyUndefined,
+            options: [{ classesPerLine: 3, indent: 2, variables: ["defined"] }],
+            svelte: `<script>${dirtyUndefined}</script>`
+          }
+        ]
+      }
+    );
+
+  });
+
+  it("should change the quotes in conditional expressions to backticks", () => {
+
+    const dirtyConditionalExpression = `true ? "1 2 3 4 5 6 7 8" : "9 10 11 12 13 14 15 16"`;
+    const cleanConditionalExpression = `true ? \`\n  1 2 3\n  4 5 6\n  7 8\n\` : \`\n  9 10 11\n  12 13 14\n  15 16\n\``;
+
+    lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 2,
+            jsx: `() => <img class={${dirtyConditionalExpression}} />`,
+            jsxOutput: `() => <img class={${cleanConditionalExpression}} />`,
+            options: [{ classesPerLine: 3, indent: 2 }],
+            svelte: `<img class={${dirtyConditionalExpression}} />`,
+            svelteOutput: `<img class={${cleanConditionalExpression}} />`
+          }
+        ]
+      }
+    );
+
+  });
+
+  it("should change the quotes in logical expressions to backticks", () => {
+
+    const dirtyLogicalExpression = `true && "1 2 3 4 5 6 7 8"`;
+    const cleanLogicalExpression = `true && \`\n  1 2 3\n  4 5 6\n  7 8\n\``;
+
+    lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            jsx: `() => <img class={${dirtyLogicalExpression}} />`,
+            jsxOutput: `() => <img class={${cleanLogicalExpression}} />`,
+            options: [{ classesPerLine: 3, indent: 2 }],
+            svelte: `<img class={${dirtyLogicalExpression}} />`,
+            svelteOutput: `<img class={${cleanLogicalExpression}} />`
           }
         ]
       }
@@ -867,6 +956,48 @@ describe(tailwindMultiline.name, () => {
             jsx: dirtyUndefined,
             options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<script>${dirtyUndefined}</script>`
+          }
+        ]
+      }
+    );
+
+  });
+
+  it("should never wrap in an object key", () => {
+
+    const trim = createTrimTag(4);
+
+    const dirtyObject = trim`const obj = {
+      "a b c d e f g h": "a b c d e f g h"
+    };`;
+    const cleanObject = trim`const obj = {
+      "a b c d e f g h": \`
+        a b c
+        d e f
+        g h
+      \`
+    };`;
+
+    lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            jsx: dirtyObject,
+            jsxOutput: cleanObject,
+            options: [{
+              classesPerLine: 3,
+              indent: 2,
+              variables: [
+                ["obj", [{ match: MatcherType.ObjectKey }, { match: MatcherType.ObjectValue }]]
+              ]
+            }],
+            svelte: `<script>${dirtyObject}</script>`,
+            svelteOutput: `<script>${cleanObject}</script>`,
+            vue: `<script>${dirtyObject}</script>`,
+            vueOutput: `<script>${cleanObject}</script>`
           }
         ]
       }

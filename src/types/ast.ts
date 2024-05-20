@@ -36,7 +36,7 @@ export interface Meta extends QuoteMeta, BracesMeta, WhitespaceMeta {
 }
 
 interface NodeBase extends Range, Loc {
-  [key: string]: unknown;
+  [key: PropertyKey]: unknown;
   type: string;
 }
 
@@ -46,6 +46,7 @@ export interface Node extends NodeBase {
 
 interface LiteralBase extends NodeBase, Meta, Range, Loc {
   content: string;
+  node: Node;
   raw: string;
 }
 
