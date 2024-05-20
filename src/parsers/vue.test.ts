@@ -44,4 +44,23 @@ describe(tailwindSortClasses.name, () => {
     });
   });
 
+  it("should evaluate bound classes", () => {
+    lint(tailwindSortClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 1,
+          options: [{ callees: ["defined"], order: "asc" }],
+          vue: `<template><img v-bind:class="defined('c b a')" /></template>`,
+          vueOutput: `<template><img v-bind:class="defined('a b c')" /></template>`
+        },
+        {
+          errors: 1,
+          options: [{ callees: ["defined"], order: "asc" }],
+          vue: `<template><img :class="defined('c b a')" /></template>`,
+          vueOutput: `<template><img :class="defined('a b c')" /></template>`
+        }
+      ]
+    });
+  });
+
 });
