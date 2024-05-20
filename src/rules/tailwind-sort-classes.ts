@@ -1,11 +1,15 @@
 import { resolve } from "node:path";
 
-import { DEFAULT_ATTRIBUTE_NAMES, DEFAULT_CALLEE_NAMES, DEFAULT_VARIABLE_NAMES } from "src/config/default-config.js";
 import defaultConfig from "tailwindcss/defaultConfig.js";
 import setupContextUtils from "tailwindcss/lib/lib/setupContextUtils.js";
 import loadConfig from "tailwindcss/loadConfig.js";
 import resolveConfig from "tailwindcss/resolveConfig.js";
 
+import {
+  DEFAULT_ATTRIBUTE_NAMES,
+  DEFAULT_CALLEE_NAMES,
+  DEFAULT_VARIABLE_NAMES
+} from "readable-tailwind:config:default-config.js";
 import { getCalleeSchema, getClassAttributeSchema, getVariableSchema } from "readable-tailwind:config:descriptions.js";
 import { getLiteralsByESCallExpression, getLiteralsByESVariableDeclarator } from "readable-tailwind:parsers:es.js";
 import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readable-tailwind:parsers:html.js";
