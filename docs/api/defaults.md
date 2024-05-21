@@ -80,7 +80,7 @@ export default [
         ]
       }],
       "readable-tailwind/sort-classes": ["warn", {
-        attributes: [
+        classAttributes: [
           ...getDefaultClassAttributes(),
           [
             "myAttribute", [
