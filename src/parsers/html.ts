@@ -1,15 +1,40 @@
+import {
+  isClassAttributeMatchers,
+  isClassAttributeName,
+  isClassAttributeRegex
+} from "readable-tailwind:utils:matchers.js";
+import { deduplicateLiterals } from "readable-tailwind:utils:utils.js";
+
 import type { AttributeNode, TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
 
 import type { Literal, QuoteMeta } from "readable-tailwind:types:ast.js";
+import type { ClassAttributes } from "readable-tailwind:types:rule.js";
 
+
+export function getLiteralsByHTMLClassAttribute(ctx: Rule.RuleContext, attribute: AttributeNode, classAttributes: ClassAttributes): Literal[] {
+  const literals = classAttributes.reduce<Literal[]>((literals, classAttribute) => {
+    if(isClassAttributeName(classAttribute)){
+      if(classAttribute.toLowerCase() !== attribute.key.value.toLowerCase()){ return literals; }
+      literals.push(...getLiteralsByHTMLAttributeNode(ctx, attribute));
+    } else if(isClassAttributeRegex(classAttribute)){
+      console.warn("Regex not supported in HTML");
+    } else if(isClassAttributeMatchers(classAttribute)){
+      console.warn("Matchers not supported in HTML");
+    }
+
+    return literals;
+  }, []);
+
+  return deduplicateLiterals(literals);
+
+}
 
 export function getAttributesByHTMLTag(ctx: Rule.RuleContext, node: TagNode): AttributeNode[] {
   return node.attributes;
 }
 
-
-export function getLiteralsByHTMLClassAttribute(ctx: Rule.RuleContext, attribute: AttributeNode): Literal[] {
+export function getLiteralsByHTMLAttributeNode(ctx: Rule.RuleContext, attribute: AttributeNode): Literal[] {
 
   const value = attribute.value;
 
