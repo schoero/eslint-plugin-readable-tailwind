@@ -42,12 +42,12 @@ export function getLiteralsByVueClassAttribute(ctx: Rule.RuleContext, attribute:
 
   const literals = classAttributes.reduce<Literal[]>((literals, classAttribute) => {
     if(isClassAttributeName(classAttribute)){
-      if(classAttribute !== attribute.key.name){ return literals; }
+      if(getVueAttributeName(attribute) !== classAttribute.toLowerCase()){ return literals; }
       literals.push(...getLiteralsByVueLiteralNode(ctx, value));
     } else if(isClassAttributeRegex(classAttribute)){
       literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, classAttribute));
     } else if(isClassAttributeMatchers(classAttribute)){
-      if(getVueAttributeName(attribute) !== classAttribute[0]){ return literals; }
+      if(getVueAttributeName(attribute) !== classAttribute[0].toLowerCase()){ return literals; }
       literals.push(...getLiteralsByVueMatchers(ctx, value, classAttribute[1]));
     }
 
@@ -108,12 +108,12 @@ function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLi
 
 function getVueAttributeName(attribute: AST.VAttribute | AST.VDirective): string | undefined {
   if(isVueAttribute(attribute)){
-    return attribute.key.name;
+    return attribute.key.name.toLowerCase();
   }
 
   if(isVueDirective(attribute)){
     if(attribute.key.argument?.type === "VIdentifier"){
-      return `v-${attribute.key.name.name}:${attribute.key.argument.name}`;
+      return `v-${attribute.key.name.name.toLowerCase()}:${attribute.key.argument.name.toLowerCase()}`;
     }
   }
 }

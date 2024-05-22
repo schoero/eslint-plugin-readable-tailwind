@@ -58,12 +58,12 @@ export function getLiteralsBySvelteClassAttribute(ctx: Rule.RuleContext, attribu
 
   const literals = classAttributes.reduce<Literal[]>((literals, classAttribute) => {
     if(isClassAttributeName(classAttribute)){
-      if(classAttribute !== attribute.key.name){ return literals; }
+      if(classAttribute.toLowerCase() !== attribute.key.name.toLowerCase()){ return literals; }
       literals.push(...getLiteralsBySvelteLiteralNode(ctx, value));
     } else if(isClassAttributeRegex(classAttribute)){
       literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, classAttribute));
     } else if(isClassAttributeMatchers(classAttribute)){
-      if(classAttribute[0] !== attribute.key.name){ return literals; }
+      if(classAttribute[0].toLowerCase() !== attribute.key.name.toLowerCase()){ return literals; }
       literals.push(...getLiteralsBySvelteMatchers(ctx, value, classAttribute[1]));
     }
 
