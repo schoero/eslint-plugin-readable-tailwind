@@ -33,6 +33,8 @@ export const DEFAULT_CALLEE_NAMES = [
 ] satisfies Callees;
 
 export const DEFAULT_ATTRIBUTE_NAMES = [
+  "class",
+  "className",
   [
     "class", [
       {

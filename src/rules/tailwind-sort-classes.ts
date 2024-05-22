@@ -180,7 +180,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
           const htmlAttributes = getAttributesByHTMLTag(ctx, htmlNode);
 
           for(const htmlAttribute of htmlAttributes){
-            const literals = getLiteralsByHTMLClassAttribute(ctx, htmlAttribute);
+            const literals = getLiteralsByHTMLClassAttribute(ctx, htmlAttribute, classAttributes);
             lintLiterals(ctx, literals);
           }
         }

@@ -120,7 +120,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
           const htmlAttributes = getAttributesByHTMLTag(ctx, htmlTagNode);
 
           for(const htmlAttribute of htmlAttributes){
-            const literals = getLiteralsByHTMLClassAttribute(ctx, htmlAttribute);
+            const literals = getLiteralsByHTMLClassAttribute(ctx, htmlAttribute, classAttributes);
             lintLiterals(ctx, literals);
           }
         }
