@@ -129,9 +129,15 @@ export const tailwindMultiline: ESLintRule<Options> = {
       // Vue
       if(typeof ctx.sourceCode.parserServices?.defineTemplateBodyVisitor === "function"){
         return {
+          // script tag
           ...callExpression,
           ...variableDeclarators,
-          ...ctx.sourceCode.parserServices.defineTemplateBodyVisitor(vue)
+
+          // bound classes
+          ...ctx.sourceCode.parserServices.defineTemplateBodyVisitor({
+            ...callExpression,
+            ...vue
+          })
         };
       }
 
