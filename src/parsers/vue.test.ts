@@ -2,6 +2,7 @@ import { describe, it } from "node:test";
 
 import { tailwindSortClasses } from "readable-tailwind:rules:tailwind-sort-classes.js";
 import { lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
+import { MatcherType } from "readable-tailwind:types:rule.js";
 
 
 describe(tailwindSortClasses.name, () => {
@@ -58,6 +59,25 @@ describe(tailwindSortClasses.name, () => {
           options: [{ callees: ["defined"], order: "asc" }],
           vue: `<template><img :class="defined('c b a')" /></template>`,
           vueOutput: `<template><img :class="defined('a b c')" /></template>`
+        }
+      ]
+    });
+  });
+
+  it("should automatically prefix bound classes", () => {
+    lint(tailwindSortClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 1,
+          options: [{ classAttributes: [[":custom-class", [{ match: MatcherType.String }]]], order: "asc" }],
+          vue: `<template><img v-bind:custom-class="['c b a']" /></template>`,
+          vueOutput: `<template><img v-bind:custom-class="['a b c']" /></template>`
+        },
+        {
+          errors: 1,
+          options: [{ classAttributes: [["v-bind:custom-class", [{ match: MatcherType.String }]]], order: "asc" }],
+          vue: `<template><img :custom-class="['c b a']" /></template>`,
+          vueOutput: `<template><img :custom-class="['a b c']" /></template>`
         }
       ]
     });
