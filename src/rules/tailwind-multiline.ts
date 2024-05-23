@@ -544,7 +544,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           : fixer.replaceTextRange(literal.range, fixedClasses);
       },
       loc: literal.loc,
-      message: "Missing line wrapping: \"{{ notReadable }}\"."
+      message: "Incorrect line wrapping: \"{{ notReadable }}\"."
     });
 
   }
