@@ -17,7 +17,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 - `group`
 
-  The group separator.
+  Defines how different groups of classes should be separated. A group is a set of classes that share the same modifier/variant.
 
   **Type**: `"emptyLine" | "never" | "newLine"`  
   **Default**: `"emptyLine"`  

@@ -173,7 +173,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
             },
             group: {
               default: getOptions().group,
-              description: "The group separator.",
+              description: "Defines how different groups of classes should be separated. A group is a set of classes that share the same modifier/variant.",
               enum: ["emptyLine", "never", "newLine"],
               type: "string"
             },
