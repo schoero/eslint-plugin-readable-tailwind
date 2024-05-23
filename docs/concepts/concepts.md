@@ -1,6 +1,6 @@
 # Concepts
 
-The [rules](https://github.com/schoero/eslint-plugin-readable-tailwind/tree/feat/matchers?tab=readme-ov-file#rules) of this plugin can't apply to every string literal in your code. They need to know where to look for tailwind classes, otherwise all your string literals would get formatted, which definitely would break your code.
+The [rules](../../README.md#rules) of this plugin can't apply to every string literal in your code. They need to know where to look for tailwind classes, otherwise all your string literals would get formatted, which definitely would break your code.
 
 There are different ways to define where to look for tailwind classes.
 

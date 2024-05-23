@@ -1,5 +1,8 @@
-import { DEFAULT_ATTRIBUTE_NAMES, DEFAULT_CALLEE_NAMES, DEFAULT_VARIABLE_NAMES } from "src/config/default-config.js";
-
+import {
+  DEFAULT_ATTRIBUTE_NAMES,
+  DEFAULT_CALLEE_NAMES,
+  DEFAULT_VARIABLE_NAMES
+} from "readable-tailwind:config:default-config.js";
 import { getCalleeSchema, getClassAttributeSchema, getVariableSchema } from "readable-tailwind:config:descriptions.js";
 import {
   getLiteralsByESCallExpression,
@@ -10,6 +13,7 @@ import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readabl
 import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx.js";
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "readable-tailwind:parsers:vue.js";
+import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
 import { findLineStartPosition, findLiteralStartPosition, splitClasses } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
@@ -116,7 +120,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
           const htmlAttributes = getAttributesByHTMLTag(ctx, htmlTagNode);
 
           for(const htmlAttribute of htmlAttributes){
-            const literals = getLiteralsByHTMLClassAttribute(ctx, htmlAttribute);
+            const literals = getLiteralsByHTMLClassAttribute(ctx, htmlAttribute, classAttributes);
             lintLiterals(ctx, literals);
           }
         }
@@ -125,9 +129,15 @@ export const tailwindMultiline: ESLintRule<Options> = {
       // Vue
       if(typeof ctx.sourceCode.parserServices?.defineTemplateBodyVisitor === "function"){
         return {
+          // script tag
           ...callExpression,
           ...variableDeclarators,
-          ...ctx.sourceCode.parserServices.defineTemplateBodyVisitor(vue)
+
+          // bound classes
+          ...ctx.sourceCode.parserServices.defineTemplateBodyVisitor({
+            ...callExpression,
+            ...vue
+          })
         };
       }
 
@@ -163,7 +173,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
             },
             group: {
               default: getOptions().group,
-              description: "The group separator.",
+              description: "Defines how different groups of classes should be separated. A group is a set of classes that share the same modifier/variant.",
               enum: ["emptyLine", "never", "newLine"],
               type: "string"
             },
@@ -227,6 +237,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       if(
         literal.parent.type === "JSXAttribute" ||
         literal.parent.type === "JSXExpressionContainer" ||
+        literal.parent.type === "ArrayExpression" ||
         literal.parent.type === "Property" ||
         literal.parent.type === "CallExpression" ||
         literal.parent.type === "SvelteMustacheTag" ||
@@ -414,6 +425,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       if(
         literal.parent.type === "JSXAttribute" ||
         literal.parent.type === "JSXExpressionContainer" ||
+        literal.parent.type === "ArrayExpression" ||
         literal.parent.type === "Property" ||
         literal.parent.type === "CallExpression" ||
         literal.parent.type === "SvelteMustacheTag" ||
@@ -532,7 +544,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           : fixer.replaceTextRange(literal.range, fixedClasses);
       },
       loc: literal.loc,
-      message: "Missing line wrapping: \"{{ notReadable }}\"."
+      message: "Incorrect line wrapping: \"{{ notReadable }}\"."
     });
 
   }
@@ -674,7 +686,10 @@ class Line {
       this.meta.openingQuote,
       this.meta.closingBraces,
       this.meta.leadingWhitespace ?? "",
-      this.join(this.classes),
+      escapeNestedQuotes(
+        this.join(this.classes),
+        this.meta.openingQuote ?? "\""
+      ),
       this.meta.trailingWhitespace ?? "",
       this.meta.openingBraces,
       this.meta.closingQuote

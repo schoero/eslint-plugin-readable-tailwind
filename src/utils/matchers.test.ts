@@ -461,4 +461,20 @@ describe("matchers", () => {
     });
   });
 
+  it("should still handle callees even when they are object values", () => {
+    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 1,
+          jsx: "<img class={{ key: defined('  a b c  ')}} />",
+          jsxOutput: "<img class={{ key: defined('a b c')}} />",
+          options: [{
+            callees: [["defined", [{ match: MatcherType.String }]]],
+            classAttributes: [["class", [{ match: MatcherType.ObjectValue }]]]
+          }]
+        }
+      ]
+    });
+  });
+
 });

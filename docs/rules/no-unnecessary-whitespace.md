@@ -21,7 +21,7 @@ Disallow unnecessary whitespace in between and around tailwind classes.
   The name of the attribute that contains the tailwind classes.
 
   **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
-  **Default**: [strings Matcher](../concepts/concepts.md#types-of-matchers) for `"class", "className"`
+  **Default**: [Name](../concepts/concepts.md#name) for `"class"` and [strings Matcher](../concepts/concepts.md#types-of-matchers) for `"class", "className"`
 
 <br/>
 

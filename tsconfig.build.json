@@ -10,6 +10,8 @@
   },
   "include": [
     "src/index.ts",
-    "src/utils/*.cts"
+    "src/utils/*.cts",
+    "src/api/defaults.ts",
+    "src/api/types.ts"
   ]
 }

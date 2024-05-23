@@ -33,6 +33,7 @@ export const DEFAULT_CALLEE_NAMES = [
 ] satisfies Callees;
 
 export const DEFAULT_ATTRIBUTE_NAMES = [
+  "class",
   [
     "class", [
       {
@@ -44,6 +45,16 @@ export const DEFAULT_ATTRIBUTE_NAMES = [
     "className", [
       {
         match: MatcherType.String
+      }
+    ]
+  ],
+  [
+    "v-bind:class", [
+      {
+        match: MatcherType.String
+      },
+      {
+        match: MatcherType.ObjectKey
       }
     ]
   ]

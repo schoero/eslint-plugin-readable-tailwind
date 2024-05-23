@@ -1,7 +1,7 @@
 
 # Defaults
 
-Every [rule](https://github.com/schoero/eslint-plugin-readable-tailwind/tree/feat/matchers?tab=readme-ov-file#rules) can target multiple class attributes, callee names or variable names.
+Every [rule](../../README.md#rules) can target multiple class attributes, callee names or variable names.
 
 Read the [concepts documentation](../concepts/concepts.md) first to learn why this is important and what different options there are to define where to look for tailwind classes.
 
@@ -80,7 +80,7 @@ export default [
         ]
       }],
       "readable-tailwind/sort-classes": ["warn", {
-        attributes: [
+        classAttributes: [
           ...getDefaultClassAttributes(),
           [
             "myAttribute", [

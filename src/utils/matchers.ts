@@ -5,7 +5,7 @@ import {
   isESStringLike,
   isESVariableDeclarator,
   isInsideObjectValue
-} from "readable-tailwind:parsers:es";
+} from "readable-tailwind:parsers:es.js";
 
 import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, Node as ESNode, Program } from "estree";

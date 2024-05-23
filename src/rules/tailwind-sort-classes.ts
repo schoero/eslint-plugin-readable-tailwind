@@ -1,11 +1,15 @@
-import { DEFAULT_ATTRIBUTE_NAMES, DEFAULT_CALLEE_NAMES, DEFAULT_VARIABLE_NAMES } from "src/config/default-config.js";
-
+import {
+  DEFAULT_ATTRIBUTE_NAMES,
+  DEFAULT_CALLEE_NAMES,
+  DEFAULT_VARIABLE_NAMES
+} from "readable-tailwind:config:default-config.js";
 import { getCalleeSchema, getClassAttributeSchema, getVariableSchema } from "readable-tailwind:config:descriptions.js";
 import { getLiteralsByESCallExpression, getLiteralsByESVariableDeclarator } from "readable-tailwind:parsers:es.js";
 import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readable-tailwind:parsers:html.js";
 import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx.js";
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "readable-tailwind:parsers:vue.js";
+import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
 import tailwind from "readable-tailwind:utils:tailwind.cjs";
 import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
@@ -68,15 +72,23 @@ export const tailwindSortClasses: ESLintRule<Options> = {
             sortedClassChunks[i] && classes.push(sortedClassChunks[i]);
           }
 
-          const fixedClasses = [
-            literal.openingQuote ?? "",
-            literal.type === "TemplateLiteral" && literal.closingBraces ? literal.closingBraces : "",
-            unsortableClasses[0],
-            ...classes,
-            unsortableClasses[1],
-            literal.type === "TemplateLiteral" && literal.openingBraces ? literal.openingBraces : "",
-            literal.closingQuote ?? ""
-          ].join("");
+          const escapedClasses = escapeNestedQuotes(
+            [
+              unsortableClasses[0],
+              ...classes,
+              unsortableClasses[1]
+            ].join(""),
+            literal.openingQuote ?? '"'
+          );
+
+          const fixedClasses =
+            [
+              literal.openingQuote ?? "",
+              literal.type === "TemplateLiteral" && literal.closingBraces ? literal.closingBraces : "",
+              escapedClasses,
+              literal.type === "TemplateLiteral" && literal.openingBraces ? literal.openingBraces : "",
+              literal.closingQuote ?? ""
+            ].join("");
 
           if(literal.raw === fixedClasses){
             continue;
@@ -156,7 +168,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
           const htmlAttributes = getAttributesByHTMLTag(ctx, htmlNode);
 
           for(const htmlAttribute of htmlAttributes){
-            const literals = getLiteralsByHTMLClassAttribute(ctx, htmlAttribute);
+            const literals = getLiteralsByHTMLClassAttribute(ctx, htmlAttribute, classAttributes);
             lintLiterals(ctx, literals);
           }
         }
@@ -165,9 +177,15 @@ export const tailwindSortClasses: ESLintRule<Options> = {
       // Vue
       if(typeof ctx.sourceCode.parserServices?.defineTemplateBodyVisitor === "function"){
         return {
+          // script tag
           ...callExpression,
           ...variableDeclarators,
-          ...ctx.sourceCode.parserServices.defineTemplateBodyVisitor(vue)
+
+          // bound classes
+          ...ctx.sourceCode.parserServices.defineTemplateBodyVisitor({
+            ...callExpression,
+            ...vue
+          })
         };
       }
 

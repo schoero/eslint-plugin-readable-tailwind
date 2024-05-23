@@ -33,7 +33,7 @@ export function splitClasses(classes: string): string[] {
 }
 
 export function splitWhitespaces(classes: string): string[] {
-  return classes.split(/[^\s\\]+/);
+  return classes.split(/\S+/);
 }
 
 export function findLineStartPosition(ctx: Rule.RuleContext, node: Node) {

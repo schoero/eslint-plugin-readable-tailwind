@@ -1,5 +1,26 @@
 # Changelog
 
+## v1.5.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.4.0...v1.5.0)
+
+### Features
+
+- Vue bound classes ([#31](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/31))
+
+### Fixes
+
+- Change quotes in multiline arrays ([#32](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/32))
+- Escape nested quotes ([#33](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/33))
+- Allow call expressions as object values ([#34](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/34))
+- Attributes are no longer case sensitive ([#35](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/35))
+- Warn in html matchers ([#36](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/36))
+- Don't treat escape characters as whitespace ([6aa74f8](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/6aa74f8))
+
+### Refactors
+
+- Simplify build system ([#26](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/26), [#29](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/29))
+
 ## v1.4.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.3.2...v1.4.0)

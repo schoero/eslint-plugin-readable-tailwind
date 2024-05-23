@@ -11,11 +11,11 @@ import {
   isVariableName,
   isVariableRegex,
   matchesPathPattern
-} from "readable-tailwind:utils:matchers";
-import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex";
+} from "readable-tailwind:utils:matchers.js";
+import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex.js";
 import { deduplicateLiterals, getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
 
-import type { AST, Rule } from "eslint";
+import type { Rule } from "eslint";
 import type {
   BaseNode as ESBaseNode,
   CallExpression as ESCallExpression,
@@ -141,14 +141,12 @@ export function getLiteralNodesByRegex(ctx: Rule.RuleContext, node: ESNode, rege
 
 export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: ESSimpleStringLiteral): StringLiteral | undefined {
 
-  const token = getTokenByESNode(ctx, node);
+  const raw = node.raw;
+  const content = node.value;
 
-  if(!token || !node.loc || !node.range || !node.parent.loc || !node.parent.range){
+  if(!raw || !node.loc || !node.range || !node.parent.loc || !node.parent.range){
     return;
   }
-
-  const raw = token.value;
-  const content = node.value;
 
   const quotes = getQuotes(raw);
   const whitespaces = getWhitespace(content);
@@ -169,18 +167,16 @@ export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: E
 
 function getLiteralByESTemplateElement(ctx: Rule.RuleContext, node: ESTemplateElement & Rule.Node): TemplateLiteral | undefined {
 
-  const token = getTokenByESNode(ctx, node);
+  const raw = ctx.sourceCode.getText(node);
+  const content = node.value.raw;
 
-  if(!token || !node.loc || !node.range || !node.parent.loc || !node.parent.range){
+  if(!raw || !node.loc || !node.range || !node.parent.loc || !node.parent.range){
     return;
   }
 
-  const raw = token.value;
-  const content = node.value.raw;
-
   const quotes = getQuotes(raw);
   const whitespaces = getWhitespace(content);
-  const braces = getBracesByTemplateToken(ctx, token);
+  const braces = getBracesByString(ctx, raw);
 
   return {
     ...whitespaces,
@@ -235,6 +231,9 @@ export function isESObjectKey(node: Node | ESBaseNode & Rule.NodeParentExtension
 
 export function isInsideObjectValue(node: ESBaseNode & Partial<Rule.NodeParentExtension>) {
   if(!hasESNodeParentExtension(node)){ return false; }
+
+  // Allow call expressions as object values
+  if(isESCallExpression(node)){ return false; }
 
   if(
     node.parent.type === "Property" &&
@@ -295,17 +294,9 @@ export function hasESNodeParentExtension(node: ESBaseNode): node is Rule.Node & 
   return "parent" in node && !!node.parent;
 }
 
-function getTokenByESNode(ctx: Rule.RuleContext, node: ESBaseNode) {
-  return (
-    node.range?.[0]
-      ? ctx.sourceCode.getTokenByRangeStart(node.range[0])
-      : undefined
-  );
-}
-
-function getBracesByTemplateToken(ctx: Rule.RuleContext, token: AST.Token): BracesMeta {
-  const closingBraces = token.value.startsWith("}") ? "}" : undefined;
-  const openingBraces = token.value.endsWith("${") ? "${" : undefined;
+function getBracesByString(ctx: Rule.RuleContext, raw: string): BracesMeta {
+  const closingBraces = raw.startsWith("}") ? "}" : undefined;
+  const openingBraces = raw.endsWith("${") ? "${" : undefined;
 
   return {
     closingBraces,
