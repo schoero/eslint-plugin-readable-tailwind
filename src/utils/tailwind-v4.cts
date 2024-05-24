@@ -62,19 +62,19 @@ function loadTailwindTheme(tailwindThemePath: string) {
   // https://github.com/tailwindlabs/prettier-plugin-tailwindcss/blob/3c9ce4e488c09851be1d5be37940b39679e10c1c/src/config.js#L180
 
   console.log("Loading Tailwind theme from", tailwindThemePath);
-  const code = fs.readFileSync(tailwindThemePath);
 
-  const result = lightningcss.transform({
-    analyzeDependencies: true,
-    code,
-    customAtRules: {
-      // apply: {
-      //   body: "declaration-list"
-      // },
-      // theme: {
-      //   body: "style-block"
-      // }
-    },
+  const dirname = path.dirname(tailwindThemePath);
+
+  const result = lightningcss.bundle({
+    analyzeDependencies: false,
+    // customAtRules: {
+    // apply: {
+    //   body: "declaration-list"
+    // },
+    // theme: {
+    //   body: "style-block"
+    // }
+    // },
     drafts: {
       customMedia: true
     },
@@ -84,8 +84,28 @@ function loadTailwindTheme(tailwindThemePath: string) {
     nonStandard: {
       deepSelectorCombinator: true
     },
-    targets: {
-      safari: 16 << 16 | 4 << 8
+    projectRoot: dirname,
+    visitor: {
+      Rule: {
+        import: rule => {
+          console.log("Import", rule);
+
+          if(rule.value.url === "tailwindcss"){
+            const resolved = tailwind.resolve(dirname, "tailwindcss/theme.css");
+            if(resolved){
+              rule.value.url = resolved;
+            }
+          }
+
+          if(rule.value.url.startsWith(".") || rule.value.url.startsWith("/")){
+            const resolved = tailwind.resolve(dirname, rule.value.url);
+            if(resolved){
+              rule.value.url = resolved;
+            }
+          }
+          return rule;
+        }
+      }
     }
   });
 
@@ -93,64 +113,6 @@ function loadTailwindTheme(tailwindThemePath: string) {
     console.warn(warning);
   }
 
-  if(!result.dependencies){
-    return tailwindcss.__unstable__loadDesignSystem(result.code.toString());
-  }
-
-  const dirname = path.dirname(tailwindThemePath);
-
-  const sortedDependencies = result.dependencies.sort((a, b) => {
-    return a.loc.start.line - b.loc.start.line;
-  });
-
-  const lines = result.code.toString().split("\n");
-
-  let insertLineOffset: number = 0;
-
-  const insertCode = (code: string) => {
-    const insertLines = code.split("\n");
-    lines.splice(insertLineOffset, 0, ...insertLines);
-    insertLineOffset += insertLines.length;
-  };
-
-  for(const dependency of sortedDependencies){
-    if(dependency.type !== "import"){
-      console.warn(
-        "Dependency not resolved",
-        dependency,
-        "Please report this issue at https://github.com/schoero/eslint-plugin-readable-tailwind/issues"
-      );
-      continue;
-    }
-
-    if(dependency.url === "tailwindcss"){
-      const resolved = tailwind.resolve(dirname, "tailwindcss/theme.css");
-
-      if(!resolved){
-        throw new Error("Could not resolve Tailwind dependency");
-      }
-
-      const importedCode = fs.readFileSync(resolved, "utf-8");
-
-      insertCode(importedCode);
-
-      continue;
-
-    }
-
-    const resolved = tailwind.resolve(dirname, dependency.url);
-
-    if(!resolved){
-      console.warn("Could not resolve dependency", dependency.url);
-      continue;
-    }
-
-    const importedCode = fs.readFileSync(resolved, "utf-8");
-
-    insertCode(importedCode);
-
-  }
-
-  return tailwindcss.__unstable__loadDesignSystem(lines.join("\n"));
+  return tailwindcss.__unstable__loadDesignSystem(result.code.toString());
 
 }
