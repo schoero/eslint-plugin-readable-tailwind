@@ -8,14 +8,14 @@ async function build(){
   const cjsDir = "lib/cjs"
 
   console.info("Building ESM...")
-  await $`npx tsc --module preserve --project tsconfig.build.json --outDir ${esmDir}`
+  await $`npx tsc --module preserve --project tsconfig.build.esm.json --outDir ${esmDir}`
   await $`npx tsc-alias --outDir ${esmDir}`
   await writeFile(`${esmDir}/package.json`, JSON.stringify({ type: "module" }), "utf-8")
   await transformImports([`${esmDir}/**/*.cjs`], "tailwindcss3", "tailwindcss")
   await transformImports([`${esmDir}/**/*.cjs`], "tailwindcss4", "tailwindcss")
 
   console.info("Building CJS...")
-  await $`npx tsc --module commonjs --moduleResolution node --project tsconfig.build.json --verbatimModuleSyntax false --outDir ${cjsDir}`
+  await $`npx tsc --module commonjs --moduleResolution node --project tsconfig.build.cjs.json --verbatimModuleSyntax false --outDir ${cjsDir}`
   await $`npx tsc-alias --outDir ${cjsDir}`
   await writeFile(`${cjsDir}/package.json`, JSON.stringify({ type: "commonjs" }),  "utf-8")
   await transformImports([`${cjsDir}/**/*.cjs`], "tailwindcss3", "tailwindcss")

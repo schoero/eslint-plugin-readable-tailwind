@@ -3,7 +3,11 @@ import { describe, test } from "node:test";
 
 import { validate } from "json-schema";
 
-import { getCalleeSchema, getClassAttributeSchema, getVariableSchema } from "readable-tailwind:config:descriptions.js";
+import {
+  getCalleeSchema,
+  getClassAttributeSchema,
+  getVariableSchema
+} from "readable-tailwind:options:descriptions.js";
 import { MatcherType } from "readable-tailwind:types:rule.js";
 
 import type { CalleeOption, ClassAttributeOption, VariableOption } from "readable-tailwind:types:rule.js";
