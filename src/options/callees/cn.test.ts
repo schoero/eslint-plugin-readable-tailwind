@@ -1,16 +1,16 @@
 import { describe, it } from "node:test";
 
-import { CLSX_OBJECT_KEYS, CLSX_STRINGS } from "readable-tailwind:config:callees/clsx.js";
+import { CN_OBJECT_KEYS, CN_STRINGS } from "readable-tailwind:options:callees/cn.js";
 import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
 import { lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
 
 
-describe("clsx", () => {
+describe("cn", () => {
 
   it("should lint strings and strings in arrays", () => {
 
-    const dirty = `clsx(" lint ", [" lint ", " lint "])`;
-    const clean = `clsx("lint", ["lint", "lint"])`;
+    const dirty = `cn(" lint ", [" lint ", " lint "])`;
+    const clean = `cn("lint", ["lint", "lint"])`;
 
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
@@ -18,7 +18,7 @@ describe("clsx", () => {
           errors: 3,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [CLSX_STRINGS] }],
+          options: [{ callees: [CN_STRINGS] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
@@ -32,13 +32,13 @@ describe("clsx", () => {
   it("should lint object keys", () => {
 
     const dirty = `
-      clsx(" ignore ", {
+      cn(" ignore ", {
           " lint ": { " lint ": " ignore " },
         }
       )
     `;
     const clean = `
-      clsx(" ignore ", {
+      cn(" ignore ", {
           "lint": { "lint": " ignore " },
         }
       )
@@ -50,7 +50,7 @@ describe("clsx", () => {
           errors: 2,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [CLSX_OBJECT_KEYS] }],
+          options: [{ callees: [CN_OBJECT_KEYS] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,

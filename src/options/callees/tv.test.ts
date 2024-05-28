@@ -1,40 +1,24 @@
 import { describe, it } from "node:test";
 
-import {
-  CLB_BASE_VALUES,
-  CLB_COMPOUND_VARIANTS_CLASSES,
-  CLB_VARIANT_VALUES
-} from "readable-tailwind:config:callees/clb.js";
+import { TV_COMPOUND_VARIANTS_CLASS, TV_STRINGS, TV_VARIANT_VALUES } from "readable-tailwind:options:callees/tv.js";
 import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
 import { lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
 
 
-describe("clb", () => {
+describe("tv", () => {
 
-  it("should lint object values inside the `base` property", () => {
+  it("should lint strings in arrays", () => {
 
-    const dirty = `
-      clb({
-          base: " lint ",
-          " ignore ": " ignore "
-        }
-      )
-    `;
-    const clean = `
-      clb({
-          base: "lint",
-          " ignore ": " ignore "
-        }
-      )
-    `;
+    const dirty = `tv(" lint ", [" lint ", " lint "])`;
+    const clean = `tv("lint", ["lint", "lint"])`;
 
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
+          errors: 3,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [CLB_BASE_VALUES] }],
+          options: [{ callees: [TV_STRINGS] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
@@ -48,14 +32,14 @@ describe("clb", () => {
   it("should lint object values inside the `variants` property", () => {
 
     const dirty = `
-      clb({
+      tv(" ignore ", {
           variants: { " ignore ": " lint " },
           compoundVariants: { " ignore ": " ignore " }
         }
       )
     `;
     const clean = `
-      clb({
+      tv(" ignore ", {
           variants: { " ignore ": "lint" },
           compoundVariants: { " ignore ": " ignore " }
         }
@@ -68,7 +52,7 @@ describe("clb", () => {
           errors: 1,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [CLB_VARIANT_VALUES] }],
+          options: [{ callees: [TV_VARIANT_VALUES] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
@@ -76,27 +60,28 @@ describe("clb", () => {
         }
       ]
     });
-
   });
 
-  it("should lint only object values inside the `compoundVariants.classes` property", () => {
+  it("should lint only object values inside the `compoundVariants.class` and `compoundVariants.className` property", () => {
 
     const dirty = `
-      clb({
+      tv(" ignore ", {
           variants: { " ignore ": " ignore " },
           compoundVariants: [{ 
             " ignore ": " ignore ",
-            "classes": " lint "
+            "class": " lint ",
+            "className": " lint "
           }]
         }
       )
     `;
     const clean = `
-      clb({
+      tv(" ignore ", {
           variants: { " ignore ": " ignore " },
           compoundVariants: [{ 
             " ignore ": " ignore ",
-            "classes": "lint"
+            "class": "lint",
+            "className": "lint"
           }]
         }
       )
@@ -105,10 +90,10 @@ describe("clb", () => {
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
+          errors: 2,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [CLB_COMPOUND_VARIANTS_CLASSES] }],
+          options: [{ callees: [TV_COMPOUND_VARIANTS_CLASS] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
@@ -119,14 +104,13 @@ describe("clb", () => {
 
   });
 
-  it("should lint all `clb` variations in combination by default", () => {
+  it("should lint all `tv` variations in combination by default", () => {
     const dirty = `
-      clb({
-        base: " lint ",
+      tv([" lint ", " lint "], " lint ", {
         compoundVariants: [
           {
             " ignore ": " ignore ",
-            "classes": " lint "
+            "class": " lint "
           }
         ],
         defaultVariants: {
@@ -145,12 +129,11 @@ describe("clb", () => {
     `;
 
     const clean = `
-      clb({
-        base: "lint",
+      tv(["lint", "lint"], "lint", {
         compoundVariants: [
           {
             " ignore ": " ignore ",
-            "classes": "lint"
+            "class": "lint"
           }
         ],
         defaultVariants: {
@@ -171,7 +154,7 @@ describe("clb", () => {
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 5,
+          errors: 7,
           jsx: dirty,
           jsxOutput: clean,
           svelte: `<script>${dirty}</script>`,

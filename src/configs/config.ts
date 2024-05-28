@@ -7,7 +7,7 @@ import type { ESLint } from "eslint";
 
 const pluginName = "readable-tailwind";
 
-export default {
+export const config = {
   configs: {
     error: {
       plugins: [pluginName],

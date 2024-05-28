@@ -2,8 +2,12 @@ import {
   DEFAULT_ATTRIBUTE_NAMES,
   DEFAULT_CALLEE_NAMES,
   DEFAULT_VARIABLE_NAMES
-} from "readable-tailwind:config:default-config.js";
-import { getCalleeSchema, getClassAttributeSchema, getVariableSchema } from "readable-tailwind:config:descriptions.js";
+} from "readable-tailwind:options:default-options.js";
+import {
+  getCalleeSchema,
+  getClassAttributeSchema,
+  getVariableSchema
+} from "readable-tailwind:options:descriptions.js";
 import {
   getLiteralsByESCallExpression,
   getLiteralsByESVariableDeclarator,
