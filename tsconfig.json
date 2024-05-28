@@ -15,7 +15,8 @@
     "noImplicitAny": false,
     "paths": {
       "readable-tailwind:build:*": ["build/*"],
-      "readable-tailwind:config:*": ["src/config/*"],
+      "readable-tailwind:options:*": ["src/options/*"],
+      "readable-tailwind:configs:*": ["src/configs/*"],
       "readable-tailwind:parsers:*": ["src/parsers/*"],
       "readable-tailwind:rules:*": ["src/rules/*"],
       "readable-tailwind:tests:*": ["tests/*"],

@@ -1,24 +1,24 @@
 import { describe, it } from "node:test";
 
-import { TW_JOIN_STRINGS } from "readable-tailwind:config:callees/twJoin.js";
+import { CTL_STRINGS } from "readable-tailwind:options:callees/ctl.js";
 import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
 import { lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
 
 
-describe("twJoin", () => {
+describe("ctl", () => {
 
-  it("should lint strings and strings in arrays", () => {
+  it("should lint strings", () => {
 
-    const dirty = `twJoin(" lint ", [" lint ", " lint "])`;
-    const clean = `twJoin("lint", ["lint", "lint"])`;
+    const dirty = `ctl(" lint ")`;
+    const clean = `ctl("lint")`;
 
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 3,
+          errors: 1,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [TW_JOIN_STRINGS] }],
+          options: [{ callees: [CTL_STRINGS] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,

@@ -1,7 +1,7 @@
 import { resolve } from "node:path";
 
 import defaultConfig from "tailwindcss/defaultConfig.js";
-import setupContextUtils from "tailwindcss/lib/lib/setupContextUtils.js";
+import * as setupContextUtils from "tailwindcss/lib/lib/setupContextUtils.js";
 import loadConfig from "tailwindcss/loadConfig.js";
 import resolveConfig from "tailwindcss/resolveConfig.js";
 
@@ -9,8 +9,12 @@ import {
   DEFAULT_ATTRIBUTE_NAMES,
   DEFAULT_CALLEE_NAMES,
   DEFAULT_VARIABLE_NAMES
-} from "readable-tailwind:config:default-config.js";
-import { getCalleeSchema, getClassAttributeSchema, getVariableSchema } from "readable-tailwind:config:descriptions.js";
+} from "readable-tailwind:options:default-options.js";
+import {
+  getCalleeSchema,
+  getClassAttributeSchema,
+  getVariableSchema
+} from "readable-tailwind:options:descriptions.js";
 import { getLiteralsByESCallExpression, getLiteralsByESVariableDeclarator } from "readable-tailwind:parsers:es.js";
 import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readable-tailwind:parsers:html.js";
 import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx.js";
@@ -371,7 +375,9 @@ function createTailwindContext(tailwindConfig: ReturnType<typeof resolveConfig>)
     return TAILWIND_CONTEXT_CACHE.get(tailwindConfig)!;
   }
 
-  const context = setupContextUtils.createContext(tailwindConfig);
+  const createContext = setupContextUtils.createContext ?? setupContextUtils.default.createContext;
+
+  const context = createContext(tailwindConfig);
   TAILWIND_CONTEXT_CACHE.set(tailwindConfig, context);
   return context;
 }

@@ -1,16 +1,20 @@
 import { describe, it } from "node:test";
 
-import { TV_COMPOUND_VARIANTS_CLASS, TV_STRINGS, TV_VARIANT_VALUES } from "readable-tailwind:config:callees/tv.js";
+import {
+  CVA_COMPOUND_VARIANTS_CLASS,
+  CVA_STRINGS,
+  CVA_VARIANT_VALUES
+} from "readable-tailwind:options:callees/cva.js";
 import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
 import { lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
 
 
-describe("tv", () => {
+describe("cva", () => {
 
   it("should lint strings in arrays", () => {
 
-    const dirty = `tv(" lint ", [" lint ", " lint "])`;
-    const clean = `tv("lint", ["lint", "lint"])`;
+    const dirty = `cva(" lint ", [" lint ", " lint "])`;
+    const clean = `cva("lint", ["lint", "lint"])`;
 
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
@@ -18,7 +22,7 @@ describe("tv", () => {
           errors: 3,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [TV_STRINGS] }],
+          options: [{ callees: [CVA_STRINGS] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
@@ -32,14 +36,14 @@ describe("tv", () => {
   it("should lint object values inside the `variants` property", () => {
 
     const dirty = `
-      tv(" ignore ", {
+      cva(" ignore ", {
           variants: { " ignore ": " lint " },
           compoundVariants: { " ignore ": " ignore " }
         }
       )
     `;
     const clean = `
-      tv(" ignore ", {
+      cva(" ignore ", {
           variants: { " ignore ": "lint" },
           compoundVariants: { " ignore ": " ignore " }
         }
@@ -52,7 +56,7 @@ describe("tv", () => {
           errors: 1,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [TV_VARIANT_VALUES] }],
+          options: [{ callees: [CVA_VARIANT_VALUES] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
@@ -65,7 +69,7 @@ describe("tv", () => {
   it("should lint only object values inside the `compoundVariants.class` and `compoundVariants.className` property", () => {
 
     const dirty = `
-      tv(" ignore ", {
+      cva(" ignore ", {
           variants: { " ignore ": " ignore " },
           compoundVariants: [{ 
             " ignore ": " ignore ",
@@ -76,7 +80,7 @@ describe("tv", () => {
       )
     `;
     const clean = `
-      tv(" ignore ", {
+      cva(" ignore ", {
           variants: { " ignore ": " ignore " },
           compoundVariants: [{ 
             " ignore ": " ignore ",
@@ -93,7 +97,7 @@ describe("tv", () => {
           errors: 2,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [TV_COMPOUND_VARIANTS_CLASS] }],
+          options: [{ callees: [CVA_COMPOUND_VARIANTS_CLASS] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
@@ -104,9 +108,9 @@ describe("tv", () => {
 
   });
 
-  it("should lint all `tv` variations in combination by default", () => {
+  it("should lint all `cva` variations in combination by default", () => {
     const dirty = `
-      tv([" lint ", " lint "], " lint ", {
+      cva([" lint ", " lint "], " lint ", {
         compoundVariants: [
           {
             " ignore ": " ignore ",
@@ -129,7 +133,7 @@ describe("tv", () => {
     `;
 
     const clean = `
-      tv(["lint", "lint"], "lint", {
+      cva(["lint", "lint"], "lint", {
         compoundVariants: [
           {
             " ignore ": " ignore ",

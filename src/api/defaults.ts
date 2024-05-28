@@ -2,7 +2,7 @@ import {
   DEFAULT_ATTRIBUTE_NAMES,
   DEFAULT_CALLEE_NAMES,
   DEFAULT_VARIABLE_NAMES
-} from "readable-tailwind:config:default-config.js";
+} from "readable-tailwind:options:default-options.js";
 
 
 export function getDefaultCallees() {

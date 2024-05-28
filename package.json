@@ -14,8 +14,8 @@
   },
   "exports": {
     ".": {
-      "import": "./lib/esm/index.js",
-      "require": "./lib/cjs/index.js"
+      "import": "./lib/esm/configs/esm.js",
+      "require": "./lib/cjs/configs/cjs.js"
     },
     "./api/defaults": {
       "import": "./lib/esm/api/defaults.js",
@@ -26,7 +26,7 @@
       "require": "./lib/cjs/api/types.js"
     }
   },
-  "main": "./lib/cjs/index.js",
+  "main": "./lib/cjs/configs/cjs.js",
   "scripts": {
     "build": "tsx build",
     "eslint": "node_modules/eslint/bin/eslint.js .",
