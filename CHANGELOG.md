@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.5.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.5.0...v1.5.1)
+
+### Fixes
+
+- Commonjs build ([#39](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/39))
+
 ## v1.5.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.4.0...v1.5.0)
