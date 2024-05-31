@@ -1,6 +1,8 @@
 # Vue
 
-To lint Vue files you need to install the [vue-eslint-parser](https://github.com/vuejs/vue-eslint-parser).
+To use ESLint with Vue files, first install the [vue-eslint-parser](https://github.com/vuejs/vue-eslint-parser). Then, configure ESLint to use this parser for Vue files.
+
+To enable eslint-plugin-readable-tailwind, you need to add it to the plugins section of your eslint configuration and enable the rules you want to use.
 
 ```sh
 npm i -D vue-eslint-parser
@@ -21,9 +23,12 @@ import eslintParserVue from "vue-eslint-parser";
 
 export default [
   {
+    files: ["**/*.{vue}"],
     languageOptions: {
       parser: eslintParserVue
-    },
+    }
+  },
+  {
     plugins: {
       "readable-tailwind": eslintPluginReadableTailwind
     },

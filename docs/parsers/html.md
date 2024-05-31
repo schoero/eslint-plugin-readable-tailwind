@@ -1,6 +1,8 @@
 # HTML
 
-To lint HTML files you need to install the [@html-eslint/parser](https://github.com/yeonjuan/html-eslint/tree/main/packages/parser).
+To use ESLint with HTML files, first install the [@html-eslint/parser](https://github.com/yeonjuan/html-eslint/tree/main/packages/parser). Then, configure ESLint to use this parser for HTML files.
+
+To enable eslint-plugin-readable-tailwind, you need to add it to the plugins section of your eslint configuration and enable the rules you want to use.
 
 ```sh
 npm i -D @html-eslint/parser
@@ -22,9 +24,12 @@ import eslintParserHTML from "@html-eslint/parser";
 
 export default [
   {
+    files: ["**/*.{html}"],
     languageOptions: {
       parser: eslintParserHTML
-    },
+    }
+  },
+  {
     plugins: {
       "readable-tailwind": eslintPluginReadableTailwind
     },

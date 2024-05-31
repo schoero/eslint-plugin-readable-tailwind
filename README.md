@@ -76,9 +76,12 @@ npm i -D eslint-plugin-readable-tailwind
 
 ### Parsers
 
-Depending on the flavor you are using, you need to install and configure the corresponding parser:
+Depending on the flavor you are using, you may need to install and configure the corresponding parser:
 
-- [JSX/TSX: React, Qwik, Solid etc.](docs/parsers/jsx.md)
+- [JavaScript](docs/parsers/javascript.md)
+- [TypeScript](docs/parsers/typescript.md)
+- [JSX](docs/parsers/jsx.md)
+- [TSX](docs/parsers/tsx.md)
 - [Svelte](docs/parsers/svelte.md)
 - [Vue](docs/parsers/vue.md)
 - [HTML](docs/parsers/html.md)
@@ -131,9 +134,12 @@ These rules are intended to automatically fix the tailwind classes. If you have 
 
 ```jsonc
 {
+  // enable ESLint to fix tailwind classes on save
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
-  }
+  },
+  // optional: if you want to use the new flat config format
+  "eslint.experimental.useFlatConfig": true
 }
 ```
 

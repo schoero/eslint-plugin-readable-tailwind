@@ -1,11 +1,13 @@
-# Svelte
+# TSX
 
-To use ESLint with Svelte files, first install the [svelte-eslint-parser](https://github.com/sveltejs/svelte-eslint-parser). Then, configure ESLint to use this parser for Svelte files.
+To use ESLint with TSX files, first install the [@typescript-eslint/parser](https://typescript-eslint.io/packages/parser). Then, configure ESLint to use this parser for TypeScript files.
+
+In addition, you need to enable `ecmaFeatures.jsx` in the parser options.
 
 To enable eslint-plugin-readable-tailwind, you need to add it to the plugins section of your eslint configuration and enable the rules you want to use.
 
 ```sh
-npm i -D svelte-eslint-parser
+npm i -D @typescript-eslint/parser
 ```
 
 <br/>
@@ -19,16 +21,26 @@ Read more about the new [ESLint flat config format](https://eslint.org/docs/late
 ```js
 // eslint.config.js
 import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
-import eslintParserSvelte from "svelte-eslint-parser";
 
 export default [
   {
-    files: ["**/*.{svelte}"],
+    files: ["**/*.{ts,tsx,cts,mts}"],
     languageOptions: {
-      parser: eslintParserSvelte
+      parser: eslintParserTypeScript,
+      parserOptions: {
+        project: true
+      }
     }
   },
   {
+    files: ["**/*.{jsx,tsx}"],
+    languageOptions: {
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true
+        }
+      }
+    },
     plugins: {
       "readable-tailwind": eslintPluginReadableTailwind
     },
@@ -52,31 +64,23 @@ export default [
 ```jsonc
 // .eslintrc.json
 {
+  "parser": "@typescript-eslint/parser",
   "extends": [
     // enable all recommended rules to warn
     "plugin:readable-tailwind/warning",
     // enable all recommended rules to error
     "plugin:readable-tailwind/error"
   ],
-  "parser": "svelte-eslint-parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": "latest"
+  },
   "plugins": ["readable-tailwind"],
   "rules": {
     // or configure rules individually
     "readable-tailwind/multiline": ["warn", { "printWidth": 100 }]
   }
-}
-```
-
-<br/>
-
-### Editor configuration
-
-#### VSCode
-
-To enable the [VSCode ESLint plugin](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) to validate Svelte files, add the following to your `.vscode/settings.json`:
-
-```jsonc
-{
-  "eslint.validate": [/* ...other formats */, "svelte"]
 }
 ```
