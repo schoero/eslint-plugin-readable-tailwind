@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.5.2
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.5.1...v1.5.2)
+
+### Fixes
+
+- Remove unnecessary plugin import in shared config ([#44](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/44))
+- Support svelte shorthand syntax ([#43](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/43))
+
 ## v1.5.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.5.0...v1.5.1)
