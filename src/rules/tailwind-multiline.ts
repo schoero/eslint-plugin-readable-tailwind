@@ -380,7 +380,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
             lines.line.classCount >= classesPerLine && classesPerLine !== 0
           ){
 
-            // but only if the first class if it is not the first class of a group
+            // but only if it is not the first class of a group
             if(!isFirstClass){
               lines.addLine();
               lines.line.indent();
