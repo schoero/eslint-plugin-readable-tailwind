@@ -23,7 +23,7 @@ import eslintParserSvelte from "svelte-eslint-parser";
 
 export default [
   {
-    files: ["**/*.{svelte}"],
+    files: ["**/*.svelte"],
     languageOptions: {
       parser: eslintParserSvelte
     }

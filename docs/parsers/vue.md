@@ -23,7 +23,7 @@ import eslintParserVue from "vue-eslint-parser";
 
 export default [
   {
-    files: ["**/*.{vue}"],
+    files: ["**/*.vue"],
     languageOptions: {
       parser: eslintParserVue
     }

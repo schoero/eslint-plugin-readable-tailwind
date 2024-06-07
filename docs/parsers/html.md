@@ -24,7 +24,7 @@ import eslintParserHTML from "@html-eslint/parser";
 
 export default [
   {
-    files: ["**/*.{html}"],
+    files: ["**/*.html"],
     languageOptions: {
       parser: eslintParserHTML
     }
