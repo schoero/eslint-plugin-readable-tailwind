@@ -1,6 +1,6 @@
 import { readdirSync } from "node:fs";
 import { normalize } from "node:path";
-import { describe, it, only } from "node:test";
+import { describe, only } from "node:test";
 
 import { RuleTester } from "eslint9";
 import { createTag } from "proper-tags";
@@ -144,7 +144,7 @@ function createRuleTester(options?: any) {
   // @ts-expect-error - Types not yet updated to eslint9
   ruleTester.describe = describe;
   // @ts-expect-error - Types not yet updated to eslint9
-  ruleTester.it = it;
+  ruleTester.itOnly = only;
   // @ts-expect-error - Types not yet updated to eslint9
   ruleTester.itOnly = only;
 
