@@ -17,7 +17,6 @@ export const config = {
       }
     },
     warning: {
-      plugins: [pluginName],
       rules: {
         [`${pluginName}/${tailwindNoUnnecessaryWhitespace.name}`]: "warn",
         [`${pluginName}/${tailwindSortClasses.name}`]: "warn",
