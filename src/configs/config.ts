@@ -10,7 +10,6 @@ const pluginName = "readable-tailwind";
 export const config = {
   configs: {
     error: {
-      plugins: [pluginName],
       rules: {
         [`${pluginName}/${tailwindNoUnnecessaryWhitespace.name}`]: "error",
         [`${pluginName}/${tailwindSortClasses.name}`]: "error",
@@ -18,7 +17,6 @@ export const config = {
       }
     },
     warning: {
-      plugins: [pluginName],
       rules: {
         [`${pluginName}/${tailwindNoUnnecessaryWhitespace.name}`]: "warn",
         [`${pluginName}/${tailwindSortClasses.name}`]: "warn",
