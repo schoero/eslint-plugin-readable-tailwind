@@ -49,10 +49,15 @@ export function getAttributesBySvelteTag(ctx: Rule.RuleContext, node: SvelteStar
 
 export function getLiteralsBySvelteClassAttribute(ctx: Rule.RuleContext, attribute: SvelteAttribute, classAttributes: ClassAttributes): Literal[] {
 
+  // skip shorthand attributes #42
+  if(!Array.isArray(attribute.value)){
+    return [];
+  }
+
   const [value] = attribute.value;
 
   // eslint-disable-next-line eslint-plugin-typescript/no-unnecessary-condition
-  if(!value){ // Empty attribute
+  if(!value){ // empty attribute
     return [];
   }
 
