@@ -1,4 +1,5 @@
 import { tailwindMultiline } from "readable-tailwind:rules:tailwind-multiline.js";
+import { tailwindNoDuplicateClassname } from "readable-tailwind:rules:tailwind-no-duplicate-classes.js";
 import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
 import { tailwindSortClasses } from "readable-tailwind:rules:tailwind-sort-classes.js";
 
@@ -27,6 +28,7 @@ export const config = {
   rules: {
     [tailwindNoUnnecessaryWhitespace.name]: tailwindNoUnnecessaryWhitespace.rule,
     [tailwindSortClasses.name]: tailwindSortClasses.rule,
-    [tailwindMultiline.name]: tailwindMultiline.rule
+    [tailwindMultiline.name]: tailwindMultiline.rule,
+    [tailwindNoDuplicateClassname.name]: tailwindNoDuplicateClassname.rule
   }
 } satisfies ESLint.Plugin;

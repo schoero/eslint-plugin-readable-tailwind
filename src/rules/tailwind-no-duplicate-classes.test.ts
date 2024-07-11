@@ -1,13 +1,13 @@
 import { describe, it } from "node:test";
 
-import { tailwindNoDuplicateClassname } from "readable-tailwind:rules:tailwind-no-duplicate-classname.js";
+import { tailwindNoDuplicateClasses } from "readable-tailwind:rules:tailwind-no-duplicate-classes.js";
 import { createTrimTag, lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
 
 
-describe(tailwindNoDuplicateClassname.name, () => {
+describe(tailwindNoDuplicateClasses.name, () => {
 
   it("should filter all duplicate classes", () => {
-    lint(tailwindNoDuplicateClassname, TEST_SYNTAXES, {
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -25,7 +25,7 @@ describe(tailwindNoDuplicateClassname.name, () => {
   });
 
   it("should keep the quotes as they are", () => {
-    lint(tailwindNoDuplicateClassname, TEST_SYNTAXES, {
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -90,7 +90,7 @@ describe(tailwindNoDuplicateClassname.name, () => {
       
     `;
 
-    lint(tailwindNoDuplicateClassname, TEST_SYNTAXES, {
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -156,7 +156,7 @@ describe(tailwindNoDuplicateClassname.name, () => {
       
     `;
 
-    lint(tailwindNoDuplicateClassname, TEST_SYNTAXES, {
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -168,7 +168,7 @@ describe(tailwindNoDuplicateClassname.name, () => {
       ]
     });
 
-    lint(tailwindNoDuplicateClassname, TEST_SYNTAXES, {
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -180,7 +180,7 @@ describe(tailwindNoDuplicateClassname.name, () => {
       ]
     });
 
-    lint(tailwindNoDuplicateClassname, TEST_SYNTAXES, {
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -208,7 +208,7 @@ describe(tailwindNoDuplicateClassname.name, () => {
     const dirtyStickyExpressionAtEnd = ` c ${dirtyExpression}`;
     const cleanStickyExpressionAtEnd = ` c ${cleanExpression}`;
 
-    lint(tailwindNoDuplicateClassname, TEST_SYNTAXES, {
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 2,
@@ -220,7 +220,7 @@ describe(tailwindNoDuplicateClassname.name, () => {
       ]
     });
 
-    lint(tailwindNoDuplicateClassname, TEST_SYNTAXES, {
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 2,
@@ -233,7 +233,7 @@ describe(tailwindNoDuplicateClassname.name, () => {
       ]
     });
 
-    lint(tailwindNoDuplicateClassname, TEST_SYNTAXES, {
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 2,
@@ -261,7 +261,7 @@ describe(tailwindNoDuplicateClassname.name, () => {
     const dirtyStickyExpressionAtEnd = ` c ${dirtyExpression}`;
     const cleanStickyExpressionAtEnd = ` c ${cleanExpression}`;
 
-    lint(tailwindNoDuplicateClassname, TEST_SYNTAXES, {
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 2,
@@ -273,7 +273,7 @@ describe(tailwindNoDuplicateClassname.name, () => {
       ]
     });
 
-    lint(tailwindNoDuplicateClassname, TEST_SYNTAXES, {
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 2,
@@ -286,7 +286,7 @@ describe(tailwindNoDuplicateClassname.name, () => {
       ]
     });
 
-    lint(tailwindNoDuplicateClassname, TEST_SYNTAXES, {
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 2,
@@ -314,7 +314,7 @@ describe(tailwindNoDuplicateClassname.name, () => {
     const dirtyStickyExpressionAtEnd = `a b a b${dirtyExpression}`;
     const cleanStickyExpressionAtEnd = `a b  b${cleanExpression}`;
 
-    lint(tailwindNoDuplicateClassname, TEST_SYNTAXES, {
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -326,7 +326,7 @@ describe(tailwindNoDuplicateClassname.name, () => {
       ]
     });
 
-    lint(tailwindNoDuplicateClassname, TEST_SYNTAXES, {
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 2,
@@ -339,7 +339,7 @@ describe(tailwindNoDuplicateClassname.name, () => {
       ]
     });
 
-    lint(tailwindNoDuplicateClassname, TEST_SYNTAXES, {
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -359,7 +359,7 @@ describe(tailwindNoDuplicateClassname.name, () => {
     const cleanDefined = "defined('  a b   ');";
     const dirtyUndefined = "notDefined(\"  a b a  \");";
 
-    lint(tailwindNoDuplicateClassname, TEST_SYNTAXES, {
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -382,7 +382,7 @@ describe(tailwindNoDuplicateClassname.name, () => {
       ]
     });
 
-    lint(tailwindNoDuplicateClassname, TEST_SYNTAXES, {
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -452,7 +452,7 @@ describe(tailwindNoDuplicateClassname.name, () => {
     );`;
 
     lint(
-      tailwindNoDuplicateClassname,
+      tailwindNoDuplicateClasses,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -499,7 +499,7 @@ describe(tailwindNoDuplicateClassname.name, () => {
         c
     \`;`;
 
-    lint(tailwindNoDuplicateClassname, TEST_SYNTAXES, {
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,

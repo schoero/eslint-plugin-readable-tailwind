@@ -38,8 +38,8 @@ export type Options = [
   >
 ];
 
-export const tailwindNoDuplicateClassname: ESLintRule<Options> = {
-  name: "no-duplicate-classname" as const,
+export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
+  name: "no-duplicate-classes" as const,
   rule: {
     create(ctx) {
 
@@ -140,7 +140,7 @@ export const tailwindNoDuplicateClassname: ESLintRule<Options> = {
         category: "Stylistic Issues",
         description: "Disallow duplicate class names in tailwind classes.",
         recommended: true,
-        url: "https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/no-duplicate-classname.md"
+        url: "https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/no-duplicate-classes.md"
       },
       fixable: "code",
       schema: [
