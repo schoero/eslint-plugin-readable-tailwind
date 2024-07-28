@@ -174,7 +174,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     const escapedClasses = escapeNestedQuotes(
       classes.join(""),
-      literal.openingQuote ?? "\""
+      literal.openingQuote ?? "`"
     );
 
     const fixedClasses = [

@@ -94,7 +94,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
               ...classes,
               unsortableClasses[1]
             ].join(""),
-            literal.openingQuote ?? '"'
+            literal.openingQuote ?? "`"
           );
 
           const fixedClasses =
