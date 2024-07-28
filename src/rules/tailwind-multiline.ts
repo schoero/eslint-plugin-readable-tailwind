@@ -692,7 +692,7 @@ class Line {
       this.meta.leadingWhitespace ?? "",
       escapeNestedQuotes(
         this.join(this.classes),
-        this.meta.openingQuote ?? "\""
+        this.meta.openingQuote ?? "`"
       ),
       this.meta.trailingWhitespace ?? "",
       this.meta.openingBraces,
