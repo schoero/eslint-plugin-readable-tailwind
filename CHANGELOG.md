@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.5.3
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.5.2...v1.5.3)
+
+### Refactors
+
+- Insertion of unnecessary escape characters ([#47](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/47))
+
 ## v1.5.2
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.5.1...v1.5.2)
