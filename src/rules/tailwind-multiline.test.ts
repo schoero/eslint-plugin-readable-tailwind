@@ -1,4 +1,4 @@
-import { describe, it } from "node:test";
+import { describe, it } from "vitest";
 
 import { tailwindMultiline } from "readable-tailwind:rules:tailwind-multiline.js";
 import { createTrimTag, lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";

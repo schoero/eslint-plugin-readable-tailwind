@@ -28,7 +28,7 @@
   },
   "main": "./lib/cjs/configs/cjs.js",
   "scripts": {
-    "build": "tsx build",
+    "build": "vite-node build",
     "eslint": "node_modules/eslint/bin/eslint.js .",
     "eslint:ci": "npm run eslint -- --max-warnings 0",
     "eslint:fix": "npm run eslint -- --fix",
@@ -53,7 +53,7 @@
     "release:latest": "changelogen --bump --output --no-tag",
     "spellcheck": "cspell lint",
     "spellcheck:ci": "npm run spellcheck -- --no-progress",
-    "test": "glob -c \"node --import tsx --test\" **/*.test.ts",
+    "test": "vitest -c ./vite.config.ts",
     "typecheck": "tsc --noEmit"
   },
   "engines": {
@@ -87,9 +87,8 @@
     "svelte-eslint-parser": "^0.36.0",
     "tailwindcss": "^3.4.3",
     "tsc-alias": "^1.8.10",
-    "tsx": "4.10.0",
-    "typescript": "^5.4.5",
-    "vue-eslint-parser": "^9.4.2"
+    "vite-node": "^2.0.5",
+    "vitest": "^2.0.5",
   },
   "keywords": [
     "eslint",
