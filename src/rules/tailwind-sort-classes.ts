@@ -366,7 +366,7 @@ export function getOptions(ctx?: Rule.RuleContext) {
 }
 
 interface TailwindContext {
-  getClassOrder(classes: string[]): [className: string, order: bigint | null][];
+  getClassOrder: (classes: string[]) => [className: string, order: bigint | null][];
   tailwindConfig: Config;
 }
 
