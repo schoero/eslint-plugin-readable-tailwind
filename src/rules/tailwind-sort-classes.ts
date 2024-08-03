@@ -94,7 +94,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
               ...classes,
               unsortableClasses[1]
             ].join(""),
-            literal.openingQuote ?? '"'
+            literal.openingQuote ?? "`"
           );
 
           const fixedClasses =
@@ -366,7 +366,7 @@ export function getOptions(ctx?: Rule.RuleContext) {
 }
 
 interface TailwindContext {
-  getClassOrder(classes: string[]): [className: string, order: bigint | null][];
+  getClassOrder: (classes: string[]) => [className: string, order: bigint | null][];
   tailwindConfig: Config;
 }
 

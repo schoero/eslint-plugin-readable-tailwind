@@ -1,4 +1,4 @@
-import { describe, it } from "node:test";
+import { describe, it } from "vitest";
 
 import { TV_COMPOUND_VARIANTS_CLASS, TV_STRINGS, TV_VARIANT_VALUES } from "readable-tailwind:options:callees/tv.js";
 import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";

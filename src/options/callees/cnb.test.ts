@@ -1,4 +1,4 @@
-import { describe, it } from "node:test";
+import { describe, it } from "vitest";
 
 import { CNB_OBJECT_KEYS, CNB_STRINGS } from "readable-tailwind:options:callees/cnb.js";
 import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";

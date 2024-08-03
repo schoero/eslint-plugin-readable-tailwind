@@ -1,10 +1,10 @@
 import { readdirSync } from "node:fs";
 import { normalize } from "node:path";
-import { describe, it, only } from "node:test";
 
-import { RuleTester } from "eslint9";
+import { RuleTester } from "eslint";
 import { createTag } from "proper-tags";
 import eslintParserSvelte from "svelte-eslint-parser";
+import { describe, it } from "vitest";
 import eslintParserVue from "vue-eslint-parser";
 
 import eslintParserHTML from "@html-eslint/parser";
@@ -65,7 +65,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
 
       ruleTester.run(eslintRule.name, eslintRule.rule, {
         invalid: [{
-          code: invalid[syntax]!,
+          code: invalid[syntax],
           errors: invalid.errors,
           options: invalid.options ?? [],
           output: invalid[`${syntax}Output`]!
@@ -87,10 +87,11 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
       ruleTester.run(eslintRule.name, eslintRule.rule, {
         invalid: [],
         valid: [{
-          code: valid[syntax]!,
+          code: valid[syntax],
           options: valid.options ?? []
         }]
       });
+
     }
   }
 
@@ -115,12 +116,14 @@ export function withParentNodeExtension(node: ESNode, parent: ESNode = node) {
   for(const key in node){
     if(typeof node[key] === "object" && key !== "parent"){
       if(Array.isArray(node[key])){
-        withParentNodeExtension(node[key], parent);
+        for(const element of node[key]){
+          element.parent = parent;
+          withParentNodeExtension(element);
+        }
       } else {
         node[key].parent = parent;
         withParentNodeExtension(node[key]);
       }
-
     }
   }
   return node;
@@ -140,15 +143,11 @@ function customIndentStripTransformer(count: number) {
 
 function createRuleTester(options?: any) {
   const ruleTester = new RuleTester(options);
-
-  // @ts-expect-error - Types not yet updated to eslint9
   ruleTester.describe = describe;
-  // @ts-expect-error - Types not yet updated to eslint9
   ruleTester.it = it;
-  // @ts-expect-error - Types not yet updated to eslint9
-  ruleTester.itOnly = only;
-
+  ruleTester.itOnly = it.only;
   return ruleTester;
+
 }
 
 export function getFilesInDirectory(importURL: string) {
