@@ -145,7 +145,3 @@ These rules are intended to automatically fix the tailwind classes. If you have 
 
 <br/>
 <br/>
-
-## 🩷 Sponsored by the following awesome people and organizations
-
-*No awesome people or organizations have sponsored this project yet.*
