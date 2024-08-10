@@ -45,6 +45,8 @@ Disallow duplicate classes in tailwindcss class strings.
 <div class="rounded underline" />;
 ```
 
+<br/>
+
 > [!NOTE]
 > This rule is smart. It is able to detect duplicates template literal boundaries.
 
