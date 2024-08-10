@@ -49,7 +49,7 @@ Disallow duplicate classes in tailwindcss class strings.
 > This rule is smart. It is able to detect duplicates template literal boundaries.
 
 ```tsx
-// BAD: duplicate classes in conditional template literal classes and around template elements
+// ❌ BAD: duplicate classes in conditional template literal classes and around template elements
 <div class={`
   underline italic
   ${someCondition === true ? "rounded  underline font-bold" : "rounded underline font-thin"}
@@ -58,7 +58,7 @@ Disallow duplicate classes in tailwindcss class strings.
 ```
 
 ```tsx
-// GOOD: no duplicate classes
+// ✅ GOOD: no duplicate classes
 <div class={`
   underline italic
   ${someCondition === true ? "rounded  font-bold" : "rounded font-thin"}
