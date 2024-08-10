@@ -56,7 +56,7 @@ export function getLiteralsBySvelteClassAttribute(ctx: Rule.RuleContext, attribu
 
   const [value] = attribute.value;
 
-  // eslint-disable-next-line eslint-plugin-typescript/no-unnecessary-condition
+
   if(!value){ // empty attribute
     return [];
   }

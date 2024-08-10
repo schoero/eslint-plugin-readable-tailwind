@@ -67,7 +67,7 @@ export function findMatchingParentNodes(node: ESNode & Partial<Rule.NodeParentEx
   return findMatchingParentNodes(node.parent, matcherFunctions);
 }
 
-function nodeMatches(node: ESNode & Rule.NodeParentExtension, matcherFunctions: MatcherFunctions): boolean {
+function nodeMatches(node: ESNode, matcherFunctions: MatcherFunctions): boolean {
   for(const matcherFunction of matcherFunctions){
     if(matcherFunction(node)){ return true; }
   }

@@ -8,7 +8,13 @@ import {
   getClassAttributeSchema,
   getVariableSchema
 } from "readable-tailwind:options:descriptions.js";
-import { getLiteralsByESCallExpression, getLiteralsByESVariableDeclarator } from "readable-tailwind:parsers:es.js";
+import {
+  getLiteralsByESCallExpression,
+  getLiteralsByESVariableDeclarator,
+  hasESNodeParentExtension,
+  isESCallExpression,
+  isESVariableDeclarator
+} from "readable-tailwind:parsers:es.js";
 import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readable-tailwind:parsers:html.js";
 import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx.js";
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
@@ -18,7 +24,7 @@ import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { CallExpression, Node, VariableDeclarator } from "estree";
+import type { CallExpression, Node as ESNode, VariableDeclarator } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { AST } from "vue-eslint-parser";
@@ -46,7 +52,7 @@ export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
       const { callees, classAttributes, variables } = getOptions(ctx);
 
       const callExpression = {
-        CallExpression(node: Node) {
+        CallExpression(node: ESNode) {
           const callExpressionNode = node as CallExpression;
 
           const literals = getLiteralsByESCallExpression(ctx, callExpressionNode, callees);
@@ -55,7 +61,7 @@ export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
       };
 
       const variableDeclarators = {
-        VariableDeclarator(node: Node) {
+        VariableDeclarator(node: ESNode) {
           const variableDeclaratorNode = node as VariableDeclarator;
 
           const literals = getLiteralsByESVariableDeclarator(ctx, variableDeclaratorNode, variables);
@@ -64,7 +70,7 @@ export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
       };
 
       const jsx = {
-        JSXOpeningElement(node: Node) {
+        JSXOpeningElement(node: ESNode) {
           const jsxNode = node as JSXOpeningElement;
           const jsxAttributes = getAttributesByJSXElement(ctx, jsxNode);
 
@@ -76,7 +82,7 @@ export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
       };
 
       const svelte = {
-        SvelteStartTag(node: Node) {
+        SvelteStartTag(node: ESNode) {
           const svelteNode = node as unknown as SvelteStartTag;
           const svelteAttributes = getAttributesBySvelteTag(ctx, svelteNode);
 
@@ -88,7 +94,7 @@ export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
       };
 
       const vue = {
-        VStartTag(node: Node) {
+        VStartTag(node: ESNode) {
           const vueNode = node as unknown as AST.VStartTag;
           const vueAttributes = getAttributesByVueStartTag(ctx, vueNode);
 
@@ -100,7 +106,7 @@ export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
       };
 
       const html = {
-        Tag(node: Node) {
+        Tag(node: ESNode) {
           const htmlTagNode = node as unknown as TagNode;
           const htmlAttributes = getAttributesByHTMLTag(ctx, htmlTagNode);
 
@@ -170,12 +176,12 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
   for(const literal of literals){
 
-    // duplicates separated by expressions
-    const registerKey = literal.type === "StringLiteral"
-      ? `${literal.loc.start.line}${literal.loc.start.column}`
-      : `${literal.parent.loc.start.line}${literal.parent.loc.start.column}`;
+    const esNode = ctx.sourceCode.getNodeByRangeIndex(literal.range[0]);
+    const parentLiteralNodes = esNode && findParentLiteralNodes(esNode);
+    const parentLiterals = parentLiteralNodes && getLiteralsFromParentLiteralNodes(parentLiteralNodes, literals);
+    const parentClasses = parentLiterals ? getClassesFromLiteralNodes(parentLiterals) : [];
 
-    duplicateRegister[registerKey] ??= { classes: [], duplicates: [] };
+    const duplicates: string[] = [];
 
     const classes = literal.content;
 
@@ -204,13 +210,13 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           continue;
         }
 
-        if(duplicateRegister[registerKey].classes.includes(classChunks[i])){
-          if(!duplicateRegister[registerKey].duplicates.includes(classChunks[i])){
-            duplicateRegister[registerKey].duplicates.push(classChunks[i]);
+        if(parentClasses.includes(classChunks[i])){
+          if(!duplicates.includes(classChunks[i])){
+            duplicates.push(classChunks[i]);
           }
         } else {
           finalChunks.push(classChunks[i]);
-          duplicateRegister[registerKey].classes.push(classChunks[i]);
+          parentClasses.push(classChunks[i]);
         }
       }
 
@@ -235,7 +241,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     ctx.report({
       data: {
-        duplicateClassname: duplicateRegister[registerKey].duplicates.join()
+        duplicateClassname: duplicates.join(", ")
       },
       fix(fixer) {
         return fixer.replaceTextRange(literal.range, fixedClasses);
@@ -248,6 +254,69 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
 }
 
+function findParentLiteralNodes(node: ESNode) {
+
+  if(!hasESNodeParentExtension(node)){ return; }
+
+  const parentLiterals: ESNode[] = [];
+  let currentNode: ESNode = node;
+
+  while(hasESNodeParentExtension(currentNode)){
+    const parent = currentNode.parent;
+
+    if(isESCallExpression(parent)){ break; }
+    if(isESVariableDeclarator(parent)){ break; }
+
+    if(parent.type === "TemplateLiteral"){
+      for(const quasi of parent.quasis){
+        if(quasi.range === node.range){
+          break;
+        }
+
+        if(quasi.type === "TemplateElement"){
+          parentLiterals.push(quasi);
+        }
+      }
+    }
+
+    if(
+      parent.type === "TemplateElement" ||
+      parent.type === "Literal"
+    ){
+      parentLiterals.push(parent);
+    }
+
+    currentNode = parent;
+
+  }
+
+  return parentLiterals;
+
+}
+
+function getLiteralsFromParentLiteralNodes(parentLiteralNodes: ESNode[], literals: Literal[]) {
+  return parentLiteralNodes.map(parentLiteralNode => {
+    return literals.find(literal => literal.range === parentLiteralNode.range);
+  });
+}
+
+function getClassesFromLiteralNodes(literals: (Literal | undefined)[]) {
+  return literals.reduce<string[]>((combinedClasses, literal) => {
+    if(!literal){ return combinedClasses; }
+
+    const classes = literal.content;
+    const split = splitClasses(classes);
+
+    for(const className of split){
+      if(!combinedClasses.includes(className)){
+        combinedClasses.push(className);
+      }
+    }
+
+    return combinedClasses;
+
+  }, []);
+}
 
 function getOptions(ctx?: Rule.RuleContext) {
 

@@ -1,4 +1,4 @@
-import { describe, it } from "node:test";
+import { describe, it } from "vitest";
 
 import { tailwindNoDuplicateClasses } from "readable-tailwind:rules:tailwind-no-duplicate-classes.js";
 import { createTrimTag, lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
@@ -108,6 +108,43 @@ describe(tailwindNoDuplicateClasses.name, () => {
 
   });
 
+  it("should remove duplicate classes around expressions in template literals", () => {
+
+    const trim = createTrimTag(4);
+
+    const dirtyExpression = "${true ? 'true' : 'false'}";
+    const cleanExpression = "${true ? 'true' : 'false'}";
+
+    const dirtyWithExpressions = trim`
+      a
+      b
+      ${dirtyExpression}
+      a
+      c
+    `;
+    const cleanWithExpressions = trim`
+      a
+      b
+      ${cleanExpression}
+      
+      c
+    `;
+
+
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 1,
+          jsx: `() => <img class={\`${dirtyWithExpressions}\`} />`,
+          jsxOutput: `() => <img class={\`${cleanWithExpressions}\`} />`,
+          svelte: `<img class={\`${dirtyWithExpressions}\`} />`,
+          svelteOutput: `<img class={\`${cleanWithExpressions}\`} />`
+        }
+      ]
+    });
+
+  });
+
   it("should remove duplicate classes around template literal elements", () => {
 
     const trim = createTrimTag(4);
@@ -131,16 +168,20 @@ describe(tailwindNoDuplicateClasses.name, () => {
     const dirtyExpressionBetween = trim`
       a
       b
-      ${dirtyExpression}
       a
+      ${dirtyExpression}
+      c
+      b
       c
     `;
     const cleanExpressionBetween = trim`
       a
       b
-      ${cleanExpression}
       
+      ${cleanExpression}
       c
+      
+      
     `;
 
     const dirtyExpressionAtEnd = trim`
@@ -171,7 +212,7 @@ describe(tailwindNoDuplicateClasses.name, () => {
     lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
+          errors: 2,
           jsx: `() => <img class={\`${dirtyExpressionBetween}\`} />`,
           jsxOutput: `() => <img class={\`${cleanExpressionBetween}\`} />`,
           svelte: `<img class={\`${dirtyExpressionBetween}\`} />`,
@@ -197,7 +238,7 @@ describe(tailwindNoDuplicateClasses.name, () => {
   it("should remove duplicate classes inside template literal elements", () => {
 
     const dirtyExpression = "${true ? ' a b a c ' : ' b a b c '}";
-    const cleanExpression = "${true ? ' a b  c ' : ' b a  c '}";
+    const cleanExpression = "${true ? ' a b   ' : ' b a   '}";
 
     const dirtyStickyExpressionAtStart = `${dirtyExpression} c `;
     const cleanStickyExpressionAtStart = `${cleanExpression} c `;
@@ -250,7 +291,7 @@ describe(tailwindNoDuplicateClasses.name, () => {
   it("should remove duplicate classes inside nested template literal elements", () => {
 
     const dirtyExpression = "${true ? ` a b ${false} a c ` : ` b a b c `}";
-    const cleanExpression = "${true ? ` a b ${false}  c ` : ` b a  c `}";
+    const cleanExpression = "${true ? ` a b ${false}   ` : ` b a   `}";
 
     const dirtyStickyExpressionAtStart = `${dirtyExpression} c `;
     const cleanStickyExpressionAtStart = `${cleanExpression} c `;
