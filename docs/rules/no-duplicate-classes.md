@@ -48,7 +48,7 @@ Disallow duplicate classes in tailwindcss class strings.
 <br/>
 
 > [!NOTE]
-> This rule is smart. It is able to detect duplicates template literal boundaries.
+> This rule is smart. It is able to detect duplicates across template literal boundaries.
 
 ```tsx
 // ❌ BAD: duplicate classes in conditional template literal classes and around template elements
