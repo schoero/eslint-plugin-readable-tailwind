@@ -143,8 +143,11 @@ function customIndentStripTransformer(count: number) {
 
 function createRuleTester(options?: any) {
   const ruleTester = new RuleTester(options);
+  // @ts-expect-error - missing types
   ruleTester.describe = describe;
+  // @ts-expect-error - missing types
   ruleTester.it = it;
+  // @ts-expect-error - missing types
   ruleTester.itOnly = it.only;
   return ruleTester;
 

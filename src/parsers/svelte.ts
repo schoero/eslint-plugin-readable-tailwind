@@ -56,7 +56,6 @@ export function getLiteralsBySvelteClassAttribute(ctx: Rule.RuleContext, attribu
 
   const [value] = attribute.value;
 
-
   if(!value){ // empty attribute
     return [];
   }
