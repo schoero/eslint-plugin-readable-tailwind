@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.6.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.6.0...v1.6.1)
+
+### Fixes
+
+- Group type `never` not working with expressions ([#53](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/53))
+
 ## v1.6.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.5.3...v1.6.0)
