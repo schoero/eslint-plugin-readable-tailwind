@@ -258,8 +258,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     leadingTemplateLiteralNewLine: if(literal.type === "TemplateLiteral" && literal.closingBraces){
 
       lines.line.addMeta({
-        closingBraces: literal.closingBraces,
-        leadingWhitespace: literal.leadingWhitespace
+        closingBraces: literal.closingBraces
       });
 
       // skip newline for sticky classes
@@ -276,10 +275,15 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         lines.addLine();
       }
 
-      if(groupSeparator === "emptyLine" || groupSeparator === "newLine"){
+      if(
+        groupSeparator === "emptyLine" ||
+        groupSeparator === "newLine" ||
+        groupSeparator === "never"
+      ){
         lines.addLine();
         lines.line.indent();
       }
+
     }
 
     if(groupedClasses){
@@ -308,7 +312,8 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
             lines.addLine();
           }
 
-          if(groupSeparator === "emptyLine" || groupSeparator === "newLine"){
+          if(
+            groupSeparator === "emptyLine" || groupSeparator === "newLine"){
             lines.addLine();
             lines.line.indent();
           }
@@ -380,8 +385,8 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
             lines.line.classCount >= classesPerLine && classesPerLine !== 0
           ){
 
-            // but only if it is not the first class of a group
-            if(!isFirstClass){
+            // but only if it is not the first class of a group or classes are not grouped
+            if(!isFirstClass || groupSeparator === "never"){
               lines.addLine();
               lines.line.indent();
             }
@@ -399,8 +404,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       if(literal.trailingWhitespace === "" && groupedClasses){
 
         lines.line.addMeta({
-          openingBraces: literal.openingBraces,
-          trailingWhitespace: literal.trailingWhitespace
+          openingBraces: literal.openingBraces
         });
 
         break trailingTemplateLiteralNewLine;
@@ -410,14 +414,17 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         lines.addLine();
       }
 
-      if(groupSeparator === "emptyLine" || groupSeparator === "newLine"){
+      if(
+        groupSeparator === "emptyLine" ||
+        groupSeparator === "newLine" ||
+        groupSeparator === "never"
+      ){
         lines.addLine();
         lines.line.indent();
       }
 
       lines.line.addMeta({
-        openingBraces: literal.openingBraces,
-        trailingWhitespace: literal.trailingWhitespace
+        openingBraces: literal.openingBraces
       });
 
     }
@@ -667,8 +674,8 @@ class Line {
     return this.toString().length;
   }
 
-  public addMeta({ closingBraces, closingQuote, openingBraces, openingQuote }: Meta) {
-    this.meta = { ...this.meta, closingBraces, closingQuote, openingBraces, openingQuote };
+  public addMeta(meta: Meta) {
+    this.meta = { ...this.meta, ...meta };
     return this;
   }
 

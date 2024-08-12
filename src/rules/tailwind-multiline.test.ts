@@ -1084,4 +1084,33 @@ describe(tailwindMultiline.name, () => {
     );
   });
 
+  // #52
+  it("should wrap expressions even if `group` is set to `never`", () => {
+
+    const trim = createTrimTag(4);
+
+    const expression = "${true ? 'b' : 'c'}";
+
+    const correct = trim`
+      a
+      ${expression}
+      d
+    `;
+
+    lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            jsx: `() => <img class={\`${correct}\`} />`,
+            options: [{ group: "never", indent: 2 }],
+            svelte: `<img class={\`${correct}\`} />`
+          }
+        ]
+      }
+    );
+
+  });
+
 });
