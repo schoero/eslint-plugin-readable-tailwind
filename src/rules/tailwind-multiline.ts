@@ -464,8 +464,13 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     // collapse lines if there is no reason for line wrapping or if preferSingleLine is enabled
     collapse:{
 
-      // disallow collapsing if the literal contains expressions or variants, except preferSingleLine is enabled
-      if((groupedClasses?.length !== 1 || literal.openingBraces || literal.closingBraces) && !preferSingleLine){
+      // disallow collapsing if the literal contains variants, except preferSingleLine is enabled
+      if(groupedClasses?.length !== 1 && !preferSingleLine){
+        break collapse;
+      }
+
+      // disallow collapsing for template literals with braces (expressions)
+      if(literal.type === "TemplateLiteral" && (literal.openingBraces || literal.closingBraces)){
         break collapse;
       }
 
@@ -530,9 +535,14 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     }
 
     // skip line wrapping if it is not necessary
-    skip: if(multilineClasses.length === 3){
+    skip:{
 
-      // disallow skipping for template literals with braces
+      // disallow skipping if line count is not 3
+      if(multilineClasses.length !== 3){
+        break skip;
+      }
+
+      // disallow skipping for template literals with braces (expressions)
       if(literal.type === "TemplateLiteral" && (literal.openingBraces || literal.closingBraces)){
         break skip;
       }
