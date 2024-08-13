@@ -24,6 +24,15 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 <br/>
 
+- `preferSingleLine`
+
+  Prefer a single line for different modifiers/variants. When set to `true`, the rule will keep all modifiers/variants on a single line until the line exceeds the `printWidth` or `classesPerLine` limit.
+
+  **Type**: `boolean`  
+  **Default**: `false`  
+
+<br/>
+
 - `indent`
 
   Determines how the code should be indented.
@@ -129,5 +138,19 @@ The following examples show how the rule behaves with different options:
 
   hover:font-bold
   hover:text-opacity-70
+`} />;
+```
+
+```tsx
+// ✅ GOOD: with { preferSingleLine: true, printWidth: 120 }
+<div class="text-black underline focus:font-bold focus:text-opacity-70 hover:font-bold hover:text-opacity-70" />;
+```
+
+```tsx
+// ✅ GOOD: with { preferSingleLine: true, printWidth: 80 }
+<div class={`
+  text-black underline
+  focus:font-bold focus:text-opacity-70
+  hover:font-bold hover:text-opacity-70
 `} />;
 ```
