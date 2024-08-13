@@ -109,11 +109,29 @@ describe(tailwindMultiline.name, () => {
     );
   });
 
+  it("should not clean up whitespace in single line strings", () => {
+    lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            html: `<img class="  a  b  c  " />`,
+            jsx: `() => <img class="  a  b  c  " />`,
+            options: [{ printWidth: 60 }],
+            svelte: `<img class="  a  b  c  " />`,
+            vue: `<template><img class="  a  b  c  " /></template>`
+          }
+        ]
+      }
+    );
+  });
+
   it("should wrap and not collapse short lines containing expressions", () => {
 
     const trim = createTrimTag(4);
 
-    const expression = "${true ? ' true ' : ' false '}";
+    const expression = "${true ? 'true' : 'false'}";
 
     const incorrect = trim`
       a ${expression}
@@ -623,7 +641,7 @@ describe(tailwindMultiline.name, () => {
   it("should wrap expressions correctly", () => {
 
     const trim = createTrimTag(4);
-    const expression = "${true ? ' true ' : ' false '}";
+    const expression = "${true ? 'true' : 'false'}";
 
     const singleLineWithExpressionAtBeginning = `${expression} a b c d e f g h `;
     const multilineWithExpressionAtBeginning = trim`
@@ -709,7 +727,7 @@ describe(tailwindMultiline.name, () => {
   it("should not place expressions on a new line when the expression is not surrounded by a space", () => {
 
     const trim = createTrimTag(4);
-    const expression = "${true ? ' true ' : ' false '}";
+    const expression = "${true ? 'true' : 'false'}";
 
     const singleLineWithExpressionAtBeginningWithStickyClassAtEnd = `${expression}a b c d e f g h `;
     const multilineWithExpressionAtBeginningWithStickyClassAtEnd = trim`
@@ -795,7 +813,7 @@ describe(tailwindMultiline.name, () => {
   it("should not add an unnecessary new line after a sticky class", () => {
 
     const trim = createTrimTag(4);
-    const expression = "${true ? ' true ' : ' false '}";
+    const expression = "${true ? 'true' : 'false'}";
 
     const multilineWithWithStickyClassAtEnd = trim`
       ${expression}a
@@ -810,42 +828,6 @@ describe(tailwindMultiline.name, () => {
             jsx: `() => <img class={\`${multilineWithWithStickyClassAtEnd}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<img class={\`${multilineWithWithStickyClassAtEnd}\`} />`
-          }
-        ]
-      }
-    );
-
-  });
-
-  it("should group correctly", () => {
-
-    const trim = createTrimTag(4);
-
-    const singleLine = "g-1:a g-1:b g-2:a g-2:b g-3:a g-3:b";
-    const multiline = trim`
-      g-1:a g-1:b
-
-      g-2:a g-2:b
-
-      g-3:a g-3:b
-    `;
-
-    lint(
-      tailwindMultiline,
-      TEST_SYNTAXES,
-      {
-        invalid: [
-          {
-            errors: 1,
-            html: `<img class="${singleLine}" />`,
-            htmlOutput: `<img class="${multiline}" />`,
-            jsx: `() => <img class={\`${singleLine}\`} />`,
-            jsxOutput: `() => <img class={\`${multiline}\`} />`,
-            options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<img class="${singleLine}" />`,
-            svelteOutput: `<img class="${multiline}" />`,
-            vue: `<template><img class="${singleLine}" /></template>`,
-            vueOutput: `<template><img class="${multiline}" /></template>`
           }
         ]
       }
@@ -1106,6 +1088,97 @@ describe(tailwindMultiline.name, () => {
             jsx: `() => <img class={\`${correct}\`} />`,
             options: [{ group: "never", indent: 2 }],
             svelte: `<img class={\`${correct}\`} />`
+          }
+        ]
+      }
+    );
+
+  });
+
+  it("should be possible to change group separation by emptyLines", () => {
+    lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            html: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
+            htmlOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
+            jsx: `() => <img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
+            jsxOutput: `() => <img class={\`\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n\`} />`,
+            options: [{ group: "emptyLine", indent: 2 }],
+            svelte: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
+            svelteOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
+            vue: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`,
+            vueOutput: `<template><img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it("should be possible to change group separation to newLine", () => {
+    lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            html: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
+            htmlOutput: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
+            jsx: `() => <img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
+            jsxOutput: `() => <img class={\`\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n\`} />`,
+            options: [{ group: "newLine", indent: 2 }],
+            svelte: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
+            svelteOutput: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
+            vue: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`,
+            vueOutput: `<template><img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it("should be wrap groups according to preferSingleLine", () => {
+    lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            html: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
+            htmlOutput: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
+            jsx: `() => <img class={\`\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n\`} />`,
+            jsxOutput: `() => <img class={\`a b c g-1:a g-1:b g-2:a g-2:b\`} />`,
+            options: [{ group: "newLine", indent: 2, preferSingleLine: true }],
+            svelte: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
+            svelteOutput: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
+            vue: `<template><img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" /></template>`,
+            vueOutput: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`
+          },
+          {
+            errors: 1,
+            html: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
+            htmlOutput: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
+            jsx: `() => <img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
+            jsxOutput: `() => <img class={\`\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n\`} />`,
+            options: [{ classesPerLine: 6, group: "newLine", indent: 2, preferSingleLine: true, printWidth: 0 }],
+            svelte: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
+            svelteOutput: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
+            vue: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`,
+            vueOutput: `<template><img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" /></template>`
+          }
+        ],
+        valid: [
+          {
+            html: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
+            jsx: `() => <img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
+            options: [{ group: "newLine", indent: 2, preferSingleLine: true }],
+            svelte: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
+            vue: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`
           }
         ]
       }
