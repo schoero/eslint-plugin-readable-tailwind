@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.7.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.6.1...v1.7.0)
+
+### Features
+
+- New option `preferSingleLine` ([#54](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/54))
+
 ## v1.6.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.6.0...v1.6.1)
@@ -14,7 +22,7 @@
 
 ### Features
 
-- New rule "no-duplicate-classes" ([#49](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/49))  
+- New rule `no-duplicate-classes` ([#49](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/49))  
   This rule will be enabled by default in v2.0.0. If you want to enable it now, please refer to the [rule documentation](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/no-duplicate-classes.md).  
   You can suggest additional rules in the [discussions](https://github.com/schoero/eslint-plugin-readable-tailwind/discussions/categories/new-rules-or-options?discussions_q=category%3A%22New+rules+or+options%22+).  
 
