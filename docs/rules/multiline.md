@@ -6,6 +6,15 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 ## Options
 
+- `printWidth`
+
+  The maximum line length. Lines are wrapped appropriately to stay within this limit. The value `0` disables line wrapping by `printWidth`.
+
+  **Type**: `number`  
+  **Default**: `80`
+
+<br/>
+
 - `classesPerLine`
 
   The maximum amount of classes per line. Lines are wrapped appropriately to stay within this limit . The value `0` disables line wrapping by `classesPerLine`.
@@ -49,15 +58,6 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
   **Type**: `"windows" | "unix"`  
   **Default**: `"unix"`
-
-<br/>
-
-- `printWidth`
-
-  The maximum line length. Lines are wrapped appropriately to stay within this limit. The value `0` disables line wrapping by `printWidth`.
-
-  **Type**: `number`  
-  **Default**: `80`
 
 <br/>
 
