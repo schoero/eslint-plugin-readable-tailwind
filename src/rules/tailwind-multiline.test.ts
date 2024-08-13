@@ -109,11 +109,29 @@ describe(tailwindMultiline.name, () => {
     );
   });
 
+  it("should not clean up whitespace in single line strings", () => {
+    lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            html: `<img class="  a  b  c  " />`,
+            jsx: `() => <img class="  a  b  c  " />`,
+            options: [{ printWidth: 60 }],
+            svelte: `<img class="  a  b  c  " />`,
+            vue: `<template><img class="  a  b  c  " /></template>`
+          }
+        ]
+      }
+    );
+  });
+
   it("should wrap and not collapse short lines containing expressions", () => {
 
     const trim = createTrimTag(4);
 
-    const expression = "${true ? ' true ' : ' false '}";
+    const expression = "${true ? 'true' : 'false'}";
 
     const incorrect = trim`
       a ${expression}
@@ -623,7 +641,7 @@ describe(tailwindMultiline.name, () => {
   it("should wrap expressions correctly", () => {
 
     const trim = createTrimTag(4);
-    const expression = "${true ? ' true ' : ' false '}";
+    const expression = "${true ? 'true' : 'false'}";
 
     const singleLineWithExpressionAtBeginning = `${expression} a b c d e f g h `;
     const multilineWithExpressionAtBeginning = trim`
@@ -709,7 +727,7 @@ describe(tailwindMultiline.name, () => {
   it("should not place expressions on a new line when the expression is not surrounded by a space", () => {
 
     const trim = createTrimTag(4);
-    const expression = "${true ? ' true ' : ' false '}";
+    const expression = "${true ? 'true' : 'false'}";
 
     const singleLineWithExpressionAtBeginningWithStickyClassAtEnd = `${expression}a b c d e f g h `;
     const multilineWithExpressionAtBeginningWithStickyClassAtEnd = trim`
@@ -795,7 +813,7 @@ describe(tailwindMultiline.name, () => {
   it("should not add an unnecessary new line after a sticky class", () => {
 
     const trim = createTrimTag(4);
-    const expression = "${true ? ' true ' : ' false '}";
+    const expression = "${true ? 'true' : 'false'}";
 
     const multilineWithWithStickyClassAtEnd = trim`
       ${expression}a

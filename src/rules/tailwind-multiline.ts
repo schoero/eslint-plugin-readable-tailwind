@@ -462,9 +462,14 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     }
 
     // collapse lines if there is no reason for line wrapping or if preferSingleLine is enabled
-    collapse: if(multilineClasses.length === 3 || preferSingleLine){
+    collapse:{
 
-      // disallow collapsing if the original literal was a single line
+      // disallow collapsing if the literal contains expressions or variants, except preferSingleLine is enabled
+      if((groupedClasses?.length !== 1 || literal.openingBraces || literal.closingBraces) && !preferSingleLine){
+        break collapse;
+      }
+
+      // disallow collapsing if the original literal was a single line (keeps original whitespace)
       if(!literal.content.includes(getLineBreaks(lineBreakStyle))){
         break collapse;
       }
