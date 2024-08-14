@@ -1,5 +1,5 @@
 {
-  "version": "1.6.0-tailwindcss4.2",
+  "version": "2.0.0-beta.0",
   "type": "module",
   "name": "eslint-plugin-readable-tailwind",
   "description": "auto-wraps tailwind classes after a certain print width or class count into multiple lines to improve readability.",
@@ -28,7 +28,7 @@
   },
   "main": "./lib/cjs/configs/cjs.js",
   "scripts": {
-    "build": "tsx build",
+    "build": "vite-node build",
     "eslint": "node_modules/eslint/bin/eslint.js .",
     "eslint:ci": "npm run eslint -- --max-warnings 0",
     "eslint:fix": "npm run eslint -- --fix",
@@ -42,9 +42,9 @@
     "postrelease:beta": "npm run postrelease",
     "postrelease:latest": "eslint --fix package.json &&  markdownlint-cli2 'CHANGELOG.md'",
     "prebuild": "npm run typecheck && npm run lint && npm run spellcheck",
-    "prerelease:alpha": "npm run test && npm run build",
-    "prerelease:beta": "npm run test && npm run build",
-    "prerelease:latest": "npm run test && npm run build",
+    "prerelease:alpha": "npm run test -- --run && npm run build",
+    "prerelease:beta": "npm run test -- --run && npm run build",
+    "prerelease:latest": "npm run test -- --run && npm run build",
     "publish:alpha": "npm run publish:latest -- --publishTag alpha",
     "publish:beta": "npm run publish:latest -- --publishTag beta",
     "publish:latest": "changelogen gh release && changelogen --publish",
@@ -53,7 +53,7 @@
     "release:latest": "changelogen --bump --output --no-tag",
     "spellcheck": "cspell lint",
     "spellcheck:ci": "npm run spellcheck -- --no-progress",
-    "test": "glob -c \"node --import tsx --test\" **/*.test.ts",
+    "test": "vitest -c ./vite.config.ts",
     "typecheck": "tsc --noEmit"
   },
   "engines": {
@@ -70,31 +70,31 @@
     "lightningcss": "^1.24.1"
   },
   "devDependencies": {
-    "@html-eslint/parser": "^0.24.1",
-    "@schoero/configs": "^1.0.12",
-    "@types/eslint": "^8.56.10",
-    "@types/eslint9": "npm:@types/eslint@^8.56.10",
+    "@html-eslint/parser": "^0.26.0",
+    "@schoero/configs": "^1.0.33",
+    "@types/eslint": "^9.6.0",
     "@types/estree-jsx": "^1.0.5",
-    "@types/node": "^20.12.12",
-    "@typescript-eslint/parser": "^7.10.0",
+    "@types/node": "^22.2.0",
+    "@typescript-eslint/parser": "^8.1.0",
     "changelogen": "^0.5.5",
-    "cspell": "^8.8.2",
+    "cspell": "^8.13.3",
     "es-html-parser": "^0.0.9",
-    "eslint": "^8.57.0",
-    "eslint-plugin-eslint-plugin": "^6.1.0",
-    "eslint9": "npm:eslint@^9.3.0",
-    "glob": "^10.3.16",
+    "eslint": "^9.9.0",
+    "eslint-plugin-eslint-plugin": "^6.2.0",
+    "glob": "^11.0.0",
+    "json-schema": "^0.4.0",
     "markdownlint": "^0.34.0",
     "proper-tags": "^2.0.2",
-    "svelte": "^4.2.17",
-    "svelte-eslint-parser": "^0.36.0",
-    "tailwindcss": "^3.4.3",
+    "svelte": "^4.2.18",
+    "svelte-eslint-parser": "^0.41.0",
+    "tailwindcss": "^3.4.10",
     "tailwindcss3": "npm:tailwindcss@^3.4.3",
     "tailwindcss4": "npm:tailwindcss@^4.0.0-alpha.14",
     "tsc-alias": "^1.8.10",
-    "tsx": "4.10.0",
-    "typescript": "^5.4.5",
-    "vue-eslint-parser": "^9.4.2"
+    "typescript": "^5.5.4",
+    "vite-node": "^2.0.5",
+    "vitest": "^2.0.5",
+    "vue-eslint-parser": "^9.4.3"
   },
   "keywords": [
     "eslint",
@@ -126,6 +126,6 @@
     "tailwind-classes"
   ],
   "volta": {
-    "node": "22.2.0"
+    "node": "22.5.1"
   }
 }

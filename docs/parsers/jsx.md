@@ -1,6 +1,8 @@
-# JSX/TSX
+# JSX
 
-JSX and TSX files are supported out of the box. The only thing you need to do is to enable the `jsx` option in the eslint parser options.
+JSX files are supported out of the box. The only thing you need to do is to enable the `jsx` option in the eslint parser options.
+
+To enable eslint-plugin-readable-tailwind, you need to add it to the plugins section of your eslint configuration and enable the rules you want to use.
 
 <br/>
 

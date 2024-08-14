@@ -1,13 +1,8 @@
-import { ignore, imports, json, markdown, typescript, yaml } from "@schoero/configs/eslint";
+import config from "@schoero/configs/eslint";
 
 
 export default [
-  ...ignore,
-  ...imports,
-  ...json,
-  ...typescript,
-  ...yaml,
-  ...markdown,
+  ...config,
   {
     files: ["**/*.test.{js,jsx,cjs,mjs,ts,tsx}", "**/*.test-d.{ts,tsx}"],
     rules: {

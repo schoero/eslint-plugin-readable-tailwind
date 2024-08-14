@@ -1,6 +1,8 @@
 # Svelte
 
-To lint Svelte files you need to install the [svelte-eslint-parser](https://github.com/sveltejs/svelte-eslint-parser).
+To use ESLint with Svelte files, first install the [svelte-eslint-parser](https://github.com/sveltejs/svelte-eslint-parser). Then, configure ESLint to use this parser for Svelte files.
+
+To enable eslint-plugin-readable-tailwind, you need to add it to the plugins section of your eslint configuration and enable the rules you want to use.
 
 ```sh
 npm i -D svelte-eslint-parser
@@ -22,9 +24,12 @@ import eslintParserSvelte from "svelte-eslint-parser";
 
 export default [
   {
+    files: ["**/*.svelte"],
     languageOptions: {
       parser: eslintParserSvelte
-    },
+    }
+  },
+  {
     plugins: {
       "readable-tailwind": eslintPluginReadableTailwind
     },

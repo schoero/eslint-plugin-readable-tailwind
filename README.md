@@ -25,7 +25,7 @@
 <br/>
 
 ESLint plugin to automatically break up long tailwind class strings into multiple lines based on a specified print width or class count. This improves readability and eliminates horizontal scrolling.  
-It also sorts the classes logically, removes unnecessary whitespaces and groups the classes by their modifiers. It works in jsx, svelte, vue, and html files and is designed to work well with and without prettier.
+It also sorts the classes logically, removes unnecessary whitespaces and groups the classes by their modifiers. It works in jsx, svelte, vue, and html files.
 
 <br/>
 <br/>
@@ -48,8 +48,8 @@ It also sorts the classes logically, removes unnecessary whitespaces and groups 
   </a>
   
   This project is financed by the community.  
-  If you or your company benefit from this project, please consider becoming a sponsor.  
-  Your contribution will help me maintain and develop the project.
+  If you or your company benefit from this project, please consider becoming a sponsor or making a one-time donation.  
+  Your contribution will help me to maintain and develop the project.
 
 </div>
 
@@ -76,9 +76,12 @@ npm i -D eslint-plugin-readable-tailwind
 
 ### Parsers
 
-Depending on the flavor you are using, you need to install and configure the corresponding parser:
+Depending on the flavor you are using, you may need to install and configure the corresponding parser:
 
-- [JSX/TSX: React, Qwik, Solid etc.](docs/parsers/jsx.md)
+- [JavaScript](docs/parsers/javascript.md)
+- [TypeScript](docs/parsers/typescript.md)
+- [JSX](docs/parsers/jsx.md)
+- [TSX](docs/parsers/tsx.md)
 - [Svelte](docs/parsers/svelte.md)
 - [Vue](docs/parsers/vue.md)
 - [HTML](docs/parsers/html.md)
@@ -93,6 +96,7 @@ Depending on the flavor you are using, you need to install and configure the cor
 | [multiline](docs/rules/multiline.md) | Enforce consistent line wrapping for tailwind classes. | ✔ | ✔ | ✔ |
 | [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | ✔ | ✔ | ✔ |
 | [sort-classes](docs/rules/sort-classes.md) | Enforce a consistent order for tailwind classes. | ✔ | ✔ | ✔ |
+| [no-duplicate-classes](docs/rules/no-duplicate-classes.md) | Remove duplicate classes. |   |   | ✔ |
 
 <br/>
 <br/>
@@ -131,15 +135,14 @@ These rules are intended to automatically fix the tailwind classes. If you have 
 
 ```jsonc
 {
+  // enable ESLint to fix tailwind classes on save
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
-  }
+  },
+  // optional: if you want to use the new flat config format
+  "eslint.experimental.useFlatConfig": true
 }
 ```
 
 <br/>
 <br/>
-
-## 🩷 Sponsored by the following awesome people and organizations
-
-*No awesome people or organizations have sponsored this project yet.*

@@ -1,5 +1,4 @@
-import { deepEqual } from "node:assert";
-import { describe, it } from "node:test";
+import { describe, expect, it } from "vitest";
 
 import { DEFAULT_CALLEE_NAMES } from "readable-tailwind:options:default-options.js";
 import { getFilesInDirectory } from "readable-tailwind:tests:utils.js";
@@ -15,7 +14,7 @@ describe("default options", () => {
     const exportedFiles = getFilesInDirectory("./src/options/callees/");
     const fileNames = exportedFiles.map(file => file.replace(".ts", ""));
 
-    deepEqual(callees.sort(), fileNames.sort());
+    expect(callees.sort()).toStrictEqual(fileNames.sort());
 
   });
 

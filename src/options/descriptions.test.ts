@@ -1,7 +1,5 @@
-import { deepEqual } from "node:assert";
-import { describe, test } from "node:test";
-
 import { validate } from "json-schema";
+import { describe, expect, test } from "vitest";
 
 import {
   getCalleeSchema,
@@ -24,8 +22,9 @@ describe("descriptions", () => {
       ]
     } satisfies ClassAttributeOption;
 
-    deepEqual(
-      validate(classAttributes, getClassAttributeSchema(classAttributes)),
+    expect(
+      validate(classAttributes, getClassAttributeSchema(classAttributes))
+    ).toStrictEqual(
       { errors: [], valid: true }
     );
 
@@ -35,8 +34,9 @@ describe("descriptions", () => {
       ]
     } satisfies CalleeOption;
 
-    deepEqual(
-      validate(callees, getCalleeSchema(callees)),
+    expect(
+      validate(callees, getCalleeSchema(callees))
+    ).toStrictEqual(
       { errors: [], valid: true }
     );
 
@@ -47,8 +47,9 @@ describe("descriptions", () => {
       ]
     } satisfies VariableOption;
 
-    deepEqual(
-      validate(variable, getVariableSchema(variable)),
+    expect(
+      validate(variable, getVariableSchema(variable))
+    ).toStrictEqual(
       { errors: [], valid: true }
     );
 
@@ -63,8 +64,9 @@ describe("descriptions", () => {
       ]
     } satisfies ClassAttributeOption;
 
-    deepEqual(
-      validate(classAttributes, getClassAttributeSchema(classAttributes)),
+    expect(
+      validate(classAttributes, getClassAttributeSchema(classAttributes))
+    ).toStrictEqual(
       { errors: [], valid: true }
     );
 
@@ -75,8 +77,9 @@ describe("descriptions", () => {
       ]
     } satisfies CalleeOption;
 
-    deepEqual(
-      validate(callees, getCalleeSchema(callees)),
+    expect(
+      validate(callees, getCalleeSchema(callees))
+    ).toStrictEqual(
       { errors: [], valid: true }
     );
 
@@ -87,8 +90,9 @@ describe("descriptions", () => {
       ]
     } satisfies VariableOption;
 
-    deepEqual(
-      validate(variable, getVariableSchema(variable)),
+    expect(
+      validate(variable, getVariableSchema(variable))
+    ).toStrictEqual(
       { errors: [], valid: true }
     );
 
@@ -116,8 +120,9 @@ describe("descriptions", () => {
       ]
     };
 
-    deepEqual(
-      validate(classAttributes, getClassAttributeSchema(classAttributes)),
+    expect(
+      validate(classAttributes, getClassAttributeSchema(classAttributes))
+    ).toStrictEqual(
       { errors: [], valid: true }
     );
 
@@ -141,8 +146,9 @@ describe("descriptions", () => {
       ]
     };
 
-    deepEqual(
-      validate(callees, getCalleeSchema(callees)),
+    expect(
+      validate(callees, getCalleeSchema(callees))
+    ).toStrictEqual(
       { errors: [], valid: true }
     );
 
@@ -166,8 +172,9 @@ describe("descriptions", () => {
       ]
     };
 
-    deepEqual(
-      validate(variable, getVariableSchema(variable)),
+    expect(
+      validate(variable, getVariableSchema(variable))
+    ).toStrictEqual(
       { errors: [], valid: true }
     );
 

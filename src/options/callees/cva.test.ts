@@ -1,4 +1,4 @@
-import { describe, it } from "node:test";
+import { describe, it } from "vitest";
 
 import {
   CVA_COMPOUND_VARIANTS_CLASS,

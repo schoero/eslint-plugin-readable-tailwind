@@ -1,5 +1,52 @@
 # Changelog
 
+## v1.7.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.6.1...v1.7.0)
+
+### Features
+
+- New option `preferSingleLine` ([#54](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/54))
+
+## v1.6.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.6.0...v1.6.1)
+
+### Fixes
+
+- Group type `never` not working with expressions ([#53](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/53))
+
+## v1.6.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.5.3...v1.6.0)
+
+### Features
+
+- New rule `no-duplicate-classes` ([#49](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/49))  
+  This rule will be enabled by default in v2.0.0. If you want to enable it now, please refer to the [rule documentation](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/no-duplicate-classes.md).  
+  You can suggest additional rules in the [discussions](https://github.com/schoero/eslint-plugin-readable-tailwind/discussions/categories/new-rules-or-options?discussions_q=category%3A%22New+rules+or+options%22+).  
+
+### Refactors
+
+- Revert back to vitest ([38f6eab](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/38f6eab))
+
+## v1.5.3
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.5.2...v1.5.3)
+
+### Refactors
+
+- Insertion of unnecessary escape characters ([#47](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/47))
+
+## v1.5.2
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.5.1...v1.5.2)
+
+### Fixes
+
+- Remove unnecessary plugin import in shared config ([#44](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/44))
+- Support svelte shorthand syntax ([#43](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/43))
+
 ## v1.5.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.5.0...v1.5.1)

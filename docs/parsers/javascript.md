@@ -1,12 +1,8 @@
-# HTML
+# JavaScript
 
-To use ESLint with HTML files, first install the [@html-eslint/parser](https://github.com/yeonjuan/html-eslint/tree/main/packages/parser). Then, configure ESLint to use this parser for HTML files.
+JavaScript files are supported out of the box by eslint.
 
 To enable eslint-plugin-readable-tailwind, you need to add it to the plugins section of your eslint configuration and enable the rules you want to use.
-
-```sh
-npm i -D @html-eslint/parser
-```
 
 <br/>
 
@@ -20,16 +16,7 @@ Read more about the new [ESLint flat config format](https://eslint.org/docs/late
 // eslint.config.js
 import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
 
-import eslintParserHTML from "@html-eslint/parser";
-
-
 export default [
-  {
-    files: ["**/*.html"],
-    languageOptions: {
-      parser: eslintParserHTML
-    }
-  },
   {
     plugins: {
       "readable-tailwind": eslintPluginReadableTailwind
@@ -57,28 +44,13 @@ export default [
   "extends": [
     // enable all recommended rules to warn
     "plugin:readable-tailwind/warning",
-    // enable all recommended rules to error
+    // or enable all recommended rules to error
     "plugin:readable-tailwind/error"
   ],
-  "parser": "@html-eslint/parser",
   "plugins": ["readable-tailwind"],
   "rules": {
     // or configure rules individually
     "readable-tailwind/multiline": ["warn", { "printWidth": 100 }]
   }
-}
-```
-
-<br/>
-
-### Editor configuration
-
-#### VSCode
-
-To enable the [VSCode ESLint plugin](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) to validate HTML files, add the following to your `.vscode/settings.json`:
-
-```jsonc
-{
-  "eslint.validate": [/* ...other formats */, "html"]
 }
 ```

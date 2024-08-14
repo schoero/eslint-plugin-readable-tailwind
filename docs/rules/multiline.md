@@ -6,6 +6,15 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 ## Options
 
+- `printWidth`
+
+  The maximum line length. Lines are wrapped appropriately to stay within this limit. The value `0` disables line wrapping by `printWidth`.
+
+  **Type**: `number`  
+  **Default**: `80`
+
+<br/>
+
 - `classesPerLine`
 
   The maximum amount of classes per line. Lines are wrapped appropriately to stay within this limit . The value `0` disables line wrapping by `classesPerLine`.
@@ -21,6 +30,15 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
   **Type**: `"emptyLine" | "never" | "newLine"`  
   **Default**: `"emptyLine"`  
+
+<br/>
+
+- `preferSingleLine`
+
+  Prefer a single line for different modifiers/variants. When set to `true`, the rule will keep all modifiers/variants on a single line until the line exceeds the `printWidth` or `classesPerLine` limit.
+
+  **Type**: `boolean`  
+  **Default**: `false`  
 
 <br/>
 
@@ -40,15 +58,6 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
   **Type**: `"windows" | "unix"`  
   **Default**: `"unix"`
-
-<br/>
-
-- `printWidth`
-
-  The maximum line length. Lines are wrapped appropriately to stay within this limit. The value `0` disables line wrapping by `printWidth`.
-
-  **Type**: `number`  
-  **Default**: `80`
 
 <br/>
 
@@ -129,5 +138,19 @@ The following examples show how the rule behaves with different options:
 
   hover:font-bold
   hover:text-opacity-70
+`} />;
+```
+
+```tsx
+// ✅ GOOD: with { preferSingleLine: true, printWidth: 120 }
+<div class="text-black underline focus:font-bold focus:text-opacity-70 hover:font-bold hover:text-opacity-70" />;
+```
+
+```tsx
+// ✅ GOOD: with { preferSingleLine: true, printWidth: 80 }
+<div class={`
+  text-black underline
+  focus:font-bold focus:text-opacity-70
+  hover:font-bold hover:text-opacity-70
 `} />;
 ```

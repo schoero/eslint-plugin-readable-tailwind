@@ -1,23 +1,12 @@
 {
 
   // ESLint
-  "[javascript]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
-  },
-  "[json]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
-  },
-  "[json5]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
-  },
-  "[jsonc]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
-  },
-  "[typescript]": {
+  "[javascript][typescript][json][json5][jsonc][yaml]": {
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
   "eslint.nodePath": "node_modules/eslint",
   "eslint.experimental.useFlatConfig": true,
+  "eslint.useFlatConfig": true,
   "eslint.validate": ["javascript", "typescript", "json", "jsonc", "json5", "yaml"],
   "editor.formatOnSave": false,
 
@@ -36,6 +25,9 @@
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "typescript.preferences.importModuleSpecifierEnding": "js",
   "typescript.preferences.useAliasesForRenames": true,
+  "typescript.preferences.autoImportFileExcludePatterns": [
+    "@types/node/test.d.ts"
+  ],
   
   // Markdown
   "[markdown]": {

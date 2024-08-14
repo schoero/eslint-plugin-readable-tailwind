@@ -8,7 +8,13 @@ import {
   getClassAttributeSchema,
   getVariableSchema
 } from "readable-tailwind:options:descriptions.js";
-import { getLiteralsByESCallExpression, getLiteralsByESVariableDeclarator } from "readable-tailwind:parsers:es.js";
+import {
+  getLiteralsByESCallExpression,
+  getLiteralsByESVariableDeclarator,
+  hasESNodeParentExtension,
+  isESCallExpression,
+  isESVariableDeclarator
+} from "readable-tailwind:parsers:es.js";
 import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readable-tailwind:parsers:html.js";
 import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx.js";
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
@@ -18,7 +24,7 @@ import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { CallExpression, Node, VariableDeclarator } from "estree";
+import type { CallExpression, Node as ESNode, VariableDeclarator } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { AST } from "vue-eslint-parser";
@@ -38,15 +44,15 @@ export type Options = [
   >
 ];
 
-export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
-  name: "no-unnecessary-whitespace" as const,
+export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
+  name: "no-duplicate-classes" as const,
   rule: {
     create(ctx) {
 
       const { callees, classAttributes, variables } = getOptions(ctx);
 
       const callExpression = {
-        CallExpression(node: Node) {
+        CallExpression(node: ESNode) {
           const callExpressionNode = node as CallExpression;
 
           const literals = getLiteralsByESCallExpression(ctx, callExpressionNode, callees);
@@ -55,7 +61,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
       };
 
       const variableDeclarators = {
-        VariableDeclarator(node: Node) {
+        VariableDeclarator(node: ESNode) {
           const variableDeclaratorNode = node as VariableDeclarator;
 
           const literals = getLiteralsByESVariableDeclarator(ctx, variableDeclaratorNode, variables);
@@ -64,7 +70,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
       };
 
       const jsx = {
-        JSXOpeningElement(node: Node) {
+        JSXOpeningElement(node: ESNode) {
           const jsxNode = node as JSXOpeningElement;
           const jsxAttributes = getAttributesByJSXElement(ctx, jsxNode);
 
@@ -76,7 +82,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
       };
 
       const svelte = {
-        SvelteStartTag(node: Node) {
+        SvelteStartTag(node: ESNode) {
           const svelteNode = node as unknown as SvelteStartTag;
           const svelteAttributes = getAttributesBySvelteTag(ctx, svelteNode);
 
@@ -88,7 +94,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
       };
 
       const vue = {
-        VStartTag(node: Node) {
+        VStartTag(node: ESNode) {
           const vueNode = node as unknown as AST.VStartTag;
           const vueAttributes = getAttributesByVueStartTag(ctx, vueNode);
 
@@ -100,7 +106,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
       };
 
       const html = {
-        Tag(node: Node) {
+        Tag(node: ESNode) {
           const htmlTagNode = node as unknown as TagNode;
           const htmlAttributes = getAttributesByHTMLTag(ctx, htmlTagNode);
 
@@ -138,20 +144,15 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
     meta: {
       docs: {
         category: "Stylistic Issues",
-        description: "Disallow unnecessary whitespace in tailwind classes.",
+        description: "Disallow duplicate class names in tailwind classes.",
         recommended: true,
-        url: "https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/no-unnecessary-whitespace.md"
+        url: "https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/no-duplicate-classes.md"
       },
-      fixable: "whitespace",
+      fixable: "code",
       schema: [
         {
           additionalProperties: false,
           properties: {
-            allowMultiline: {
-              default: getOptions().allowMultiline,
-              description: "Allow multi-line class declarations. If this option is disabled, template literal strings will be collapsed into a single line string wherever possible. Must be set to `true` when used in combination with [readable-tailwind/multiline](./multiline.md).",
-              type: "boolean"
-            },
             ...getCalleeSchema(getOptions().callees),
             ...getClassAttributeSchema(getOptions().classAttributes),
             ...getVariableSchema(getOptions().variables)
@@ -166,15 +167,64 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
 
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
-  const { allowMultiline } = getOptions(ctx);
+  const duplicateRegister: {
+    [literalPosition: string]: {
+      classes: string[];
+      duplicates: string[];
+    };
+  } = {};
 
   for(const literal of literals){
 
-    const classes = splitClassesKeepWhitespace(literal, allowMultiline);
+    const esNode = ctx.sourceCode.getNodeByRangeIndex(literal.range[0]);
+    const parentLiteralNodes = esNode && findParentLiteralNodes(esNode);
+    const parentLiterals = parentLiteralNodes && getLiteralsFromParentLiteralNodes(parentLiteralNodes, literals);
+    const parentClasses = parentLiterals ? getClassesFromLiteralNodes(parentLiterals) : [];
+
+    const duplicates: string[] = [];
+
+    const classes = literal.content;
+
+    const classChunks = splitClasses(classes);
+    const whitespaceChunks = splitWhitespaces(classes);
+
+    const finalChunks: string[] = [];
+
+    const startsWithWhitespace = whitespaceChunks.length > 0 && whitespaceChunks[0] !== "";
+    const endsWithWhitespace = whitespaceChunks.length > 0 && whitespaceChunks[whitespaceChunks.length - 1] !== "";
+
+    for(let i = 0; i < whitespaceChunks.length; i++){
+
+      if(whitespaceChunks[i]){
+        finalChunks.push(whitespaceChunks[i]);
+      }
+
+      if(classChunks[i]){
+
+        // always push sticky classes without adding to the register
+        if(
+          !startsWithWhitespace && i === 0 && literal.closingBraces ||
+          !endsWithWhitespace && i === classChunks.length - 1 && literal.openingBraces
+        ){
+          finalChunks.push(classChunks[i]);
+          continue;
+        }
+
+        if(parentClasses.includes(classChunks[i])){
+          if(!duplicates.includes(classChunks[i])){
+            duplicates.push(classChunks[i]);
+          }
+        } else {
+          finalChunks.push(classChunks[i]);
+          parentClasses.push(classChunks[i]);
+        }
+      }
+
+    }
 
     const escapedClasses = escapeNestedQuotes(
-      classes.join(""),
-      literal.openingQuote ?? "`"
+      finalChunks.join(""),
+      literal.openingQuote ?? "\""
     );
 
     const fixedClasses = [
@@ -191,61 +241,81 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     ctx.report({
       data: {
-        unnecessaryWhitespace: literal.content
+        duplicateClassname: duplicates.join(", ")
       },
       fix(fixer) {
         return fixer.replaceTextRange(literal.range, fixedClasses);
       },
       loc: literal.loc,
-      message: "Unnecessary whitespace: \"{{ unnecessaryWhitespace }}\"."
+      message: "Duplicate classname: \"{{ duplicateClassname }}\"."
     });
 
   }
 
 }
 
-function splitClassesKeepWhitespace(literal: Literal, allowMultiline: boolean): string[] {
+function findParentLiteralNodes(node: ESNode) {
 
-  const classes = literal.content;
+  if(!hasESNodeParentExtension(node)){ return; }
 
-  const classChunks = splitClasses(classes);
-  const whitespaceChunks = splitWhitespaces(classes);
+  const parentLiterals: ESNode[] = [];
+  let currentNode: ESNode = node;
 
-  const mixedChunks: string[] = [];
+  while(hasESNodeParentExtension(currentNode)){
+    const parent = currentNode.parent;
 
-  if(classChunks.length === 0 && !literal.closingBraces && !literal.openingBraces){
-    return [];
-  }
+    if(isESCallExpression(parent)){ break; }
+    if(isESVariableDeclarator(parent)){ break; }
 
-  while(whitespaceChunks.length > 0 || classChunks.length > 0){
+    if(parent.type === "TemplateLiteral"){
+      for(const quasi of parent.quasis){
+        if(quasi.range === node.range){
+          break;
+        }
 
-    const whitespaceChunk = whitespaceChunks.shift();
-    const classChunk = classChunks.shift();
-
-    const isFirstChunk = mixedChunks.length === 0;
-    const isLastChunk = whitespaceChunks.length === 0 && classChunks.length === 0;
-
-    if(whitespaceChunk){
-      if(whitespaceChunk.includes("\n") && allowMultiline === true){
-        const whitespaceWithoutLeadingSpaces = whitespaceChunk.replace(/^ +/, "");
-        mixedChunks.push(whitespaceWithoutLeadingSpaces);
-      } else {
-        if(!isFirstChunk && !isLastChunk ||
-          literal.type === "TemplateLiteral" && literal.closingBraces && isFirstChunk && !isLastChunk ||
-          literal.type === "TemplateLiteral" && literal.openingBraces && isLastChunk && !isFirstChunk){
-          mixedChunks.push(" ");
+        if(quasi.type === "TemplateElement"){
+          parentLiterals.push(quasi);
         }
       }
     }
 
-    if(classChunk){
-      mixedChunks.push(classChunk);
+    if(
+      parent.type === "TemplateElement" ||
+      parent.type === "Literal"
+    ){
+      parentLiterals.push(parent);
     }
+
+    currentNode = parent;
 
   }
 
-  return mixedChunks;
+  return parentLiterals;
 
+}
+
+function getLiteralsFromParentLiteralNodes(parentLiteralNodes: ESNode[], literals: Literal[]) {
+  return parentLiteralNodes.map(parentLiteralNode => {
+    return literals.find(literal => literal.range === parentLiteralNode.range);
+  });
+}
+
+function getClassesFromLiteralNodes(literals: (Literal | undefined)[]) {
+  return literals.reduce<string[]>((combinedClasses, literal) => {
+    if(!literal){ return combinedClasses; }
+
+    const classes = literal.content;
+    const split = splitClasses(classes);
+
+    for(const className of split){
+      if(!combinedClasses.includes(className)){
+        combinedClasses.push(className);
+      }
+    }
+
+    return combinedClasses;
+
+  }, []);
 }
 
 function getOptions(ctx?: Rule.RuleContext) {
@@ -253,12 +323,10 @@ function getOptions(ctx?: Rule.RuleContext) {
   const options: Options[0] = ctx?.options[0] ?? {};
 
   const classAttributes = options.classAttributes ?? DEFAULT_ATTRIBUTE_NAMES;
-  const allowMultiline = options.allowMultiline ?? true;
   const callees = options.callees ?? DEFAULT_CALLEE_NAMES;
   const variables = options.variables ?? DEFAULT_VARIABLE_NAMES;
 
   return {
-    allowMultiline,
     callees,
     classAttributes,
     variables

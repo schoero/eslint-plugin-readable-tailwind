@@ -39,6 +39,7 @@ export type Options = [
     {
       classesPerLine?: number;
       group?: "emptyLine" | "never" | "newLine";
+      preferSingleLine?: boolean;
       indent?: number | "tab";
       lineBreakStyle?: "unix" | "windows";
       printWidth?: number;
@@ -201,6 +202,11 @@ export const tailwindMultiline: ESLintRule<Options> = {
               enum: ["unix", "windows"],
               type: "string"
             },
+            preferSingleLine: {
+              default: getOptions().preferSingleLine,
+              description: "Prefer a single line for the classes. When set to `true`, the rule will keep all classes on a single line until the line exceeds the `printWidth` or `classesPerLine` limit.",
+              type: "boolean"
+            },
             printWidth: {
               default: getOptions().printWidth,
               description: "The maximum line length. Lines are wrapped appropriately to stay within this limit. The value `0` disables line wrapping by `printWidth`.",
@@ -217,7 +223,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
 
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
-  const { classesPerLine, group: groupSeparator, indent, lineBreakStyle, printWidth } = getOptions(ctx);
+  const { classesPerLine, group: groupSeparator, indent, lineBreakStyle, preferSingleLine, printWidth } = getOptions(ctx);
 
   for(const literal of literals){
 
@@ -235,7 +241,8 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     const classChunks = splitClasses(literal.content);
     const groupedClasses = groupClasses(ctx, classChunks);
 
-    const lines = new Lines(ctx, lineStartPosition);
+    const multilineClasses = new Lines(ctx, lineStartPosition);
+    const singlelineClasses = new Lines(ctx, lineStartPosition);
 
     if(literal.openingQuote){
       if(
@@ -249,17 +256,20 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         literal.parent.type === "ConditionalExpression" ||
         literal.parent.type === "LogicalExpression"
       ){
-        lines.line.addMeta({ openingQuote: "`" });
+        multilineClasses.line.addMeta({ openingQuote: "`" });
       } else {
-        lines.line.addMeta({ openingQuote: literal.openingQuote });
+        multilineClasses.line.addMeta({ openingQuote: literal.openingQuote });
       }
+    }
+
+    if(literal.openingQuote && literal.closingQuote){
+      singlelineClasses.line.addMeta({ closingQuote: literal.closingQuote, openingQuote: literal.openingQuote });
     }
 
     leadingTemplateLiteralNewLine: if(literal.type === "TemplateLiteral" && literal.closingBraces){
 
-      lines.line.addMeta({
-        closingBraces: literal.closingBraces,
-        leadingWhitespace: literal.leadingWhitespace
+      multilineClasses.line.addMeta({
+        closingBraces: literal.closingBraces
       });
 
       // skip newline for sticky classes
@@ -273,13 +283,18 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       }
 
       if(groupSeparator === "emptyLine"){
-        lines.addLine();
+        multilineClasses.addLine();
       }
 
-      if(groupSeparator === "emptyLine" || groupSeparator === "newLine"){
-        lines.addLine();
-        lines.line.indent();
+      if(
+        groupSeparator === "emptyLine" ||
+        groupSeparator === "newLine" ||
+        groupSeparator === "never"
+      ){
+        multilineClasses.addLine();
+        multilineClasses.line.indent();
       }
+
     }
 
     if(groupedClasses){
@@ -298,19 +313,20 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           literal.type === "TemplateLiteral" && !literal.closingBraces ||
           literal.type !== "TemplateLiteral"
         )){
-          lines.addLine();
-          lines.line.indent();
+          multilineClasses.addLine();
+          multilineClasses.line.indent();
         }
 
         if(!isFirstGroup){
 
           if(groupSeparator === "emptyLine"){
-            lines.addLine();
+            multilineClasses.addLine();
           }
 
-          if(groupSeparator === "emptyLine" || groupSeparator === "newLine"){
-            lines.addLine();
-            lines.line.indent();
+          if(
+            groupSeparator === "emptyLine" || groupSeparator === "newLine"){
+            multilineClasses.addLine();
+            multilineClasses.line.indent();
           }
 
         }
@@ -322,7 +338,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
           const className = group.at(i)!;
 
-          const simulatedLine = lines.line
+          const simulatedLine = multilineClasses.line
             .clone()
             .addClass(className)
             .toString();
@@ -331,7 +347,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           if(isFirstClass && literal.leadingWhitespace === "" &&
             literal.type === "TemplateLiteral" && literal.closingBraces){
 
-            lines.line.addClass(className);
+            multilineClasses.line.addClass(className);
 
             // don't add a new line if the first class is also the last
             if(isLastClass){
@@ -339,12 +355,12 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
             }
 
             if(groupSeparator === "emptyLine"){
-              lines.addLine();
+              multilineClasses.addLine();
             }
 
             if(groupSeparator === "emptyLine" || groupSeparator === "newLine"){
-              lines.addLine();
-              lines.line.indent();
+              multilineClasses.addLine();
+              multilineClasses.line.indent();
             }
 
             continue;
@@ -356,20 +372,20 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
             // skip wrapping for the first class of a group
             if(isFirstClass){
-              lines.line.addClass(className);
+              multilineClasses.line.addClass(className);
               continue;
             }
 
             if(groupSeparator === "emptyLine"){
-              lines.addLine();
+              multilineClasses.addLine();
             }
 
             if(groupSeparator === "emptyLine" || groupSeparator === "newLine"){
-              lines.addLine();
-              lines.line.indent();
+              multilineClasses.addLine();
+              multilineClasses.line.indent();
             }
 
-            lines.line.addClass(className);
+            multilineClasses.line.addClass(className);
 
             continue;
           }
@@ -377,17 +393,18 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           // wrap if the length exceeds the limits
           if(
             simulatedLine.length > printWidth && printWidth !== 0 ||
-            lines.line.classCount >= classesPerLine && classesPerLine !== 0
+            multilineClasses.line.classCount >= classesPerLine && classesPerLine !== 0
           ){
 
-            // but only if the first class if it is not the first class of a group
-            if(!isFirstClass){
-              lines.addLine();
-              lines.line.indent();
+            // but only if it is not the first class of a group or classes are not grouped
+            if(!isFirstClass || groupSeparator === "never"){
+              multilineClasses.addLine();
+              multilineClasses.line.indent();
             }
           }
 
-          lines.line.addClass(className);
+          multilineClasses.line.addClass(className);
+          singlelineClasses.line.addClass(className);
 
         }
       }
@@ -398,33 +415,35 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       // skip newline for sticky classes
       if(literal.trailingWhitespace === "" && groupedClasses){
 
-        lines.line.addMeta({
-          openingBraces: literal.openingBraces,
-          trailingWhitespace: literal.trailingWhitespace
+        multilineClasses.line.addMeta({
+          openingBraces: literal.openingBraces
         });
 
         break trailingTemplateLiteralNewLine;
       }
 
       if(groupSeparator === "emptyLine" && groupedClasses){
-        lines.addLine();
+        multilineClasses.addLine();
       }
 
-      if(groupSeparator === "emptyLine" || groupSeparator === "newLine"){
-        lines.addLine();
-        lines.line.indent();
+      if(
+        groupSeparator === "emptyLine" ||
+        groupSeparator === "newLine" ||
+        groupSeparator === "never"
+      ){
+        multilineClasses.addLine();
+        multilineClasses.line.indent();
       }
 
-      lines.line.addMeta({
-        openingBraces: literal.openingBraces,
-        trailingWhitespace: literal.trailingWhitespace
+      multilineClasses.line.addMeta({
+        openingBraces: literal.openingBraces
       });
 
     }
 
     if(literal.closingQuote){
-      lines.addLine();
-      lines.line.indent(lineStartPosition - getIndentation(ctx, indent));
+      multilineClasses.addLine();
+      multilineClasses.line.indent(lineStartPosition - getIndentation(ctx, indent));
 
       if(
         literal.parent.type === "JSXAttribute" ||
@@ -436,27 +455,37 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         literal.parent.type === "VariableDeclarator" ||
         literal.parent.type === "ConditionalExpression" ||
         literal.parent.type === "LogicalExpression"){
-        lines.line.addMeta({ closingQuote: "`" });
+        multilineClasses.line.addMeta({ closingQuote: "`" });
       } else {
-        lines.line.addMeta({ closingQuote: literal.closingQuote });
+        multilineClasses.line.addMeta({ closingQuote: literal.closingQuote });
       }
     }
 
-    // collapse lines if there is no reason for line wrapping
-    collapse: if(lines.length === 3){
+    // collapse lines if there is no reason for line wrapping or if preferSingleLine is enabled
+    collapse:{
 
-      // disallow collapsing if the original literal was a single line
+      // disallow collapsing if the literal contains variants, except preferSingleLine is enabled
+      if(groupedClasses?.length !== 1 && !preferSingleLine){
+        break collapse;
+      }
+
+      // disallow collapsing for template literals with braces (expressions)
+      if(literal.type === "TemplateLiteral" && (literal.openingBraces || literal.closingBraces)){
+        break collapse;
+      }
+
+      // disallow collapsing if the original literal was a single line (keeps original whitespace)
       if(!literal.content.includes(getLineBreaks(lineBreakStyle))){
         break collapse;
       }
 
-      // disallow collapsing if the first line contains more classes than the classesPerLine
-      if(lines.at(1).classCount > classesPerLine && classesPerLine !== 0){
+      // disallow collapsing if the single line contains more classes than the classesPerLine
+      if(singlelineClasses.line.classCount > classesPerLine && classesPerLine !== 0){
         break collapse;
       }
 
-      // disallow collapsing if the first line including the element and all previous characters is longer than the printWidth
-      if(literalStartPosition + lines.at(1).length > printWidth && printWidth !== 0){
+      // disallow collapsing if the single line including the element and all previous characters is longer than the printWidth
+      if(literalStartPosition + singlelineClasses.line.length > printWidth && printWidth !== 0){
         break collapse;
       }
 
@@ -465,13 +494,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         break collapse;
       }
 
-      // add quotes from the first and last line to the second line
-      lines.at(1).addMeta({
-        closingQuote: literal.closingQuote,
-        openingQuote: literal.openingQuote
-      });
-
-      const fixedClasses = lines.at(1).toString(false);
+      const fixedClasses = singlelineClasses.line.toString(false);
 
       if(literal.raw === fixedClasses){
         continue;
@@ -493,16 +516,33 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     }
 
     // skip if class string was empty
-    if(lines.length === 2){
+    if(multilineClasses.length === 2){
       if(!literal.openingBraces && !literal.closingBraces && literal.content.trim() === ""){
         continue;
       }
     }
 
-    // skip line wrapping if it is not necessary
-    skip: if(lines.length === 3){
+    // skip line wrapping if preferSingleLine is enabled and the single line does not exceed the printWidth or classesPerLine
+    if(
+      preferSingleLine &&
+      (
+        literalStartPosition + singlelineClasses.line.length <= printWidth && printWidth !== 0 ||
+        singlelineClasses.line.classCount <= classesPerLine && classesPerLine !== 0
+      ) ||
+      printWidth === 0 && classesPerLine === 0
+    ){
+      continue;
+    }
 
-      // disallow skipping for template literals with braces
+    // skip line wrapping if it is not necessary
+    skip:{
+
+      // disallow skipping if line count is not 3
+      if(multilineClasses.length !== 3){
+        break skip;
+      }
+
+      // disallow skipping for template literals with braces (expressions)
       if(literal.type === "TemplateLiteral" && (literal.openingBraces || literal.closingBraces)){
         break skip;
       }
@@ -510,7 +550,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       const openingQuoteLength = literal.openingQuote?.length ?? 0;
       const closingBracesLength = literal.closingBraces?.length ?? 0;
 
-      const firstLineLength = lines
+      const firstLineLength = multilineClasses
         .at(1)
         .toString()
         .trim()
@@ -524,7 +564,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       }
 
       // disallow skipping if the first line contains more classes than the classesPerLine
-      if(lines.at(1).classCount > classesPerLine && classesPerLine !== 0){
+      if(multilineClasses.at(1).classCount > classesPerLine && classesPerLine !== 0){
         break skip;
       }
 
@@ -532,7 +572,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     }
 
-    const fixedClasses = lines.toString(lineBreakStyle);
+    const fixedClasses = multilineClasses.toString(lineBreakStyle);
 
     if(literal.raw === fixedClasses){
       continue;
@@ -567,6 +607,7 @@ function getOptions(ctx?: Rule.RuleContext) {
   const classesPerLine = options.classesPerLine ?? 0;
   const indent = options.indent ?? 2;
   const group = options.group ?? "emptyLine";
+  const preferSingleLine = options.preferSingleLine ?? false;
 
   const classAttributes = options.classAttributes ?? DEFAULT_ATTRIBUTE_NAMES;
   const callees = options.callees ?? DEFAULT_CALLEE_NAMES;
@@ -580,6 +621,7 @@ function getOptions(ctx?: Rule.RuleContext) {
     group,
     indent,
     lineBreakStyle,
+    preferSingleLine,
     printWidth,
     variables
   };
@@ -667,8 +709,8 @@ class Line {
     return this.toString().length;
   }
 
-  public addMeta({ closingBraces, closingQuote, openingBraces, openingQuote }: Meta) {
-    this.meta = { ...this.meta, closingBraces, closingQuote, openingBraces, openingQuote };
+  public addMeta(meta: Meta) {
+    this.meta = { ...this.meta, ...meta };
     return this;
   }
 
@@ -692,7 +734,7 @@ class Line {
       this.meta.leadingWhitespace ?? "",
       escapeNestedQuotes(
         this.join(this.classes),
-        this.meta.openingQuote ?? "\""
+        this.meta.openingQuote ?? "`"
       ),
       this.meta.trailingWhitespace ?? "",
       this.meta.openingBraces,
