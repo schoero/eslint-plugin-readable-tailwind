@@ -138,9 +138,7 @@ These rules are intended to automatically fix the tailwind classes. If you have 
   // enable ESLint to fix tailwind classes on save
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
-  },
-  // optional: if you want to use the new flat config format
-  "eslint.experimental.useFlatConfig": true
+  }
 }
 ```
 
