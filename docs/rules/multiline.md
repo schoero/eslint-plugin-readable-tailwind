@@ -142,12 +142,12 @@ The following examples show how the rule behaves with different options:
 ```
 
 ```tsx
-// ✅ GOOD: with { preferSingleLine: true, printWidth: 120 }
+// ✅ GOOD: with { group: "newLine", preferSingleLine: true, printWidth: 120 }
 <div class="text-black underline focus:font-bold focus:text-opacity-70 hover:font-bold hover:text-opacity-70" />;
 ```
 
 ```tsx
-// ✅ GOOD: with { preferSingleLine: true, printWidth: 80 }
+// ✅ GOOD: with { group: "newLine", preferSingleLine: true, printWidth: 80 }
 <div class={`
   text-black underline
   focus:font-bold focus:text-opacity-70
