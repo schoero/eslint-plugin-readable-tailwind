@@ -22,6 +22,7 @@ import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
 
 import eslintParserHTML from "@html-eslint/parser";
 
+
 export default [
   {
     files: ["**/*.html"],

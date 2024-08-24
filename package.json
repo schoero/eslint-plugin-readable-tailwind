@@ -1,5 +1,5 @@
 {
-  "version": "1.7.0",
+  "version": "2.0.0-beta.0",
   "type": "module",
   "name": "eslint-plugin-readable-tailwind",
   "description": "auto-wraps tailwind classes after a certain print width or class count into multiple lines to improve readability.",
@@ -64,7 +64,10 @@
   ],
   "peerDependencies": {
     "eslint": "^7.0.0 || ^8.0.0 || ^9.0.0",
-    "tailwindcss": ">=3.3.0"
+    "tailwindcss": "^3.3.0 || ^4.0.0-alpha.14"
+  },
+  "dependencies": {
+    "lightningcss": "^1.24.1"
   },
   "devDependencies": {
     "@html-eslint/parser": "^0.26.0",
@@ -85,6 +88,8 @@
     "svelte": "^4.2.18",
     "svelte-eslint-parser": "^0.41.0",
     "tailwindcss": "^3.4.10",
+    "tailwindcss3": "npm:tailwindcss@^3.4.3",
+    "tailwindcss4": "npm:tailwindcss@^4.0.0-alpha.14",
     "tsc-alias": "^1.8.10",
     "typescript": "^5.5.4",
     "vite-node": "^2.0.5",

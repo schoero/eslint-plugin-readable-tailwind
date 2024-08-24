@@ -10,6 +10,7 @@
   },
   "include": [
     "src/configs/esm.ts",
+    "src/utils/*.cts",
     "src/api/defaults.ts",
     "src/api/types.ts"
   ]
