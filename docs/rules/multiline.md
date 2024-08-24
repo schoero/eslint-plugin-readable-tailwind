@@ -44,7 +44,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 - `indent`
 
-  Determines how the code should be indented.
+  Determines how the code should be indented. A number defines the amount of space characters, and the string `"tab"` will use a single tab character.
 
   **Type**: `number | "tab"`  
   **Default**: `2`
