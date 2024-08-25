@@ -26,7 +26,7 @@
       <img alt="eslint-plugin-readable-tailwind logo" src="https://img.shields.io/npm/v/eslint-plugin-readable-tailwind?style=flat-square&labelColor=EBEEF2B&color=000000">
     </picture>
   </a>
-  <aalt="GitHub issues" href="https://github.com/schoero/eslint-plugin-readable-tailwind/issues">
+  <a alt="GitHub issues" href="https://github.com/schoero/eslint-plugin-readable-tailwind/issues">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/issues/schoero/eslint-plugin-readable-tailwind?style=flat-square&labelColor=32363B&color=ffffff">
       <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/issues/schoero/eslint-plugin-readable-tailwind?style=flat-square&labelColor=EBEEF2&color=000000">
