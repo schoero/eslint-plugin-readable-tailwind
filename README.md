@@ -78,7 +78,7 @@ It also sorts the classes logically, removes unnecessary whitespaces and groups 
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="./assets/sponsor-dark.svg">
       <source media="(prefers-color-scheme: light)" srcset="./assets/sponsor-light.svg">
-      <img alt="eslint-plugin-readable-tailwind logo" src="./assets/sponsor-dark.svg">
+      <img alt="eslint-plugin-readable-tailwind logo" src="./assets/sponsor-light.svg">
     </picture>
   </a>
   
