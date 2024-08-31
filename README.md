@@ -25,7 +25,7 @@
 <br/>
 
 ESLint plugin to automatically break up long tailwind class strings into multiple lines based on a specified print width or class count. This improves readability and eliminates horizontal scrolling.  
-It also sorts the classes logically, removes unnecessary whitespaces and groups the classes by their modifiers. It works in jsx, svelte, vue, and html files.
+In addition it sorts the classes logically, removes unnecessary whitespaces and duplicate classes and groups the classes by their variants. It works in jsx, svelte, vue, and html files.
 
 <br/>
 <br/>
@@ -66,9 +66,8 @@ npm i -D eslint-plugin-readable-tailwind
 
 ## Quick start
 
-1. Check out the [Parsers](#parsers) section below to see how to configure the plugin for your specific flavor.
+1. Follow the [Parsers](#parsers) section below to learn how to configure the plugin for your specific requirements.
 1. Read the [Rules](#rules) section to learn about the available rules and how to configure them.
-1. Read the [Utilities](#utilities) section to see which tailwind utilities are supported out of the box and how to extend the default configuration.
 1. Configure your editor to conveniently [auto-fix on save](#auto-fix-on-save).
 
 <br/>
@@ -78,18 +77,25 @@ npm i -D eslint-plugin-readable-tailwind
 
 Depending on the flavor you are using, you may need to install and configure the corresponding parser:
 
-- [JavaScript](docs/parsers/javascript.md)
-- [TypeScript](docs/parsers/typescript.md)
-- [JSX](docs/parsers/jsx.md)
-- [TSX](docs/parsers/tsx.md)
+- [JSX (React, Solid.js, Qwik)](docs/parsers/jsx.md)
+- [TSX (React, Solid.js, Qwik) with TypeScript support](docs/parsers/tsx.md)
 - [Svelte](docs/parsers/svelte.md)
 - [Vue](docs/parsers/vue.md)
 - [HTML](docs/parsers/html.md)
+- [Plain JavaScript](docs/parsers/javascript.md)
+- [Plain TypeScript](docs/parsers/typescript.md)
 
 <br/>
 <br/>
 
 ### Rules
+
+Two predefined configurations are available that contain the recommended rules:
+
+- `error` - will throw an error if the rule is violated
+- `warning` - will throw a warning if the rule is violated
+  
+The following table shows the available rules and if they are enabled by default in the different configurations:
 
 | Name | Description | `error` | `warning` | autofix |
 | :--- | :--- | :---: | :---: | :---: |
@@ -131,7 +137,7 @@ Read the [API documentation](./docs/api/defaults.md) to learn how to override or
 
 ##### Auto-fix on save
 
-These rules are intended to automatically fix the tailwind classes. If you have installed the [VSCode ESLint plugin](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint), you can configure it to automatically fix the classes on save by adding the following options to your `.vscode/settings.json`:
+All rules are intended to automatically fix the tailwind classes. If you have installed the [VSCode ESLint plugin](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint), you can configure it to automatically fix the classes on save by adding the following options to your `.vscode/settings.json`:
 
 ```jsonc
 {
