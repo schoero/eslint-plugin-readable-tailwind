@@ -1,13 +1,12 @@
 import { readdirSync } from "node:fs";
 import { normalize } from "node:path";
 
+import eslintParserHTML from "@html-eslint/parser";
 import { RuleTester } from "eslint";
 import { createTag } from "proper-tags";
 import eslintParserSvelte from "svelte-eslint-parser";
 import { describe, it } from "vitest";
 import eslintParserVue from "vue-eslint-parser";
-
-import eslintParserHTML from "@html-eslint/parser";
 
 import type { Rule } from "eslint";
 import type { Node as ESNode, Program } from "estree";

@@ -16,7 +16,7 @@ import { deduplicateLiterals } from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { TemplateLiteral as ESTemplateLiteral } from "estree";
-import type { BaseNode as JSXBaseNode, JSXAttribute, JSXExpressionContainer, JSXOpeningElement } from "estree-jsx";
+import type { JSXAttribute, BaseNode as JSXBaseNode, JSXExpressionContainer, JSXOpeningElement } from "estree-jsx";
 
 import type { ESSimpleStringLiteral } from "readable-tailwind:parsers:es.js";
 import type { Literal } from "readable-tailwind:types:ast.js";

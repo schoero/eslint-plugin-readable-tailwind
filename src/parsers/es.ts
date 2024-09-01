@@ -221,7 +221,7 @@ export interface ESSimpleStringLiteral extends Rule.NodeParentExtension, ESSimpl
   value: string;
 }
 
-export function isESObjectKey(node: Node | ESBaseNode & Rule.NodeParentExtension) {
+export function isESObjectKey(node: ESBaseNode & Rule.NodeParentExtension | Node) {
   return (
     node.parent.type === "Property" &&
     node.parent.parent.type === "ObjectExpression" &&

@@ -39,9 +39,9 @@ export type Options = [
     {
       classesPerLine?: number;
       group?: "emptyLine" | "never" | "newLine";
-      preferSingleLine?: boolean;
-      indent?: number | "tab";
+      indent?: "tab" | number;
       lineBreakStyle?: "unix" | "windows";
+      preferSingleLine?: boolean;
       printWidth?: number;
     }
   >
