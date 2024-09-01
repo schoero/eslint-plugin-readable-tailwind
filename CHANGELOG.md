@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.8.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.7.0...v1.8.0)
+
+### Features
+
+- Add support to globally configure shared options across all rules via the settings object ([#56](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/56))
+
 ## v1.7.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.6.1...v1.7.0)
