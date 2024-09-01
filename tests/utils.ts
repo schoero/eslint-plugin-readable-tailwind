@@ -72,7 +72,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
           errors: invalid.errors,
           options: invalid.options ?? [],
           output: invalid[`${syntax}Output`]!,
-          settings: invalid.settings
+          settings: invalid.settings ?? {}
         }],
         valid: []
       });
@@ -93,7 +93,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
         valid: [{
           code: valid[syntax],
           options: valid.options ?? [],
-          settings: valid.settings
+          settings: valid.settings ?? {}
         }]
       });
 
