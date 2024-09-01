@@ -1,5 +1,7 @@
 # Settings
 
+## Table of Contents
+
 - [classAttributes](#classattributes)
 - [callees](#callees)
 - [variables](#variables)
