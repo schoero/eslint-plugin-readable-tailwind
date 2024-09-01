@@ -322,9 +322,20 @@ function getOptions(ctx?: Rule.RuleContext) {
 
   const options: Options[0] = ctx?.options[0] ?? {};
 
-  const classAttributes = options.classAttributes ?? DEFAULT_ATTRIBUTE_NAMES;
-  const callees = options.callees ?? DEFAULT_CALLEE_NAMES;
-  const variables = options.variables ?? DEFAULT_VARIABLE_NAMES;
+  const classAttributes = options.classAttributes ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.classAttributes ??
+    ctx?.settings["readable-tailwind"]?.classAttributes ??
+    DEFAULT_ATTRIBUTE_NAMES;
+
+  const callees = options.callees ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.callees ??
+    ctx?.settings["readable-tailwind"]?.callees ??
+    DEFAULT_CALLEE_NAMES;
+
+  const variables = options.variables ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.variables ??
+    ctx?.settings["readable-tailwind"]?.variables ??
+    DEFAULT_VARIABLE_NAMES;
 
   return {
     callees,

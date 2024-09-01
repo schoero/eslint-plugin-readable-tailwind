@@ -9,6 +9,7 @@ import eslintParserVue from "vue-eslint-parser";
 
 import eslintParserHTML from "@html-eslint/parser";
 
+import type { Rule } from "eslint";
 import type { Node as ESNode, Program } from "estree";
 
 import type { ESLintRule, MatcherFunction } from "readable-tailwind:types:rule.js";
@@ -42,6 +43,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
         errors: number;
       } & {
         options?: Rule["options"];
+        settings?: Rule["settings"];
       }
     )[];
     valid?: (
@@ -49,6 +51,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
         [Key in keyof Syntaxes]?: string;
       } & {
         options?: Rule["options"];
+        settings?: Rule["settings"];
       }
     )[];
   }
@@ -57,7 +60,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
   for(const invalid of tests.invalid ?? []){
     for(const syntax of Object.keys(syntaxes)){
 
-      const ruleTester = createRuleTester(syntaxes[syntax]);
+      const ruleTester = createRuleTester(syntaxes[syntax], invalid.settings);
 
       if(!invalid[syntax] || !invalid[`${syntax}Output`]){
         continue;
@@ -68,7 +71,8 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
           code: invalid[syntax],
           errors: invalid.errors,
           options: invalid.options ?? [],
-          output: invalid[`${syntax}Output`]!
+          output: invalid[`${syntax}Output`]!,
+          settings: invalid.settings ?? {}
         }],
         valid: []
       });
@@ -78,7 +82,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
   for(const valid of tests.valid ?? []){
     for(const syntax of Object.keys(syntaxes)){
 
-      const ruleTester = createRuleTester(syntaxes[syntax]);
+      const ruleTester = createRuleTester(syntaxes[syntax], valid.settings);
 
       if(!valid[syntax]){
         continue;
@@ -88,7 +92,8 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
         invalid: [],
         valid: [{
           code: valid[syntax],
-          options: valid.options ?? []
+          options: valid.options ?? [],
+          settings: valid.settings ?? {}
         }]
       });
 
@@ -141,7 +146,7 @@ function customIndentStripTransformer(count: number) {
   };
 }
 
-function createRuleTester(options?: any) {
+function createRuleTester(options: any, settings?: Rule.RuleContext["settings"]) {
   const ruleTester = new RuleTester(options);
   // @ts-expect-error - missing types
   ruleTester.describe = describe;

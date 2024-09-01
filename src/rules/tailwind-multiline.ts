@@ -609,9 +609,21 @@ function getOptions(ctx?: Rule.RuleContext) {
   const group = options.group ?? "emptyLine";
   const preferSingleLine = options.preferSingleLine ?? false;
 
-  const classAttributes = options.classAttributes ?? DEFAULT_ATTRIBUTE_NAMES;
-  const callees = options.callees ?? DEFAULT_CALLEE_NAMES;
-  const variables = options.variables ?? DEFAULT_VARIABLE_NAMES;
+  const classAttributes = options.classAttributes ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.classAttributes ??
+    ctx?.settings["readable-tailwind"]?.classAttributes ??
+    DEFAULT_ATTRIBUTE_NAMES;
+
+  const callees = options.callees ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.callees ??
+    ctx?.settings["readable-tailwind"]?.callees ??
+    DEFAULT_CALLEE_NAMES;
+
+  const variables = options.variables ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.variables ??
+    ctx?.settings["readable-tailwind"]?.variables ??
+    DEFAULT_VARIABLE_NAMES;
+
   const lineBreakStyle = options.lineBreakStyle ?? "unix";
 
   return {

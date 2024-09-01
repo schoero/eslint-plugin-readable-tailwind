@@ -64,4 +64,5 @@ export interface ESLintRule<Options extends any[] = [any]> {
   name: string;
   rule: Rule.RuleModule;
   options?: Options;
+  settings?: Rule.RuleContext["settings"];
 }
