@@ -69,7 +69,6 @@
   "devDependencies": {
     "@html-eslint/parser": "^0.26.0",
     "@schoero/configs": "^1.1.1",
-    "@types/eslint": "^9.6.1",
     "@types/estree-jsx": "^1.0.5",
     "@types/node": "^22.5.2",
     "@typescript-eslint/parser": "^8.3.0",
