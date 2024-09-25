@@ -82,6 +82,11 @@ In addition it sorts the classes logically, removes unnecessary whitespaces and 
     </picture>
   </a>
   
+  <br/>
+  <br/>
+  
+  [Buy me a coffee](https://buymeacoffee.com/schoero) | [GitHub Sponsors](https://github.com/sponsors/schoero)
+  
   This project is financed by the community.  
   If you or your company benefit from this project, please consider becoming a sponsor or making a one-time donation.  
   Your contribution will help me to maintain and develop the project.
