@@ -21,7 +21,7 @@ import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "reada
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "readable-tailwind:parsers:vue.js";
 import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
-import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
+import { display, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
@@ -112,13 +112,14 @@ export const tailwindSortClasses: ESLintRule<Options> = {
 
           ctx.report({
             data: {
-              notSorted: literal.content
+              notSorted: display(literal.raw),
+              sorted: display(fixedClasses)
             },
             fix(fixer) {
               return fixer.replaceTextRange(literal.range, fixedClasses);
             },
             loc: literal.loc,
-            message: "Incorrect class order: \"{{ notSorted }}\"."
+            message: "Incorrect class order. Expected\n\n{{ notSorted }}\n\nto be\n\n{{ sorted }}"
           });
 
         }

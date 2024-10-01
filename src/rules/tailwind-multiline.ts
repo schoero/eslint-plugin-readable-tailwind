@@ -18,7 +18,12 @@ import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "reada
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "readable-tailwind:parsers:vue.js";
 import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
-import { findLineStartPosition, findLiteralStartPosition, splitClasses } from "readable-tailwind:utils:utils.js";
+import {
+  display,
+  findLineStartPosition,
+  findLiteralStartPosition,
+  splitClasses
+} from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
@@ -502,13 +507,14 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
       ctx.report({
         data: {
-          notReadable: literal.content
+          notReadable: display(literal.raw),
+          readable: display(fixedClasses)
         },
         fix(fixer) {
           return fixer.replaceTextRange(literal.range, fixedClasses);
         },
         loc: literal.loc,
-        message: "Unnecessary line wrapping: \"{{ notReadable }}\"."
+        message: "Unnecessary line wrapping. Expected\n\n{{ notReadable }}\n\nto be\n\n{{ readable }}"
       });
 
       return;
@@ -580,7 +586,8 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     ctx.report({
       data: {
-        notReadable: literal.content
+        notReadable: display(literal.raw),
+        readable: display(fixedClasses)
       },
       fix(fixer) {
         return literal.parent.type === "JSXAttribute"
@@ -588,7 +595,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           : fixer.replaceTextRange(literal.range, fixedClasses);
       },
       loc: literal.loc,
-      message: "Incorrect line wrapping: \"{{ notReadable }}\"."
+      message: "Incorrect line wrapping. Expected\n\n{{ notReadable }}\n\nto be\n\n{{ readable }}"
     });
 
   }
