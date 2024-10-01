@@ -35,9 +35,9 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
   tests: {
     invalid?: (
       {
-        [Key in keyof Syntaxes as `${Key & string}Output`]?: string;
-      } & {
         [Key in keyof Syntaxes]?: string;
+      } & {
+        [Key in keyof Syntaxes as `${Key & string}Output`]?: string;
       } & {
         errors: number;
       } & {
