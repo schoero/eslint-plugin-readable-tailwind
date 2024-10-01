@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.8.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.8.0...v1.8.1)
+
+### Refactors
+
+- Improve display of linting errors ([#60](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/60))
+
 ## v1.8.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.7.0...v1.8.0)
