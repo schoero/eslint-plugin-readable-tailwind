@@ -14,7 +14,7 @@ import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "reada
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "readable-tailwind:parsers:vue.js";
 import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
-import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
+import { display, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
@@ -191,13 +191,14 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     ctx.report({
       data: {
-        unnecessaryWhitespace: literal.content
+        fixedClasses: display(fixedClasses),
+        unnecessaryWhitespace: display(literal.raw)
       },
       fix(fixer) {
         return fixer.replaceTextRange(literal.range, fixedClasses);
       },
       loc: literal.loc,
-      message: "Unnecessary whitespace: \"{{ unnecessaryWhitespace }}\"."
+      message: "Unnecessary whitespace. Expected\n\n{{ unnecessaryWhitespace }}\n\nto be\n\n{{ fixedClasses }}"
     });
 
   }

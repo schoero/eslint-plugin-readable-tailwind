@@ -32,6 +32,14 @@ export function splitClasses(classes: string): string[] {
 
 }
 
+export function display(classes: string): string {
+  return classes
+    .replaceAll(" ", "·")
+    .replaceAll("\n", "↵\n")
+    .replaceAll("\r", "↩\r")
+    .replaceAll("\t", "→");
+}
+
 export function splitWhitespaces(classes: string): string[] {
   return classes.split(/\S+/);
 }
