@@ -543,8 +543,15 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     // skip line wrapping if it is not necessary
     skip:{
 
-      // disallow skipping if line count is not 3
-      if(multilineClasses.length !== 3){
+      // disallow skipping if class string contains multiple groups
+      if(groupedClasses && groupedClasses.length > 1){
+        break skip;
+      }
+
+      // disallow skipping if the original literal was longer than the printWidth
+      if(
+        literalStartPosition + singlelineClasses.line.length > printWidth && printWidth !== 0 ||
+        singlelineClasses.line.classCount > classesPerLine && classesPerLine !== 0){
         break skip;
       }
 
