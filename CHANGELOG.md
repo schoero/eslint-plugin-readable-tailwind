@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.8.2
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.8.1...v1.8.2)
+
+### Fixes
+
+- Fixing loop when lines wrap on two lines immediately but was theoretically short enough to not wrap ([#61](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/61))
+
 ## v1.8.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.8.0...v1.8.1)
