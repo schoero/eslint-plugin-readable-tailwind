@@ -83,4 +83,17 @@ describe(tailwindSortClasses.name, () => {
     });
   });
 
+  it("should match bound classes via regex", () => {
+    lint(tailwindSortClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 1,
+          options: [{ classAttributes: [[":.*Styles$", [{ match: MatcherType.String }]]], order: "asc" }],
+          vue: `<template><img v-bind:testStyles="['c b a']" /></template>`,
+          vueOutput: `<template><img v-bind:testStyles="['a b c']" /></template>`
+        }
+      ]
+    });
+  });
+
 });

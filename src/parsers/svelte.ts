@@ -17,7 +17,7 @@ import {
   matchesPathPattern
 } from "readable-tailwind:utils:matchers.js";
 import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex.js";
-import { deduplicateLiterals, getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
+import { deduplicateLiterals, getQuotes, getWhitespace, matchesName } from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
@@ -62,12 +62,12 @@ export function getLiteralsBySvelteClassAttribute(ctx: Rule.RuleContext, attribu
 
   const literals = classAttributes.reduce<Literal[]>((literals, classAttribute) => {
     if(isClassAttributeName(classAttribute)){
-      if(classAttribute.toLowerCase() !== attribute.key.name.toLowerCase()){ return literals; }
+      if(!matchesName(classAttribute.toLowerCase(), attribute.key.name.toLowerCase())){ return literals; }
       literals.push(...getLiteralsBySvelteLiteralNode(ctx, value));
     } else if(isClassAttributeRegex(classAttribute)){
       literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, classAttribute));
     } else if(isClassAttributeMatchers(classAttribute)){
-      if(classAttribute[0].toLowerCase() !== attribute.key.name.toLowerCase()){ return literals; }
+      if(!matchesName(classAttribute[0].toLowerCase(), attribute.key.name.toLowerCase())){ return literals; }
       literals.push(...getLiteralsBySvelteMatchers(ctx, value, classAttribute[1]));
     }
 

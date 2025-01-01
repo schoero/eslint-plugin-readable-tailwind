@@ -13,7 +13,7 @@ import {
   matchesPathPattern
 } from "readable-tailwind:utils:matchers.js";
 import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex.js";
-import { deduplicateLiterals, getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
+import { deduplicateLiterals, getQuotes, getWhitespace, matchesName } from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type {
@@ -41,12 +41,12 @@ export function getLiteralsByESVariableDeclarator(ctx: Rule.RuleContext, node: E
     if(!isESVariableSymbol(node.id)){ return literals; }
 
     if(isVariableName(variable)){
-      if(variable !== node.id.name){ return literals; }
+      if(!matchesName(variable, node.id.name)){ return literals; }
       literals.push(...getLiteralsByESExpression(ctx, [node.init]));
     } else if(isVariableRegex(variable)){
       literals.push(...getLiteralsByESNodeAndRegex(ctx, node, variable));
     } else if(isVariableMatchers(variable)){
-      if(variable[0] !== node.id.name){ return literals; }
+      if(!matchesName(variable[0], node.id.name)){ return literals; }
       literals.push(...getLiteralsByESMatchers(ctx, node.init, variable[1]));
     }
 
@@ -63,12 +63,12 @@ export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCal
     if(!isESCalleeSymbol(node.callee)){ return literals; }
 
     if(isCalleeName(callee)){
-      if(callee !== node.callee.name){ return literals; }
+      if(!matchesName(callee, node.callee.name)){ return literals; }
       literals.push(...getLiteralsByESExpression(ctx, node.arguments));
     } else if(isCalleeRegex(callee)){
       literals.push(...getLiteralsByESNodeAndRegex(ctx, node, callee));
     } else if(isCalleeMatchers(callee)){
-      if(callee[0] !== node.callee.name){ return literals; }
+      if(!matchesName(callee[0], node.callee.name)){ return literals; }
       literals.push(...getLiteralsByESMatchers(ctx, node, callee[1]));
     }
 
