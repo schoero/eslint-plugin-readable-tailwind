@@ -57,6 +57,8 @@ To set the settings object, add a `settings` key to the eslint config.
   **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
   **Default**:  [strings Matcher](../concepts/concepts.md#types-of-matchers) for `"className", "classNames", "classes", "style", "styles"`
 
+<br/>
+
 - `tags`
 
   List of template literal tag names whose content should get linted.  
@@ -65,5 +67,3 @@ To set the settings object, add a `settings` key to the eslint config.
   **Default**: None
 
   Note: When using the `tags` option, it is recommended to use the [strings Matcher](../concepts/concepts.md#types-of-matchers) for your tag names. This will ensure that nested expressions get linted correctly.
-
-<br/>
