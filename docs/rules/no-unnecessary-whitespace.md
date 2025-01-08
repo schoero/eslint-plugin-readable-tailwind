@@ -36,7 +36,7 @@ Disallow unnecessary whitespace in between and around tailwind classes.
 
 - `variables`
 
-  List of variable names which initializer should also get linted. This can also be set globally via the [`settings` object](../settings/settings.md).  
+  List of variable names whose initializer should also get linted. This can also be set globally via the [`settings` object](../settings/settings.md).  
   
   **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
   **Default**:  [strings Matcher](../concepts/concepts.md#types-of-matchers) for `"className", "classNames", "classes", "style", "styles"`

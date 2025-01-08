@@ -9,7 +9,7 @@
 <br />
 <br />
 
-The settings object can be used to globally configure shared options across all rules. Global will always be overridden by rule-specific options.
+The settings object can be used to globally configure shared options across all rules. Global options will always be overridden by rule-specific options.
 To set the settings object, add a `settings` key to the eslint config.
 
 <br />
@@ -34,7 +34,7 @@ To set the settings object, add a `settings` key to the eslint config.
 
 ### `classAttributes`
 
-  The name of the attribute that contains the tailwind classes. This can also be set globally via the [`settings` object](../settings/settings.md.
+  The name of the attribute that contains the tailwind classes.  
 
   **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
   **Default**: [Name](../concepts/concepts.md#name) for `"class"` and [strings Matcher](../concepts/concepts.md#types-of-matchers) for `"class", "className"`
@@ -43,7 +43,7 @@ To set the settings object, add a `settings` key to the eslint config.
 
 ### `callees`
 
-  List of function names which arguments should also get linted. This can also be set globally via the [`settings` object](../settings/settings.md.
+  List of function names which arguments should also get linted.  
   
   **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
   **Default**: [Matchers](../concepts/concepts.md#types-of-matchers) for `"cc", "clb", "clsx", "cn", "cnb", "ctl", "cva", "cx", "dcnb", "objstr", "tv", "twJoin", "twMerge"`
@@ -52,7 +52,18 @@ To set the settings object, add a `settings` key to the eslint config.
 
 ### `variables`
 
-  List of variable names which initializer should also get linted.  This can also be set globally via the [`settings` object](../settings/settings.md.
+  List of variable names whose initializer should also get linted.  
   
   **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
   **Default**:  [strings Matcher](../concepts/concepts.md#types-of-matchers) for `"className", "classNames", "classes", "style", "styles"`
+
+- `tags`
+
+  List of template literal tag names whose content should get linted.  
+  
+  **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
+  **Default**: None
+
+  Note: When using the `tags` option, it is recommended to use the [strings Matcher](../concepts/concepts.md#types-of-matchers) for your tag names. This will ensure that nested expressions get linted correctly.
+
+<br/>
