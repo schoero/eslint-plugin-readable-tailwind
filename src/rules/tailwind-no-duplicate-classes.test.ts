@@ -574,4 +574,33 @@ describe(tailwindNoDuplicateClasses.name, () => {
 
   });
 
+  it("should remove duplicate classes in string literals in defined tagged template literals", () => {
+    lint(
+      tailwindNoDuplicateClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            jsx: "defined` a b a `",
+            jsxOutput: "defined` a b  `",
+            options: [{ tags: ["defined"] }],
+            svelte: "<script>defined` a b a `</script>",
+            svelteOutput: "<script>defined` a b  `</script>",
+            vue: "defined` a b a `",
+            vueOutput: "defined` a b  `"
+          }
+        ],
+        valid: [
+          {
+            jsx: "notDefined` a b a `",
+            options: [{ tags: ["defined"] }],
+            svelte: "<script>notDefined` a b a `</script>",
+            vue: "notDefined` a b a `"
+          }
+        ]
+      }
+    );
+  });
+
 });

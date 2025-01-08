@@ -836,4 +836,33 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
 
   });
 
+  it("should remove unnecessary whitespace in string literals in defined tagged template literals", () => {
+    lint(
+      tailwindNoUnnecessaryWhitespace,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            jsx: "defined`  b   a  `",
+            jsxOutput: "defined`b a`",
+            options: [{ tags: ["defined"] }],
+            svelte: "<script>defined`  b   a  `</script>",
+            svelteOutput: "<script>defined`b a`</script>",
+            vue: "defined`  b   a  `",
+            vueOutput: "defined`b a`"
+          }
+        ],
+        valid: [
+          {
+            jsx: "notDefined`  b   a  `",
+            options: [{ tags: ["defined"] }],
+            svelte: "<script>notDefined`  b   a  `</script>",
+            vue: "notDefined`  b   a  `"
+          }
+        ]
+      }
+    );
+  });
+
 });

@@ -21,6 +21,10 @@ import type {
   ClassAttributes,
   MatcherFunctions,
   Regex,
+  TagMatchers,
+  TagName,
+  TagRegex,
+  Tags,
   VariableMatchers,
   VariableName,
   VariableRegex,
@@ -177,6 +181,18 @@ export function isVariableRegex(variable: Variables[number]): variable is Variab
 
 export function isVariableMatchers(variable: Variables[number]): variable is VariableMatchers {
   return Array.isArray(variable) && typeof variable[0] === "string" && Array.isArray(variable[1]);
+}
+
+export function isTagName(tag: Tags[number]): tag is TagName {
+  return typeof tag === "string";
+}
+
+export function isTagRegex(tag: Tags[number]): tag is TagRegex {
+  return Array.isArray(tag) && typeof tag[0] === "string" && typeof tag[1] === "string";
+}
+
+export function isTagMatchers(tag: Tags[number]): tag is TagMatchers {
+  return Array.isArray(tag) && typeof tag[0] === "string" && Array.isArray(tag[1]);
 }
 
 export function isClassAttributeName(classAttribute: ClassAttributes[number]): classAttribute is ClassAttributeName {

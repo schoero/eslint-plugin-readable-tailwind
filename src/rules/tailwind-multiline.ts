@@ -1,16 +1,19 @@
 import {
   DEFAULT_ATTRIBUTE_NAMES,
   DEFAULT_CALLEE_NAMES,
+  DEFAULT_TAG_NAMES,
   DEFAULT_VARIABLE_NAMES
 } from "readable-tailwind:options:default-options.js";
 import {
   getCalleeSchema,
   getClassAttributeSchema,
+  getTagsSchema,
   getVariableSchema
 } from "readable-tailwind:options:descriptions.js";
 import {
   getLiteralsByESCallExpression,
   getLiteralsByESVariableDeclarator,
+  getLiteralsByTaggedTemplateExpression,
   isESObjectKey
 } from "readable-tailwind:parsers:es.js";
 import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readable-tailwind:parsers:html.js";
@@ -27,19 +30,26 @@ import {
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { CallExpression, Node, VariableDeclarator } from "estree";
+import type { CallExpression, Node, TaggedTemplateExpression, VariableDeclarator } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { AST } from "vue-eslint-parser";
 
 import type { Literal, Meta } from "readable-tailwind:types:ast.js";
-import type { CalleeOption, ClassAttributeOption, ESLintRule, VariableOption } from "readable-tailwind:types:rule.js";
+import type {
+  CalleeOption,
+  ClassAttributeOption,
+  ESLintRule,
+  TagOption,
+  VariableOption
+} from "readable-tailwind:types:rule.js";
 
 
 export type Options = [
   Partial<
     CalleeOption &
     ClassAttributeOption &
+    TagOption &
     VariableOption &
     {
       classesPerLine?: number;
@@ -57,7 +67,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
   rule: {
     create(ctx) {
 
-      const { callees, classAttributes, variables } = getOptions(ctx);
+      const { callees, classAttributes, tags, variables } = getOptions(ctx);
 
       const callExpression = {
         CallExpression(node: Node) {
@@ -73,6 +83,15 @@ export const tailwindMultiline: ESLintRule<Options> = {
           const variableDeclaratorNode = node as VariableDeclarator;
 
           const literals = getLiteralsByESVariableDeclarator(ctx, variableDeclaratorNode, variables);
+          lintLiterals(ctx, literals);
+        }
+      };
+
+      const taggedTemplateExpression = {
+        TaggedTemplateExpression(node: Node) {
+          const taggedTemplateExpressionNode = node as TaggedTemplateExpression;
+
+          const literals = getLiteralsByTaggedTemplateExpression(ctx, taggedTemplateExpressionNode, tags);
           lintLiterals(ctx, literals);
         }
       };
@@ -142,6 +161,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
           // script tag
           ...callExpression,
           ...variableDeclarators,
+          ...taggedTemplateExpression,
 
           // bound classes
           ...ctx.sourceCode.parserServices.defineTemplateBodyVisitor({
@@ -154,6 +174,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
       return {
         ...callExpression,
         ...variableDeclarators,
+        ...taggedTemplateExpression,
         ...jsx,
         ...svelte,
         ...vue,
@@ -176,6 +197,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
             ...getCalleeSchema(getOptions().callees),
             ...getClassAttributeSchema(getOptions().classAttributes),
             ...getVariableSchema(getOptions().variables),
+            ...getTagsSchema(getOptions().tags),
             classesPerLine: {
               default: getOptions().classesPerLine,
               description: "The maximum amount of classes per line. Lines are wrapped appropriately to stay within this limit . The value `0` disables line wrapping by `classesPerLine`.",
@@ -638,6 +660,11 @@ function getOptions(ctx?: Rule.RuleContext) {
     ctx?.settings["readable-tailwind"]?.variables ??
     DEFAULT_VARIABLE_NAMES;
 
+  const tags = options.tags ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.tags ??
+    ctx?.settings["readable-tailwind"]?.tags ??
+    DEFAULT_TAG_NAMES;
+
   const lineBreakStyle = options.lineBreakStyle ?? "unix";
 
   return {
@@ -649,6 +676,7 @@ function getOptions(ctx?: Rule.RuleContext) {
     lineBreakStyle,
     preferSingleLine,
     printWidth,
+    tags,
     variables
   };
 

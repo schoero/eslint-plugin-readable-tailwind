@@ -625,4 +625,33 @@ describe(tailwindSortClasses.name, () => {
 
   });
 
+  it("should sort simple class names in tagged template literals", () => {
+    lint(
+      tailwindSortClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            jsx: "defined`b a`",
+            jsxOutput: "defined`a b`",
+            options: [{ order: "asc", tags: ["defined"] }],
+            svelte: "<script>defined`b a`</script>",
+            svelteOutput: "<script>defined`a b`</script>",
+            vue: "defined`b a`",
+            vueOutput: "defined`a b`"
+          }
+        ],
+        valid: [
+          {
+            jsx: "defined`a b`",
+            options: [{ order: "asc", tags: ["defined"] }],
+            svelte: "<script>defined`a b`</script>",
+            vue: "defined`a b`"
+          }
+        ]
+      }
+    );
+  });
+
 });

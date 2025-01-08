@@ -1,14 +1,20 @@
 import {
   DEFAULT_ATTRIBUTE_NAMES,
   DEFAULT_CALLEE_NAMES,
+  DEFAULT_TAG_NAMES,
   DEFAULT_VARIABLE_NAMES
 } from "readable-tailwind:options:default-options.js";
 import {
   getCalleeSchema,
   getClassAttributeSchema,
+  getTagsSchema,
   getVariableSchema
 } from "readable-tailwind:options:descriptions.js";
-import { getLiteralsByESCallExpression, getLiteralsByESVariableDeclarator } from "readable-tailwind:parsers:es.js";
+import {
+  getLiteralsByESCallExpression,
+  getLiteralsByESVariableDeclarator,
+  getLiteralsByTaggedTemplateExpression
+} from "readable-tailwind:parsers:es.js";
 import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readable-tailwind:parsers:html.js";
 import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx.js";
 import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
@@ -18,19 +24,26 @@ import { display, splitClasses, splitWhitespaces } from "readable-tailwind:utils
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { CallExpression, Node, VariableDeclarator } from "estree";
+import type { CallExpression, Node, TaggedTemplateExpression, VariableDeclarator } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { AST } from "vue-eslint-parser";
 
 import type { Literal } from "readable-tailwind:types:ast.js";
-import type { CalleeOption, ClassAttributeOption, ESLintRule, VariableOption } from "readable-tailwind:types:rule.js";
+import type {
+  CalleeOption,
+  ClassAttributeOption,
+  ESLintRule,
+  TagOption,
+  VariableOption
+} from "readable-tailwind:types:rule.js";
 
 
 export type Options = [
   Partial<
     CalleeOption &
     ClassAttributeOption &
+    TagOption &
     VariableOption &
     {
       allowMultiline?: boolean;
@@ -43,7 +56,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
   rule: {
     create(ctx) {
 
-      const { callees, classAttributes, variables } = getOptions(ctx);
+      const { callees, classAttributes, tags, variables } = getOptions(ctx);
 
       const callExpression = {
         CallExpression(node: Node) {
@@ -59,6 +72,15 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
           const variableDeclaratorNode = node as VariableDeclarator;
 
           const literals = getLiteralsByESVariableDeclarator(ctx, variableDeclaratorNode, variables);
+          lintLiterals(ctx, literals);
+        }
+      };
+
+      const taggedTemplateExpression = {
+        TaggedTemplateExpression(node: Node) {
+          const taggedTemplateExpressionNode = node as TaggedTemplateExpression;
+
+          const literals = getLiteralsByTaggedTemplateExpression(ctx, taggedTemplateExpressionNode, tags);
           lintLiterals(ctx, literals);
         }
       };
@@ -117,6 +139,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
           // script tag
           ...callExpression,
           ...variableDeclarators,
+          ...taggedTemplateExpression,
 
           // bound classes
           ...ctx.sourceCode.parserServices.defineTemplateBodyVisitor({
@@ -129,6 +152,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
       return {
         ...callExpression,
         ...variableDeclarators,
+        ...taggedTemplateExpression,
         ...jsx,
         ...svelte,
         ...html
@@ -154,7 +178,8 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
             },
             ...getCalleeSchema(getOptions().callees),
             ...getClassAttributeSchema(getOptions().classAttributes),
-            ...getVariableSchema(getOptions().variables)
+            ...getVariableSchema(getOptions().variables),
+            ...getTagsSchema(getOptions().tags)
           },
           type: "object"
         }
@@ -270,10 +295,16 @@ function getOptions(ctx?: Rule.RuleContext) {
     ctx?.settings["readable-tailwind"]?.variables ??
     DEFAULT_VARIABLE_NAMES;
 
+  const tags = options.tags ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.tags ??
+    ctx?.settings["readable-tailwind"]?.tags ??
+    DEFAULT_TAG_NAMES;
+
   return {
     allowMultiline,
     callees,
     classAttributes,
+    tags,
     variables
   };
 

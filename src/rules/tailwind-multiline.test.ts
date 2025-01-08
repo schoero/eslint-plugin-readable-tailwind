@@ -1186,4 +1186,42 @@ describe(tailwindMultiline.name, () => {
 
   });
 
+  it("should remove duplicate classes in string literals in defined tagged template literals", () => {
+    lint(
+      tailwindMultiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            errors: 1,
+            jsx: "defined` a b c d e f g h `",
+            jsxOutput: "defined`\n  a b c\n  d e f\n  g h\n`",
+            options: [{
+              classesPerLine: 3,
+              indent: 2,
+              tags: ["defined"]
+            }],
+            svelte: "<script>defined` a b c d e f g h `</script>",
+            svelteOutput: "<script>defined`\n  a b c\n  d e f\n  g h\n`</script>",
+            vue: "<script>defined` a b c d e f g h `</script>",
+            vueOutput: "<script>defined`\n  a b c\n  d e f\n  g h\n`</script>"
+          }
+        ],
+        valid: [
+          {
+            jsx: "notDefined` a b c d e f g h `",
+            options: [{
+              classesPerLine: 3,
+              indent: 2,
+              tags: ["defined"]
+            }],
+            svelte: "<script>notDefined` a b c d e f g h `</script>",
+            vue: "notDefined` a b c d e f g h `"
+          }
+        ]
+      }
+    );
+
+  });
+
 });
