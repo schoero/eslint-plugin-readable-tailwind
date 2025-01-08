@@ -21,9 +21,10 @@ To set the settings object, add a `settings` key to the eslint config.
   "rules": { /* ... */ },
   "settings": {
     "readable-tailwind": {
-      "classAttributes": ["class", "className"],
-      "callees": ["cc", "clb", "clsx", "cn", "cnb", "ctl", "cva", "cx", "dcnb", "objstr", "tv", "twJoin", "twMerge"],
-      "variables": ["className", "classNames", "classes", "style", "styles"]
+      "classAttributes": [/* ... */],
+      "callees": [/* ... */],
+      "variables": [/* ... */],
+      "tags": [/* ... */]
     }
   }
 }
