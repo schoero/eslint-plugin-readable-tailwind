@@ -1,16 +1,19 @@
 import {
   DEFAULT_ATTRIBUTE_NAMES,
   DEFAULT_CALLEE_NAMES,
+  DEFAULT_TAG_NAMES,
   DEFAULT_VARIABLE_NAMES
 } from "readable-tailwind:options:default-options.js";
 import {
   getCalleeSchema,
   getClassAttributeSchema,
+  getTagsSchema,
   getVariableSchema
 } from "readable-tailwind:options:descriptions.js";
 import {
   getLiteralsByESCallExpression,
   getLiteralsByESVariableDeclarator,
+  getLiteralsByTaggedTemplateExpression,
   hasESNodeParentExtension,
   isESCallExpression,
   isESVariableDeclarator
@@ -24,19 +27,26 @@ import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { CallExpression, Node as ESNode, VariableDeclarator } from "estree";
+import type { CallExpression, Node as ESNode, TaggedTemplateExpression, VariableDeclarator } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { AST } from "vue-eslint-parser";
 
 import type { Literal } from "readable-tailwind:types:ast.js";
-import type { CalleeOption, ClassAttributeOption, ESLintRule, VariableOption } from "readable-tailwind:types:rule.js";
+import type {
+  CalleeOption,
+  ClassAttributeOption,
+  ESLintRule,
+  TagOption,
+  VariableOption
+} from "readable-tailwind:types:rule.js";
 
 
 export type Options = [
   Partial<
     CalleeOption &
     ClassAttributeOption &
+    TagOption &
     VariableOption &
     {
       allowMultiline?: boolean;
@@ -49,7 +59,7 @@ export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
   rule: {
     create(ctx) {
 
-      const { callees, classAttributes, variables } = getOptions(ctx);
+      const { callees, classAttributes, tags, variables } = getOptions(ctx);
 
       const callExpression = {
         CallExpression(node: ESNode) {
@@ -65,6 +75,15 @@ export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
           const variableDeclaratorNode = node as VariableDeclarator;
 
           const literals = getLiteralsByESVariableDeclarator(ctx, variableDeclaratorNode, variables);
+          lintLiterals(ctx, literals);
+        }
+      };
+
+      const taggedTemplateExpression = {
+        TaggedTemplateExpression(node: ESNode) {
+          const taggedTemplateExpressionNode = node as TaggedTemplateExpression;
+
+          const literals = getLiteralsByTaggedTemplateExpression(ctx, taggedTemplateExpressionNode, tags);
           lintLiterals(ctx, literals);
         }
       };
@@ -123,6 +142,7 @@ export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
           // script tag
           ...callExpression,
           ...variableDeclarators,
+          ...taggedTemplateExpression,
 
           // bound classes
           ...ctx.sourceCode.parserServices.defineTemplateBodyVisitor({
@@ -135,6 +155,7 @@ export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
       return {
         ...callExpression,
         ...variableDeclarators,
+        ...taggedTemplateExpression,
         ...jsx,
         ...svelte,
         ...html
@@ -155,7 +176,8 @@ export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
           properties: {
             ...getCalleeSchema(getOptions().callees),
             ...getClassAttributeSchema(getOptions().classAttributes),
-            ...getVariableSchema(getOptions().variables)
+            ...getVariableSchema(getOptions().variables),
+            ...getTagsSchema(getOptions().tags)
           },
           type: "object"
         }
@@ -337,9 +359,15 @@ function getOptions(ctx?: Rule.RuleContext) {
     ctx?.settings["readable-tailwind"]?.variables ??
     DEFAULT_VARIABLE_NAMES;
 
+  const tags = options.tags ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.tags ??
+    ctx?.settings["readable-tailwind"]?.tags ??
+    DEFAULT_TAG_NAMES;
+
   return {
     callees,
     classAttributes,
+    tags,
     variables
   };
 

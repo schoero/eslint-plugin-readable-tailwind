@@ -351,6 +351,87 @@ describe("matchers", () => {
 
   });
 
+  describe("template literal tags", () => {
+
+    it("should lint class names in tagged template literals when matched using the strings matcher", () => {
+      lint(
+        tailwindNoUnnecessaryWhitespace,
+        TEST_SYNTAXES,
+        {
+          invalid: [
+            {
+              errors: 1,
+              jsx: "defined`  lint  lint  `",
+              jsxOutput: "defined`lint lint`",
+              options: [{ tags: [["defined", [{ match: MatcherType.String }]]] }],
+              svelte: "<script>defined`  lint  lint  `</script>",
+              svelteOutput: "<script>defined`lint lint`</script>",
+              vue: "defined`  lint  lint  `",
+              vueOutput: "defined`lint lint`"
+            }
+          ]
+        }
+      );
+    });
+
+    it("should lint class names in nested literal expressions inside tagged template literals when matched using the strings matcher", () => {
+      // eslint thinks the fixes are conflicting so it only applies the first iteration
+      lint(
+        tailwindNoUnnecessaryWhitespace,
+        TEST_SYNTAXES,
+        {
+          invalid: [
+            {
+              errors: 3,
+              jsx: "defined` lint ${\"  lint  lint  \"} lint `",
+              jsxOutput: "defined`lint ${\"  lint  lint  \"} lint`",
+              options: [{ tags: [["defined", [{ match: MatcherType.String }]]] }],
+              svelte: "<script>defined` lint ${\"  lint  lint  \"} lint `</script>",
+              svelteOutput: "<script>defined`lint ${\"  lint  lint  \"} lint`</script>",
+              vue: "defined` lint ${\"  lint  lint  \"} lint `",
+              vueOutput: "defined`lint ${\"  lint  lint  \"} lint`"
+            }
+          ],
+          valid: [
+            {
+              jsx: "notDefined` lint ${\"  lint  lint  \"} lint `",
+              options: [{ tags: [["defined", [{ match: MatcherType.String }]]] }],
+              svelte: "<script>notDefined` lint ${\"  lint  lint  \"} lint `</script>",
+              vue: "notDefined` lint ${\"  lint  lint  \"} lint `"
+            }
+          ]
+        }
+      );
+      lint(
+        tailwindNoUnnecessaryWhitespace,
+        TEST_SYNTAXES,
+        {
+          invalid: [
+            {
+              errors: 1,
+              jsx: "defined`lint ${\"  lint  lint  \"} lint`",
+              jsxOutput: "defined`lint ${\"lint lint\"} lint`",
+              options: [{ tags: [["defined", [{ match: MatcherType.String }]]] }],
+              svelte: "<script>defined`lint ${\"  lint  lint  \"} lint`</script>",
+              svelteOutput: "<script>defined`lint ${\"lint lint\"} lint`</script>",
+              vue: "defined`lint ${\"  lint  lint  \"} lint`",
+              vueOutput: "defined`lint ${\"lint lint\"} lint`"
+            }
+          ],
+          valid: [
+            {
+              jsx: "notDefined`lint ${\"  lint  lint  \"} lint`",
+              options: [{ tags: [["defined", [{ match: MatcherType.String }]]] }],
+              svelte: "<script>notDefined`lint ${\"  lint  lint  \"} lint`</script>",
+              vue: "notDefined`lint ${\"  lint  lint  \"} lint`"
+            }
+          ]
+        }
+      );
+    });
+
+  });
+
   it("should lint literals inside object keys when matched", () => {
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
@@ -408,7 +489,7 @@ describe("matchers", () => {
     });
   });
 
-  it("should lint strings inside template literal expressions", () => {
+  it("should lint strings inside template literal expressions when matched using the strings matcher", () => {
     // eslint thinks the fixes are conflicting so it only applies the first iteration
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [

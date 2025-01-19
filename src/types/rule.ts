@@ -48,6 +48,14 @@ export type VariableOption = {
   variables: Variables;
 };
 
+export type TagName = string;
+export type TagMatchers = [tag: TagName, matchers: Matcher[]];
+export type TagRegex = [tagRegex: Regex, literalRegex: Regex];
+export type Tags = (TagMatchers | TagName | TagRegex)[];
+export type TagOption = {
+  tags: Tags;
+};
+
 export type ClassAttributeName = string;
 export type ClassAttributeMatchers = [classAttribute: ClassAttributeName, matchers: Matcher[]];
 export type ClassAttributeRegex = [classAttributeRegex: Regex, literalRegex: Regex];

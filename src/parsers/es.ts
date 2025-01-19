@@ -7,6 +7,9 @@ import {
   isCalleeRegex,
   isInsideConditionalExpressionTest,
   isInsideLogicalExpressionLeft,
+  isTagMatchers,
+  isTagName,
+  isTagRegex,
   isVariableMatchers,
   isVariableName,
   isVariableRegex,
@@ -24,13 +27,14 @@ import type {
   Node as ESNode,
   SimpleLiteral as ESSimpleLiteral,
   SpreadElement as ESSpreadElement,
+  TaggedTemplateExpression as ESTaggedTemplateExpression,
   TemplateElement as ESTemplateElement,
   TemplateLiteral as ESTemplateLiteral,
   VariableDeclarator as ESVariableDeclarator
 } from "estree";
 
 import type { BracesMeta, Literal, Node, StringLiteral, TemplateLiteral } from "readable-tailwind:types:ast.js";
-import type { Callees, Matcher, MatcherFunctions, Variables } from "readable-tailwind:types:rule.js";
+import type { Callees, Matcher, MatcherFunctions, Tags, Variables } from "readable-tailwind:types:rule.js";
 
 
 export function getLiteralsByESVariableDeclarator(ctx: Rule.RuleContext, node: ESVariableDeclarator, variables: Variables): Literal[] {
@@ -70,6 +74,28 @@ export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCal
     } else if(isCalleeMatchers(callee)){
       if(callee[0] !== node.callee.name){ return literals; }
       literals.push(...getLiteralsByESMatchers(ctx, node, callee[1]));
+    }
+
+    return literals;
+  }, []);
+
+  return deduplicateLiterals(literals);
+
+}
+
+export function getLiteralsByTaggedTemplateExpression(ctx: Rule.RuleContext, node: ESTaggedTemplateExpression, tags: Tags): Literal[] {
+
+  const literals = tags.reduce<Literal[]>((literals, tag) => {
+    if(!isTaggedTemplateSymbol(node.tag)){ return literals; }
+
+    if(isTagName(tag)){
+      if(tag !== node.tag.name){ return literals; }
+      literals.push(...getLiteralsByESTemplateLiteral(ctx, node.quasi));
+    } else if(isTagRegex(tag)){
+      literals.push(...getLiteralsByESNodeAndRegex(ctx, node, tag));
+    } else if(isTagMatchers(tag)){
+      if(tag[0] !== node.tag.name){ return literals; }
+      literals.push(...getLiteralsByESMatchers(ctx, node, tag[1]));
     }
 
     return literals;
@@ -280,6 +306,14 @@ export function isESCallExpression(node: ESBaseNode): node is ESCallExpression {
 
 function isESCalleeSymbol(node: ESBaseNode & Partial<Rule.NodeParentExtension>): node is ESIdentifier {
   return node.type === "Identifier" && !!node.parent && isESCallExpression(node.parent);
+}
+
+function isTaggedTemplateExpression(node: ESBaseNode): node is ESTaggedTemplateExpression {
+  return node.type === "TaggedTemplateExpression";
+}
+
+function isTaggedTemplateSymbol(node: ESBaseNode & Partial<Rule.NodeParentExtension>): node is ESIdentifier {
+  return node.type === "Identifier" && !!node.parent && isTaggedTemplateExpression(node.parent);
 }
 
 export function isESVariableDeclarator(node: ESBaseNode): node is ESVariableDeclarator {
