@@ -245,7 +245,7 @@ const TAG_REGEX_CONFIG = {
   description: "List of regular expressions that matches string literals which should get linted.",
   items: [
     {
-      description: "Regular expression that filters the tags and matches the content for further processing in a group.",
+      description: "Regular expression that filters the template literal tags and matches the content for further processing in a group.",
       type: "string"
     },
     {
@@ -260,7 +260,7 @@ const TAG_MATCHER_CONFIG = {
   description: "List of matchers that will automatically be matched.",
   items: [
     {
-      description: "Tag name for which children get linted if matched.",
+      description: "Template literal tag for which children get linted if matched.",
       type: "string"
     },
     {
@@ -280,6 +280,6 @@ const TAG_MATCHER_CONFIG = {
 };
 
 const TAG_NAME_CONFIG = {
-  description: "Template literal tag name that should get linted.",
+  description: "Template literal tag that should get linted.",
   type: "string"
 };
