@@ -66,7 +66,7 @@ const defaultOptions = {
   callees: DEFAULT_CALLEE_NAMES,
   classAttributes: DEFAULT_ATTRIBUTE_NAMES,
   classesPerLine: 0,
-  group: "emptyLine",
+  group: "newLine",
   indent: 2,
   lineBreakStyle: "unix",
   preferSingleLine: false,
