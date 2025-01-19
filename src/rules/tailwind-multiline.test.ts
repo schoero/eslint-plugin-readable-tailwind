@@ -151,7 +151,7 @@ describe(tailwindMultiline.name, () => {
             errors: 1,
             jsx: `() => <img class={\`${incorrect}\`} />`,
             jsxOutput: `() => <img class={\`${correct}\`} />`,
-            options: [{ classesPerLine: 3, group: "newLine", indent: 2 }],
+            options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<img class={\`${incorrect}\`} />`,
             svelteOutput: `<img class={\`${correct}\`} />`
           }
@@ -646,7 +646,6 @@ describe(tailwindMultiline.name, () => {
     const singleLineWithExpressionAtBeginning = `${expression} a b c d e f g h `;
     const multilineWithExpressionAtBeginning = trim`
       ${expression}
-
       a b c
       d e f
       g h
@@ -655,9 +654,7 @@ describe(tailwindMultiline.name, () => {
     const singleLineWithExpressionInCenter = `a b c ${expression} d e f g h `;
     const multilineWithExpressionInCenter = trim`
       a b c
-
       ${expression}
-
       d e f
       g h
     `;
@@ -667,16 +664,13 @@ describe(tailwindMultiline.name, () => {
       a b c
       d e f
       g h
-
       ${expression}
     `;
 
     const singleLineWithClassesAroundExpression = `a b ${expression} c d e f g h `;
     const multilineWithClassesAroundExpression = trim`
       a b
-
       ${expression}
-
       c d e f
       g h
     `;
@@ -732,7 +726,6 @@ describe(tailwindMultiline.name, () => {
     const singleLineWithExpressionAtBeginningWithStickyClassAtEnd = `${expression}a b c d e f g h `;
     const multilineWithExpressionAtBeginningWithStickyClassAtEnd = trim`
       ${expression}a
-
       b c d
       e f g
       h
@@ -741,9 +734,7 @@ describe(tailwindMultiline.name, () => {
     const singleLineWithExpressionInCenterWithStickyClassAtBeginning = `a b c${expression} d e f g h `;
     const multilineWithExpressionInCenterWithStickyClassAtBeginning = trim`
       a b
-
       c${expression}
-
       d e f
       g h
     `;
@@ -751,9 +742,7 @@ describe(tailwindMultiline.name, () => {
     const singleLineWithExpressionInCenterWithStickyClassAtEnd = `a b c ${expression}d e f g h `;
     const multilineWithExpressionInCenterWithStickyClassAtEnd = trim`
       a b c
-
       ${expression}d
-
       e f g
       h
     `;
@@ -763,7 +752,6 @@ describe(tailwindMultiline.name, () => {
       a b c
       d e f
       g
-
       h${expression}
     `;
 
@@ -1118,7 +1106,7 @@ describe(tailwindMultiline.name, () => {
     );
   });
 
-  it("should be possible to change group separation to newLine", () => {
+  it("should be possible to change group separation to emptyLine", () => {
     lint(
       tailwindMultiline,
       TEST_SYNTAXES,
@@ -1127,14 +1115,14 @@ describe(tailwindMultiline.name, () => {
           {
             errors: 1,
             html: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
-            htmlOutput: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
+            htmlOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
             jsx: `() => <img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
-            jsxOutput: `() => <img class={\`\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n\`} />`,
-            options: [{ group: "newLine", indent: 2 }],
+            jsxOutput: `() => <img class={\`\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n\`} />`,
+            options: [{ group: "emptyLine", indent: 2 }],
             svelte: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
-            svelteOutput: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
+            svelteOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
             vue: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`,
-            vueOutput: `<template><img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" /></template>`
+            vueOutput: `<template><img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" /></template>`
           }
         ]
       }
@@ -1153,7 +1141,7 @@ describe(tailwindMultiline.name, () => {
             htmlOutput: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             jsx: `() => <img class={\`\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n\`} />`,
             jsxOutput: `() => <img class={\`a b c g-1:a g-1:b g-2:a g-2:b\`} />`,
-            options: [{ group: "newLine", indent: 2, preferSingleLine: true }],
+            options: [{ indent: 2, preferSingleLine: true }],
             svelte: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
             svelteOutput: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             vue: `<template><img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" /></template>`,
@@ -1165,7 +1153,7 @@ describe(tailwindMultiline.name, () => {
             htmlOutput: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
             jsx: `() => <img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             jsxOutput: `() => <img class={\`\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n\`} />`,
-            options: [{ classesPerLine: 6, group: "newLine", indent: 2, preferSingleLine: true, printWidth: 0 }],
+            options: [{ classesPerLine: 6, indent: 2, preferSingleLine: true, printWidth: 0 }],
             svelte: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             svelteOutput: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
             vue: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`,
@@ -1176,7 +1164,7 @@ describe(tailwindMultiline.name, () => {
           {
             html: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             jsx: `() => <img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
-            options: [{ group: "newLine", indent: 2, preferSingleLine: true }],
+            options: [{ indent: 2, preferSingleLine: true }],
             svelte: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             vue: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`
           }
