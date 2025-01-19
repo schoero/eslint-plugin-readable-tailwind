@@ -6,11 +6,7 @@ import {
   isESSimpleStringLiteral,
   isESTemplateLiteral
 } from "readable-tailwind:parsers:es.js";
-import {
-  isClassAttributeMatchers,
-  isClassAttributeName,
-  isClassAttributeRegex
-} from "readable-tailwind:utils:matchers.js";
+import { isAttributesMatchers, isAttributesName, isAttributesRegex } from "readable-tailwind:utils:matchers.js";
 import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex.js";
 import { deduplicateLiterals, matchesName } from "readable-tailwind:utils:utils.js";
 
@@ -20,23 +16,23 @@ import type { JSXAttribute, BaseNode as JSXBaseNode, JSXExpressionContainer, JSX
 
 import type { ESSimpleStringLiteral } from "readable-tailwind:parsers:es.js";
 import type { Literal } from "readable-tailwind:types:ast.js";
-import type { ClassAttributes } from "readable-tailwind:types:rule.js";
+import type { Attributes } from "readable-tailwind:types:rule.js";
 
 
-export function getLiteralsByJSXClassAttribute(ctx: Rule.RuleContext, attribute: JSXAttribute, classAttributes: ClassAttributes): Literal[] {
+export function getLiteralsByJSXAttributes(ctx: Rule.RuleContext, attribute: JSXAttribute, attributes: Attributes): Literal[] {
   const value = attribute.value;
 
-  const literals = classAttributes.reduce<Literal[]>((literals, classAttribute) => {
+  const literals = attributes.reduce<Literal[]>((literals, Attributes) => {
     if(!value){ return literals; }
 
-    if(isClassAttributeName(classAttribute)){
-      if(typeof attribute.name.name !== "string" || !matchesName(classAttribute.toLowerCase(), attribute.name.name.toLowerCase())){ return literals; }
+    if(isAttributesName(Attributes)){
+      if(typeof attribute.name.name !== "string" || !matchesName(Attributes.toLowerCase(), attribute.name.name.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByJSXAttributeValue(ctx, value));
-    } else if(isClassAttributeRegex(classAttribute)){
-      literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, classAttribute));
-    } else if(isClassAttributeMatchers(classAttribute)){
-      if(typeof attribute.name.name !== "string" || !matchesName(classAttribute[0].toLowerCase(), attribute.name.name.toLowerCase())){ return literals; }
-      literals.push(...getLiteralsByESMatchers(ctx, value, classAttribute[1]));
+    } else if(isAttributesRegex(Attributes)){
+      literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, Attributes));
+    } else if(isAttributesMatchers(Attributes)){
+      if(typeof attribute.name.name !== "string" || !matchesName(Attributes[0].toLowerCase(), attribute.name.name.toLowerCase())){ return literals; }
+      literals.push(...getLiteralsByESMatchers(ctx, value, Attributes[1]));
     }
 
     return literals;

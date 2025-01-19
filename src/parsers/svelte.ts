@@ -9,9 +9,9 @@ import { MatcherType } from "readable-tailwind:types:rule.js";
 import {
   getLiteralNodesByMatchers,
   getObjectPath,
-  isClassAttributeMatchers,
-  isClassAttributeName,
-  isClassAttributeRegex,
+  isAttributesMatchers,
+  isAttributesName,
+  isAttributesRegex,
   isInsideConditionalExpressionTest,
   isInsideLogicalExpressionLeft,
   matchesPathPattern
@@ -35,7 +35,7 @@ import type {
 } from "svelte-eslint-parser/lib/ast/index.js";
 
 import type { Literal, Node, StringLiteral } from "readable-tailwind:types:ast.js";
-import type { ClassAttributes, Matcher, MatcherFunctions } from "readable-tailwind:types:rule.js";
+import type { Attributes, Matcher, MatcherFunctions } from "readable-tailwind:types:rule.js";
 
 
 export function getAttributesBySvelteTag(ctx: Rule.RuleContext, node: SvelteStartTag): SvelteAttribute[] {
@@ -47,7 +47,7 @@ export function getAttributesBySvelteTag(ctx: Rule.RuleContext, node: SvelteStar
   }, []);
 }
 
-export function getLiteralsBySvelteClassAttribute(ctx: Rule.RuleContext, attribute: SvelteAttribute, classAttributes: ClassAttributes): Literal[] {
+export function getLiteralsBySvelteAttributes(ctx: Rule.RuleContext, attribute: SvelteAttribute, attributes: Attributes): Literal[] {
 
   // skip shorthand attributes #42
   if(!Array.isArray(attribute.value)){
@@ -60,15 +60,15 @@ export function getLiteralsBySvelteClassAttribute(ctx: Rule.RuleContext, attribu
     return [];
   }
 
-  const literals = classAttributes.reduce<Literal[]>((literals, classAttribute) => {
-    if(isClassAttributeName(classAttribute)){
-      if(!matchesName(classAttribute.toLowerCase(), attribute.key.name.toLowerCase())){ return literals; }
+  const literals = attributes.reduce<Literal[]>((literals, Attributes) => {
+    if(isAttributesName(Attributes)){
+      if(!matchesName(Attributes.toLowerCase(), attribute.key.name.toLowerCase())){ return literals; }
       literals.push(...getLiteralsBySvelteLiteralNode(ctx, value));
-    } else if(isClassAttributeRegex(classAttribute)){
-      literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, classAttribute));
-    } else if(isClassAttributeMatchers(classAttribute)){
-      if(!matchesName(classAttribute[0].toLowerCase(), attribute.key.name.toLowerCase())){ return literals; }
-      literals.push(...getLiteralsBySvelteMatchers(ctx, value, classAttribute[1]));
+    } else if(isAttributesRegex(Attributes)){
+      literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, Attributes));
+    } else if(isAttributesMatchers(Attributes)){
+      if(!matchesName(Attributes[0].toLowerCase(), attribute.key.name.toLowerCase())){ return literals; }
+      literals.push(...getLiteralsBySvelteMatchers(ctx, value, Attributes[1]));
     }
 
     return literals;

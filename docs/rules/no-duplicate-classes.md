@@ -6,7 +6,7 @@ Disallow duplicate classes in tailwindcss class strings.
 
 ## Options
 
-- `classAttributes`
+- `attributes`
 
   The name of the attribute that contains the tailwind classes. This can also be set globally via the [`settings` object](../settings/settings.md).  
 

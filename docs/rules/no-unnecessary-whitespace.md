@@ -16,7 +16,7 @@ Disallow unnecessary whitespace in between and around tailwind classes.
 
 <br/>
 
-- `classAttributes`
+- `attributes`
 
   The name of the attribute that contains the tailwind classes. This can also be set globally via the [`settings` object](../settings/settings.md).  
 

@@ -3,16 +3,16 @@ import { MatcherType } from "readable-tailwind:types:rule.js";
 import type { Rule } from "eslint";
 
 
-export function getClassAttributeSchema(defaultValue: unknown) {
+export function getAttributesSchema(defaultValue: unknown) {
   return {
-    classAttributes: {
+    attributes: {
       default: defaultValue,
       description: "List of attribute names that should get linted.",
       items: {
         anyOf: [
-          CLASS_ATTRIBUTE_NAME_CONFIG,
-          CLASS_ATTRIBUTE_REGEX_CONFIG,
-          CLASS_ATTRIBUTE_MATCHER_CONFIG
+          ATTRIBUTE_NAME_CONFIG,
+          ATTRIBUTE_REGEX_CONFIG,
+          ATTRIBUTE_MATCHER_CONFIG
         ]
       },
       type: "array"
@@ -112,7 +112,7 @@ const OBJECT_VALUE_MATCHER_SCHEMA = {
   type: "object"
 } satisfies Rule.RuleMetaData["schema"];
 
-const CLASS_ATTRIBUTE_REGEX_CONFIG = {
+const ATTRIBUTE_REGEX_CONFIG = {
   description: "List of regular expressions that matches string literals which should get linted.",
   items: [
     {
@@ -127,7 +127,7 @@ const CLASS_ATTRIBUTE_REGEX_CONFIG = {
   type: "array"
 };
 
-const CLASS_ATTRIBUTE_MATCHER_CONFIG = {
+const ATTRIBUTE_MATCHER_CONFIG = {
   description: "List of matchers that will automatically be matched.",
   items: [
     {
@@ -150,7 +150,7 @@ const CLASS_ATTRIBUTE_MATCHER_CONFIG = {
   type: "array"
 };
 
-const CLASS_ATTRIBUTE_NAME_CONFIG = {
+const ATTRIBUTE_NAME_CONFIG = {
   description: "Attribute name that for which children get linted.",
   type: "string"
 };

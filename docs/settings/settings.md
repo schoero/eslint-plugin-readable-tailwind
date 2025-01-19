@@ -2,7 +2,7 @@
 
 ## Table of Contents
 
-- [classAttributes](#classattributes)
+- [attributes](#attributes)
 - [callees](#callees)
 - [variables](#variables)
 
@@ -21,7 +21,7 @@ To set the settings object, add a `settings` key to the eslint config.
   "rules": { /* ... */ },
   "settings": {
     "readable-tailwind": {
-      "classAttributes": [/* ... */],
+      "attributes": [/* ... */],
       "callees": [/* ... */],
       "variables": [/* ... */],
       "tags": [/* ... */]
@@ -33,7 +33,7 @@ To set the settings object, add a `settings` key to the eslint config.
 <br />
 <br />
 
-### `classAttributes`
+### `attributes`
 
   The name of the attribute that contains the tailwind classes.  
 

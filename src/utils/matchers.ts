@@ -11,14 +11,14 @@ import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, Node as ESNode, Program } from "estree";
 
 import type {
+  AttributeMatchers,
+  AttributeName,
+  AttributeRegex,
+  Attributes,
   CalleeMatchers,
   CalleeName,
   CalleeRegex,
   Callees,
-  ClassAttributeMatchers,
-  ClassAttributeName,
-  ClassAttributeRegex,
-  ClassAttributes,
   MatcherFunctions,
   Regex,
   TagMatchers,
@@ -195,16 +195,16 @@ export function isTagMatchers(tag: Tags[number]): tag is TagMatchers {
   return Array.isArray(tag) && typeof tag[0] === "string" && Array.isArray(tag[1]);
 }
 
-export function isClassAttributeName(classAttribute: ClassAttributes[number]): classAttribute is ClassAttributeName {
-  return typeof classAttribute === "string";
+export function isAttributesName(Attributes: Attributes[number]): Attributes is AttributeName {
+  return typeof Attributes === "string";
 }
 
-export function isClassAttributeRegex(classAttribute: ClassAttributes[number]): classAttribute is ClassAttributeRegex {
-  return Array.isArray(classAttribute) && typeof classAttribute[0] === "string" && typeof classAttribute[1] === "string";
+export function isAttributesRegex(Attributes: Attributes[number]): Attributes is AttributeRegex {
+  return Array.isArray(Attributes) && typeof Attributes[0] === "string" && typeof Attributes[1] === "string";
 }
 
-export function isClassAttributeMatchers(classAttribute: ClassAttributes[number]): classAttribute is ClassAttributeMatchers {
-  return Array.isArray(classAttribute) && typeof classAttribute[0] === "string" && Array.isArray(classAttribute[1]);
+export function isAttributesMatchers(Attributes: Attributes[number]): Attributes is AttributeMatchers {
+  return Array.isArray(Attributes) && typeof Attributes[0] === "string" && Array.isArray(Attributes[1]);
 }
 
 export function isInsideConditionalExpressionTest(node: ESNode & Partial<Rule.NodeParentExtension>): boolean {

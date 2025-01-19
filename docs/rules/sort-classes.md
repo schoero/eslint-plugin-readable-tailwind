@@ -31,7 +31,7 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
 <br/>
 
-- `classAttributes`
+- `attributes`
 
   The name of the attribute that contains the tailwind classes. This can also be set globally via the [`settings` object](../settings/settings.md).  
 

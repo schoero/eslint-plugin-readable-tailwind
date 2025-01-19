@@ -1,7 +1,7 @@
 
 # Defaults
 
-Every [rule](../../README.md#rules) can target multiple class attributes, callee names, variable names or template literal tags.
+Every [rule](../../README.md#rules) can target multiple attributes, callee names, variable names or template literal tags.
 
 Read the [concepts documentation](../concepts/concepts.md) first to learn why this is important and what different options there are to define where to look for tailwind classes.
 
@@ -28,8 +28,8 @@ If an utility is not supported or you have built your own, you can change the ma
 
 ```ts
 import {
+  getDefaultAttributes,
   getDefaultCallees,
-  getDefaultClassAttributes,
   getDefaultTags,
   getDefaultVariables
 } from "eslint-plugin-readable-tailwind/api/defaults";
@@ -43,8 +43,8 @@ import {
 ```ts
 import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
 import {
+  getDefaultAttributes,
   getDefaultCallees,
-  getDefaultClassAttributes,
   getDefaultVariables
 } from "eslint-plugin-readable-tailwind/api/defaults";
 import { MatcherType } from "eslint-plugin-readable-tailwind/api/types";
@@ -69,8 +69,8 @@ export default [
         ]
       }],
       "readable-tailwind/no-duplicate-classes": ["warn", {
-        classAttributes: [
-          ...getDefaultClassAttributes(),
+        attributes: [
+          ...getDefaultAttributes(),
           [
             "myAttribute", [
               {
@@ -93,7 +93,7 @@ export default [
         ]
       }],
       "readable-tailwind/sort-classes": ["warn", {
-        classAttributes: [
+        attributes: [
           ...getDefaultTags(),
           [
             "myTag", [

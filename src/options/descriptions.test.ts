@@ -1,29 +1,25 @@
 import { validate } from "json-schema";
 import { describe, expect, test } from "vitest";
 
-import {
-  getCalleeSchema,
-  getClassAttributeSchema,
-  getVariableSchema
-} from "readable-tailwind:options:descriptions.js";
+import { getAttributesSchema, getCalleeSchema, getVariableSchema } from "readable-tailwind:options:descriptions.js";
 import { MatcherType } from "readable-tailwind:types:rule.js";
 
-import type { CalleeOption, ClassAttributeOption, VariableOption } from "readable-tailwind:types:rule.js";
+import type { AttributeOption, CalleeOption, VariableOption } from "readable-tailwind:types:rule.js";
 
 
 describe("descriptions", () => {
 
   test("name config", () => {
 
-    const classAttributes = {
-      classAttributes: [
+    const attributes = {
+      attributes: [
         "class",
         "className"
       ]
-    } satisfies ClassAttributeOption;
+    } satisfies AttributeOption;
 
     expect(
-      validate(classAttributes, getClassAttributeSchema(classAttributes))
+      validate(attributes, getAttributesSchema(attributes))
     ).toStrictEqual(
       { errors: [], valid: true }
     );
@@ -57,15 +53,15 @@ describe("descriptions", () => {
 
   test("regex config", () => {
 
-    const classAttributes = {
-      classAttributes: [
+    const attributes = {
+      attributes: [
         "(class|className)",
         "(.*)"
       ]
-    } satisfies ClassAttributeOption;
+    } satisfies AttributeOption;
 
     expect(
-      validate(classAttributes, getClassAttributeSchema(classAttributes))
+      validate(attributes, getAttributesSchema(attributes))
     ).toStrictEqual(
       { errors: [], valid: true }
     );
@@ -100,8 +96,8 @@ describe("descriptions", () => {
 
   test("matcher config", () => {
 
-    const classAttributes: ClassAttributeOption = {
-      classAttributes: [
+    const attributes: AttributeOption = {
+      attributes: [
         [
           "class",
           [
@@ -121,7 +117,7 @@ describe("descriptions", () => {
     };
 
     expect(
-      validate(classAttributes, getClassAttributeSchema(classAttributes))
+      validate(attributes, getAttributesSchema(attributes))
     ).toStrictEqual(
       { errors: [], valid: true }
     );
