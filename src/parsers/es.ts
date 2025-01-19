@@ -27,10 +27,10 @@ import type {
   Node as ESNode,
   SimpleLiteral as ESSimpleLiteral,
   SpreadElement as ESSpreadElement,
+  TaggedTemplateExpression as ESTaggedTemplateExpression,
   TemplateElement as ESTemplateElement,
   TemplateLiteral as ESTemplateLiteral,
-  VariableDeclarator as ESVariableDeclarator,
-  TaggedTemplateExpression
+  VariableDeclarator as ESVariableDeclarator
 } from "estree";
 
 import type { BracesMeta, Literal, Node, StringLiteral, TemplateLiteral } from "readable-tailwind:types:ast.js";
@@ -83,7 +83,7 @@ export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCal
 
 }
 
-export function getLiteralsByTaggedTemplateExpression(ctx: Rule.RuleContext, node: TaggedTemplateExpression, tags: Tags): Literal[] {
+export function getLiteralsByTaggedTemplateExpression(ctx: Rule.RuleContext, node: ESTaggedTemplateExpression, tags: Tags): Literal[] {
 
   const literals = tags.reduce<Literal[]>((literals, tag) => {
     if(!isTaggedTemplateSymbol(node.tag)){ return literals; }
@@ -308,7 +308,7 @@ function isESCalleeSymbol(node: ESBaseNode & Partial<Rule.NodeParentExtension>):
   return node.type === "Identifier" && !!node.parent && isESCallExpression(node.parent);
 }
 
-function isTaggedTemplateExpression(node: ESBaseNode): node is TaggedTemplateExpression {
+function isTaggedTemplateExpression(node: ESBaseNode): node is ESTaggedTemplateExpression {
   return node.type === "TaggedTemplateExpression";
 }
 
