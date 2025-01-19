@@ -96,7 +96,7 @@ export default [
         classAttributes: [
           ...getDefaultTags(),
           [
-            "tw", [
+            "myTag", [
               {
                 match: MatcherType.String
               }
