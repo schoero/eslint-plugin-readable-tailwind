@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.9.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.8.2...v1.9.0)
+
+### Features
+
+- Template literal tags ([#65](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/65))
+
 ## v1.8.2
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.8.1...v1.8.2)
