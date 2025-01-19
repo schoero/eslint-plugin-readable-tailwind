@@ -12,23 +12,25 @@ export const config = {
   configs: {
     error: {
       rules: {
+        [`${pluginName}/${tailwindMultiline.name}`]: "error",
+        [`${pluginName}/${tailwindNoDuplicateClasses.name}`]: "error",
         [`${pluginName}/${tailwindNoUnnecessaryWhitespace.name}`]: "error",
-        [`${pluginName}/${tailwindSortClasses.name}`]: "error",
-        [`${pluginName}/${tailwindMultiline.name}`]: "error"
+        [`${pluginName}/${tailwindSortClasses.name}`]: "error"
       }
     },
     warning: {
       rules: {
+        [`${pluginName}/${tailwindMultiline.name}`]: "warn",
+        [`${pluginName}/${tailwindNoDuplicateClasses.name}`]: "warn",
         [`${pluginName}/${tailwindNoUnnecessaryWhitespace.name}`]: "warn",
-        [`${pluginName}/${tailwindSortClasses.name}`]: "warn",
-        [`${pluginName}/${tailwindMultiline.name}`]: "warn"
+        [`${pluginName}/${tailwindSortClasses.name}`]: "warn"
       }
     }
   },
   rules: {
-    [tailwindNoUnnecessaryWhitespace.name]: tailwindNoUnnecessaryWhitespace.rule,
-    [tailwindSortClasses.name]: tailwindSortClasses.rule,
     [tailwindMultiline.name]: tailwindMultiline.rule,
-    [tailwindNoDuplicateClasses.name]: tailwindNoDuplicateClasses.rule
+    [tailwindNoDuplicateClasses.name]: tailwindNoDuplicateClasses.rule,
+    [tailwindNoUnnecessaryWhitespace.name]: tailwindNoUnnecessaryWhitespace.rule,
+    [tailwindSortClasses.name]: tailwindSortClasses.rule
   }
 } satisfies ESLint.Plugin;

@@ -7,13 +7,16 @@ import {
   isCalleeRegex,
   isInsideConditionalExpressionTest,
   isInsideLogicalExpressionLeft,
+  isTagMatchers,
+  isTagName,
+  isTagRegex,
   isVariableMatchers,
   isVariableName,
   isVariableRegex,
   matchesPathPattern
 } from "readable-tailwind:utils:matchers.js";
 import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex.js";
-import { deduplicateLiterals, getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
+import { deduplicateLiterals, getQuotes, getWhitespace, matchesName } from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type {
@@ -24,13 +27,14 @@ import type {
   Node as ESNode,
   SimpleLiteral as ESSimpleLiteral,
   SpreadElement as ESSpreadElement,
+  TaggedTemplateExpression as ESTaggedTemplateExpression,
   TemplateElement as ESTemplateElement,
   TemplateLiteral as ESTemplateLiteral,
   VariableDeclarator as ESVariableDeclarator
 } from "estree";
 
 import type { BracesMeta, Literal, Node, StringLiteral, TemplateLiteral } from "readable-tailwind:types:ast.js";
-import type { Callees, Matcher, MatcherFunctions, Variables } from "readable-tailwind:types:rule.js";
+import type { Callees, Matcher, MatcherFunctions, Tags, Variables } from "readable-tailwind:types:rule.js";
 
 
 export function getLiteralsByESVariableDeclarator(ctx: Rule.RuleContext, node: ESVariableDeclarator, variables: Variables): Literal[] {
@@ -41,12 +45,12 @@ export function getLiteralsByESVariableDeclarator(ctx: Rule.RuleContext, node: E
     if(!isESVariableSymbol(node.id)){ return literals; }
 
     if(isVariableName(variable)){
-      if(variable !== node.id.name){ return literals; }
+      if(!matchesName(variable, node.id.name)){ return literals; }
       literals.push(...getLiteralsByESExpression(ctx, [node.init]));
     } else if(isVariableRegex(variable)){
       literals.push(...getLiteralsByESNodeAndRegex(ctx, node, variable));
     } else if(isVariableMatchers(variable)){
-      if(variable[0] !== node.id.name){ return literals; }
+      if(!matchesName(variable[0], node.id.name)){ return literals; }
       literals.push(...getLiteralsByESMatchers(ctx, node.init, variable[1]));
     }
 
@@ -63,13 +67,35 @@ export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCal
     if(!isESCalleeSymbol(node.callee)){ return literals; }
 
     if(isCalleeName(callee)){
-      if(callee !== node.callee.name){ return literals; }
+      if(!matchesName(callee, node.callee.name)){ return literals; }
       literals.push(...getLiteralsByESExpression(ctx, node.arguments));
     } else if(isCalleeRegex(callee)){
       literals.push(...getLiteralsByESNodeAndRegex(ctx, node, callee));
     } else if(isCalleeMatchers(callee)){
-      if(callee[0] !== node.callee.name){ return literals; }
+      if(!matchesName(callee[0], node.callee.name)){ return literals; }
       literals.push(...getLiteralsByESMatchers(ctx, node, callee[1]));
+    }
+
+    return literals;
+  }, []);
+
+  return deduplicateLiterals(literals);
+
+}
+
+export function getLiteralsByTaggedTemplateExpression(ctx: Rule.RuleContext, node: ESTaggedTemplateExpression, tags: Tags): Literal[] {
+
+  const literals = tags.reduce<Literal[]>((literals, tag) => {
+    if(!isTaggedTemplateSymbol(node.tag)){ return literals; }
+
+    if(isTagName(tag)){
+      if(tag !== node.tag.name){ return literals; }
+      literals.push(...getLiteralsByESTemplateLiteral(ctx, node.quasi));
+    } else if(isTagRegex(tag)){
+      literals.push(...getLiteralsByESNodeAndRegex(ctx, node, tag));
+    } else if(isTagMatchers(tag)){
+      if(tag[0] !== node.tag.name){ return literals; }
+      literals.push(...getLiteralsByESMatchers(ctx, node, tag[1]));
     }
 
     return literals;
@@ -221,7 +247,7 @@ export interface ESSimpleStringLiteral extends Rule.NodeParentExtension, ESSimpl
   value: string;
 }
 
-export function isESObjectKey(node: Node | ESBaseNode & Rule.NodeParentExtension) {
+export function isESObjectKey(node: ESBaseNode & Rule.NodeParentExtension | Node) {
   return (
     node.parent.type === "Property" &&
     node.parent.parent.type === "ObjectExpression" &&
@@ -280,6 +306,14 @@ export function isESCallExpression(node: ESBaseNode): node is ESCallExpression {
 
 function isESCalleeSymbol(node: ESBaseNode & Partial<Rule.NodeParentExtension>): node is ESIdentifier {
   return node.type === "Identifier" && !!node.parent && isESCallExpression(node.parent);
+}
+
+function isTaggedTemplateExpression(node: ESBaseNode): node is ESTaggedTemplateExpression {
+  return node.type === "TaggedTemplateExpression";
+}
+
+function isTaggedTemplateSymbol(node: ESBaseNode & Partial<Rule.NodeParentExtension>): node is ESIdentifier {
+  return node.type === "Identifier" && !!node.parent && isTaggedTemplateExpression(node.parent);
 }
 
 export function isESVariableDeclarator(node: ESBaseNode): node is ESVariableDeclarator {

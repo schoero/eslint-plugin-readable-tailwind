@@ -146,9 +146,9 @@ describe("regex", () => {
 
   });
 
-  describe("class attributes", () => {
+  describe("attributes", () => {
 
-    it("should lint literals in class attributes", () => {
+    it("should lint literals in attributes", () => {
 
       const dirtyDefined = `{
         "nested": {
@@ -196,7 +196,7 @@ describe("regex", () => {
               jsx: `<img defined={${dirtyDefined}} />`,
               jsxOutput: `<img defined={${cleanDefined}} />`,
               options: [{
-                classAttributes: [
+                attributes: [
                   [
                     "defined={([\\S\\s]*)}",
                     "\"matched\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
@@ -205,6 +205,54 @@ describe("regex", () => {
               }],
               svelte: `<img defined={${dirtyDefined}} />`,
               svelteOutput: `<img defined={${cleanDefined}} />`
+            }
+          ]
+        }
+      );
+
+    });
+
+  });
+
+  describe("template literal tags", () => {
+
+    it("should lint literals in tagged template literals", () => {
+      lint(
+        tailwindNoUnnecessaryWhitespace,
+        TEST_SYNTAXES,
+        {
+          invalid: [
+            {
+              errors: 1,
+              jsx: "defined`  a  b  `",
+              jsxOutput: "defined`a b`",
+              options: [{
+                tags: [
+                  [
+                    "defined`([\\S\\s]*)`",
+                    `(.*)`
+                  ]
+                ]
+              }],
+              svelte: `<script>defined\`  a  b  \`</script>`,
+              svelteOutput: `<script>defined\`a b\`</script>`,
+              vue: `defined\`  a  b  \``,
+              vueOutput: `defined\`a b\``
+            }
+          ],
+          valid: [
+            {
+              jsx: "notDefined`  a  b  `",
+              options: [{
+                tags: [
+                  [
+                    "defined`([\\S\\s]*)`",
+                    `(.*)`
+                  ]
+                ]
+              }],
+              svelte: `<script>notDefined\`  a  b  \`</script>`,
+              vue: `notDefined\`  a  b  \``
             }
           ]
         }

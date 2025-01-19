@@ -48,20 +48,29 @@ export type VariableOption = {
   variables: Variables;
 };
 
-export type ClassAttributeName = string;
-export type ClassAttributeMatchers = [classAttribute: ClassAttributeName, matchers: Matcher[]];
-export type ClassAttributeRegex = [classAttributeRegex: Regex, literalRegex: Regex];
-export type ClassAttributes = (ClassAttributeMatchers | ClassAttributeName | ClassAttributeRegex)[];
-export type ClassAttributeOption = {
-  classAttributes: ClassAttributes;
+export type TagName = string;
+export type TagMatchers = [tag: TagName, matchers: Matcher[]];
+export type TagRegex = [tagRegex: Regex, literalRegex: Regex];
+export type Tags = (TagMatchers | TagName | TagRegex)[];
+export type TagOption = {
+  tags: Tags;
 };
 
-export type NameConfig = CalleeName | ClassAttributeName | VariableName;
-export type RegexConfig = CalleeRegex | ClassAttributeRegex | VariableRegex;
-export type MatchersConfig = CalleeMatchers | ClassAttributeMatchers | VariableMatchers;
+export type AttributeName = string;
+export type AttributeMatchers = [attribute: AttributeName, matchers: Matcher[]];
+export type AttributeRegex = [attributeRegex: Regex, literalRegex: Regex];
+export type Attributes = (AttributeMatchers | AttributeName | AttributeRegex)[];
+export type AttributeOption = {
+  attributes: Attributes;
+};
+
+export type NameConfig = AttributeName | CalleeName | VariableName;
+export type RegexConfig = AttributeRegex | CalleeRegex | VariableRegex;
+export type MatchersConfig = AttributeMatchers | CalleeMatchers | VariableMatchers;
 
 export interface ESLintRule<Options extends any[] = [any]> {
   name: string;
   rule: Rule.RuleModule;
   options?: Options;
+  settings?: Rule.RuleContext["settings"];
 }

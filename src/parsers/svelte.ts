@@ -9,15 +9,15 @@ import { MatcherType } from "readable-tailwind:types:rule.js";
 import {
   getLiteralNodesByMatchers,
   getObjectPath,
-  isClassAttributeMatchers,
-  isClassAttributeName,
-  isClassAttributeRegex,
+  isAttributesMatchers,
+  isAttributesName,
+  isAttributesRegex,
   isInsideConditionalExpressionTest,
   isInsideLogicalExpressionLeft,
   matchesPathPattern
 } from "readable-tailwind:utils:matchers.js";
 import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex.js";
-import { deduplicateLiterals, getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
+import { deduplicateLiterals, getQuotes, getWhitespace, matchesName } from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
@@ -35,7 +35,7 @@ import type {
 } from "svelte-eslint-parser/lib/ast/index.js";
 
 import type { Literal, Node, StringLiteral } from "readable-tailwind:types:ast.js";
-import type { ClassAttributes, Matcher, MatcherFunctions } from "readable-tailwind:types:rule.js";
+import type { Attributes, Matcher, MatcherFunctions } from "readable-tailwind:types:rule.js";
 
 
 export function getAttributesBySvelteTag(ctx: Rule.RuleContext, node: SvelteStartTag): SvelteAttribute[] {
@@ -47,7 +47,7 @@ export function getAttributesBySvelteTag(ctx: Rule.RuleContext, node: SvelteStar
   }, []);
 }
 
-export function getLiteralsBySvelteClassAttribute(ctx: Rule.RuleContext, attribute: SvelteAttribute, classAttributes: ClassAttributes): Literal[] {
+export function getLiteralsBySvelteAttributes(ctx: Rule.RuleContext, attribute: SvelteAttribute, attributes: Attributes): Literal[] {
 
   // skip shorthand attributes #42
   if(!Array.isArray(attribute.value)){
@@ -60,15 +60,15 @@ export function getLiteralsBySvelteClassAttribute(ctx: Rule.RuleContext, attribu
     return [];
   }
 
-  const literals = classAttributes.reduce<Literal[]>((literals, classAttribute) => {
-    if(isClassAttributeName(classAttribute)){
-      if(classAttribute.toLowerCase() !== attribute.key.name.toLowerCase()){ return literals; }
+  const literals = attributes.reduce<Literal[]>((literals, attributes) => {
+    if(isAttributesName(attributes)){
+      if(!matchesName(attributes.toLowerCase(), attribute.key.name.toLowerCase())){ return literals; }
       literals.push(...getLiteralsBySvelteLiteralNode(ctx, value));
-    } else if(isClassAttributeRegex(classAttribute)){
-      literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, classAttribute));
-    } else if(isClassAttributeMatchers(classAttribute)){
-      if(classAttribute[0].toLowerCase() !== attribute.key.name.toLowerCase()){ return literals; }
-      literals.push(...getLiteralsBySvelteMatchers(ctx, value, classAttribute[1]));
+    } else if(isAttributesRegex(attributes)){
+      literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, attributes));
+    } else if(isAttributesMatchers(attributes)){
+      if(!matchesName(attributes[0].toLowerCase(), attribute.key.name.toLowerCase())){ return literals; }
+      literals.push(...getLiteralsBySvelteMatchers(ctx, value, attributes[1]));
     }
 
     return literals;

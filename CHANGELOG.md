@@ -1,5 +1,37 @@
 # Changelog
 
+## v1.9.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.8.2...v1.9.0)
+
+### Features
+
+- Template literal tags ([#65](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/65))
+
+## v1.8.2
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.8.1...v1.8.2)
+
+### Fixes
+
+- Fixing loop when lines wrap on two lines immediately but was theoretically short enough to not wrap ([#61](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/61))
+
+## v1.8.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.8.0...v1.8.1)
+
+### Refactors
+
+- Improve display of linting errors ([#60](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/60))
+
+## v1.8.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.7.0...v1.8.0)
+
+### Features
+
+- Add support to globally configure shared options across all rules via the settings object ([#56](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/56))
+
 ## v1.7.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.6.1...v1.7.0)

@@ -29,7 +29,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
   Defines how different groups of classes should be separated. A group is a set of classes that share the same modifier/variant.
 
   **Type**: `"emptyLine" | "never" | "newLine"`  
-  **Default**: `"emptyLine"`  
+  **Default**: `"newLine"`  
 
 <br/>
 
@@ -44,7 +44,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 - `indent`
 
-  Determines how the code should be indented.
+  Determines how the code should be indented. A number defines the amount of space characters, and the string `"tab"` will use a single tab character.
 
   **Type**: `number | "tab"`  
   **Default**: `2`
@@ -61,9 +61,9 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 <br/>
 
-- `classAttributes`
+- `attributes`
 
-  The name of the attribute that contains the tailwind classes.
+  The name of the attribute that contains the tailwind classes. This can also be set globally via the [`settings` object](../settings/settings.md).  
 
   **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
   **Default**: [Name](../concepts/concepts.md#name) for `"class"` and [strings Matcher](../concepts/concepts.md#types-of-matchers) for `"class", "className"`
@@ -72,7 +72,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 - `callees`
 
-  List of function names which arguments should also get linted.
+  List of function names which arguments should get linted. This can also be set globally via the [`settings` object](../settings/settings.md).  
   
   **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
   **Default**: [Matchers](../concepts/concepts.md#types-of-matchers) for `"cc", "clb", "clsx", "cn", "cnb", "ctl", "cva", "cx", "dcnb", "objstr", "tv", "twJoin", "twMerge"`
@@ -81,10 +81,21 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 - `variables`
 
-  List of variable names which initializer should also get linted.
+  List of variable names whose initializer should get linted. This can also be set globally via the [`settings` object](../settings/settings.md).  
   
   **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
   **Default**:  [strings Matcher](../concepts/concepts.md#types-of-matchers) for `"className", "classNames", "classes", "style", "styles"`
+
+<br/>
+
+- `tags`
+
+  List of template literal tag names whose content should get linted. This can also be set globally via the [`settings` object](../settings/settings.md).  
+  
+  **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
+  **Default**: None
+
+  Note: When using the `tags` option, it is recommended to use the [strings Matcher](../concepts/concepts.md#types-of-matchers) for your tag names. This will ensure that nested expressions get linted correctly.
 
 <br/>
 
@@ -142,12 +153,12 @@ The following examples show how the rule behaves with different options:
 ```
 
 ```tsx
-// ✅ GOOD: with { preferSingleLine: true, printWidth: 120 }
+// ✅ GOOD: with { group: "newLine", preferSingleLine: true, printWidth: 120 }
 <div class="text-black underline focus:font-bold focus:text-opacity-70 hover:font-bold hover:text-opacity-70" />;
 ```
 
 ```tsx
-// ✅ GOOD: with { preferSingleLine: true, printWidth: 80 }
+// ✅ GOOD: with { group: "newLine", preferSingleLine: true, printWidth: 80 }
 <div class={`
   text-black underline
   focus:font-bold focus:text-opacity-70

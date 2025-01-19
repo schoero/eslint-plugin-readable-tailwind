@@ -32,6 +32,14 @@ export function splitClasses(classes: string): string[] {
 
 }
 
+export function display(classes: string): string {
+  return classes
+    .replaceAll(" ", "·")
+    .replaceAll("\n", "↵\n")
+    .replaceAll("\r", "↩\r")
+    .replaceAll("\t", "→");
+}
+
 export function splitWhitespaces(classes: string): string[] {
   return classes.split(/\S+/);
 }
@@ -48,6 +56,12 @@ export function findLiteralStartPosition(ctx: Rule.RuleContext, literal: Literal
 
 export function isLiteral(node: Node): node is Literal {
   return node.type === "Literal";
+}
+
+export function matchesName(pattern: string, name: string | undefined): boolean {
+  if(!name){ return false; }
+
+  return new RegExp(pattern).test(name);
 }
 
 export function deduplicateLiterals(literals: Literal[]): Literal[] {

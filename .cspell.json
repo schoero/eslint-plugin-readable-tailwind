@@ -1,6 +1,7 @@
 {
   "ignorePaths": [
     "node_modules/**",
+    ".vscode/**",
     "lib/**"
   ],
   "import": [

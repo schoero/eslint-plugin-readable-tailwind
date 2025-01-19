@@ -13,7 +13,7 @@ import { TW_JOIN } from "readable-tailwind:options:callees/twJoin.js";
 import { TW_MERGE } from "readable-tailwind:options:callees/twMerge.js";
 import { MatcherType } from "readable-tailwind:types:rule.js";
 
-import type { Callees, ClassAttributes, Variables } from "readable-tailwind:types:rule.js";
+import type { Attributes, Callees, Tags, Variables } from "readable-tailwind:types:rule.js";
 
 
 export const DEFAULT_CALLEE_NAMES = [
@@ -58,7 +58,7 @@ export const DEFAULT_ATTRIBUTE_NAMES = [
       }
     ]
   ]
-] satisfies ClassAttributes;
+] satisfies Attributes;
 
 export const DEFAULT_VARIABLE_NAMES = [
   [
@@ -97,3 +97,5 @@ export const DEFAULT_VARIABLE_NAMES = [
     ]
   ]
 ] satisfies Variables;
+
+export const DEFAULT_TAG_NAMES = [] satisfies Tags;

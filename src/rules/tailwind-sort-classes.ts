@@ -1,37 +1,50 @@
 import {
   DEFAULT_ATTRIBUTE_NAMES,
   DEFAULT_CALLEE_NAMES,
+  DEFAULT_TAG_NAMES,
   DEFAULT_VARIABLE_NAMES
 } from "readable-tailwind:options:default-options.js";
 import {
+  getAttributesSchema,
   getCalleeSchema,
-  getClassAttributeSchema,
+  getTagsSchema,
   getVariableSchema
 } from "readable-tailwind:options:descriptions.js";
-import { getLiteralsByESCallExpression, getLiteralsByESVariableDeclarator } from "readable-tailwind:parsers:es.js";
-import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readable-tailwind:parsers:html.js";
-import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx.js";
-import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
-import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "readable-tailwind:parsers:vue.js";
+import {
+  getLiteralsByESCallExpression,
+  getLiteralsByESVariableDeclarator,
+  getLiteralsByTaggedTemplateExpression
+} from "readable-tailwind:parsers:es.js";
+import { getAttributesByHTMLTag, getLiteralsByHTMLAttributes } from "readable-tailwind:parsers:html.js";
+import { getAttributesByJSXElement, getLiteralsByJSXAttributes } from "readable-tailwind:parsers:jsx.js";
+import { getAttributesBySvelteTag, getLiteralsBySvelteAttributes } from "readable-tailwind:parsers:svelte.js";
+import { getAttributesByVueStartTag, getLiteralsByVueAttributes } from "readable-tailwind:parsers:vue.js";
 import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
 import tailwind from "readable-tailwind:utils:tailwind.cjs";
-import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
+import { display, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { CallExpression, Node, VariableDeclarator } from "estree";
+import type { CallExpression, Node, TaggedTemplateExpression, VariableDeclarator } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { AST } from "vue-eslint-parser";
 
 import type { Literal } from "readable-tailwind:types:ast.js";
-import type { CalleeOption, ClassAttributeOption, ESLintRule, VariableOption } from "readable-tailwind:types:rule.js";
+import type {
+  AttributeOption,
+  CalleeOption,
+  ESLintRule,
+  TagOption,
+  VariableOption
+} from "readable-tailwind:types:rule.js";
 
 
 export type Options = [
   Partial<
+    AttributeOption &
     CalleeOption &
-    ClassAttributeOption &
+    TagOption &
     VariableOption &
     {
       order?: "asc" | "desc" | "improved" | "official" ;
@@ -40,13 +53,20 @@ export type Options = [
   >
 ];
 
+const defaultOptions = {
+  attributes: DEFAULT_ATTRIBUTE_NAMES,
+  callees: DEFAULT_CALLEE_NAMES,
+  order: "improved",
+  tags: DEFAULT_TAG_NAMES,
+  variables: DEFAULT_VARIABLE_NAMES
+} as const satisfies Options[0];
 
 export const tailwindSortClasses: ESLintRule<Options> = {
   name: "sort-classes" as const,
   rule: {
     create(ctx) {
 
-      const { callees, classAttributes, variables } = getOptions(ctx);
+      const { attributes, callees, tags, variables } = getOptions(ctx);
 
       const lintLiterals = (ctx: Rule.RuleContext, literals: Literal[]) => {
 
@@ -100,13 +120,14 @@ export const tailwindSortClasses: ESLintRule<Options> = {
 
           ctx.report({
             data: {
-              notSorted: literal.content
+              notSorted: display(literal.raw),
+              sorted: display(fixedClasses)
             },
             fix(fixer) {
               return fixer.replaceTextRange(literal.range, fixedClasses);
             },
             loc: literal.loc,
-            message: "Incorrect class order: \"{{ notSorted }}\"."
+            message: "Incorrect class order. Expected\n\n{{ notSorted }}\n\nto be\n\n{{ sorted }}"
           });
 
         }
@@ -130,13 +151,22 @@ export const tailwindSortClasses: ESLintRule<Options> = {
         }
       };
 
+      const taggedTemplateExpression = {
+        TaggedTemplateExpression(node: Node) {
+          const taggedTemplateExpressionNode = node as TaggedTemplateExpression;
+
+          const literals = getLiteralsByTaggedTemplateExpression(ctx, taggedTemplateExpressionNode, tags);
+          lintLiterals(ctx, literals);
+        }
+      };
+
       const jsx = {
         JSXOpeningElement(node: Node) {
           const jsxNode = node as JSXOpeningElement;
           const jsxAttributes = getAttributesByJSXElement(ctx, jsxNode);
 
           for(const attribute of jsxAttributes){
-            const literals = getLiteralsByJSXClassAttribute(ctx, attribute, classAttributes);
+            const literals = getLiteralsByJSXAttributes(ctx, attribute, attributes);
             lintLiterals(ctx, literals);
           }
         }
@@ -148,7 +178,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
           const svelteAttributes = getAttributesBySvelteTag(ctx, svelteNode);
 
           for(const attribute of svelteAttributes){
-            const literals = getLiteralsBySvelteClassAttribute(ctx, attribute, classAttributes);
+            const literals = getLiteralsBySvelteAttributes(ctx, attribute, attributes);
             lintLiterals(ctx, literals);
           }
         }
@@ -160,7 +190,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
           const vueAttributes = getAttributesByVueStartTag(ctx, vueNode);
 
           for(const attribute of vueAttributes){
-            const literals = getLiteralsByVueClassAttribute(ctx, attribute, classAttributes);
+            const literals = getLiteralsByVueAttributes(ctx, attribute, attributes);
             lintLiterals(ctx, literals);
           }
         }
@@ -172,7 +202,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
           const htmlAttributes = getAttributesByHTMLTag(ctx, htmlNode);
 
           for(const htmlAttribute of htmlAttributes){
-            const literals = getLiteralsByHTMLClassAttribute(ctx, htmlAttribute, classAttributes);
+            const literals = getLiteralsByHTMLAttributes(ctx, htmlAttribute, attributes);
             lintLiterals(ctx, literals);
           }
         }
@@ -184,6 +214,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
           // script tag
           ...callExpression,
           ...variableDeclarators,
+          ...taggedTemplateExpression,
 
           // bound classes
           ...ctx.sourceCode.parserServices.defineTemplateBodyVisitor({
@@ -196,6 +227,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
       return {
         ...callExpression,
         ...variableDeclarators,
+        ...taggedTemplateExpression,
         ...jsx,
         ...svelte,
         ...html
@@ -214,11 +246,12 @@ export const tailwindSortClasses: ESLintRule<Options> = {
         {
           additionalProperties: false,
           properties: {
-            ...getCalleeSchema(getOptions().callees),
-            ...getClassAttributeSchema(getOptions().classAttributes),
-            ...getVariableSchema(getOptions().variables),
+            ...getCalleeSchema(defaultOptions.callees),
+            ...getAttributesSchema(defaultOptions.attributes),
+            ...getVariableSchema(defaultOptions.variables),
+            ...getTagsSchema(defaultOptions.tags),
             order: {
-              default: getOptions().order,
+              default: defaultOptions.order,
               description: "The algorithm to use when sorting classes.",
               enum: [
                 "asc",
@@ -229,7 +262,6 @@ export const tailwindSortClasses: ESLintRule<Options> = {
               type: "string"
             },
             tailwindConfig: {
-              default: getOptions().tailwindConfig,
               description: "The path to the tailwind config file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.",
               type: "string"
             }
@@ -298,17 +330,35 @@ export function getOptions(ctx?: Rule.RuleContext) {
 
   const options: Options[0] = ctx?.options[0] ?? {};
 
-  const order = options.order ?? "improved";
-  const classAttributes = options.classAttributes ?? DEFAULT_ATTRIBUTE_NAMES;
-  const callees = options.callees ?? DEFAULT_CALLEE_NAMES;
-  const variables = options.variables ?? DEFAULT_VARIABLE_NAMES;
+  const order = options.order ?? defaultOptions.order;
+
+  const attributes = options.attributes ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.attributes ??
+    ctx?.settings["readable-tailwind"]?.attributes ??
+    defaultOptions.attributes;
+
+  const callees = options.callees ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.callees ??
+    ctx?.settings["readable-tailwind"]?.callees ??
+    defaultOptions.callees;
+
+  const variables = options.variables ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.variables ??
+    ctx?.settings["readable-tailwind"]?.variables ??
+    defaultOptions.variables;
+
+  const tags = options.tags ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.tags ??
+    ctx?.settings["readable-tailwind"]?.tags ??
+    defaultOptions.tags;
 
   const tailwindConfig = options.tailwindConfig;
 
   return {
+    attributes,
     callees,
-    classAttributes,
     order,
+    tags,
     tailwindConfig,
     variables
   };
