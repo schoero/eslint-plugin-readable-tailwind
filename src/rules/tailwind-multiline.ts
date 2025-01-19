@@ -62,6 +62,19 @@ export type Options = [
   >
 ];
 
+const defaultOptions = {
+  callees: DEFAULT_CALLEE_NAMES,
+  classAttributes: DEFAULT_ATTRIBUTE_NAMES,
+  classesPerLine: 0,
+  group: "emptyLine",
+  indent: 2,
+  lineBreakStyle: "unix",
+  preferSingleLine: false,
+  printWidth: 80,
+  tags: DEFAULT_TAG_NAMES,
+  variables: DEFAULT_VARIABLE_NAMES
+} as const satisfies Options[0];
+
 export const tailwindMultiline: ESLintRule<Options> = {
   name: "multiline" as const,
   rule: {
@@ -194,23 +207,23 @@ export const tailwindMultiline: ESLintRule<Options> = {
         {
           additionalProperties: false,
           properties: {
-            ...getCalleeSchema(getOptions().callees),
-            ...getClassAttributeSchema(getOptions().classAttributes),
-            ...getVariableSchema(getOptions().variables),
-            ...getTagsSchema(getOptions().tags),
+            ...getCalleeSchema(defaultOptions.callees),
+            ...getClassAttributeSchema(defaultOptions.classAttributes),
+            ...getVariableSchema(defaultOptions.variables),
+            ...getTagsSchema(defaultOptions.tags),
             classesPerLine: {
-              default: getOptions().classesPerLine,
+              default: defaultOptions.classesPerLine,
               description: "The maximum amount of classes per line. Lines are wrapped appropriately to stay within this limit . The value `0` disables line wrapping by `classesPerLine`.",
               type: "integer"
             },
             group: {
-              default: getOptions().group,
+              default: defaultOptions.group,
               description: "Defines how different groups of classes should be separated. A group is a set of classes that share the same modifier/variant.",
               enum: ["emptyLine", "never", "newLine"],
               type: "string"
             },
             indent: {
-              default: getOptions().indent,
+              default: defaultOptions.indent,
               description: "Determines how the code should be indented.",
               oneOf: [
                 {
@@ -224,18 +237,18 @@ export const tailwindMultiline: ESLintRule<Options> = {
               ]
             },
             lineBreakStyle: {
-              default: getOptions().lineBreakStyle,
+              default: defaultOptions.lineBreakStyle,
               description: "The line break style. The style `windows` will use `\\r\\n` as line breaks and `unix` will use `\\n`.",
               enum: ["unix", "windows"],
               type: "string"
             },
             preferSingleLine: {
-              default: getOptions().preferSingleLine,
+              default: defaultOptions.preferSingleLine,
               description: "Prefer a single line for the classes. When set to `true`, the rule will keep all classes on a single line until the line exceeds the `printWidth` or `classesPerLine` limit.",
               type: "boolean"
             },
             printWidth: {
-              default: getOptions().printWidth,
+              default: defaultOptions.printWidth,
               description: "The maximum line length. Lines are wrapped appropriately to stay within this limit. The value `0` disables line wrapping by `printWidth`.",
               type: "integer"
             }
@@ -639,33 +652,33 @@ function getOptions(ctx?: Rule.RuleContext) {
 
   const options: Options[0] = ctx?.options[0] ?? {};
 
-  const printWidth = options.printWidth ?? 80;
-  const classesPerLine = options.classesPerLine ?? 0;
-  const indent = options.indent ?? 2;
-  const group = options.group ?? "emptyLine";
-  const preferSingleLine = options.preferSingleLine ?? false;
+  const printWidth = options.printWidth ?? defaultOptions.printWidth;
+  const classesPerLine = options.classesPerLine ?? defaultOptions.classesPerLine;
+  const indent = options.indent ?? defaultOptions.indent;
+  const group = options.group ?? defaultOptions.group;
+  const preferSingleLine = options.preferSingleLine ?? defaultOptions.preferSingleLine;
 
   const classAttributes = options.classAttributes ??
     ctx?.settings["eslint-plugin-readable-tailwind"]?.classAttributes ??
     ctx?.settings["readable-tailwind"]?.classAttributes ??
-    DEFAULT_ATTRIBUTE_NAMES;
+    defaultOptions.classAttributes;
 
   const callees = options.callees ??
     ctx?.settings["eslint-plugin-readable-tailwind"]?.callees ??
     ctx?.settings["readable-tailwind"]?.callees ??
-    DEFAULT_CALLEE_NAMES;
+    defaultOptions.callees;
 
   const variables = options.variables ??
     ctx?.settings["eslint-plugin-readable-tailwind"]?.variables ??
     ctx?.settings["readable-tailwind"]?.variables ??
-    DEFAULT_VARIABLE_NAMES;
+    defaultOptions.variables;
 
   const tags = options.tags ??
     ctx?.settings["eslint-plugin-readable-tailwind"]?.tags ??
     ctx?.settings["readable-tailwind"]?.tags ??
-    DEFAULT_TAG_NAMES;
+    defaultOptions.tags;
 
-  const lineBreakStyle = options.lineBreakStyle ?? "unix";
+  const lineBreakStyle = options.lineBreakStyle ?? defaultOptions.lineBreakStyle;
 
   return {
     callees,

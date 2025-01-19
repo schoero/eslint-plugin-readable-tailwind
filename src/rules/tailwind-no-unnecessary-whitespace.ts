@@ -51,6 +51,14 @@ export type Options = [
   >
 ];
 
+const defaultOptions = {
+  allowMultiline: true,
+  callees: DEFAULT_CALLEE_NAMES,
+  classAttributes: DEFAULT_ATTRIBUTE_NAMES,
+  tags: DEFAULT_TAG_NAMES,
+  variables: DEFAULT_VARIABLE_NAMES
+} as const satisfies Options[0];
+
 export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
   name: "no-unnecessary-whitespace" as const,
   rule: {
@@ -172,14 +180,14 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
           additionalProperties: false,
           properties: {
             allowMultiline: {
-              default: getOptions().allowMultiline,
+              default: defaultOptions.allowMultiline,
               description: "Allow multi-line class declarations. If this option is disabled, template literal strings will be collapsed into a single line string wherever possible. Must be set to `true` when used in combination with [readable-tailwind/multiline](./multiline.md).",
               type: "boolean"
             },
-            ...getCalleeSchema(getOptions().callees),
-            ...getClassAttributeSchema(getOptions().classAttributes),
-            ...getVariableSchema(getOptions().variables),
-            ...getTagsSchema(getOptions().tags)
+            ...getCalleeSchema(defaultOptions.callees),
+            ...getClassAttributeSchema(defaultOptions.classAttributes),
+            ...getVariableSchema(defaultOptions.variables),
+            ...getTagsSchema(defaultOptions.tags)
           },
           type: "object"
         }
@@ -278,27 +286,27 @@ function getOptions(ctx?: Rule.RuleContext) {
 
   const options: Options[0] = ctx?.options[0] ?? {};
 
-  const allowMultiline = options.allowMultiline ?? true;
+  const allowMultiline = options.allowMultiline ?? defaultOptions.allowMultiline;
 
   const classAttributes = options.classAttributes ??
     ctx?.settings["eslint-plugin-readable-tailwind"]?.classAttributes ??
     ctx?.settings["readable-tailwind"]?.classAttributes ??
-    DEFAULT_ATTRIBUTE_NAMES;
+    defaultOptions.classAttributes;
 
   const callees = options.callees ??
     ctx?.settings["eslint-plugin-readable-tailwind"]?.callees ??
     ctx?.settings["readable-tailwind"]?.callees ??
-    DEFAULT_CALLEE_NAMES;
+    defaultOptions.callees;
 
   const variables = options.variables ??
     ctx?.settings["eslint-plugin-readable-tailwind"]?.variables ??
     ctx?.settings["readable-tailwind"]?.variables ??
-    DEFAULT_VARIABLE_NAMES;
+    defaultOptions.variables;
 
   const tags = options.tags ??
     ctx?.settings["eslint-plugin-readable-tailwind"]?.tags ??
     ctx?.settings["readable-tailwind"]?.tags ??
-    DEFAULT_TAG_NAMES;
+    defaultOptions.tags;
 
   return {
     allowMultiline,
