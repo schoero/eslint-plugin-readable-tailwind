@@ -12,7 +12,7 @@ import {
   isClassAttributeRegex
 } from "readable-tailwind:utils:matchers.js";
 import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex.js";
-import { deduplicateLiterals } from "readable-tailwind:utils:utils.js";
+import { deduplicateLiterals, matchesName } from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { TemplateLiteral as ESTemplateLiteral } from "estree";
@@ -30,12 +30,12 @@ export function getLiteralsByJSXClassAttribute(ctx: Rule.RuleContext, attribute:
     if(!value){ return literals; }
 
     if(isClassAttributeName(classAttribute)){
-      if(typeof attribute.name.name !== "string" || classAttribute.toLowerCase() !== attribute.name.name.toLowerCase()){ return literals; }
+      if(typeof attribute.name.name !== "string" || !matchesName(classAttribute.toLowerCase(), attribute.name.name.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByJSXAttributeValue(ctx, value));
     } else if(isClassAttributeRegex(classAttribute)){
       literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, classAttribute));
     } else if(isClassAttributeMatchers(classAttribute)){
-      if(typeof attribute.name.name !== "string" || classAttribute[0].toLowerCase() !== attribute.name.name.toLowerCase()){ return literals; }
+      if(typeof attribute.name.name !== "string" || !matchesName(classAttribute[0].toLowerCase(), attribute.name.name.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByESMatchers(ctx, value, classAttribute[1]));
     }
 

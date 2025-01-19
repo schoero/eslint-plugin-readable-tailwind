@@ -58,6 +58,12 @@ export function isLiteral(node: Node): node is Literal {
   return node.type === "Literal";
 }
 
+export function matchesName(pattern: string, name: string | undefined): boolean {
+  if(!name){ return false; }
+
+  return new RegExp(pattern).test(name);
+}
+
 export function deduplicateLiterals(literals: Literal[]): Literal[] {
   return literals.filter((l1, index) => {
     return literals.findIndex(l2 => {

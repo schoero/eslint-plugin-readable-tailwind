@@ -17,7 +17,7 @@ import {
   matchesPathPattern
 } from "readable-tailwind:utils:matchers.js";
 import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex.js";
-import { deduplicateLiterals, getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
+import { deduplicateLiterals, getQuotes, getWhitespace, matchesName } from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
@@ -42,12 +42,12 @@ export function getLiteralsByVueClassAttribute(ctx: Rule.RuleContext, attribute:
 
   const literals = classAttributes.reduce<Literal[]>((literals, classAttribute) => {
     if(isClassAttributeName(classAttribute)){
-      if(getVueAttributeName(attribute)?.toLowerCase() !== getVueBoundName(classAttribute).toLowerCase()){ return literals; }
+      if(!matchesName(getVueBoundName(classAttribute).toLowerCase(), getVueAttributeName(attribute)?.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByVueLiteralNode(ctx, value));
     } else if(isClassAttributeRegex(classAttribute)){
       literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, classAttribute));
     } else if(isClassAttributeMatchers(classAttribute)){
-      if(getVueAttributeName(attribute)?.toLowerCase() !== getVueBoundName(classAttribute[0]).toLowerCase()){ return literals; }
+      if(!matchesName(getVueBoundName(classAttribute[0]).toLowerCase(), getVueAttributeName(attribute)?.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByVueMatchers(ctx, value, classAttribute[1]));
     }
 
