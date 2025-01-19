@@ -60,15 +60,15 @@ export function getLiteralsBySvelteAttributes(ctx: Rule.RuleContext, attribute: 
     return [];
   }
 
-  const literals = attributes.reduce<Literal[]>((literals, Attributes) => {
-    if(isAttributesName(Attributes)){
-      if(!matchesName(Attributes.toLowerCase(), attribute.key.name.toLowerCase())){ return literals; }
+  const literals = attributes.reduce<Literal[]>((literals, attributes) => {
+    if(isAttributesName(attributes)){
+      if(!matchesName(attributes.toLowerCase(), attribute.key.name.toLowerCase())){ return literals; }
       literals.push(...getLiteralsBySvelteLiteralNode(ctx, value));
-    } else if(isAttributesRegex(Attributes)){
-      literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, Attributes));
-    } else if(isAttributesMatchers(Attributes)){
-      if(!matchesName(Attributes[0].toLowerCase(), attribute.key.name.toLowerCase())){ return literals; }
-      literals.push(...getLiteralsBySvelteMatchers(ctx, value, Attributes[1]));
+    } else if(isAttributesRegex(attributes)){
+      literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, attributes));
+    } else if(isAttributesMatchers(attributes)){
+      if(!matchesName(attributes[0].toLowerCase(), attribute.key.name.toLowerCase())){ return literals; }
+      literals.push(...getLiteralsBySvelteMatchers(ctx, value, attributes[1]));
     }
 
     return literals;

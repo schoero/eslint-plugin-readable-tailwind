@@ -195,16 +195,16 @@ export function isTagMatchers(tag: Tags[number]): tag is TagMatchers {
   return Array.isArray(tag) && typeof tag[0] === "string" && Array.isArray(tag[1]);
 }
 
-export function isAttributesName(Attributes: Attributes[number]): Attributes is AttributeName {
-  return typeof Attributes === "string";
+export function isAttributesName(attributes: Attributes[number]): attributes is AttributeName {
+  return typeof attributes === "string";
 }
 
-export function isAttributesRegex(Attributes: Attributes[number]): Attributes is AttributeRegex {
-  return Array.isArray(Attributes) && typeof Attributes[0] === "string" && typeof Attributes[1] === "string";
+export function isAttributesRegex(attributes: Attributes[number]): attributes is AttributeRegex {
+  return Array.isArray(attributes) && typeof attributes[0] === "string" && typeof attributes[1] === "string";
 }
 
-export function isAttributesMatchers(Attributes: Attributes[number]): Attributes is AttributeMatchers {
-  return Array.isArray(Attributes) && typeof Attributes[0] === "string" && Array.isArray(Attributes[1]);
+export function isAttributesMatchers(attributes: Attributes[number]): attributes is AttributeMatchers {
+  return Array.isArray(attributes) && typeof attributes[0] === "string" && Array.isArray(attributes[1]);
 }
 
 export function isInsideConditionalExpressionTest(node: ESNode & Partial<Rule.NodeParentExtension>): boolean {

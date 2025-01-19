@@ -22,17 +22,17 @@ import type { Attributes } from "readable-tailwind:types:rule.js";
 export function getLiteralsByJSXAttributes(ctx: Rule.RuleContext, attribute: JSXAttribute, attributes: Attributes): Literal[] {
   const value = attribute.value;
 
-  const literals = attributes.reduce<Literal[]>((literals, Attributes) => {
+  const literals = attributes.reduce<Literal[]>((literals, attributes) => {
     if(!value){ return literals; }
 
-    if(isAttributesName(Attributes)){
-      if(typeof attribute.name.name !== "string" || !matchesName(Attributes.toLowerCase(), attribute.name.name.toLowerCase())){ return literals; }
+    if(isAttributesName(attributes)){
+      if(typeof attribute.name.name !== "string" || !matchesName(attributes.toLowerCase(), attribute.name.name.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByJSXAttributeValue(ctx, value));
-    } else if(isAttributesRegex(Attributes)){
-      literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, Attributes));
-    } else if(isAttributesMatchers(Attributes)){
-      if(typeof attribute.name.name !== "string" || !matchesName(Attributes[0].toLowerCase(), attribute.name.name.toLowerCase())){ return literals; }
-      literals.push(...getLiteralsByESMatchers(ctx, value, Attributes[1]));
+    } else if(isAttributesRegex(attributes)){
+      literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, attributes));
+    } else if(isAttributesMatchers(attributes)){
+      if(typeof attribute.name.name !== "string" || !matchesName(attributes[0].toLowerCase(), attribute.name.name.toLowerCase())){ return literals; }
+      literals.push(...getLiteralsByESMatchers(ctx, value, attributes[1]));
     }
 
     return literals;

@@ -40,15 +40,15 @@ export function getLiteralsByVueAttributes(ctx: Rule.RuleContext, attribute: AST
 
   const value = attribute.value;
 
-  const literals = attributes.reduce<Literal[]>((literals, Attributes) => {
-    if(isAttributesName(Attributes)){
-      if(!matchesName(getVueBoundName(Attributes).toLowerCase(), getVueAttributeName(attribute)?.toLowerCase())){ return literals; }
+  const literals = attributes.reduce<Literal[]>((literals, attributes) => {
+    if(isAttributesName(attributes)){
+      if(!matchesName(getVueBoundName(attributes).toLowerCase(), getVueAttributeName(attribute)?.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByVueLiteralNode(ctx, value));
-    } else if(isAttributesRegex(Attributes)){
-      literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, Attributes));
-    } else if(isAttributesMatchers(Attributes)){
-      if(!matchesName(getVueBoundName(Attributes[0]).toLowerCase(), getVueAttributeName(attribute)?.toLowerCase())){ return literals; }
-      literals.push(...getLiteralsByVueMatchers(ctx, value, Attributes[1]));
+    } else if(isAttributesRegex(attributes)){
+      literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, attributes));
+    } else if(isAttributesMatchers(attributes)){
+      if(!matchesName(getVueBoundName(attributes[0]).toLowerCase(), getVueAttributeName(attribute)?.toLowerCase())){ return literals; }
+      literals.push(...getLiteralsByVueMatchers(ctx, value, attributes[1]));
     }
 
     return literals;

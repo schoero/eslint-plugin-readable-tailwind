@@ -9,13 +9,13 @@ import type { Attributes } from "readable-tailwind:types:rule.js";
 
 
 export function getLiteralsByHTMLAttributes(ctx: Rule.RuleContext, attribute: AttributeNode, attributes: Attributes): Literal[] {
-  const literals = attributes.reduce<Literal[]>((literals, Attributes) => {
-    if(isAttributesName(Attributes)){
-      if(Attributes.toLowerCase() !== attribute.key.value.toLowerCase()){ return literals; }
+  const literals = attributes.reduce<Literal[]>((literals, attributes) => {
+    if(isAttributesName(attributes)){
+      if(attributes.toLowerCase() !== attribute.key.value.toLowerCase()){ return literals; }
       literals.push(...getLiteralsByHTMLAttributeNode(ctx, attribute));
-    } else if(isAttributesRegex(Attributes)){
+    } else if(isAttributesRegex(attributes)){
       console.warn("Regex not supported in HTML");
-    } else if(isAttributesMatchers(Attributes)){
+    } else if(isAttributesMatchers(attributes)){
       console.warn("Matchers not supported in HTML");
     }
 
