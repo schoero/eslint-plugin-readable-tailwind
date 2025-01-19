@@ -60,6 +60,14 @@ export type Options = [
   >
 ];
 
+const defaultOptions = {
+  callees: DEFAULT_CALLEE_NAMES,
+  classAttributes: DEFAULT_ATTRIBUTE_NAMES,
+  order: "improved",
+  tags: DEFAULT_TAG_NAMES,
+  variables: DEFAULT_VARIABLE_NAMES
+} as const satisfies Options[0];
+
 const TAILWIND_CONFIG_CACHE = new Map<string, ReturnType<typeof resolveConfig<Config>>>();
 const TAILWIND_CONTEXT_CACHE = new Map<ReturnType<typeof resolveConfig>, TailwindContext>();
 
@@ -251,12 +259,12 @@ export const tailwindSortClasses: ESLintRule<Options> = {
         {
           additionalProperties: false,
           properties: {
-            ...getCalleeSchema(getOptions().callees),
-            ...getClassAttributeSchema(getOptions().classAttributes),
-            ...getVariableSchema(getOptions().variables),
-            ...getTagsSchema(getOptions().tags),
+            ...getCalleeSchema(defaultOptions.callees),
+            ...getClassAttributeSchema(defaultOptions.classAttributes),
+            ...getVariableSchema(defaultOptions.variables),
+            ...getTagsSchema(defaultOptions.tags),
             order: {
-              default: getOptions().order,
+              default: defaultOptions.order,
               description: "The algorithm to use when sorting classes.",
               enum: [
                 "asc",
@@ -267,7 +275,6 @@ export const tailwindSortClasses: ESLintRule<Options> = {
               type: "string"
             },
             tailwindConfig: {
-              default: getOptions().tailwindConfig,
               description: "The path to the tailwind config file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.",
               type: "string"
             }
@@ -374,27 +381,27 @@ export function getOptions(ctx?: Rule.RuleContext) {
 
   const options: Options[0] = ctx?.options[0] ?? {};
 
-  const order = options.order ?? "improved";
+  const order = options.order ?? defaultOptions.order;
 
   const classAttributes = options.classAttributes ??
     ctx?.settings["eslint-plugin-readable-tailwind"]?.classAttributes ??
     ctx?.settings["readable-tailwind"]?.classAttributes ??
-    DEFAULT_ATTRIBUTE_NAMES;
+    defaultOptions.classAttributes;
 
   const callees = options.callees ??
     ctx?.settings["eslint-plugin-readable-tailwind"]?.callees ??
     ctx?.settings["readable-tailwind"]?.callees ??
-    DEFAULT_CALLEE_NAMES;
+    defaultOptions.callees;
 
   const variables = options.variables ??
     ctx?.settings["eslint-plugin-readable-tailwind"]?.variables ??
     ctx?.settings["readable-tailwind"]?.variables ??
-    DEFAULT_VARIABLE_NAMES;
+    defaultOptions.variables;
 
   const tags = options.tags ??
     ctx?.settings["eslint-plugin-readable-tailwind"]?.tags ??
     ctx?.settings["readable-tailwind"]?.tags ??
-    DEFAULT_TAG_NAMES;
+    defaultOptions.tags;
 
   const tailwindConfig = options.tailwindConfig;
 
