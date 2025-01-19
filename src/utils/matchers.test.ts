@@ -239,7 +239,7 @@ describe("matchers", () => {
       });
     });
 
-    it("should match classAttributes via regex", () => {
+    it("should match attributes via regex", () => {
       lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
         invalid: [
           {
@@ -247,7 +247,7 @@ describe("matchers", () => {
             jsx: `<img testStyles=" lint " />`,
             jsxOutput: `<img testStyles="lint" />`,
             options: [{
-              classAttributes: [["^.*Styles$", [{ match: MatcherType.String }]]]
+              attributes: [["^.*Styles$", [{ match: MatcherType.String }]]]
             }],
             svelte: `<img testStyles=" lint " />`,
             svelteOutput: `<img testStyles="lint" />`,
@@ -335,9 +335,9 @@ describe("matchers", () => {
 
   });
 
-  describe("class attributes", () => {
+  describe("attributes", () => {
 
-    it("should lint literals in class attributes", () => {
+    it("should lint literals in attributes", () => {
 
       const dirtyDefined = `{
         "nested": {
@@ -385,7 +385,7 @@ describe("matchers", () => {
               jsx: `<img defined={${dirtyDefined}} />`,
               jsxOutput: `<img defined={${cleanDefined}} />`,
               options: [{
-                classAttributes: [
+                attributes: [
                   [
                     "defined",
                     [
@@ -605,8 +605,8 @@ describe("matchers", () => {
           jsx: "<img class={{ key: defined('  a b c  ')}} />",
           jsxOutput: "<img class={{ key: defined('a b c')}} />",
           options: [{
-            callees: [["defined", [{ match: MatcherType.String }]]],
-            classAttributes: [["class", [{ match: MatcherType.ObjectValue }]]]
+            attributes: [["class", [{ match: MatcherType.ObjectValue }]]],
+            callees: [["defined", [{ match: MatcherType.String }]]]
           }]
         }
       ]

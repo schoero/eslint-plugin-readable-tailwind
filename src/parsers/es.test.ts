@@ -44,7 +44,7 @@ describe("es", () => {
     });
   });
 
-  it("should match classAttributes via regex", () => {
+  it("should match attributes via regex", () => {
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
@@ -52,7 +52,7 @@ describe("es", () => {
           jsx: `<img testStyles=" lint " />`,
           jsxOutput: `<img testStyles="lint" />`,
           options: [{
-            classAttributes: ["^.*Styles$"]
+            attributes: ["^.*Styles$"]
           }],
           svelte: `<img testStyles=" lint " />`,
           svelteOutput: `<img testStyles="lint" />`,

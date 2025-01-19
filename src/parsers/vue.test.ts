@@ -69,13 +69,13 @@ describe(tailwindSortClasses.name, () => {
       invalid: [
         {
           errors: 1,
-          options: [{ classAttributes: [[":custom-class", [{ match: MatcherType.String }]]], order: "asc" }],
+          options: [{ attributes: [[":custom-class", [{ match: MatcherType.String }]]], order: "asc" }],
           vue: `<template><img v-bind:custom-class="['c b a']" /></template>`,
           vueOutput: `<template><img v-bind:custom-class="['a b c']" /></template>`
         },
         {
           errors: 1,
-          options: [{ classAttributes: [["v-bind:custom-class", [{ match: MatcherType.String }]]], order: "asc" }],
+          options: [{ attributes: [["v-bind:custom-class", [{ match: MatcherType.String }]]], order: "asc" }],
           vue: `<template><img :custom-class="['c b a']" /></template>`,
           vueOutput: `<template><img :custom-class="['a b c']" /></template>`
         }
@@ -88,7 +88,7 @@ describe(tailwindSortClasses.name, () => {
       invalid: [
         {
           errors: 1,
-          options: [{ classAttributes: [[":.*Styles$", [{ match: MatcherType.String }]]], order: "asc" }],
+          options: [{ attributes: [[":.*Styles$", [{ match: MatcherType.String }]]], order: "asc" }],
           vue: `<template><img v-bind:testStyles="['c b a']" /></template>`,
           vueOutput: `<template><img v-bind:testStyles="['a b c']" /></template>`
         }

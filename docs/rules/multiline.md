@@ -61,7 +61,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 <br/>
 
-- `classAttributes`
+- `attributes`
 
   The name of the attribute that contains the tailwind classes. This can also be set globally via the [`settings` object](../settings/settings.md).  
 

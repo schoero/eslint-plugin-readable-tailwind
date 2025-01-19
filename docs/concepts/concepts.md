@@ -4,7 +4,7 @@ The [rules](../../README.md#rules) of this plugin can't apply to every string li
 
 There are different ways to define where to look for tailwind classes.
 
-- [Name](#name): Matches a single string literal by the name of the callee, variable or class attribute.
+- [Name](#name): Matches a single string literal by the name of the callee, variable or attribute.
 - [Regular expressions](#regular-expressions): Matches multiple string literals by regular expressions.
 - [Matchers](#matchers): Matches multiple string literals by the abstract syntax tree.
 
@@ -18,7 +18,7 @@ It is possible that you never have to change this configuration, but if you do n
 
 ## Name
 
-The simplest form to define string literals to lint is by their name. Callees, variables or class attributes with that name will be linted. The name can be a string or a regular expression.
+The simplest form to define string literals to lint is by their name. Callees, variables or attributes with that name will be linted. The name can be a string or a regular expression.
 
 <br/>
 
@@ -34,7 +34,7 @@ type Name = string;
 
 ```jsonc
 {
-  "classAttributes": ["myAttribute"]
+  "attributes": ["myAttribute"]
 }
 ```
 
@@ -101,7 +101,7 @@ type Regex = [
 
 ```jsonc
 {
-  "classAttributes": [
+  "attributes": [
     [
       // matches the attribute name and the attribute value
       "myAttribute={([\\S\\s]*)}",
@@ -254,7 +254,7 @@ For example, the object path for the `value` key in the following object would b
 
 ```jsonc
 {
-  "classAttributes": [
+  "attributes": [
     [
       // matches attributes with the name `myAttribute`
       "myAttribute",
