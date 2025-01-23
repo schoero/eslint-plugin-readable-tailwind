@@ -1,10 +1,4 @@
-import { resolve } from "node:path";
-
-import defaultConfig from "tailwindcss/defaultConfig.js";
-import * as setupContextUtils from "tailwindcss/lib/lib/setupContextUtils.js";
-import loadConfig from "tailwindcss/loadConfig.js";
-import resolveConfig from "tailwindcss/resolveConfig.js";
-
+import { getClassOrder } from "readable-tailwind:async:class-order.sync.js";
 import {
   DEFAULT_ATTRIBUTE_NAMES,
   DEFAULT_CALLEE_NAMES,
@@ -34,7 +28,6 @@ import type { Rule } from "eslint";
 import type { CallExpression, Node, TaggedTemplateExpression, VariableDeclarator } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
-import type { Config } from "tailwindcss/types/config.js";
 import type { AST } from "vue-eslint-parser";
 
 import type { Literal } from "readable-tailwind:types:ast.js";
@@ -49,11 +42,13 @@ import type {
 
 export type Options = [
   Partial<
-    AttributeOption &
+    AttributeOption
+     &
     CalleeOption &
     TagOption &
     VariableOption &
     {
+      entryPoint?: string;
       order?: "asc" | "desc" | "improved" | "official" ;
       tailwindConfig?: string;
     }
@@ -68,18 +63,12 @@ const defaultOptions = {
   variables: DEFAULT_VARIABLE_NAMES
 } as const satisfies Options[0];
 
-const TAILWIND_CONFIG_CACHE = new Map<string, ReturnType<typeof resolveConfig<Config>>>();
-const TAILWIND_CONTEXT_CACHE = new Map<ReturnType<typeof resolveConfig>, TailwindContext>();
-
 export const tailwindSortClasses: ESLintRule<Options> = {
   name: "sort-classes" as const,
   rule: {
     create(ctx) {
 
       const { attributes, callees, tags, variables } = getOptions(ctx);
-
-      const tailwindConfig = findTailwindConfig(ctx);
-      const tailwindContext = createTailwindContext(tailwindConfig);
 
       const lintLiterals = (ctx: Rule.RuleContext, literals: Literal[]) => {
 
@@ -100,7 +89,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
             unsortableClasses[1] = classChunks.pop() ?? "";
           }
 
-          const sortedClassChunks = sortClasses(ctx, tailwindContext, classChunks);
+          const sortedClassChunks = sortClasses(ctx, classChunks);
 
           const classes: string[] = [];
 
@@ -263,6 +252,10 @@ export const tailwindSortClasses: ESLintRule<Options> = {
             ...getAttributesSchema(defaultOptions.attributes),
             ...getVariableSchema(defaultOptions.variables),
             ...getTagsSchema(defaultOptions.tags),
+            entryPoint: {
+              description: "The path to the css entry point of the project. If not specified, the plugin will fall back to the default tailwind classes.",
+              type: "string"
+            },
             order: {
               default: defaultOptions.order,
               description: "The algorithm to use when sorting classes.",
@@ -288,9 +281,9 @@ export const tailwindSortClasses: ESLintRule<Options> = {
 };
 
 
-function sortClasses(ctx: Rule.RuleContext, tailwindContext: TailwindContext, classes: string[]): string[] {
+function sortClasses(ctx: Rule.RuleContext, classes: string[]): string[] {
 
-  const { order } = getOptions(ctx);
+  const { order, tailwindConfig } = getOptions(ctx);
 
   if(order === "asc"){
     return [...classes].sort((a, b) => a.localeCompare(b));
@@ -300,7 +293,7 @@ function sortClasses(ctx: Rule.RuleContext, tailwindContext: TailwindContext, cl
     return [...classes].sort((a, b) => b.localeCompare(a));
   }
 
-  const officialClassOrder = tailwindContext.getClassOrder(classes) as [string, bigint | null][];
+  const officialClassOrder = getClassOrder({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
   const officiallySortedClasses = [...officialClassOrder]
     .sort(([, a], [, z]) => {
       if(a === z){ return 0; }
@@ -336,46 +329,6 @@ function sortClasses(ctx: Rule.RuleContext, tailwindContext: TailwindContext, cl
 
 }
 
-function findTailwindConfig(ctx: Rule.RuleContext, directory: string = ctx.cwd) {
-
-  const { tailwindConfig } = getOptions(ctx);
-
-  const cacheKey = JSON.stringify({ config: tailwindConfig, cwd: ctx.cwd });
-
-  if(TAILWIND_CONFIG_CACHE.has(cacheKey)){
-    return TAILWIND_CONFIG_CACHE.get(cacheKey)!;
-  }
-
-  let userConfig: Config | undefined;
-
-  userConfig ??= tailwindConfig
-    ? loadTailwindConfig(resolve(directory, tailwindConfig))
-    : undefined;
-
-  userConfig ??= loadTailwindConfig(resolve(directory, "tailwind.config.js"));
-  userConfig ??= loadTailwindConfig(resolve(directory, "tailwind.config.ts"));
-
-  if(userConfig){
-    const loadedConfig = resolveConfig(userConfig);
-    TAILWIND_CONFIG_CACHE.set(cacheKey, loadedConfig);
-    return loadedConfig;
-  }
-
-  const parentDirectory = resolve(directory, "..");
-
-  if(directory === parentDirectory){
-    return resolveConfig(defaultConfig);
-  }
-
-  return findTailwindConfig(ctx, parentDirectory);
-
-}
-
-function loadTailwindConfig(path: string) {
-  try {
-    return loadConfig(path);
-  } catch (error){}
-}
 
 export function getOptions(ctx?: Rule.RuleContext) {
 
@@ -403,7 +356,11 @@ export function getOptions(ctx?: Rule.RuleContext) {
     ctx?.settings["readable-tailwind"]?.tags ??
     defaultOptions.tags;
 
-  const tailwindConfig = options.tailwindConfig;
+  const tailwindConfig = options.tailwindConfig ?? options.entryPoint ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.tailwindConfig ??
+    ctx?.settings["readable-tailwind"]?.tailwindConfig ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.entryPoint ??
+    ctx?.settings["readable-tailwind"]?.entryPoint;
 
   return {
     attributes,
@@ -414,21 +371,4 @@ export function getOptions(ctx?: Rule.RuleContext) {
     variables
   };
 
-}
-
-interface TailwindContext {
-  getClassOrder: (classes: string[]) => [className: string, order: bigint | null][];
-  tailwindConfig: Config;
-}
-
-function createTailwindContext(tailwindConfig: ReturnType<typeof resolveConfig>): TailwindContext {
-  if(TAILWIND_CONTEXT_CACHE.has(tailwindConfig)){
-    return TAILWIND_CONTEXT_CACHE.get(tailwindConfig)!;
-  }
-
-  const createContext = setupContextUtils.createContext ?? setupContextUtils.default.createContext;
-
-  const context = createContext(tailwindConfig);
-  TAILWIND_CONTEXT_CACHE.set(tailwindConfig, context);
-  return context;
 }

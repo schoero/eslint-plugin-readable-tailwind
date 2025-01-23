@@ -21,9 +21,19 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
 <br/>
 
+- `entryPoint`
+
+  The path to the entry file of the tailwind css config. If not specified, the plugin will fall back to the default configuration.  
+  The tailwind config is used to determine the sorting order.
+
+  **Type**: `string`  
+  **Default**: `undefined`
+
+<br/>
+
 - `tailwindConfig`
 
-  The path to the tailwind config file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.  
+  The path to the `tailwind.config.js` file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.  
   The tailwind config is used to determine the sorting order.
 
   **Type**: `string`  
