@@ -61,14 +61,10 @@ const defaultOptions = {
   variables: DEFAULT_VARIABLE_NAMES
 } as const satisfies Options[0];
 
-console.log("INIT FILE");
-
 export const tailwindSortClasses: ESLintRule<Options> = {
   name: "sort-classes" as const,
   rule: {
     create(ctx) {
-
-      console.log("CREATE SORT CLASSES");
 
       const { attributes, callees, tags, variables } = getOptions(ctx);
 

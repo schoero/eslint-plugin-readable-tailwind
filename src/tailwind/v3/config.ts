@@ -11,16 +11,17 @@ export function loadTailwindConfig(path: string | undefined) {
 
 const CACHE = new Map<string, ReturnType<typeof setupContextUtils.createContext>>();
 
-export function createTailwindContextFromConfigFile(path: string = "default") {
-  if(CACHE.has(path)){
-    console.log("v3 cached designSystem");
-    return CACHE.get(path);
+export function createTailwindContextFromConfigFile(path?: string) {
+  const cacheKey = path ?? "default";
+
+  if(CACHE.has(cacheKey)){
+    return CACHE.get(cacheKey);
   }
 
   const tailwindConfig = loadTailwindConfig(path);
   const context = setupContextUtils.createContext?.(tailwindConfig) ?? setupContextUtils.default?.createContext?.(tailwindConfig);
 
-  CACHE.set(path, context);
+  CACHE.set(cacheKey, context);
 
   return context;
 }

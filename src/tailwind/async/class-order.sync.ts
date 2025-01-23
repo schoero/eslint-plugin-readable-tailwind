@@ -14,7 +14,6 @@ const getClassOrderSync = createSyncFn<(version: SupportedTailwindVersion, reque
   ...env.NODE_ENV === "test" && { execArgv: ["--import", TsRunner.TSX] }
 });
 
-console.log("create worker sync");
 
 export function getClassOrder(request: GetClassOrderRequest): GetClassOrderResponse {
 
