@@ -41,14 +41,10 @@ jobs:
         run: npm ci
 
       - name: Run tests with tailwindcss v3
-        run: |
-          npm install tailwindcss@^3 --no-save
-          npm run test
+        run: npm run test:v3
 
       - name: Run tests with tailwindcss v4
-        run: |
-          npm install tailwindcss@next --no-save
-          npm run test
+        run: npm run test:v4
 
     strategy:
       fail-fast: true

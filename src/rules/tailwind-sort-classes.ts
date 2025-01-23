@@ -1,3 +1,4 @@
+import { getClassOrder } from "readable-tailwind:async:class-order.sync.js";
 import {
   DEFAULT_ATTRIBUTE_NAMES,
   DEFAULT_CALLEE_NAMES,
@@ -20,7 +21,6 @@ import { getAttributesByJSXElement, getLiteralsByJSXAttributes } from "readable-
 import { getAttributesBySvelteTag, getLiteralsBySvelteAttributes } from "readable-tailwind:parsers:svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueAttributes } from "readable-tailwind:parsers:vue.js";
 import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
-import tailwind from "readable-tailwind:utils:tailwind.cjs";
 import { display, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
 import type { TagNode } from "es-html-parser";
@@ -61,10 +61,14 @@ const defaultOptions = {
   variables: DEFAULT_VARIABLE_NAMES
 } as const satisfies Options[0];
 
+console.log("INIT FILE");
+
 export const tailwindSortClasses: ESLintRule<Options> = {
   name: "sort-classes" as const,
   rule: {
     create(ctx) {
+
+      console.log("CREATE SORT CLASSES");
 
       const { attributes, callees, tags, variables } = getOptions(ctx);
 
@@ -287,10 +291,7 @@ function sortClasses(ctx: Rule.RuleContext, classes: string[]): string[] {
     return [...classes].sort((a, b) => b.localeCompare(a));
   }
 
-  const getClassOrder = tailwind.importTailwindCss(ctx.cwd, tailwindConfig);
-
-  const officialClassOrder = getClassOrder(classes);
-
+  const officialClassOrder = getClassOrder({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
   const officiallySortedClasses = [...officialClassOrder]
     .sort(([, a], [, z]) => {
       if(a === z){ return 0; }
@@ -326,6 +327,7 @@ function sortClasses(ctx: Rule.RuleContext, classes: string[]): string[] {
 
 }
 
+
 export function getOptions(ctx?: Rule.RuleContext) {
 
   const options: Options[0] = ctx?.options[0] ?? {};
@@ -352,7 +354,9 @@ export function getOptions(ctx?: Rule.RuleContext) {
     ctx?.settings["readable-tailwind"]?.tags ??
     defaultOptions.tags;
 
-  const tailwindConfig = options.tailwindConfig;
+  const tailwindConfig = options.tailwindConfig ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.entryPoint ??
+    ctx?.settings["readable-tailwind"]?.entryPoint;
 
   return {
     attributes,

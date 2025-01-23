@@ -1,6 +1,8 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
     "declaration": true,
     "declarationMap": true,
     "noEmit": false,
@@ -9,8 +11,10 @@
     "target": "ES2020"
   },
   "include": [
+    "src/tailwind/v3/**/*.ts",
+    "src/tailwind/v4/**/*.ts",
+    "src/tailwind/async/**/*.ts",
     "src/configs/esm.ts",
-    "src/utils/*.cts",
     "src/api/defaults.ts",
     "src/api/types.ts"
   ]
