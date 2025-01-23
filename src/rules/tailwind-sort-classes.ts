@@ -42,11 +42,13 @@ import type {
 
 export type Options = [
   Partial<
-    AttributeOption &
+    AttributeOption
+     &
     CalleeOption &
     TagOption &
     VariableOption &
     {
+      entryPoint?: string;
       order?: "asc" | "desc" | "improved" | "official" ;
       tailwindConfig?: string;
     }
@@ -250,6 +252,10 @@ export const tailwindSortClasses: ESLintRule<Options> = {
             ...getAttributesSchema(defaultOptions.attributes),
             ...getVariableSchema(defaultOptions.variables),
             ...getTagsSchema(defaultOptions.tags),
+            entryPoint: {
+              description: "The path to the css entry point of the project. If not specified, the plugin will fall back to the default tailwind classes.",
+              type: "string"
+            },
             order: {
               default: defaultOptions.order,
               description: "The algorithm to use when sorting classes.",
@@ -350,7 +356,9 @@ export function getOptions(ctx?: Rule.RuleContext) {
     ctx?.settings["readable-tailwind"]?.tags ??
     defaultOptions.tags;
 
-  const tailwindConfig = options.tailwindConfig ??
+  const tailwindConfig = options.tailwindConfig ?? options.entryPoint ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.tailwindConfig ??
+    ctx?.settings["readable-tailwind"]?.tailwindConfig ??
     ctx?.settings["eslint-plugin-readable-tailwind"]?.entryPoint ??
     ctx?.settings["readable-tailwind"]?.entryPoint;
 
