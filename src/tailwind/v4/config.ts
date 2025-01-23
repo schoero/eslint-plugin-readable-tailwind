@@ -75,8 +75,9 @@ export async function createTailwindContextFromEntryPoint(entryPoint: string) {
     throw new Error("Could not find Tailwind CSS");
   }
 
+  const tailwindUrl = pathToFileURL(tailwindPath).toString();
   // eslint-disable-next-line eslint-plugin-typescript/naming-convention
-  const { __unstable__loadDesignSystem } = await import(tailwindPath);
+  const { __unstable__loadDesignSystem } = await import(tailwindUrl);
 
   let css = await readFile(entryPoint, "utf-8");
 
