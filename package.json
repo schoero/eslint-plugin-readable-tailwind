@@ -59,7 +59,7 @@
     "typecheck": "tsc --noEmit"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=19"
   },
   "files": [
     "lib"
@@ -132,6 +132,6 @@
     "tailwind-classes"
   ],
   "volta": {
-    "node": "20.18.1"
+    "node": "22.13.1"
   }
 }
