@@ -1,5 +1,30 @@
 # Changelog
 
+## v2.0.0-beta.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.9.0...v2.0.0-beta.0)
+
+### Features
+
+- ⚠️  Add support for tailwindcss v4 ([#25](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/25))
+- ⚠️  Regex names ([#63](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/63))
+
+### Fixes
+
+- Options correctly override settings ([#66](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/66))
+
+### Refactors
+
+- ⚠️  Enable `no-duplicate-classes` by default ([#67](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/67))
+- ⚠️  Change default  `multiline` grouping to `newLine` ([#68](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/68))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Add support for tailwindcss v4 ([#25](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/25))
+- ⚠️  Regex names ([#63](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/63))
+- ⚠️  Enable `no-duplicate-classes` by default ([#67](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/67))
+- ⚠️  Change default  `multiline` grouping to `newLine` ([#68](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/68))
+
 ## v1.9.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.8.2...v1.9.0)
