@@ -16,7 +16,6 @@ Read more about the new [ESLint flat config format](https://eslint.org/docs/late
 // eslint.config.js
 import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
 
-
 export default [
   {
     languageOptions: {

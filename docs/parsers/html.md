@@ -21,7 +21,6 @@ Read more about the new [ESLint flat config format](https://eslint.org/docs/late
 import eslintParserHTML from "@html-eslint/parser";
 import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
 
-
 export default [
   {
     files: ["**/*.html"],
