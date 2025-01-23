@@ -20,8 +20,12 @@
 
 #### ⚠️ Breaking Changes
 
+- ⚠️  Drop support for Node.js <= 18 due to incompatibility of worker threads.
 - ⚠️  Add support for tailwindcss v4 ([#25](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/25))
+  - The official class ordering seems to have changed slightly.
+  
 - ⚠️  Regex names ([#63](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/63))
+  - ["Names"](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/v2/docs/concepts/concepts.md#name) can now be regular expressions. This is a breaking change, if you have names configured that contain reserved characters in regular expressions like `$`.
 - ⚠️  Enable `no-duplicate-classes` by default ([#67](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/67))
 - ⚠️  Change default  `multiline` grouping to `newLine` ([#68](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/68))
 
