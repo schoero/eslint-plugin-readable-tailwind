@@ -68,7 +68,7 @@ export type NameConfig = AttributeName | CalleeName | VariableName;
 export type RegexConfig = AttributeRegex | CalleeRegex | VariableRegex;
 export type MatchersConfig = AttributeMatchers | CalleeMatchers | VariableMatchers;
 
-export interface ESLintRule<Options extends any[] = [any]> {
+export interface ESLintRule<Options extends [any] = [any]> {
   name: string;
   rule: Rule.RuleModule;
   options?: Options;

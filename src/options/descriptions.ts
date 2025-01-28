@@ -3,74 +3,6 @@ import { MatcherType } from "readable-tailwind:types:rule.js";
 import type { Rule } from "eslint";
 
 
-export function getAttributesSchema(defaultValue: unknown) {
-  return {
-    attributes: {
-      default: defaultValue,
-      description: "List of attribute names that should get linted.",
-      items: {
-        anyOf: [
-          ATTRIBUTE_NAME_CONFIG,
-          ATTRIBUTE_REGEX_CONFIG,
-          ATTRIBUTE_MATCHER_CONFIG
-        ]
-      },
-      type: "array"
-    }
-  } satisfies Rule.RuleMetaData["schema"];
-}
-
-export function getCalleeSchema(defaultValue: unknown) {
-  return {
-    callees: {
-      default: defaultValue,
-      description: "List of function names which arguments should get linted.",
-      items: {
-        anyOf: [
-          CALLEE_REGEX_CONFIG,
-          CALLEE_MATCHER_CONFIG,
-          CALLEE_NAME_CONFIG
-        ]
-      },
-      type: "array"
-    }
-  } satisfies Rule.RuleMetaData["schema"];
-}
-
-export function getVariableSchema(defaultValue: unknown) {
-  return {
-    variables: {
-      default: defaultValue,
-      description: "List of variable names which values should get linted.",
-      items: {
-        anyOf: [
-          VARIABLE_REGEX_CONFIG,
-          VARIABLE_MATCHER_CONFIG,
-          VARIABLE_NAME_CONFIG
-        ]
-      },
-      type: "array"
-    }
-  } satisfies Rule.RuleMetaData["schema"];
-}
-
-export function getTagsSchema(defaultValue: unknown) {
-  return {
-    tags: {
-      default: defaultValue,
-      description: "List of template literal tags that should get linted.",
-      items: {
-        anyOf: [
-          TAG_REGEX_CONFIG,
-          TAG_MATCHER_CONFIG,
-          TAG_NAME_CONFIG
-        ]
-      },
-      type: "array"
-    }
-  } satisfies Rule.RuleMetaData["schema"];
-}
-
 const STRING_MATCHER_SCHEMA = {
   properties: {
     match: {
@@ -283,3 +215,60 @@ const TAG_NAME_CONFIG = {
   description: "Template literal tag that should get linted.",
   type: "string"
 };
+
+
+export const CALLEE_SCHEMA = {
+  callees: {
+    description: "List of function names which arguments should get linted.",
+    items: {
+      anyOf: [
+        CALLEE_REGEX_CONFIG,
+        CALLEE_MATCHER_CONFIG,
+        CALLEE_NAME_CONFIG
+      ]
+    },
+    type: "array"
+  }
+} satisfies Rule.RuleMetaData["schema"];
+
+export const ATTRIBUTE_SCHEMA = {
+  attributes: {
+    description: "List of attribute names that should get linted.",
+    items: {
+      anyOf: [
+        ATTRIBUTE_NAME_CONFIG,
+        ATTRIBUTE_REGEX_CONFIG,
+        ATTRIBUTE_MATCHER_CONFIG
+      ]
+    },
+    type: "array"
+  }
+} satisfies Rule.RuleMetaData["schema"];
+
+export const VARIABLE_SCHEMA = {
+  variables: {
+    description: "List of variable names which values should get linted.",
+    items: {
+      anyOf: [
+        VARIABLE_REGEX_CONFIG,
+        VARIABLE_MATCHER_CONFIG,
+        VARIABLE_NAME_CONFIG
+      ]
+    },
+    type: "array"
+  }
+} satisfies Rule.RuleMetaData["schema"];
+
+export const TAG_SCHEMA = {
+  tags: {
+    description: "List of template literal tags that should get linted.",
+    items: {
+      anyOf: [
+        TAG_REGEX_CONFIG,
+        TAG_MATCHER_CONFIG,
+        TAG_NAME_CONFIG
+      ]
+    },
+    type: "array"
+  }
+} satisfies Rule.RuleMetaData["schema"];

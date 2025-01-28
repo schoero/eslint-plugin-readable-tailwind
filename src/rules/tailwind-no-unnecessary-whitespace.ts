@@ -5,10 +5,10 @@ import {
   DEFAULT_VARIABLE_NAMES
 } from "readable-tailwind:options:default-options.js";
 import {
-  getAttributesSchema,
-  getCalleeSchema,
-  getTagsSchema,
-  getVariableSchema
+  ATTRIBUTE_SCHEMA,
+  CALLEE_SCHEMA,
+  TAG_SCHEMA,
+  VARIABLE_SCHEMA
 } from "readable-tailwind:options:descriptions.js";
 import {
   getLiteralsByESCallExpression,
@@ -184,10 +184,10 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
               description: "Allow multi-line class declarations. If this option is disabled, template literal strings will be collapsed into a single line string wherever possible. Must be set to `true` when used in combination with [readable-tailwind/multiline](./multiline.md).",
               type: "boolean"
             },
-            ...getCalleeSchema(defaultOptions.callees),
-            ...getAttributesSchema(defaultOptions.attributes),
-            ...getVariableSchema(defaultOptions.variables),
-            ...getTagsSchema(defaultOptions.tags)
+            ...CALLEE_SCHEMA,
+            ...ATTRIBUTE_SCHEMA,
+            ...VARIABLE_SCHEMA,
+            ...TAG_SCHEMA
           },
           type: "object"
         }

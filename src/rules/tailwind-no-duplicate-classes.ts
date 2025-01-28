@@ -5,10 +5,10 @@ import {
   DEFAULT_VARIABLE_NAMES
 } from "readable-tailwind:options:default-options.js";
 import {
-  getAttributesSchema,
-  getCalleeSchema,
-  getTagsSchema,
-  getVariableSchema
+  ATTRIBUTE_SCHEMA,
+  CALLEE_SCHEMA,
+  TAG_SCHEMA,
+  VARIABLE_SCHEMA
 } from "readable-tailwind:options:descriptions.js";
 import {
   getLiteralsByESCallExpression,
@@ -181,10 +181,10 @@ export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
         {
           additionalProperties: false,
           properties: {
-            ...getCalleeSchema(defaultOptions.callees),
-            ...getAttributesSchema(defaultOptions.attributes),
-            ...getVariableSchema(defaultOptions.variables),
-            ...getTagsSchema(defaultOptions.tags)
+            ...CALLEE_SCHEMA,
+            ...ATTRIBUTE_SCHEMA,
+            ...VARIABLE_SCHEMA,
+            ...TAG_SCHEMA
           },
           type: "object"
         }

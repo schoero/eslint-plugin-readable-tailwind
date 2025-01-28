@@ -1,7 +1,7 @@
 import { validate } from "json-schema";
 import { describe, expect, test } from "vitest";
 
-import { getAttributesSchema, getCalleeSchema, getVariableSchema } from "readable-tailwind:options:descriptions.js";
+import { ATTRIBUTE_SCHEMA, CALLEE_SCHEMA, VARIABLE_SCHEMA } from "readable-tailwind:options:descriptions.js";
 import { MatcherType } from "readable-tailwind:types:rule.js";
 
 import type { AttributeOption, CalleeOption, VariableOption } from "readable-tailwind:types:rule.js";
@@ -19,7 +19,7 @@ describe("descriptions", () => {
     } satisfies AttributeOption;
 
     expect(
-      validate(attributes, getAttributesSchema(attributes))
+      validate(attributes, ATTRIBUTE_SCHEMA)
     ).toStrictEqual(
       { errors: [], valid: true }
     );
@@ -31,7 +31,7 @@ describe("descriptions", () => {
     } satisfies CalleeOption;
 
     expect(
-      validate(callees, getCalleeSchema(callees))
+      validate(callees, CALLEE_SCHEMA)
     ).toStrictEqual(
       { errors: [], valid: true }
     );
@@ -44,7 +44,7 @@ describe("descriptions", () => {
     } satisfies VariableOption;
 
     expect(
-      validate(variable, getVariableSchema(variable))
+      validate(variable, VARIABLE_SCHEMA)
     ).toStrictEqual(
       { errors: [], valid: true }
     );
@@ -61,7 +61,7 @@ describe("descriptions", () => {
     } satisfies AttributeOption;
 
     expect(
-      validate(attributes, getAttributesSchema(attributes))
+      validate(attributes, ATTRIBUTE_SCHEMA)
     ).toStrictEqual(
       { errors: [], valid: true }
     );
@@ -74,7 +74,7 @@ describe("descriptions", () => {
     } satisfies CalleeOption;
 
     expect(
-      validate(callees, getCalleeSchema(callees))
+      validate(callees, CALLEE_SCHEMA)
     ).toStrictEqual(
       { errors: [], valid: true }
     );
@@ -87,7 +87,7 @@ describe("descriptions", () => {
     } satisfies VariableOption;
 
     expect(
-      validate(variable, getVariableSchema(variable))
+      validate(variable, VARIABLE_SCHEMA)
     ).toStrictEqual(
       { errors: [], valid: true }
     );
@@ -117,7 +117,7 @@ describe("descriptions", () => {
     };
 
     expect(
-      validate(attributes, getAttributesSchema(attributes))
+      validate(attributes, ATTRIBUTE_SCHEMA)
     ).toStrictEqual(
       { errors: [], valid: true }
     );
@@ -143,7 +143,7 @@ describe("descriptions", () => {
     };
 
     expect(
-      validate(callees, getCalleeSchema(callees))
+      validate(callees, CALLEE_SCHEMA)
     ).toStrictEqual(
       { errors: [], valid: true }
     );
@@ -169,7 +169,7 @@ describe("descriptions", () => {
     };
 
     expect(
-      validate(variable, getVariableSchema(variable))
+      validate(variable, VARIABLE_SCHEMA)
     ).toStrictEqual(
       { errors: [], valid: true }
     );

@@ -5,10 +5,10 @@ import {
   DEFAULT_VARIABLE_NAMES
 } from "readable-tailwind:options:default-options.js";
 import {
-  getAttributesSchema,
-  getCalleeSchema,
-  getTagsSchema,
-  getVariableSchema
+  ATTRIBUTE_SCHEMA,
+  CALLEE_SCHEMA,
+  TAG_SCHEMA,
+  VARIABLE_SCHEMA
 } from "readable-tailwind:options:descriptions.js";
 import {
   getLiteralsByESCallExpression,
@@ -207,10 +207,10 @@ export const tailwindMultiline: ESLintRule<Options> = {
         {
           additionalProperties: false,
           properties: {
-            ...getCalleeSchema(defaultOptions.callees),
-            ...getAttributesSchema(defaultOptions.attributes),
-            ...getVariableSchema(defaultOptions.variables),
-            ...getTagsSchema(defaultOptions.tags),
+            ...CALLEE_SCHEMA,
+            ...ATTRIBUTE_SCHEMA,
+            ...VARIABLE_SCHEMA,
+            ...TAG_SCHEMA,
             classesPerLine: {
               default: defaultOptions.classesPerLine,
               description: "The maximum amount of classes per line. Lines are wrapped appropriately to stay within this limit . The value `0` disables line wrapping by `classesPerLine`.",
