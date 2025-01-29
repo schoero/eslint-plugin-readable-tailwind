@@ -70,71 +70,6 @@ export const tailwindSortClasses: ESLintRule<Options> = {
 
       const { attributes, callees, tags, variables } = getOptions(ctx);
 
-      const lintLiterals = (ctx: Rule.RuleContext, literals: Literal[]) => {
-
-        for(const literal of literals){
-
-          const classChunks = splitClasses(literal.content);
-          const whitespaceChunks = splitWhitespaces(literal.content);
-
-          const unsortableClasses: [string, string] = ["", ""];
-
-          // remove sticky classes
-          if(literal.closingBraces && whitespaceChunks[0] === ""){
-            whitespaceChunks.shift();
-            unsortableClasses[0] = classChunks.shift() ?? "";
-          }
-          if(literal.openingBraces && whitespaceChunks[whitespaceChunks.length - 1] === ""){
-            whitespaceChunks.pop();
-            unsortableClasses[1] = classChunks.pop() ?? "";
-          }
-
-          const sortedClassChunks = sortClasses(ctx, classChunks);
-
-          const classes: string[] = [];
-
-          for(let i = 0; i < Math.max(sortedClassChunks.length, whitespaceChunks.length); i++){
-            whitespaceChunks[i] && classes.push(whitespaceChunks[i]);
-            sortedClassChunks[i] && classes.push(sortedClassChunks[i]);
-          }
-
-          const escapedClasses = escapeNestedQuotes(
-            [
-              unsortableClasses[0],
-              ...classes,
-              unsortableClasses[1]
-            ].join(""),
-            literal.openingQuote ?? "`"
-          );
-
-          const fixedClasses =
-            [
-              literal.openingQuote ?? "",
-              literal.type === "TemplateLiteral" && literal.closingBraces ? literal.closingBraces : "",
-              escapedClasses,
-              literal.type === "TemplateLiteral" && literal.openingBraces ? literal.openingBraces : "",
-              literal.closingQuote ?? ""
-            ].join("");
-
-          if(literal.raw === fixedClasses){
-            continue;
-          }
-
-          ctx.report({
-            data: {
-              notSorted: display(literal.raw),
-              sorted: display(fixedClasses)
-            },
-            fix(fixer) {
-              return fixer.replaceTextRange(literal.range, fixedClasses);
-            },
-            loc: literal.loc,
-            message: "Incorrect class order. Expected\n\n{{ notSorted }}\n\nto be\n\n{{ sorted }}"
-          });
-
-        }
-      };
-
       const callExpression = {
         CallExpression(node: Node) {
           const callExpressionNode = node as CallExpression;
@@ -280,6 +215,70 @@ export const tailwindSortClasses: ESLintRule<Options> = {
   }
 };
 
+function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
+
+  for(const literal of literals){
+
+    const classChunks = splitClasses(literal.content);
+    const whitespaceChunks = splitWhitespaces(literal.content);
+
+    const unsortableClasses: [string, string] = ["", ""];
+
+    // remove sticky classes
+    if(literal.closingBraces && whitespaceChunks[0] === ""){
+      whitespaceChunks.shift();
+      unsortableClasses[0] = classChunks.shift() ?? "";
+    }
+    if(literal.openingBraces && whitespaceChunks[whitespaceChunks.length - 1] === ""){
+      whitespaceChunks.pop();
+      unsortableClasses[1] = classChunks.pop() ?? "";
+    }
+
+    const sortedClassChunks = sortClasses(ctx, classChunks);
+
+    const classes: string[] = [];
+
+    for(let i = 0; i < Math.max(sortedClassChunks.length, whitespaceChunks.length); i++){
+      whitespaceChunks[i] && classes.push(whitespaceChunks[i]);
+      sortedClassChunks[i] && classes.push(sortedClassChunks[i]);
+    }
+
+    const escapedClasses = escapeNestedQuotes(
+      [
+        unsortableClasses[0],
+        ...classes,
+        unsortableClasses[1]
+      ].join(""),
+      literal.openingQuote ?? "`"
+    );
+
+    const fixedClasses =
+      [
+        literal.openingQuote ?? "",
+        literal.type === "TemplateLiteral" && literal.closingBraces ? literal.closingBraces : "",
+        escapedClasses,
+        literal.type === "TemplateLiteral" && literal.openingBraces ? literal.openingBraces : "",
+        literal.closingQuote ?? ""
+      ].join("");
+
+    if(literal.raw === fixedClasses){
+      continue;
+    }
+
+    ctx.report({
+      data: {
+        notSorted: display(literal.raw),
+        sorted: display(fixedClasses)
+      },
+      fix(fixer) {
+        return fixer.replaceTextRange(literal.range, fixedClasses);
+      },
+      loc: literal.loc,
+      message: "Incorrect class order. Expected\n\n{{ notSorted }}\n\nto be\n\n{{ sorted }}"
+    });
+
+  }
+}
 
 function sortClasses(ctx: Rule.RuleContext, classes: string[]): string[] {
 
