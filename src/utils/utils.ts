@@ -1,7 +1,50 @@
+import {
+  DEFAULT_ATTRIBUTE_NAMES,
+  DEFAULT_CALLEE_NAMES,
+  DEFAULT_TAG_NAMES,
+  DEFAULT_VARIABLE_NAMES
+} from "readable-tailwind:options:default-options.js";
+
 import type { Rule } from "eslint";
 
 import type { Literal, Node, QuoteMeta } from "readable-tailwind:types:ast.js";
 
+
+export function getCommonOptions(ctx: Rule.RuleContext) {
+  const attributes = ctx.options[0]?.attributes ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.attributes ??
+    ctx?.settings["readable-tailwind"]?.attributes ??
+    DEFAULT_ATTRIBUTE_NAMES;
+
+  const callees = ctx.options[0]?.callees ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.callees ??
+    ctx?.settings["readable-tailwind"]?.callees ??
+    DEFAULT_CALLEE_NAMES;
+
+  const variables = ctx.options[0]?.variables ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.variables ??
+    ctx?.settings["readable-tailwind"]?.variables ??
+    DEFAULT_VARIABLE_NAMES;
+
+  const tags = ctx.options[0]?.tags ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.tags ??
+    ctx?.settings["readable-tailwind"]?.tags ??
+    DEFAULT_TAG_NAMES;
+
+  const tailwindConfig = ctx.options[0]?.tailwindConfig ?? ctx.options[0]?.entryPoint ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.tailwindConfig ??
+    ctx?.settings["readable-tailwind"]?.tailwindConfig ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.entryPoint ??
+    ctx?.settings["readable-tailwind"]?.entryPoint;
+
+  return {
+    attributes,
+    callees,
+    tags,
+    tailwindConfig,
+    variables
+  };
+}
 
 export function getWhitespace(classes: string) {
   const leadingWhitespace = classes.match(/^\s*/)?.[0];

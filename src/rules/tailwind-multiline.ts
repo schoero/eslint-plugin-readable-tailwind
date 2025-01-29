@@ -10,30 +10,18 @@ import {
   TAG_SCHEMA,
   VARIABLE_SCHEMA
 } from "readable-tailwind:options:descriptions.js";
-import {
-  getLiteralsByESCallExpression,
-  getLiteralsByESVariableDeclarator,
-  getLiteralsByTaggedTemplateExpression,
-  isESObjectKey
-} from "readable-tailwind:parsers:es.js";
-import { getAttributesByHTMLTag, getLiteralsByHTMLAttributes } from "readable-tailwind:parsers:html.js";
-import { getAttributesByJSXElement, getLiteralsByJSXAttributes } from "readable-tailwind:parsers:jsx.js";
-import { getAttributesBySvelteTag, getLiteralsBySvelteAttributes } from "readable-tailwind:parsers:svelte.js";
-import { getAttributesByVueStartTag, getLiteralsByVueAttributes } from "readable-tailwind:parsers:vue.js";
+import { isESObjectKey } from "readable-tailwind:parsers:es.js";
 import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
+import { createRuleListener } from "readable-tailwind:utils:rule.js";
 import {
   display,
   findLineStartPosition,
   findLiteralStartPosition,
+  getCommonOptions,
   splitClasses
 } from "readable-tailwind:utils:utils.js";
 
-import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { CallExpression, Node, TaggedTemplateExpression, VariableDeclarator } from "estree";
-import type { JSXOpeningElement } from "estree-jsx";
-import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
-import type { AST } from "vue-eslint-parser";
 
 import type { Literal, Meta } from "readable-tailwind:types:ast.js";
 import type {
@@ -78,123 +66,7 @@ const defaultOptions = {
 export const tailwindMultiline: ESLintRule<Options> = {
   name: "multiline" as const,
   rule: {
-    create(ctx) {
-
-      const { attributes, callees, tags, variables } = getOptions(ctx);
-
-      const callExpression = {
-        CallExpression(node: Node) {
-          const callExpressionNode = node as CallExpression;
-
-          const literals = getLiteralsByESCallExpression(ctx, callExpressionNode, callees);
-          lintLiterals(ctx, literals);
-        }
-      };
-
-      const variableDeclarators = {
-        VariableDeclarator(node: Node) {
-          const variableDeclaratorNode = node as VariableDeclarator;
-
-          const literals = getLiteralsByESVariableDeclarator(ctx, variableDeclaratorNode, variables);
-          lintLiterals(ctx, literals);
-        }
-      };
-
-      const taggedTemplateExpression = {
-        TaggedTemplateExpression(node: Node) {
-          const taggedTemplateExpressionNode = node as TaggedTemplateExpression;
-
-          const literals = getLiteralsByTaggedTemplateExpression(ctx, taggedTemplateExpressionNode, tags);
-          lintLiterals(ctx, literals);
-        }
-      };
-
-      const jsx = {
-        JSXOpeningElement(node: Node) {
-          const jsxNode = node as JSXOpeningElement;
-          const jsxAttributes = getAttributesByJSXElement(ctx, jsxNode);
-
-          for(const jsxAttribute of jsxAttributes){
-
-            const attributeValue = jsxAttribute.value;
-            const attributeName = jsxAttribute.name.name;
-
-            if(!attributeValue){ continue; }
-            if(typeof attributeName !== "string"){ continue; }
-
-            const literals = getLiteralsByJSXAttributes(ctx, jsxAttribute, attributes);
-            lintLiterals(ctx, literals);
-          }
-        }
-      };
-
-      const svelte = {
-        SvelteStartTag(node: Node) {
-          const svelteNode = node as unknown as SvelteStartTag;
-          const svelteAttributes = getAttributesBySvelteTag(ctx, svelteNode);
-
-          for(const svelteAttribute of svelteAttributes){
-            const attributeName = svelteAttribute.key.name;
-
-            if(typeof attributeName !== "string"){ continue; }
-
-            const literals = getLiteralsBySvelteAttributes(ctx, svelteAttribute, attributes);
-            lintLiterals(ctx, literals);
-          }
-        }
-      };
-
-      const vue = {
-        VStartTag(node: Node) {
-          const vueNode = node as unknown as AST.VStartTag;
-          const vueAttributes = getAttributesByVueStartTag(ctx, vueNode);
-
-          for(const attribute of vueAttributes){
-            const literals = getLiteralsByVueAttributes(ctx, attribute, attributes);
-            lintLiterals(ctx, literals);
-          }
-        }
-      };
-
-      const html = {
-        Tag(node: Node) {
-          const htmlTagNode = node as unknown as TagNode;
-          const htmlAttributes = getAttributesByHTMLTag(ctx, htmlTagNode);
-
-          for(const htmlAttribute of htmlAttributes){
-            const literals = getLiteralsByHTMLAttributes(ctx, htmlAttribute, attributes);
-            lintLiterals(ctx, literals);
-          }
-        }
-      };
-
-      // Vue
-      if(typeof ctx.sourceCode.parserServices?.defineTemplateBodyVisitor === "function"){
-        return {
-          // script tag
-          ...callExpression,
-          ...variableDeclarators,
-          ...taggedTemplateExpression,
-
-          // bound classes
-          ...ctx.sourceCode.parserServices.defineTemplateBodyVisitor({
-            ...callExpression,
-            ...vue
-          })
-        };
-      }
-
-      return {
-        ...callExpression,
-        ...variableDeclarators,
-        ...taggedTemplateExpression,
-        ...jsx,
-        ...svelte,
-        ...vue,
-        ...html
-      };
-
-    },
+    create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
     meta: {
       docs: {
         category: "Stylistic Issues",
@@ -648,49 +520,27 @@ function getIndentation(ctx: Rule.RuleContext, indentation: Options[0]["indent"]
   return indentation === "tab" ? 1 : indentation ?? 0;
 }
 
-function getOptions(ctx?: Rule.RuleContext) {
+function getOptions(ctx: Rule.RuleContext) {
 
-  const options: Options[0] = ctx?.options[0] ?? {};
+  const options: Options[0] = ctx.options[0] ?? {};
+
+  const common = getCommonOptions(ctx);
 
   const printWidth = options.printWidth ?? defaultOptions.printWidth;
   const classesPerLine = options.classesPerLine ?? defaultOptions.classesPerLine;
   const indent = options.indent ?? defaultOptions.indent;
   const group = options.group ?? defaultOptions.group;
   const preferSingleLine = options.preferSingleLine ?? defaultOptions.preferSingleLine;
-
-  const attributes = options.attributes ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.attributes ??
-    ctx?.settings["readable-tailwind"]?.attributes ??
-    defaultOptions.attributes;
-
-  const callees = options.callees ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.callees ??
-    ctx?.settings["readable-tailwind"]?.callees ??
-    defaultOptions.callees;
-
-  const variables = options.variables ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.variables ??
-    ctx?.settings["readable-tailwind"]?.variables ??
-    defaultOptions.variables;
-
-  const tags = options.tags ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.tags ??
-    ctx?.settings["readable-tailwind"]?.tags ??
-    defaultOptions.tags;
-
   const lineBreakStyle = options.lineBreakStyle ?? defaultOptions.lineBreakStyle;
 
   return {
-    attributes,
-    callees,
+    ...common,
     classesPerLine,
     group,
     indent,
     lineBreakStyle,
     preferSingleLine,
-    printWidth,
-    tags,
-    variables
+    printWidth
   };
 
 }
