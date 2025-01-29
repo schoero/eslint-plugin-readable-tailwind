@@ -10,20 +10,30 @@ import type { GetClassOrderRequest, GetClassOrderResponse } from "../api/interfa
 import type { SupportedTailwindVersion } from "../utils/version.js";
 
 
-const getClassOrderSync = createSyncFn<(version: SupportedTailwindVersion, request: GetClassOrderRequest) => any>(resolve(getDirName(), "./class-order.async.js"), {
-  ...env.NODE_ENV === "test" && { execArgv: ["--import", TsRunner.TSX] }
-});
+const workerPath = getWorkerPath();
+const version = getTailwindcssVersion();
+const workerOptions = getWorkerOptions();
+
+const getClassOrderSync = createSyncFn<(version: SupportedTailwindVersion, request: GetClassOrderRequest) => any>(workerPath, workerOptions);
 
 
 export function getClassOrder(request: GetClassOrderRequest): GetClassOrderResponse {
-
-  const version = getTailwindcssVersion();
-
   if(!isSupportedVersion(version.major)){
     throw new Error(`Unsupported Tailwind CSS version: ${version.major}`);
   }
 
   return getClassOrderSync(version.major, request) as GetClassOrderResponse;
+}
+
+
+function getWorkerPath() {
+  return resolve(getDirName(), "./class-order.async.js");
+}
+
+function getWorkerOptions() {
+  if(env.NODE_ENV === "test"){
+    return { execArgv: ["--import", TsRunner.TSX] };
+  }
 }
 
 function getDirName() {
