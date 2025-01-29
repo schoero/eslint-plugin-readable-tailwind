@@ -17,6 +17,7 @@
 
 - ⚠️  Enable `no-duplicate-classes` by default ([#67](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/67))
 - ⚠️  Change default  `multiline` grouping to `newLine` ([#68](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/68))
+- ⚠️  Rename classAttributes to attributes ([#69](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/69))
 
 #### ⚠️ Breaking Changes
 
@@ -28,6 +29,7 @@
   - ["Names"](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/v2/docs/concepts/concepts.md#name) can now be regular expressions. This is a breaking change, if you have names configured that contain reserved characters in regular expressions like `$`.
 - ⚠️  Enable `no-duplicate-classes` by default ([#67](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/67))
 - ⚠️  Change default  `multiline` grouping to `newLine` ([#68](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/68))
+- ⚠️  Rename classAttributes to attributes ([#69](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/69))
 
 ## v1.9.0
 
