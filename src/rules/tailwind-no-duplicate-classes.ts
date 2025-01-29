@@ -195,14 +195,6 @@ export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
 };
 
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
-
-  const duplicateRegister: {
-    [literalPosition: string]: {
-      classes: string[];
-      duplicates: string[];
-    };
-  } = {};
-
   for(const literal of literals){
 
     const esNode = ctx.sourceCode.getNodeByRangeIndex(literal.range[0]);
