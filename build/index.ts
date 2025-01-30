@@ -1,5 +1,5 @@
-import { mkdir, writeFile } from "fs/promises";
- import { transformImports } from "readable-tailwind:build:transform.js";
+import { mkdir, rm, writeFile } from "fs/promises";
+ import { transformDirname, transformImports } from "readable-tailwind:build:transform.js";
  import { $ } from "readable-tailwind:build:utils.js";
 
  async function build(){
@@ -22,6 +22,7 @@ import { mkdir, writeFile } from "fs/promises";
    await writeFile(`${cjsDir}/package.json`, JSON.stringify({ type: "commonjs" }),  "utf-8")
    await transformImports([`${cjsDir}/**/*.js`], "tailwindcss3", "tailwindcss")
    await transformImports([`${cjsDir}/**/*.js`], "tailwindcss4", "tailwindcss")
+   await transformDirname([`${cjsDir}/**/*.js`])
 
    console.info("Build complete")
 

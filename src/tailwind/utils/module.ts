@@ -1,3 +1,3 @@
-export function isCommonJSModule(): boolean {
-  return typeof __dirname === "string";
+export function isCommonJSModule() {
+  return typeof module !== "undefined" && typeof module.exports !== "undefined";
 }

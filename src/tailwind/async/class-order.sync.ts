@@ -27,7 +27,7 @@ export function getClassOrder(request: GetClassOrderRequest): GetClassOrderRespo
 
 
 function getWorkerPath() {
-  return resolve(getDirName(), "./class-order.async.js");
+  return resolve(getCurrentDirectory(), "./class-order.async.js");
 }
 
 function getWorkerOptions() {
@@ -36,8 +36,8 @@ function getWorkerOptions() {
   }
 }
 
-function getDirName() {
-  // eslint-disable-next-line eslint-plugin-typescript/ban-ts-comment, eslint-plugin-typescript/prefer-ts-expect-error
-  // @ts-ignore
-  return import.meta.dirname ?? __dirname;
+function getCurrentDirectory() {
+  // eslint-disable-next-line eslint-plugin-typescript/prefer-ts-expect-error
+  // @ts-ignore - `import.meta` doesn't exist in CommonJS -> will be transformed in build step
+  return new URL(".", import.meta.url).pathname;
 }
