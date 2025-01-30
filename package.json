@@ -29,7 +29,7 @@
   "main": "./lib/cjs/configs/cjs.js",
   "scripts": {
     "build": "vite-node build",
-    "eslint": "node_modules/eslint/bin/eslint.js .",
+    "eslint": "eslint .",
     "eslint:ci": "npm run eslint -- --max-warnings 0",
     "eslint:fix": "npm run eslint -- --fix",
     "lint": "npm run eslint && npm run markdownlint",
