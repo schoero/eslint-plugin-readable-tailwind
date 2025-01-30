@@ -14,9 +14,9 @@ export function getLiteralsByHTMLAttributes(ctx: Rule.RuleContext, attribute: At
       if(attributes.toLowerCase() !== attribute.key.value.toLowerCase()){ return literals; }
       literals.push(...getLiteralsByHTMLAttributeNode(ctx, attribute));
     } else if(isAttributesRegex(attributes)){
-      console.warn("Regex not supported in HTML");
+      // console.warn("Regex not supported in HTML");
     } else if(isAttributesMatchers(attributes)){
-      console.warn("Matchers not supported in HTML");
+      // console.warn("Matchers not supported in HTML");
     }
 
     return literals;
