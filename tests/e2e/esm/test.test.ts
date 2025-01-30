@@ -1,11 +1,17 @@
 import { $ } from "readable-tailwind:build:utils.js";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 
 describe("e2e/esm", async () => {
+  beforeAll(async () => {
+    await $`
+      cd ${import.meta.dirname} &&
+      npm i --no-package-lock
+    `
+  })
+  
   it("should report all errors", async () => {
     const json = await $`
       cd ${import.meta.dirname} > /dev/null &&
-      npm i > /dev/null &&
       npx eslint --config eslint.config.js --no-config-lookup --format json .
     `
 

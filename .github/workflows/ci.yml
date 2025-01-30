@@ -46,6 +46,12 @@ jobs:
       - name: Run tests with tailwindcss v4
         run: npm run test:v4
 
+      - name: Run build
+        run: npm run build
+
+      - name: Run e2e tests
+        run: npm run test:e2e
+
     strategy:
       fail-fast: true
       matrix:
