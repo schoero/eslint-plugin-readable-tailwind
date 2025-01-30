@@ -1,9 +1,1 @@
-import { config } from "@schoero/configs/vite";
-
-import type { UserConfig } from "vitest/node";
-
-
-export default {
-  ...config,
-  testTimeout: 10_000
-} satisfies UserConfig;
+export { config as default } from "@schoero/configs/vite";
