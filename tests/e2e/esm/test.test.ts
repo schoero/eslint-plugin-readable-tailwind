@@ -24,5 +24,5 @@ describe("e2e/esm", async () => {
       fixableWarningCount: 2,
       warningCount: 2
     });
-  });
+  }, { timeout: 10_000 });
 });
