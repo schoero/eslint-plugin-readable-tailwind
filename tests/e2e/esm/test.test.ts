@@ -5,17 +5,17 @@ import { $ } from "readable-tailwind:build:utils.js";
 
 describe("e2e/esm", async () => {
   beforeAll(async () => {
-    await $`
-      cd ${import.meta.dirname} &&
-      npm i --no-package-lock
-    `;
+    await $(
+      `npm i --no-package-lock`
+      , { cwd: import.meta.dirname }
+    );
   });
 
   it("should report all errors", async () => {
-    const json = await $`
-      cd ${import.meta.dirname} > /dev/null &&
-      npx eslint --config eslint.config.js --no-config-lookup --format json .
-    `;
+    const json = await $(
+      `npx eslint --config eslint.config.js --no-config-lookup --format json .`,
+      { cwd: import.meta.dirname }
+    );
 
     expect(JSON.parse(json.toString())[1]).toMatchObject({
       errorCount: 0,
