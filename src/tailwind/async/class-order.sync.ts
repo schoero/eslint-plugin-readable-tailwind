@@ -39,5 +39,5 @@ function getWorkerOptions() {
 function getCurrentDirectory() {
   // eslint-disable-next-line eslint-plugin-typescript/prefer-ts-expect-error
   // @ts-ignore - `import.meta` doesn't exist in CommonJS -> will be transformed in build step
-  return new URL(".", import.meta.url).pathname;
+  return import.meta.dirname;
 }

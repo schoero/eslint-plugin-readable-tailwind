@@ -60,7 +60,7 @@
     "typecheck": "tsc --noEmit"
   },
   "engines": {
-    "node": ">=19"
+    "node": ">=v20.11.0"
   },
   "files": [
     "lib"

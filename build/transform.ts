@@ -17,7 +17,7 @@ export async function transformDirname(globPatterns: string[]) {
 
   for(const file of files) {
     const content = await readFile(file, 'utf-8');
-    const transformed = content.replaceAll('new URL(".", import.meta.url).pathname', '__dirname');
+    const transformed = content.replaceAll('import.meta.dirname', '__dirname');
 
     await writeFile(file, transformed);
   }
