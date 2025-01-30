@@ -1,6 +1,7 @@
 import eslintParserHTML from "@html-eslint/parser";
 import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
 
+
 export default {
   files: ["**/*.html"],
   languageOptions: {
@@ -9,5 +10,5 @@ export default {
   plugins: {
     "readable-tailwind": eslintPluginReadableTailwind
   },
-  rules: eslintPluginReadableTailwind.configs.warning.rules,
-}
+  rules: eslintPluginReadableTailwind.configs.warning.rules
+};
