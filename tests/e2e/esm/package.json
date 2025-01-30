@@ -1,0 +1,9 @@
+{
+  "type": "module",
+  "devDependencies": {
+    "@html-eslint/parser": "^0.33.0",
+    "eslint": "^9.19.0",
+    "eslint-plugin-readable-tailwind": "file:../../../",
+    "tailwindcss": "^4.0.1"
+  }
+}
