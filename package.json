@@ -54,9 +54,9 @@
     "spellcheck": "cspell lint",
     "spellcheck:ci": "npm run spellcheck -- --no-progress",
     "test": "npm run test:v3 -- --run && npm run test:v4 -- --run",
-    "test:e2e": "vitest -c ./vite.config.ts tests/e2e/**/* --run",
-    "test:v3": "npm i tailwindcss@^3 --no-save && vitest -c ./vite.config.ts --exclude 'tests/e2e/**/*'",
-    "test:v4": "npm i tailwindcss@^4 --no-save && vitest -c ./vite.config.ts --exclude 'tests/e2e/**/*'",
+    "test:e2e": "vitest -c ./vite.config.ts tests/e2e --run",
+    "test:v3": "npm i tailwindcss@^3 --no-save && vitest -c ./vite.config.ts --exclude tests/e2e",
+    "test:v4": "npm i tailwindcss@^4 --no-save && vitest -c ./vite.config.ts --exclude tests/e2e",
     "typecheck": "tsc --noEmit"
   },
   "engines": {
