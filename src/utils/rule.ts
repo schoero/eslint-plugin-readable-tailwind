@@ -26,8 +26,6 @@ export type Options =
   VariableOption;
 
 export function createRuleListener(ctx: Rule.RuleContext, options: Options, lintLiterals: (ctx: Rule.RuleContext, literals: Literal[]) => void): Rule.RuleListener {
-
-
   const { attributes, callees, tags, variables } = options;
 
   const callExpression = {

@@ -6,6 +6,7 @@ import postcss from "postcss";
 import postcssImport from "postcss-import";
 
 import { isCommonJSModule } from "../utils/module.js";
+import { isWindows } from "../utils/platform.js";
 import { cjsResolver, cssResolver, esmResolver } from "../utils/resolvers.js";
 
 
@@ -36,7 +37,7 @@ function createLoader<T>({
     try {
       const resolved = resolveJsFrom(base, id);
 
-      const url = pathToFileURL(resolved);
+      const url = isWindows() ? pathToFileURL(resolved) : new URL(resolved);
       url.searchParams.append("t", cacheKey);
 
       return await import(url.href).then(m => m.default ?? m);
@@ -75,7 +76,8 @@ export async function createTailwindContextFromEntryPoint(entryPoint: string) {
     throw new Error("Could not find Tailwind CSS");
   }
 
-  const tailwindUrl = pathToFileURL(tailwindPath).toString();
+  const tailwindUrl = isWindows() ? pathToFileURL(tailwindPath).toString() : tailwindPath;
+
   // eslint-disable-next-line eslint-plugin-typescript/naming-convention
   const { __unstable__loadDesignSystem } = await import(tailwindUrl);
 
