@@ -1,5 +1,23 @@
 # Changelog
 
+## v2.0.0-beta.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.0.0...v2.0.0-beta.1)
+
+### Fixes
+
+- Override settings correctly ([6e27500](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/6e27500))
+- Transform import.meta for `cjs` output ([dde40a9](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/dde40a9))
+- Module imports in `cjs` ([a7fc4b9](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/a7fc4b9))
+
+### Refactors
+
+- Disable warning in output ([b5e1eca](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/b5e1eca))
+
+### Tests
+
+- Add end to end tests ([03ab8d1](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/03ab8d1))
+
 ## v2.0.0-beta.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.9.0...v2.0.0-beta.0)
@@ -21,7 +39,7 @@
 
 #### ⚠️ Breaking Changes
 
-- ⚠️  Drop support for Node.js <= 18 due to incompatibility of worker threads.
+- ⚠️  Drop support for Node.js < 20 due to incompatibility of worker threads.
 - ⚠️  Add support for tailwindcss v4 ([#25](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/25))
   - The official class ordering seems to have changed slightly.
   
