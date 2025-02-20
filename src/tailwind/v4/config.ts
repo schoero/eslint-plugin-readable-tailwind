@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import path, { dirname } from "node:path";
 import { pathToFileURL } from "node:url";
 
+import { createJiti } from "jiti";
 import postcss from "postcss";
 import postcssImport from "postcss-import";
 
@@ -23,11 +24,12 @@ function resolveCssFrom(base: string, id: string) {
 }
 
 function createLoader<T>({
-  filepath,
+  filepath, jiti,
   legacy,
   onError
 }: {
   filepath: string;
+  jiti: ReturnType<typeof createJiti>;
   legacy: boolean;
   onError: (id: string, error: unknown, resourceType: string) => T;
 }) {
@@ -37,10 +39,10 @@ function createLoader<T>({
     try {
       const resolved = resolveJsFrom(base, id);
 
-      const url = isWindows() ? pathToFileURL(resolved) : new URL(resolved);
+      const url = pathToFileURL(resolved);
       url.searchParams.append("t", cacheKey);
 
-      return await import(url.href).then(m => m.default ?? m);
+      return await jiti.import(url.href, { default: true });
     } catch (err){
       return onError(id, err, resourceType);
     }
@@ -65,6 +67,12 @@ export async function createTailwindContextFromEntryPoint(entryPoint: string) {
   if(CACHE.has(entryPoint)){
     return CACHE.get(entryPoint);
   }
+
+  // Create a Jiti instance that can be used to load plugins and config files
+  const jiti = createJiti(getCurrentFilename(), {
+    fsCache: false,
+    moduleCache: false
+  });
 
   const importBasePath = dirname(entryPoint);
 
@@ -109,6 +117,7 @@ export async function createTailwindContextFromEntryPoint(entryPoint: string) {
     base: importBasePath,
     loadModule: createLoader({
       filepath: entryPoint,
+      jiti,
       legacy: false,
       onError: (id, err, resourceType) => {
         console.error(`Unable to load ${resourceType}: ${id}`, err);
@@ -138,4 +147,10 @@ export async function createTailwindContextFromEntryPoint(entryPoint: string) {
   CACHE.set(entryPoint, context);
 
   return context;
+}
+
+function getCurrentFilename() {
+  // eslint-disable-next-line eslint-plugin-typescript/prefer-ts-expect-error
+  // @ts-ignore - `import.meta` doesn't exist in CommonJS -> will be transformed in build step
+  return import.meta.url;
 }
