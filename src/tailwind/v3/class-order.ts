@@ -1,19 +1,11 @@
-import { findFileRecursive } from "../utils/config.js";
-import { createTailwindContextFromConfigFile } from "./config.js";
+import { findTailwindConfig } from "./config.js";
+import { createTailwindContextFromConfigFile } from "./context.js";
 
 import type { GetClassOrderRequest, GetClassOrderResponse } from "../api/interface.js";
 
 
 export async function getClassOrder({ classes, configPath, cwd }: GetClassOrderRequest): Promise<GetClassOrderResponse> {
-  const potentialPaths = [
-    ...configPath ? [configPath] : [],
-    "tailwind.config.js",
-    "tailwind.config.cjs",
-    "tailwind.config.mjs",
-    "tailwind.config.ts"
-  ];
-
-  const foundPath = findFileRecursive(cwd, potentialPaths);
-  const context = createTailwindContextFromConfigFile(foundPath);
+  const path = findTailwindConfig(cwd, configPath);
+  const context = createTailwindContextFromConfigFile(path);
   return context.getClassOrder(classes);
 }

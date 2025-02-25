@@ -1,27 +1,20 @@
-import defaultConfig from "tailwindcss3/defaultConfig.js";
-import setupContextUtils from "tailwindcss3/lib/lib/setupContextUtils.js";
-import loadConfig from "tailwindcss3/loadConfig.js";
-import resolveConfig from "tailwindcss3/resolveConfig.js";
+import { findFileRecursive } from "../utils/config.js";
 
 
-export function loadTailwindConfig(path: string | undefined) {
-  const config = path ? loadConfig(path) : defaultConfig;
-  return resolveConfig(config);
-}
+export function findTailwindConfig(cwd: string, configPath?: string) {
+  const potentialPaths = [
+    ...configPath ? [configPath] : [],
+    "tailwind.config.js",
+    "tailwind.config.cjs",
+    "tailwind.config.mjs",
+    "tailwind.config.ts"
+  ];
 
-const CACHE = new Map<string, ReturnType<typeof setupContextUtils.createContext>>();
+  const path = findFileRecursive(cwd, potentialPaths);
 
-export function createTailwindContextFromConfigFile(path?: string) {
-  const cacheKey = path ?? "default";
-
-  if(CACHE.has(cacheKey)){
-    return CACHE.get(cacheKey);
+  if(!path){
+    throw new Error("Could not find a valid Tailwind CSS configuration");
   }
 
-  const tailwindConfig = loadTailwindConfig(path);
-  const context = setupContextUtils.createContext?.(tailwindConfig) ?? setupContextUtils.default?.createContext?.(tailwindConfig);
-
-  CACHE.set(cacheKey, context);
-
-  return context;
+  return path;
 }
