@@ -29,8 +29,7 @@ import type {
 
 export type Options = [
   Partial<
-    AttributeOption
-     &
+    AttributeOption &
     CalleeOption &
     TagOption &
     VariableOption &
@@ -168,19 +167,18 @@ function sortClasses(ctx: Rule.RuleContext, classes: string[]): string[] {
   const { order, tailwindConfig } = getOptions(ctx);
 
   if(order === "asc"){
-    return [...classes].sort((a, b) => a.localeCompare(b));
+    return classes.toSorted((a, b) => a.localeCompare(b));
   }
 
   if(order === "desc"){
-    return [...classes].sort((a, b) => b.localeCompare(a));
+    return classes.toSorted((a, b) => b.localeCompare(a));
   }
 
-  const officialClassOrder = getClassOrder({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
-  const officiallySortedClasses = [...officialClassOrder]
-    .sort(([, a], [, z]) => {
+  const officiallySortedClasses = getClassOrder({ classes, configPath: tailwindConfig, cwd: ctx.cwd })
+    .toSorted(([, a], [, z]) => {
       if(a === z){ return 0; }
-      if(a === null){ return 1; }
-      if(z === null){ return 1; }
+      if(a === null){ return -1; }
+      if(z === null){ return +1; }
       return +(a - z > 0n) - +(a - z < 0n);
     })
     .map(([className]) => className);
@@ -189,25 +187,14 @@ function sortClasses(ctx: Rule.RuleContext, classes: string[]): string[] {
     return officiallySortedClasses;
   }
 
-  return [...officiallySortedClasses].sort((a, b) => {
+  const groupedByVariant = new Map<string, string[]>();
 
-    const aModifier = a.match(/^.*?:/)?.[0];
-    const bModifier = b.match(/^.*?:/)?.[0];
+  for(const className of officiallySortedClasses){
+    const variant = className.match(/^.*?:/)?.[0] ?? "";
+    groupedByVariant.set(variant, [...groupedByVariant.get(variant) ?? [], className]);
+  }
 
-    if(aModifier && bModifier && aModifier !== bModifier){
-      return aModifier.localeCompare(bModifier);
-    }
-
-    if(aModifier && !bModifier){
-      return 1;
-    }
-    if(!aModifier && bModifier){
-      return -1;
-    }
-
-    return 0;
-
-  });
+  return Array.from(groupedByVariant.values()).flat();
 
 }
 

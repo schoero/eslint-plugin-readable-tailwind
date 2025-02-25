@@ -31,11 +31,12 @@ export function getCommonOptions(ctx: Rule.RuleContext) {
     ctx?.settings["readable-tailwind"]?.tags ??
     DEFAULT_TAG_NAMES;
 
-  const tailwindConfig = ctx.options[0]?.tailwindConfig ?? ctx.options[0]?.entryPoint ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.tailwindConfig ??
-    ctx?.settings["readable-tailwind"]?.tailwindConfig ??
+  const tailwindConfig = ctx.options[0]?.entryPoint ??
     ctx?.settings["eslint-plugin-readable-tailwind"]?.entryPoint ??
-    ctx?.settings["readable-tailwind"]?.entryPoint;
+    ctx?.settings["readable-tailwind"]?.entryPoint ??
+    ctx.options[0]?.tailwindConfig ??
+    ctx?.settings["eslint-plugin-readable-tailwind"]?.tailwindConfig ??
+    ctx?.settings["readable-tailwind"]?.tailwindConfig;
 
   return {
     attributes,
