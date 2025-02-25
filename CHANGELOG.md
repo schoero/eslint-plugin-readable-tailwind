@@ -1,5 +1,17 @@
 # Changelog
 
+## v2.0.0-beta.2
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.0.0-beta.0...v2.0.0-beta.2)
+
+### Fixes
+
+- Import of typescript files in css config ([aee5bf9](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/aee5bf9))
+
+### Refactors
+
+- Change `"improved"` sorting order to only group identical variants ([8a5d5cb](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/8a5d5cb))
+
 ## v2.0.0-beta.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.0.0...v2.0.0-beta.1)
