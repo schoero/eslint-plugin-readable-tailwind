@@ -11,32 +11,12 @@ import type { Literal, Node, QuoteMeta } from "readable-tailwind:types:ast.js";
 
 
 export function getCommonOptions(ctx: Rule.RuleContext) {
-  const attributes = ctx.options[0]?.attributes ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.attributes ??
-    ctx?.settings["readable-tailwind"]?.attributes ??
-    DEFAULT_ATTRIBUTE_NAMES;
 
-  const callees = ctx.options[0]?.callees ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.callees ??
-    ctx?.settings["readable-tailwind"]?.callees ??
-    DEFAULT_CALLEE_NAMES;
-
-  const variables = ctx.options[0]?.variables ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.variables ??
-    ctx?.settings["readable-tailwind"]?.variables ??
-    DEFAULT_VARIABLE_NAMES;
-
-  const tags = ctx.options[0]?.tags ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.tags ??
-    ctx?.settings["readable-tailwind"]?.tags ??
-    DEFAULT_TAG_NAMES;
-
-  const tailwindConfig = ctx.options[0]?.entryPoint ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.entryPoint ??
-    ctx?.settings["readable-tailwind"]?.entryPoint ??
-    ctx.options[0]?.tailwindConfig ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.tailwindConfig ??
-    ctx?.settings["readable-tailwind"]?.tailwindConfig;
+  const attributes = getOption(ctx, "attributes") ?? DEFAULT_ATTRIBUTE_NAMES;
+  const callees = getOption(ctx, "callees") ?? DEFAULT_CALLEE_NAMES;
+  const variables = getOption(ctx, "variables") ?? DEFAULT_VARIABLE_NAMES;
+  const tags = getOption(ctx, "tags") ?? DEFAULT_TAG_NAMES;
+  const tailwindConfig = getOption(ctx, "entryPoint") ?? getOption(ctx, "tailwindConfig");
 
   return {
     attributes,
@@ -45,6 +25,11 @@ export function getCommonOptions(ctx: Rule.RuleContext) {
     tailwindConfig,
     variables
   };
+}
+
+function getOption(ctx: Rule.RuleContext, key: string) {
+  return ctx.options[0]?.[key] ?? ctx.settings["eslint-plugin-readable-tailwind"]?.[key] ??
+    ctx.settings["readable-tailwind"]?.[key];
 }
 
 export function getWhitespace(classes: string) {
