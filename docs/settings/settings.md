@@ -2,9 +2,13 @@
 
 ## Table of Contents
 
+- [entryPoint](#entrypoint)
+- [tailwindConfig](#tailwindconfig)
+
 - [attributes](#attributes)
 - [callees](#callees)
 - [variables](#variables)
+- [tags](#tags)
 
 <br />
 <br />
@@ -21,6 +25,8 @@ To set the settings object, add a `settings` key to the eslint config.
   "rules": { /* ... */ },
   "settings": {
     "readable-tailwind": {
+      "entryPoint": "...",
+      "tailwindConfig": "...",
       "attributes": [/* ... */],
       "callees": [/* ... */],
       "variables": [/* ... */],
@@ -32,6 +38,26 @@ To set the settings object, add a `settings` key to the eslint config.
 
 <br />
 <br />
+
+### `entryPoint`
+
+  The path to the entry file of the tailwind css based config (eg: `src/global.css`). If not specified, the plugin will fall back to the default configuration.  
+  The tailwind config is used to determine the sorting order.
+
+  **Type**: String
+
+<br/>
+
+### `tailwindConfig`
+
+  The path to the `tailwind.config.js` file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.  
+  The tailwind config is used to determine the sorting order.
+
+  For tailwindcss v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
+
+  **Type**: String
+
+<br/>
 
 ### `attributes`
 
@@ -60,7 +86,7 @@ To set the settings object, add a `settings` key to the eslint config.
 
 <br/>
 
-- `tags`
+### `tags`
 
   List of template literal tag names whose content should get linted.  
   
