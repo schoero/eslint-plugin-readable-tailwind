@@ -20,6 +20,7 @@ Read more about the new [ESLint flat config format](https://eslint.org/docs/late
 
 ```js
 // eslint.config.js
+import eslintParserTypeScript from "@typescript-eslint/parser";
 import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
 
 export default [
