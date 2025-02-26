@@ -24,7 +24,8 @@ function resolveCssFrom(base: string, id: string) {
 }
 
 function createLoader<T>({
-  filepath, jiti,
+  filepath,
+  jiti,
   legacy,
   onError
 }: {
