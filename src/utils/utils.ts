@@ -90,7 +90,8 @@ export function isLiteral(node: Node): node is Literal {
 export function matchesName(pattern: string, name: string | undefined): boolean {
   if(!name){ return false; }
 
-  return new RegExp(pattern).test(name);
+  const match = name.match(pattern);
+  return !!match && match[0] === name;
 }
 
 export function deduplicateLiterals(literals: Literal[]): Literal[] {

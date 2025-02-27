@@ -18,7 +18,12 @@ It is possible that you never have to change this configuration, but if you do n
 
 ## Name
 
-The simplest form to define string literals to lint is by their name. Callees, variables or attributes with that name will be linted. The name can be a string or a regular expression.
+The simplest form to define string literals to lint is by their name. Callees, variables or attributes with that name will be linted.
+
+The name is treated as a regular expression, so the following conditions should be met:
+
+- Reserved characters in regular expressions should be escaped.
+- The regular expression must match the whole name. Partial matches will be ignored.
 
 <br/>
 
@@ -34,36 +39,47 @@ type Name = string;
 
 ```jsonc
 {
-  "attributes": ["myAttribute"]
+  "attributes": [
+    "myAttribute",
+    ".*Classes"
+  ]
 }
 ```
 
 ```tsx
-<img myAttribute="this will get linted" />;
+<img myAttribute="this will get linted" myClasses="this will get linted" />;
 ```
 
 <br/>
 
 ```jsonc
 {
-  "callees": ["myFunction"]
+  "callees": [
+    "myFunction", 
+    ".*Styles"
+  ]
 }
 ```
 
 ```tsx
-const test = myFunction("this will get linted");
+const name = myFunction("this will get linted");
+const regex = myStyles("this will get linted");
 ```
 
 <br/>
 
 ```jsonc
 {
-  "variables": ["myVariable"]
+  "variables": [
+    "myVariable", 
+    ".*Styles"
+  ]
 }
 ```
 
 ```tsx
 const myVariable = "this will get linted";
+const myStyles = "this will get linted";
 ```
 
 <br/>
@@ -171,7 +187,10 @@ Matchers are the most powerful way to match string literals. They allow finer co
 This allows additional filtering, such as literals in conditions or logical expressions. This opens up the possibility to lint any string that may contain tailwindcss classes while also reducing the number of false positives.
 
 Matchers are defined as a tuple of a name and a list of configurations for predefined matchers.  
-The name can be a string or a regular expression.  
+The name is treated as a regular expression, so the following conditions should be met:
+
+- Reserved characters in regular expressions should be escaped.
+- The regular expression must match the whole name. Partial matches will be ignored.
 
 <br/>
 
