@@ -1,13 +1,14 @@
 import { config } from "@schoero/configs/vite";
 
+
 export default {
   ...config,
   test: {
     ...config.test,
-    poolOptions:{
+    poolOptions: {
       threads: {
-        maxThreads: "50%",
+        maxThreads: "50%"
       }
-    },
+    }
   }
-}
+};
