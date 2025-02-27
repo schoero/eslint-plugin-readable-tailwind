@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.9.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.0.0-beta.2...v1.9.1)
+
+### Fixes
+
+- Lint `className` in render functions inside object ([#75](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/75))
+
 ## v1.9.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.8.2...v1.9.0)
