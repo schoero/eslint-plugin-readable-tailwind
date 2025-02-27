@@ -34,6 +34,7 @@ export const DEFAULT_CALLEE_NAMES = [
 
 export const DEFAULT_ATTRIBUTE_NAMES = [
   "class",
+  "className",
   [
     "class", [
       {
