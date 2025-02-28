@@ -40,14 +40,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run build
+        run: npm run build:ci
+
+      - name: Install tailwindcss v3
+        run: npm run install:v3
+        
       - name: Run tests with tailwindcss v3
         run: npm run test:v3
 
+      - name: Run e2e tests with tailwindcss v3
+        run: npm run test:e2e
+
+      - name: Install tailwindcss v4
+        run: npm run install:v4
+
       - name: Run tests with tailwindcss v4
         run: npm run test:v4
-
-      - name: Run build
-        run: npm run build:ci
 
       - name: Run e2e tests
         run: npm run test:e2e

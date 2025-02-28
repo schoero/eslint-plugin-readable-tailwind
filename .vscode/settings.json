@@ -5,9 +5,16 @@
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
   "eslint.nodePath": "node_modules/eslint",
-  "eslint.experimental.useFlatConfig": true,
   "eslint.useFlatConfig": true,
   "eslint.validate": ["javascript", "typescript", "json", "jsonc", "json5", "yaml"],
+
+  "eslint.rules.customizations": [
+    { "rule": "readable-tailwind/*", "severity": "off" }
+  ],
+  "eslint.codeActionsOnSave.rules": [
+    "!readable-tailwind"
+  ],
+
   "editor.formatOnSave": false,
 
   // Prettier

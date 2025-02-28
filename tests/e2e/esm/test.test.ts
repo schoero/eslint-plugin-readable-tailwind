@@ -4,13 +4,6 @@ import { $ } from "readable-tailwind:build:utils.js";
 
 
 describe("e2e/esm", async () => {
-  beforeAll(async () => {
-    await $(
-      `npm i --no-package-lock`,
-      { cwd: import.meta.dirname }
-    );
-  });
-
   it("should report all errors", async () => {
     const json = await $(
       `npx eslint --config eslint.config.js --no-config-lookup --format json .`,
