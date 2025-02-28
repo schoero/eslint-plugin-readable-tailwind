@@ -12,7 +12,8 @@
     { "rule": "readable-tailwind/*", "severity": "off" }
   ],
   "eslint.codeActionsOnSave.rules": [
-    "!readable-tailwind"
+    "!readable-tailwind/*",
+    "*"
   ],
 
   "editor.formatOnSave": false,
