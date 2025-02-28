@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.0.0-beta.3
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.0.0-beta.0...v2.0.0-beta.3)
+
+### Fixes
+
+- Improve `matchesName` function to ensure full name matches ([a866772](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/a866772))
+- `setupContextUtils` import ([7357e61](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/7357e61))
+
 ## v2.0.0-beta.2
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.0.0-beta.0...v2.0.0-beta.2)
