@@ -58,7 +58,7 @@ jobs:
       - name: Run tests with tailwindcss v4
         run: npm run test:v4
 
-      - name: Run e2e tests
+      - name: Run e2e tests with tailwindcss v4
         run: npm run test:e2e
 
     strategy:
