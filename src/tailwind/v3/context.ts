@@ -1,5 +1,5 @@
 import defaultConfig from "tailwindcss3/defaultConfig.js";
-import setupContextUtils from "tailwindcss3/lib/lib/setupContextUtils.js";
+import * as setupContextUtils from "tailwindcss3/lib/lib/setupContextUtils.js";
 import loadConfig from "tailwindcss3/loadConfig.js";
 import resolveConfig from "tailwindcss3/resolveConfig.js";
 
