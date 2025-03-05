@@ -27,6 +27,7 @@
     "quasis",
     "shadcn",
     "synckit",
-    "jiti"
+    "jiti",
+    "Tmpl"
   ]
 }

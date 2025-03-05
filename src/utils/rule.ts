@@ -1,4 +1,9 @@
 import {
+  type AngularAttributeWithLoc, // eslint-disable-line eslint-plugin-import-x/consistent-type-specifier-style
+  getAttributesByAngularElement,
+  getLiteralsByAngularAttributes
+} from "readable-tailwind:parsers:angular.js";
+import {
   getLiteralsByESCallExpression,
   getLiteralsByESVariableDeclarator,
   getLiteralsByTaggedTemplateExpression
@@ -8,6 +13,7 @@ import { getAttributesByJSXElement, getLiteralsByJSXAttributes } from "readable-
 import { getAttributesBySvelteTag, getLiteralsBySvelteAttributes } from "readable-tailwind:parsers:svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueAttributes } from "readable-tailwind:parsers:vue.js";
 
+import type { TmplAstElement } from "@angular/compiler";
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
 import type { CallExpression, Node, TaggedTemplateExpression, VariableDeclarator } from "estree";
@@ -113,6 +119,17 @@ export function createRuleListener(ctx: Rule.RuleContext, options: Options, lint
       }
     }
   };
+  const angular = {
+    Element$1(node: Node) {
+      const angularTagNode = node as unknown as TmplAstElement;
+      const angularAttributes = getAttributesByAngularElement(ctx, angularTagNode) as AngularAttributeWithLoc[];
+      for(const angularAttribute of angularAttributes){
+        const literals = getLiteralsByAngularAttributes(ctx, angularAttribute, attributes);
+        console.log(literals);
+        lintLiterals(ctx, literals);
+      }
+    }
+  };
 
   // Vue
   if(typeof ctx.sourceCode.parserServices?.defineTemplateBodyVisitor === "function"){
@@ -137,6 +154,7 @@ export function createRuleListener(ctx: Rule.RuleContext, options: Options, lint
     ...jsx,
     ...svelte,
     ...vue,
-    ...html
+    ...html,
+    ...angular
   };
 }
