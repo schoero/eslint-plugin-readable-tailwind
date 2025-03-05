@@ -125,7 +125,6 @@ export function createRuleListener(ctx: Rule.RuleContext, options: Options, lint
       const angularAttributes = getAttributesByAngularElement(ctx, angularTagNode) as AngularAttributeWithLoc[];
       for(const angularAttribute of angularAttributes){
         const literals = getLiteralsByAngularAttributes(ctx, angularAttribute, attributes);
-        console.log(literals);
         lintLiterals(ctx, literals);
       }
     }

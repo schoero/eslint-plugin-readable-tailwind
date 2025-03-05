@@ -35,9 +35,9 @@ export function getLiteralsByAngularAttributeNode(ctx: Rule.RuleContext, attribu
   if(!content){
     return [];
   }
-  const start = attribute.valueSpan!.start;
+  const start = attribute.keySpan!.end;
   const end = attribute.valueSpan!.end;
-  const raw = attribute.sourceSpan.start.file.content.slice(start.offset - 1, end.offset + 1);
+  const raw = attribute.sourceSpan.start.file.content.slice(start.offset + 1, end.offset + 1);
   const quotes = getQuotes(raw);
   const whitespaces = getWhitespace(content);
 
@@ -50,7 +50,7 @@ export function getLiteralsByAngularAttributeNode(ctx: Rule.RuleContext, attribu
     node: attribute,
     // @ts-expect-error - Missing in types
     parent: attribute.parent,
-    range: [start.offset - 1, end.offset + 1], // include quotes in range
+    range: [start.offset + 1, end.offset + 1], // include quotes in range
     raw,
     type: "StringLiteral"
   }];
