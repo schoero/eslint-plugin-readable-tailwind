@@ -1,8 +1,16 @@
 # Changelog
 
+## v2.0.0-beta.4
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.0.0-beta.3...v2.0.0-beta.4)
+
+### Features
+
+- Invalidate cache on tailwind config change ([18d17e8](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/18d17e8)))
+
 ## v2.0.0-beta.3
 
-[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.0.0-beta.0...v2.0.0-beta.3)
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.0.0-beta.2...v2.0.0-beta.3)
 
 ### Fixes
 
@@ -11,7 +19,7 @@
 
 ## v2.0.0-beta.2
 
-[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.0.0-beta.0...v2.0.0-beta.2)
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.0.0-beta.1...v2.0.0-beta.2)
 
 ### Fixes
 
