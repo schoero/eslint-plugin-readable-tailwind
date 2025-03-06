@@ -11,10 +11,10 @@ export function loadTailwindConfig(path: string | undefined) {
 
 const CACHE = new Map<string, ReturnType<typeof setupContextUtils.createContext>>();
 
-export function createTailwindContextFromConfigFile(path?: string) {
+export function createTailwindContextFromConfigFile(path?: string, invalidate?: boolean) {
   const cacheKey = path ?? "default";
 
-  if(CACHE.has(cacheKey)){
+  if(CACHE.has(cacheKey) && !invalidate){
     return CACHE.get(cacheKey);
   }
 

@@ -5,7 +5,7 @@ import type { GetClassOrderRequest, GetClassOrderResponse } from "../api/interfa
 
 
 export async function getClassOrder({ classes, configPath, cwd }: GetClassOrderRequest): Promise<GetClassOrderResponse> {
-  const path = findTailwindConfig(cwd, configPath);
-  const context = createTailwindContextFromConfigFile(path);
+  const config = findTailwindConfig(cwd, configPath);
+  const context = createTailwindContextFromConfigFile(config?.path, config?.invalidate);
   return context.getClassOrder(classes);
 }

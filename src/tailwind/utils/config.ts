@@ -1,21 +1,39 @@
-import { existsSync } from "node:fs";
+import { existsSync, statSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 
 
-const CACHE = new Map<string, string>();
+type CachedFile = {
+  invalidate: boolean;
+  path: string;
+};
 
-export function findFileRecursive(cwd: string, paths: string[]) {
+const CACHE = new Map<string, number>();
+
+export function findFileRecursive(cwd: string, paths: string[]): CachedFile | undefined {
   const resolvedPaths = paths.map(p => resolve(cwd, p));
 
   for(let resolvedPath = resolvedPaths.shift(); resolvedPath !== undefined; resolvedPath = resolvedPaths.shift()){
-    if(CACHE.has(resolvedPath)){
-      return CACHE.get(resolvedPath);
-    }
 
     if(existsSync(resolvedPath)){
-      CACHE.set(resolvedPath, resolvedPath);
-      return resolvedPath;
+      const stat = statSync(resolvedPath);
+
+      if(!stat.isFile()){
+        CACHE.delete(resolvedPath);
+        continue;
+      }
+
+      const invalidate = stat.mtimeMs > (CACHE.get(resolvedPath) ?? 0);
+
+      CACHE.set(resolvedPath, stat.mtimeMs);
+
+      return {
+        invalidate,
+        path: resolvedPath
+      };
+
     }
+
+    CACHE.delete(resolvedPath);
 
     const fileName = basename(resolvedPath);
     const directory = dirname(resolvedPath);

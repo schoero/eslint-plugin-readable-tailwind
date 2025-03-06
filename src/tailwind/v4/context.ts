@@ -64,8 +64,8 @@ function createLoader<T>({
 
 const CACHE = new Map<string, Awaited<ReturnType<typeof createTailwindContextFromEntryPoint>>>();
 
-export async function createTailwindContextFromEntryPoint(entryPoint: string) {
-  if(CACHE.has(entryPoint)){
+export async function createTailwindContextFromEntryPoint(entryPoint: string, invalidate: boolean) {
+  if(CACHE.has(entryPoint) && !invalidate){
     return CACHE.get(entryPoint);
   }
 
