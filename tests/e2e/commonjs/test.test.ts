@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 
 import { $ } from "readable-tailwind:build:utils.js";
 
@@ -14,8 +14,8 @@ describe("e2e/commonjs", async () => {
       errorCount: 0,
       fatalErrorCount: 0,
       fixableErrorCount: 0,
-      fixableWarningCount: 2,
-      warningCount: 2
+      fixableWarningCount: 1,
+      warningCount: 1
     });
-  }, { timeout: 10_000 });
+  }, 10_000);
 });

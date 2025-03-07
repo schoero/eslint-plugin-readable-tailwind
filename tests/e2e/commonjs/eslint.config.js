@@ -10,5 +10,7 @@ module.exports = {
   plugins: {
     "readable-tailwind": eslintPluginReadableTailwind
   },
-  rules: eslintPluginReadableTailwind.configs.warning.rules
+  rules: {
+    "readable-tailwind/sort-classes": "warn"
+  }
 };
