@@ -41,7 +41,7 @@ To set the settings object, add a `settings` key to the eslint config.
 
 ### `entryPoint`
 
-  The path to the entry file of the tailwind css based config (eg: `src/global.css`). If not specified, the plugin will fall back to the default configuration.  
+  The path to the entry file of the css based tailwind config (eg: `src/global.css`). If not specified, the plugin will fall back to the default configuration.  
   The tailwind config is used to determine the sorting order.
 
   **Type**: String
