@@ -4,7 +4,6 @@
 
 - [entryPoint](#entrypoint)
 - [tailwindConfig](#tailwindconfig)
-
 - [attributes](#attributes)
 - [callees](#callees)
 - [variables](#variables)
