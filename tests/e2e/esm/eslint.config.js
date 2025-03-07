@@ -10,7 +10,5 @@ export default {
   plugins: {
     "readable-tailwind": eslintPluginReadableTailwind
   },
-  rules: {
-    "readable-tailwind/sort-classes": "warn"
-  }
+  rules: eslintPluginReadableTailwind.configs.warning.rules
 };
