@@ -36,7 +36,7 @@ This version contains breaking changes. Most notably support for Node.js < 20 ha
   - The `improved` sorting order will no longer sort variants alphabetically, instead it just makes sure that identical variants are grouped together.
   
 - ⚠️  Regex names ([#63](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/63))
-  - ["Names"](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/concepts/concepts.md#name) can now be regular expressions. This is a breaking change, if you have names configured that contain reserved characters in regular expressions like `$`.
+  - ["Names"](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/concepts/concepts.md#name) can now be regular expressions. This is a breaking change, if you have names configured that contain reserved characters in regular expressions like `$`.
 - ⚠️  Enable `no-duplicate-classes` by default ([#67](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/67))
 - ⚠️  Change default  `multiline` grouping to `newLine` ([#68](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/68))
 - ⚠️  Rename `classAttributes` to `attributes` ([#69](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/69))
