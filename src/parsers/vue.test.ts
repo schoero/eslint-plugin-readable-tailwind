@@ -5,7 +5,20 @@ import { lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
 import { MatcherType } from "readable-tailwind:types:rule.js";
 
 
-describe(tailwindSortClasses.name, () => {
+describe("vue", () => {
+
+  it("should match attribute names via regex", () => {
+    lint(tailwindSortClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 1,
+          options: [{ attributes: [".*Attribute"], order: "asc" }],
+          vue: `<template><img customAttribute="b a" /></template>`,
+          vueOutput: `<template><img customAttribute="a b" /></template>`
+        }
+      ]
+    });
+  });
 
   it("should work in objects in bound classes", () => {
     lint(tailwindSortClasses, TEST_SYNTAXES, {
