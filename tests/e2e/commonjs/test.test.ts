@@ -1,21 +1,30 @@
+import { loadESLint } from "eslint";
 import { describe, expect, it } from "vitest";
-
-import { $ } from "readable-tailwind:build:utils.js";
 
 
 describe("e2e/commonjs", async () => {
   it("should report all errors", async () => {
-    const json = await $(
-      `npx eslint --config eslint.config.js --no-config-lookup --format json .`,
-      { cwd: import.meta.dirname }
-    );
+    const ESLint = await loadESLint({ useFlatConfig: true });
 
-    expect(JSON.parse(json.toString())[1]).toMatchObject({
-      errorCount: 0,
-      fatalErrorCount: 0,
-      fixableErrorCount: 0,
-      fixableWarningCount: 2,
-      warningCount: 2
+    const eslint = new ESLint({
+      cwd: import.meta.dirname,
+      overrideConfigFile: "./eslint.config.js"
     });
-  }, { timeout: 10_000 });
+
+    const [json] = await eslint.lintFiles("./test.html");
+
+    expect(json.errorCount).toBe(0);
+    expect(json.fatalErrorCount).toBe(0);
+    expect(json.fixableErrorCount).toBe(0);
+    expect(json.fixableWarningCount).toBe(4);
+    expect(json.warningCount).toBe(4);
+
+    expect(json.messages.map(({ ruleId }) => ruleId)).toEqual([
+      "readable-tailwind/multiline",
+      "readable-tailwind/no-duplicate-classes",
+      "readable-tailwind/no-unnecessary-whitespace",
+      "readable-tailwind/sort-classes"
+    ]);
+
+  });
 });

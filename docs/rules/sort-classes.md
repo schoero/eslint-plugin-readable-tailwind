@@ -6,7 +6,7 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
 > [!INFO]
 > In order to sort classes logically, the plugin needs to know the order of the tailwind classes.
-> This is done by providing the [`configPath`](#tailwindconfig) to the tailwind config file or the [`entryPoint`](#entrypoint) of the tailwind css based config.
+> This is done by providing the [`configPath`](#tailwindconfig) to the tailwind config file or the [`entryPoint`](#entrypoint) of the css based tailwind config.
 
 ## Options
 
@@ -24,7 +24,7 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
 ### `entryPoint`
 
-  The path to the entry file of the tailwind css based config (eg: `src/global.css`). This can also be set globally via the [`settings` object](../settings/settings.md#entrypoint).  
+  The path to the entry file of the css based tailwind config (eg: `src/global.css`). This can also be set globally via the [`settings` object](../settings/settings.md#entrypoint).  
   If not specified, the plugin will fall back to the default configuration.  
   The tailwind config is used to determine the sorting order.
 

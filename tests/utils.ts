@@ -8,7 +8,7 @@ import { createTag } from "proper-tags";
 import eslintParserSvelte from "svelte-eslint-parser";
 import eslintParserVue from "vue-eslint-parser";
 
-import type { Rule } from "eslint";
+import type { Linter } from "eslint";
 import type { Node as ESNode, Program } from "estree";
 
 import type { ESLintRule, MatcherFunction } from "readable-tailwind:types:rule.js";
@@ -32,7 +32,7 @@ export const TEST_SYNTAXES = {
   }
 } as const;
 
-export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, unknown>>(
+export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Linter.Config>>(
   eslintRule: Rule,
   syntaxes: Syntaxes,
   tests: {
@@ -62,7 +62,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
   for(const invalid of tests.invalid ?? []){
     for(const syntax of Object.keys(syntaxes)){
 
-      const ruleTester = createRuleTester(syntaxes[syntax], invalid.settings);
+      const ruleTester = new RuleTester(syntaxes[syntax]);
 
       if(!invalid[syntax] || !invalid[`${syntax}Output`]){
         continue;
@@ -84,7 +84,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, un
   for(const valid of tests.valid ?? []){
     for(const syntax of Object.keys(syntaxes)){
 
-      const ruleTester = createRuleTester(syntaxes[syntax], valid.settings);
+      const ruleTester = new RuleTester(syntaxes[syntax]);
 
       if(!valid[syntax]){
         continue;
@@ -146,10 +146,6 @@ function customIndentStripTransformer(count: number) {
       return endResult.replace(new RegExp(`^ {${count}}`, "gm"), "");
     }
   };
-}
-
-function createRuleTester(options: any, settings?: Rule.RuleContext["settings"]) {
-  return new RuleTester(options);
 }
 
 export function getFilesInDirectory(importURL: string) {
