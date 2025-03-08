@@ -86,6 +86,7 @@
   },
   "devDependencies": {
     "@angular/compiler": "^19.2.0",
+    "@angular-eslint/template-parser": "^19.2.0",
     "@html-eslint/parser": "^0.35.0",
     "@schoero/configs": "^1.2.10",
     "@types/estree-jsx": "^1.0.5",

@@ -10,6 +10,8 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
+          angular: `<img class="  b  a  " />`,
+          angularOutput: `<img class="b a" />`,
           errors: 1,
           html: `<img class="  b  a  " />`,
           htmlOutput: `<img class="b a" />`,
@@ -33,6 +35,8 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
+          angular: `<img class="${dirtyEmptyMultilineString}" />`,
+          angularOutput: `<img class="${cleanEmptyMultilineString}" />`,
           errors: 1,
           html: `<img class="${dirtyEmptyMultilineString}" />`,
           htmlOutput: `<img class="${cleanEmptyMultilineString}" />`,
@@ -51,6 +55,8 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
+          angular: `<img class="  b  a  " />`,
+          angularOutput: `<img class="b a" />`,
           errors: 1,
           html: `<img class="  b  a  " />`,
           htmlOutput: `<img class="b a" />`,
@@ -62,6 +68,8 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
           vueOutput: `<template><img class="b a" /></template>`
         },
         {
+          angular: `<img class='  b  a  ' />`,
+          angularOutput: `<img class='b a' />`,
           errors: 1,
           html: `<img class='  b  a  ' />`,
           htmlOutput: `<img class='b a' />`,
@@ -140,6 +148,8 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
+          angular: `<img class="${dirty}" />`,
+          angularOutput: `<img class="${clean}" />`,
           errors: 1,
           html: `<img class="${dirty}" />`,
           htmlOutput: `<img class="${clean}" />`,
@@ -458,6 +468,8 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
+          angular: `<img class="${uncleanedMultilineString}" />`,
+          angularOutput: `<img class="${cleanedMultilineString}" />`,
           errors: 1,
           html: `<img class="${uncleanedMultilineString}" />`,
           htmlOutput: `<img class="${cleanedMultilineString}" />`,
@@ -467,6 +479,8 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
           vueOutput: `<template><img class="${cleanedMultilineString}" /></template>`
         },
         {
+          angular: `<img class='${uncleanedMultilineString}' />`,
+          angularOutput: `<img class='${cleanedMultilineString}' />`,
           errors: 1,
           html: `<img class='${uncleanedMultilineString}' />`,
           htmlOutput: `<img class='${cleanedMultilineString}' />`,
@@ -483,6 +497,8 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
           svelteOutput: `<img class={\`${cleanedMultilineString}\`} />`
         },
         {
+          angular: `<img class='${uncleanedMultilineString}' />`,
+          angularOutput: `<img class='${cleanedSinglelineString}' />`,
           errors: 1,
           html: `<img class='${uncleanedMultilineString}' />`,
           htmlOutput: `<img class='${cleanedSinglelineString}' />`,
@@ -497,12 +513,14 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       ],
       valid: [
         {
+          angular: `<img class="${cleanedMultilineString}" />`,
           html: `<img class="${cleanedMultilineString}" />`,
           jsx: `() => <img class={\`${cleanedMultilineString}\`} />`,
           svelte: `<img class="${cleanedMultilineString}" />`,
           vue: `<template><img class="${cleanedMultilineString}" /></template>`
         },
         {
+          angular: `<img class="${cleanedSinglelineString}" />`,
           html: `<img class="${cleanedSinglelineString}" />`,
           jsx: `() => <img class="${cleanedSinglelineString}" />`,
           svelte: `<img class="${cleanedSinglelineString}" />`,

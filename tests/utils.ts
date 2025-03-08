@@ -1,11 +1,11 @@
 import { readdirSync } from "node:fs";
 import { normalize } from "node:path";
 
+import eslintParserAngular from "@angular-eslint/template-parser";
 import eslintParserHTML from "@html-eslint/parser";
 import { RuleTester } from "eslint";
 import { createTag } from "proper-tags";
 import eslintParserSvelte from "svelte-eslint-parser";
-import { describe, it } from "vitest";
 import eslintParserVue from "vue-eslint-parser";
 
 import type { Rule } from "eslint";
@@ -15,6 +15,9 @@ import type { ESLintRule, MatcherFunction } from "readable-tailwind:types:rule.j
 
 
 export const TEST_SYNTAXES = {
+  angular: {
+    languageOptions: { parser: eslintParserAngular }
+  },
   html: {
     languageOptions: { parser: eslintParserHTML }
   },
@@ -146,15 +149,7 @@ function customIndentStripTransformer(count: number) {
 }
 
 function createRuleTester(options: any, settings?: Rule.RuleContext["settings"]) {
-  const ruleTester = new RuleTester(options);
-  // @ts-expect-error - missing types
-  ruleTester.describe = describe;
-  // @ts-expect-error - missing types
-  ruleTester.it = it;
-  // @ts-expect-error - missing types
-  ruleTester.itOnly = it.only;
-  return ruleTester;
-
+  return new RuleTester(options);
 }
 
 export function getFilesInDirectory(importURL: string) {

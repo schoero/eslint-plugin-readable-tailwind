@@ -10,6 +10,8 @@ describe(tailwindNoDuplicateClasses.name, () => {
     lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
+          angular: `<img class="  b  a  c  a  " />`,
+          angularOutput: `<img class="  b  a  c    " />`,
           errors: 1,
           html: `<img class="  b  a  c  a  " />`,
           htmlOutput: `<img class="  b  a  c    " />`,
@@ -28,6 +30,8 @@ describe(tailwindNoDuplicateClasses.name, () => {
     lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
+          angular: `<img class="  b  a  b  " />`,
+          angularOutput: `<img class="  b  a    " />`,
           errors: 1,
           html: `<img class="  b  a  b  " />`,
           htmlOutput: `<img class="  b  a    " />`,
@@ -39,6 +43,8 @@ describe(tailwindNoDuplicateClasses.name, () => {
           vueOutput: `<template><img class="  b  a    " /></template>`
         },
         {
+          angular: `<img class='  b  a  b  ' />`,
+          angularOutput: `<img class='  b  a    ' />`,
           errors: 1,
           html: `<img class='  b  a  b  ' />`,
           htmlOutput: `<img class='  b  a    ' />`,
@@ -93,6 +99,8 @@ describe(tailwindNoDuplicateClasses.name, () => {
     lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
+          angular: `<img class="${dirty}" />`,
+          angularOutput: `<img class="${clean}" />`,
           errors: 1,
           html: `<img class="${dirty}" />`,
           htmlOutput: `<img class="${clean}" />`,

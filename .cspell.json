@@ -21,6 +21,7 @@
     "eslintrc",
     "espree",
     "estree",
+    "jiti",
     "linebreak",
     "objstr",
     "OBJSTR",

@@ -13,6 +13,8 @@ describe(tailwindSortClasses.name, () => {
       {
         invalid: [
           {
+            angular: `<img class="b a" />`,
+            angularOutput: `<img class="a b" />`,
             errors: 1,
             html: `<img class="b a" />`,
             htmlOutput: `<img class="a b" />`,
@@ -25,6 +27,8 @@ describe(tailwindSortClasses.name, () => {
             vueOutput: `<template><img class="a b" /></template>`
           },
           {
+            angular: `<img class="a b" />`,
+            angularOutput: `<img class="b a" />`,
             errors: 1,
             html: `<img class="a b" />`,
             htmlOutput: `<img class="b a" />`,
@@ -37,6 +41,8 @@ describe(tailwindSortClasses.name, () => {
             vueOutput: `<template><img class="b a" /></template>`
           },
           {
+            angular: `<img class="w-full absolute" />`,
+            angularOutput: `<img class="absolute w-full" />`,
             errors: 1,
             html: `<img class="w-full absolute" />`,
             htmlOutput: `<img class="absolute w-full" />`,
@@ -51,6 +57,7 @@ describe(tailwindSortClasses.name, () => {
         ],
         valid: [
           {
+            angular: `<img class="a b" />`,
             html: `<img class="a b" />`,
             jsx: `() => <img class="a b" />`,
             options: [{ order: "asc" }],
@@ -58,6 +65,7 @@ describe(tailwindSortClasses.name, () => {
             vue: `<template><img class="a b" /></template>`
           },
           {
+            angular: `<img class="b a" />`,
             html: `img class="b a" />`,
             jsx: `() => <img class="b a" />`,
             options: [{ order: "desc" }],
@@ -65,6 +73,7 @@ describe(tailwindSortClasses.name, () => {
             vue: `<template><img class="b a" /></template>`
           },
           {
+            angular: `<img class="absolute w-full" />`,
             html: `<img class="absolute w-full" />`,
             jsx: `() => <img class="absolute w-full" />`,
             options: [{ order: "official" }],
@@ -80,6 +89,8 @@ describe(tailwindSortClasses.name, () => {
     lint(tailwindSortClasses, TEST_SYNTAXES, {
       invalid: [
         {
+          angular: `<img class="hover:text-black focus:text-black dark:text-black focus:text-white hover:text-white dark:text-white" />`,
+          angularOutput: `<img class="hover:text-black hover:text-white focus:text-black focus:text-white dark:text-black dark:text-white" />`,
           errors: 1,
           html: `<img class="hover:text-black focus:text-black dark:text-black focus:text-white hover:text-white dark:text-white" />`,
           htmlOutput: `<img class="hover:text-black hover:text-white focus:text-black focus:text-white dark:text-black dark:text-white" />`,
@@ -102,6 +113,8 @@ describe(tailwindSortClasses.name, () => {
       {
         invalid: [
           {
+            angular: `<img class="b a" />`,
+            angularOutput: `<img class="a b" />`,
             errors: 1,
             html: `<img class="b a" />`,
             htmlOutput: `<img class="a b" />`,
@@ -114,6 +127,8 @@ describe(tailwindSortClasses.name, () => {
             vueOutput: `<template><img class="a b" /></template>`
           },
           {
+            angular: `<img class='b a' />`,
+            angularOutput: `<img class='a b' />`,
             errors: 1,
             html: `<img class='b a' />`,
             htmlOutput: `<img class='a b' />`,
@@ -220,6 +235,8 @@ describe(tailwindSortClasses.name, () => {
       {
         invalid: [
           {
+            angular: `<img class="${unsortedMultilineString}" />`,
+            angularOutput: `<img class="${sortedMultilineString}" />`,
             errors: 1,
             html: `<img class="${unsortedMultilineString}" />`,
             htmlOutput: `<img class="${sortedMultilineString}" />`,
@@ -230,6 +247,8 @@ describe(tailwindSortClasses.name, () => {
             vueOutput: `<template><img class="${sortedMultilineString}" /></template>`
           },
           {
+            angular: `<img class='${unsortedMultilineString}' />`,
+            angularOutput: `<img class='${sortedMultilineString}' />`,
             errors: 1,
             html: `<img class='${unsortedMultilineString}' />`,
             htmlOutput: `<img class='${sortedMultilineString}' />`,
@@ -250,12 +269,14 @@ describe(tailwindSortClasses.name, () => {
         ],
         valid: [
           {
+            angular: `<img class="${sortedMultilineString}" />`,
             html: `<img class="${sortedMultilineString}" />`,
             options: [{ order: "asc" }],
             svelte: `<img class="${sortedMultilineString}" />`,
             vue: `<template><img class="${sortedMultilineString}" /></template>`
           },
           {
+            angular: `<img class='${sortedMultilineString}' />`,
             html: `<img class='${sortedMultilineString}' />`,
             options: [{ order: "asc" }],
             svelte: `<img class='${sortedMultilineString}' />`,
