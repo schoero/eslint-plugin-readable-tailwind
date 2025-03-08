@@ -76,17 +76,15 @@ export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
   }
 };
 
+
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
   for(const literal of literals){
-
-    const esNode = ctx.sourceCode.getNodeByRangeIndex(literal.range[0]);
-    const parentLiteralNodes = esNode && findParentLiteralNodes(esNode);
-    const parentLiterals = parentLiteralNodes && getLiteralsFromParentLiteralNodes(parentLiteralNodes, literals);
-    const parentClasses = parentLiterals ? getClassesFromLiteralNodes(parentLiterals) : [];
 
     const duplicates: string[] = [];
 
     const classes = literal.content;
+
+    const parentClasses = getParentClasses(ctx, literal, literals);
 
     const classChunks = splitClasses(classes);
     const whitespaceChunks = splitWhitespaces(classes);
@@ -195,6 +193,19 @@ function findParentLiteralNodes(node: ESNode) {
 
   return parentLiterals;
 
+}
+
+function getParentClasses(ctx: Rule.RuleContext, literal: Literal, literals: Literal[]) {
+  try {
+    const esNode = ctx.sourceCode.getNodeByRangeIndex(literal.range[0]);
+    const parentLiteralNodes = esNode && findParentLiteralNodes(esNode);
+    const parentLiterals = parentLiteralNodes && getLiteralsFromParentLiteralNodes(parentLiteralNodes, literals);
+    const parentClasses = parentLiterals ? getClassesFromLiteralNodes(parentLiterals) : [];
+
+    return parentClasses;
+  } catch {
+    return [];
+  }
 }
 
 function getLiteralsFromParentLiteralNodes(parentLiteralNodes: ESNode[], literals: Literal[]) {

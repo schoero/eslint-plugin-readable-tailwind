@@ -1,6 +1,7 @@
 import { readdirSync } from "node:fs";
 import { normalize } from "node:path";
 
+import eslintParserAngular from "@angular-eslint/template-parser";
 import eslintParserHTML from "@html-eslint/parser";
 import { RuleTester } from "eslint";
 import { createTag } from "proper-tags";
@@ -14,6 +15,9 @@ import type { ESLintRule, MatcherFunction } from "readable-tailwind:types:rule.j
 
 
 export const TEST_SYNTAXES = {
+  angular: {
+    languageOptions: { parser: eslintParserAngular }
+  },
   html: {
     languageOptions: { parser: eslintParserHTML }
   },
