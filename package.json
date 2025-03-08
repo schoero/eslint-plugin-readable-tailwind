@@ -58,10 +58,11 @@
     "release:latest": "changelogen --bump --output --no-tag",
     "spellcheck": "cspell lint",
     "spellcheck:ci": "npm run spellcheck -- --no-progress",
-    "test": "npm run test:v3 -- --run && npm run test:v4 -- --run",
+    "test": "vitest -c ./vite.config.ts --exclude tests/e2e",
+    "test:all": "npm run test:v3 && npm run test:v4",
     "test:e2e": "vitest -c ./vite.config.ts tests/e2e --run",
-    "test:v3": "vitest -c ./vite.config.ts --exclude tests/e2e",
-    "test:v4": "vitest -c ./vite.config.ts --exclude tests/e2e",
+    "test:v3": "npm run test -- --run",
+    "test:v4": "npm run test -- --run",
     "typecheck": "tsc --noEmit"
   },
   "engines": {
