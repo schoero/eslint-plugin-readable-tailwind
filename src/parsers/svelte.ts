@@ -47,7 +47,7 @@ export function getAttributesBySvelteTag(ctx: Rule.RuleContext, node: SvelteStar
   }, []);
 }
 
-export function getLiteralsBySvelteAttributes(ctx: Rule.RuleContext, attribute: SvelteAttribute, attributes: Attributes): Literal[] {
+export function getLiteralsBySvelteAttribute(ctx: Rule.RuleContext, attribute: SvelteAttribute, attributes: Attributes): Literal[] {
 
   // skip shorthand attributes #42
   if(!Array.isArray(attribute.value)){

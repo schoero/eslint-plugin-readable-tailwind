@@ -8,7 +8,7 @@ import type { Literal, QuoteMeta } from "readable-tailwind:types:ast.js";
 import type { Attributes } from "readable-tailwind:types:rule.js";
 
 
-export function getLiteralsByHTMLAttributes(ctx: Rule.RuleContext, attribute: AttributeNode, attributes: Attributes): Literal[] {
+export function getLiteralsByHTMLAttribute(ctx: Rule.RuleContext, attribute: AttributeNode, attributes: Attributes): Literal[] {
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {
     if(isAttributesName(attributes)){
       if(!matchesName(attributes.toLowerCase(), attribute.key.value.toLowerCase())){ return literals; }

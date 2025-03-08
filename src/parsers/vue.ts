@@ -32,7 +32,7 @@ export function getAttributesByVueStartTag(ctx: Rule.RuleContext, node: AST.VSta
 }
 
 
-export function getLiteralsByVueAttributes(ctx: Rule.RuleContext, attribute: AST.VAttribute | AST.VDirective, attributes: Attributes): Literal[] {
+export function getLiteralsByVueAttribute(ctx: Rule.RuleContext, attribute: AST.VAttribute | AST.VDirective, attributes: Attributes): Literal[] {
 
   if(attribute.value === null){
     return [];
