@@ -146,9 +146,9 @@ describe("regex", () => {
 
   });
 
-  describe("class attributes", () => {
+  describe("attributes", () => {
 
-    it("should lint literals in class attributes", () => {
+    it("should lint literals in attributes", () => {
 
       const dirtyDefined = `{
         "nested": {
@@ -196,7 +196,7 @@ describe("regex", () => {
               jsx: `<img defined={${dirtyDefined}} />`,
               jsxOutput: `<img defined={${cleanDefined}} />`,
               options: [{
-                classAttributes: [
+                attributes: [
                   [
                     "defined={([\\S\\s]*)}",
                     "\"matched\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"

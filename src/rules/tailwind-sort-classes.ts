@@ -1,10 +1,4 @@
-import { resolve } from "node:path";
-
-import defaultConfig from "tailwindcss/defaultConfig.js";
-import * as setupContextUtils from "tailwindcss/lib/lib/setupContextUtils.js";
-import loadConfig from "tailwindcss/loadConfig.js";
-import resolveConfig from "tailwindcss/resolveConfig.js";
-
+import { getClassOrder } from "readable-tailwind:async:class-order.sync.js";
 import {
   DEFAULT_ATTRIBUTE_NAMES,
   DEFAULT_CALLEE_NAMES,
@@ -12,35 +6,21 @@ import {
   DEFAULT_VARIABLE_NAMES
 } from "readable-tailwind:options:default-options.js";
 import {
-  getCalleeSchema,
-  getClassAttributeSchema,
-  getTagsSchema,
-  getVariableSchema
+  ATTRIBUTE_SCHEMA,
+  CALLEE_SCHEMA,
+  TAG_SCHEMA,
+  VARIABLE_SCHEMA
 } from "readable-tailwind:options:descriptions.js";
-import {
-  getLiteralsByESCallExpression,
-  getLiteralsByESVariableDeclarator,
-  getLiteralsByTaggedTemplateExpression
-} from "readable-tailwind:parsers:es.js";
-import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readable-tailwind:parsers:html.js";
-import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx.js";
-import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
-import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "readable-tailwind:parsers:vue.js";
 import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
-import { display, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
+import { createRuleListener } from "readable-tailwind:utils:rule.js";
+import { display, getCommonOptions, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
-import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { CallExpression, Node, TaggedTemplateExpression, VariableDeclarator } from "estree";
-import type { JSXOpeningElement } from "estree-jsx";
-import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
-import type { Config } from "tailwindcss/types/config.js";
-import type { AST } from "vue-eslint-parser";
 
 import type { Literal } from "readable-tailwind:types:ast.js";
 import type {
+  AttributeOption,
   CalleeOption,
-  ClassAttributeOption,
   ESLintRule,
   TagOption,
   VariableOption
@@ -49,196 +29,30 @@ import type {
 
 export type Options = [
   Partial<
+    AttributeOption &
     CalleeOption &
-    ClassAttributeOption &
     TagOption &
     VariableOption &
     {
+      entryPoint?: string;
       order?: "asc" | "desc" | "improved" | "official" ;
       tailwindConfig?: string;
     }
   >
 ];
 
-const TAILWIND_CONFIG_CACHE = new Map<string, ReturnType<typeof resolveConfig<Config>>>();
-const TAILWIND_CONTEXT_CACHE = new Map<ReturnType<typeof resolveConfig>, TailwindContext>();
+const defaultOptions = {
+  attributes: DEFAULT_ATTRIBUTE_NAMES,
+  callees: DEFAULT_CALLEE_NAMES,
+  order: "improved",
+  tags: DEFAULT_TAG_NAMES,
+  variables: DEFAULT_VARIABLE_NAMES
+} as const satisfies Options[0];
 
 export const tailwindSortClasses: ESLintRule<Options> = {
   name: "sort-classes" as const,
   rule: {
-    create(ctx) {
-
-      const { callees, classAttributes, tags, variables } = getOptions(ctx);
-
-      const tailwindConfig = findTailwindConfig(ctx);
-      const tailwindContext = createTailwindContext(tailwindConfig);
-
-      const lintLiterals = (ctx: Rule.RuleContext, literals: Literal[]) => {
-
-        for(const literal of literals){
-
-          const classChunks = splitClasses(literal.content);
-          const whitespaceChunks = splitWhitespaces(literal.content);
-
-          const unsortableClasses: [string, string] = ["", ""];
-
-          // remove sticky classes
-          if(literal.closingBraces && whitespaceChunks[0] === ""){
-            whitespaceChunks.shift();
-            unsortableClasses[0] = classChunks.shift() ?? "";
-          }
-          if(literal.openingBraces && whitespaceChunks[whitespaceChunks.length - 1] === ""){
-            whitespaceChunks.pop();
-            unsortableClasses[1] = classChunks.pop() ?? "";
-          }
-
-          const sortedClassChunks = sortClasses(ctx, tailwindContext, classChunks);
-
-          const classes: string[] = [];
-
-          for(let i = 0; i < Math.max(sortedClassChunks.length, whitespaceChunks.length); i++){
-            whitespaceChunks[i] && classes.push(whitespaceChunks[i]);
-            sortedClassChunks[i] && classes.push(sortedClassChunks[i]);
-          }
-
-          const escapedClasses = escapeNestedQuotes(
-            [
-              unsortableClasses[0],
-              ...classes,
-              unsortableClasses[1]
-            ].join(""),
-            literal.openingQuote ?? "`"
-          );
-
-          const fixedClasses =
-            [
-              literal.openingQuote ?? "",
-              literal.type === "TemplateLiteral" && literal.closingBraces ? literal.closingBraces : "",
-              escapedClasses,
-              literal.type === "TemplateLiteral" && literal.openingBraces ? literal.openingBraces : "",
-              literal.closingQuote ?? ""
-            ].join("");
-
-          if(literal.raw === fixedClasses){
-            continue;
-          }
-
-          ctx.report({
-            data: {
-              notSorted: display(literal.raw),
-              sorted: display(fixedClasses)
-            },
-            fix(fixer) {
-              return fixer.replaceTextRange(literal.range, fixedClasses);
-            },
-            loc: literal.loc,
-            message: "Incorrect class order. Expected\n\n{{ notSorted }}\n\nto be\n\n{{ sorted }}"
-          });
-
-        }
-      };
-
-      const callExpression = {
-        CallExpression(node: Node) {
-          const callExpressionNode = node as CallExpression;
-
-          const literals = getLiteralsByESCallExpression(ctx, callExpressionNode, callees);
-          lintLiterals(ctx, literals);
-        }
-      };
-
-      const variableDeclarators = {
-        VariableDeclarator(node: Node) {
-          const variableDeclaratorNode = node as VariableDeclarator;
-
-          const literals = getLiteralsByESVariableDeclarator(ctx, variableDeclaratorNode, variables);
-          lintLiterals(ctx, literals);
-        }
-      };
-
-      const taggedTemplateExpression = {
-        TaggedTemplateExpression(node: Node) {
-          const taggedTemplateExpressionNode = node as TaggedTemplateExpression;
-
-          const literals = getLiteralsByTaggedTemplateExpression(ctx, taggedTemplateExpressionNode, tags);
-          lintLiterals(ctx, literals);
-        }
-      };
-
-      const jsx = {
-        JSXOpeningElement(node: Node) {
-          const jsxNode = node as JSXOpeningElement;
-          const jsxAttributes = getAttributesByJSXElement(ctx, jsxNode);
-
-          for(const attribute of jsxAttributes){
-            const literals = getLiteralsByJSXClassAttribute(ctx, attribute, classAttributes);
-            lintLiterals(ctx, literals);
-          }
-        }
-      };
-
-      const svelte = {
-        SvelteStartTag(node: Node) {
-          const svelteNode = node as unknown as SvelteStartTag;
-          const svelteAttributes = getAttributesBySvelteTag(ctx, svelteNode);
-
-          for(const attribute of svelteAttributes){
-            const literals = getLiteralsBySvelteClassAttribute(ctx, attribute, classAttributes);
-            lintLiterals(ctx, literals);
-          }
-        }
-      };
-
-      const vue = {
-        VStartTag(node: Node) {
-          const vueNode = node as unknown as AST.VStartTag;
-          const vueAttributes = getAttributesByVueStartTag(ctx, vueNode);
-
-          for(const attribute of vueAttributes){
-            const literals = getLiteralsByVueClassAttribute(ctx, attribute, classAttributes);
-            lintLiterals(ctx, literals);
-          }
-        }
-      };
-
-      const html = {
-        Tag(node: Node) {
-          const htmlNode = node as unknown as TagNode;
-          const htmlAttributes = getAttributesByHTMLTag(ctx, htmlNode);
-
-          for(const htmlAttribute of htmlAttributes){
-            const literals = getLiteralsByHTMLClassAttribute(ctx, htmlAttribute, classAttributes);
-            lintLiterals(ctx, literals);
-          }
-        }
-      };
-
-      // Vue
-      if(typeof ctx.sourceCode.parserServices?.defineTemplateBodyVisitor === "function"){
-        return {
-          // script tag
-          ...callExpression,
-          ...variableDeclarators,
-          ...taggedTemplateExpression,
-
-          // bound classes
-          ...ctx.sourceCode.parserServices.defineTemplateBodyVisitor({
-            ...callExpression,
-            ...vue
-          })
-        };
-      }
-
-      return {
-        ...callExpression,
-        ...variableDeclarators,
-        ...taggedTemplateExpression,
-        ...jsx,
-        ...svelte,
-        ...html
-      };
-
-    },
+    create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
     meta: {
       docs: {
         category: "Stylistic Issues",
@@ -251,12 +65,16 @@ export const tailwindSortClasses: ESLintRule<Options> = {
         {
           additionalProperties: false,
           properties: {
-            ...getCalleeSchema(getOptions().callees),
-            ...getClassAttributeSchema(getOptions().classAttributes),
-            ...getVariableSchema(getOptions().variables),
-            ...getTagsSchema(getOptions().tags),
+            ...CALLEE_SCHEMA,
+            ...ATTRIBUTE_SCHEMA,
+            ...VARIABLE_SCHEMA,
+            ...TAG_SCHEMA,
+            entryPoint: {
+              description: "The path to the css entry point of the project. If not specified, the plugin will fall back to the default tailwind classes.",
+              type: "string"
+            },
             order: {
-              default: getOptions().order,
+              default: defaultOptions.order,
               description: "The algorithm to use when sorting classes.",
               enum: [
                 "asc",
@@ -267,7 +85,6 @@ export const tailwindSortClasses: ESLintRule<Options> = {
               type: "string"
             },
             tailwindConfig: {
-              default: getOptions().tailwindConfig,
               description: "The path to the tailwind config file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.",
               type: "string"
             }
@@ -280,25 +97,88 @@ export const tailwindSortClasses: ESLintRule<Options> = {
   }
 };
 
+function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
-function sortClasses(ctx: Rule.RuleContext, tailwindContext: TailwindContext, classes: string[]): string[] {
+  for(const literal of literals){
 
-  const { order } = getOptions(ctx);
+    const classChunks = splitClasses(literal.content);
+    const whitespaceChunks = splitWhitespaces(literal.content);
+
+    const unsortableClasses: [string, string] = ["", ""];
+
+    // remove sticky classes
+    if(literal.closingBraces && whitespaceChunks[0] === ""){
+      whitespaceChunks.shift();
+      unsortableClasses[0] = classChunks.shift() ?? "";
+    }
+    if(literal.openingBraces && whitespaceChunks[whitespaceChunks.length - 1] === ""){
+      whitespaceChunks.pop();
+      unsortableClasses[1] = classChunks.pop() ?? "";
+    }
+
+    const sortedClassChunks = sortClasses(ctx, classChunks);
+
+    const classes: string[] = [];
+
+    for(let i = 0; i < Math.max(sortedClassChunks.length, whitespaceChunks.length); i++){
+      whitespaceChunks[i] && classes.push(whitespaceChunks[i]);
+      sortedClassChunks[i] && classes.push(sortedClassChunks[i]);
+    }
+
+    const escapedClasses = escapeNestedQuotes(
+      [
+        unsortableClasses[0],
+        ...classes,
+        unsortableClasses[1]
+      ].join(""),
+      literal.openingQuote ?? "`"
+    );
+
+    const fixedClasses =
+      [
+        literal.openingQuote ?? "",
+        literal.type === "TemplateLiteral" && literal.closingBraces ? literal.closingBraces : "",
+        escapedClasses,
+        literal.type === "TemplateLiteral" && literal.openingBraces ? literal.openingBraces : "",
+        literal.closingQuote ?? ""
+      ].join("");
+
+    if(literal.raw === fixedClasses){
+      continue;
+    }
+
+    ctx.report({
+      data: {
+        notSorted: display(literal.raw),
+        sorted: display(fixedClasses)
+      },
+      fix(fixer) {
+        return fixer.replaceTextRange(literal.range, fixedClasses);
+      },
+      loc: literal.loc,
+      message: "Incorrect class order. Expected\n\n{{ notSorted }}\n\nto be\n\n{{ sorted }}"
+    });
+
+  }
+}
+
+function sortClasses(ctx: Rule.RuleContext, classes: string[]): string[] {
+
+  const { order, tailwindConfig } = getOptions(ctx);
 
   if(order === "asc"){
-    return [...classes].sort((a, b) => a.localeCompare(b));
+    return classes.toSorted((a, b) => a.localeCompare(b));
   }
 
   if(order === "desc"){
-    return [...classes].sort((a, b) => b.localeCompare(a));
+    return classes.toSorted((a, b) => b.localeCompare(a));
   }
 
-  const officialClassOrder = tailwindContext.getClassOrder(classes) as [string, bigint | null][];
-  const officiallySortedClasses = [...officialClassOrder]
-    .sort(([, a], [, z]) => {
+  const officiallySortedClasses = getClassOrder({ classes, configPath: tailwindConfig, cwd: ctx.cwd })
+    .toSorted(([, a], [, z]) => {
       if(a === z){ return 0; }
-      if(a === null){ return 1; }
-      if(z === null){ return 1; }
+      if(a === null){ return -1; }
+      if(z === null){ return +1; }
       return +(a - z > 0n) - +(a - z < 0n);
     })
     .map(([className]) => className);
@@ -307,121 +187,29 @@ function sortClasses(ctx: Rule.RuleContext, tailwindContext: TailwindContext, cl
     return officiallySortedClasses;
   }
 
-  return [...officiallySortedClasses].sort((a, b) => {
+  const groupedByVariant = new Map<string, string[]>();
 
-    const aModifier = a.match(/^.*?:/)?.[0];
-    const bModifier = b.match(/^.*?:/)?.[0];
+  for(const className of officiallySortedClasses){
+    const variant = className.match(/^.*?:/)?.[0] ?? "";
+    groupedByVariant.set(variant, [...groupedByVariant.get(variant) ?? [], className]);
+  }
 
-    if(aModifier && bModifier && aModifier !== bModifier){
-      return aModifier.localeCompare(bModifier);
-    }
-
-    if(aModifier && !bModifier){
-      return 1;
-    }
-    if(!aModifier && bModifier){
-      return -1;
-    }
-
-    return 0;
-
-  });
+  return Array.from(groupedByVariant.values()).flat();
 
 }
 
-function findTailwindConfig(ctx: Rule.RuleContext, directory: string = ctx.cwd) {
 
-  const { tailwindConfig } = getOptions(ctx);
+export function getOptions(ctx: Rule.RuleContext) {
 
-  const cacheKey = JSON.stringify({ config: tailwindConfig, cwd: ctx.cwd });
+  const options: Options[0] = ctx.options[0] ?? {};
 
-  if(TAILWIND_CONFIG_CACHE.has(cacheKey)){
-    return TAILWIND_CONFIG_CACHE.get(cacheKey)!;
-  }
+  const common = getCommonOptions(ctx);
 
-  let userConfig: Config | undefined;
-
-  userConfig ??= tailwindConfig
-    ? loadTailwindConfig(resolve(directory, tailwindConfig))
-    : undefined;
-
-  userConfig ??= loadTailwindConfig(resolve(directory, "tailwind.config.js"));
-  userConfig ??= loadTailwindConfig(resolve(directory, "tailwind.config.ts"));
-
-  if(userConfig){
-    const loadedConfig = resolveConfig(userConfig);
-    TAILWIND_CONFIG_CACHE.set(cacheKey, loadedConfig);
-    return loadedConfig;
-  }
-
-  const parentDirectory = resolve(directory, "..");
-
-  if(directory === parentDirectory){
-    return resolveConfig(defaultConfig);
-  }
-
-  return findTailwindConfig(ctx, parentDirectory);
-
-}
-
-function loadTailwindConfig(path: string) {
-  try {
-    return loadConfig(path);
-  } catch (error){}
-}
-
-export function getOptions(ctx?: Rule.RuleContext) {
-
-  const options: Options[0] = ctx?.options[0] ?? {};
-
-  const order = options.order ?? "improved";
-
-  const classAttributes = options.classAttributes ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.classAttributes ??
-    ctx?.settings["readable-tailwind"]?.classAttributes ??
-    DEFAULT_ATTRIBUTE_NAMES;
-
-  const callees = options.callees ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.callees ??
-    ctx?.settings["readable-tailwind"]?.callees ??
-    DEFAULT_CALLEE_NAMES;
-
-  const variables = options.variables ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.variables ??
-    ctx?.settings["readable-tailwind"]?.variables ??
-    DEFAULT_VARIABLE_NAMES;
-
-  const tags = options.tags ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.tags ??
-    ctx?.settings["readable-tailwind"]?.tags ??
-    DEFAULT_TAG_NAMES;
-
-  const tailwindConfig = options.tailwindConfig;
+  const order = options.order ?? defaultOptions.order;
 
   return {
-    callees,
-    classAttributes,
-    order,
-    tags,
-    tailwindConfig,
-    variables
+    ...common,
+    order
   };
 
-}
-
-interface TailwindContext {
-  getClassOrder: (classes: string[]) => [className: string, order: bigint | null][];
-  tailwindConfig: Config;
-}
-
-function createTailwindContext(tailwindConfig: ReturnType<typeof resolveConfig>): TailwindContext {
-  if(TAILWIND_CONTEXT_CACHE.has(tailwindConfig)){
-    return TAILWIND_CONTEXT_CACHE.get(tailwindConfig)!;
-  }
-
-  const createContext = setupContextUtils.createContext ?? setupContextUtils.default.createContext;
-
-  const context = createContext(tailwindConfig);
-  TAILWIND_CONTEXT_CACHE.set(tailwindConfig, context);
-  return context;
 }

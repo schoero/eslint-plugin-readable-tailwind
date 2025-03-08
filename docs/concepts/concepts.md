@@ -4,7 +4,7 @@ The [rules](../../README.md#rules) of this plugin can't apply to every string li
 
 There are different ways to define where to look for tailwind classes.
 
-- [Name](#name): Matches a single string literal by the name of the callee, variable or class attribute.
+- [Name](#name): Matches a single string literal by the name of the callee, variable or attribute.
 - [Regular expressions](#regular-expressions): Matches multiple string literals by regular expressions.
 - [Matchers](#matchers): Matches multiple string literals by the abstract syntax tree.
 
@@ -18,7 +18,12 @@ It is possible that you never have to change this configuration, but if you do n
 
 ## Name
 
-The simplest form to define string literals to lint is by their name. Callees, variables or class attributes with that name will be linted.
+The simplest form to define string literals to lint is by their name. Callees, variables or attributes with that name will be linted.
+
+The name is treated as a regular expression, so the following conditions should be met:
+
+- Reserved characters in regular expressions should be escaped.
+- The regular expression must match the whole name. Partial matches will be ignored.
 
 <br/>
 
@@ -34,36 +39,47 @@ type Name = string;
 
 ```jsonc
 {
-  "classAttributes": ["myAttribute"]
+  "attributes": [
+    "myAttribute",
+    ".*Classes"
+  ]
 }
 ```
 
 ```tsx
-<img myAttribute="this will get linted" />;
+<img myAttribute="this will get linted" myClasses="this will get linted" />;
 ```
 
 <br/>
 
 ```jsonc
 {
-  "callees": ["myFunction"]
+  "callees": [
+    "myFunction", 
+    ".*Styles"
+  ]
 }
 ```
 
 ```tsx
-const test = myFunction("this will get linted");
+const name = myFunction("this will get linted");
+const regex = myStyles("this will get linted");
 ```
 
 <br/>
 
 ```jsonc
 {
-  "variables": ["myVariable"]
+  "variables": [
+    "myVariable", 
+    ".*Styles"
+  ]
 }
 ```
 
 ```tsx
 const myVariable = "this will get linted";
+const myStyles = "this will get linted";
 ```
 
 <br/>
@@ -101,7 +117,7 @@ type Regex = [
 
 ```jsonc
 {
-  "classAttributes": [
+  "attributes": [
     [
       // matches the attribute name and the attribute value
       "myAttribute={([\\S\\s]*)}",
@@ -171,6 +187,10 @@ Matchers are the most powerful way to match string literals. They allow finer co
 This allows additional filtering, such as literals in conditions or logical expressions. This opens up the possibility to lint any string that may contain tailwindcss classes while also reducing the number of false positives.
 
 Matchers are defined as a tuple of a name and a list of configurations for predefined matchers.  
+The name is treated as a regular expression, so the following conditions should be met:
+
+- Reserved characters in regular expressions should be escaped.
+- The regular expression must match the whole name. Partial matches will be ignored.
 
 <br/>
 
@@ -253,7 +273,7 @@ For example, the object path for the `value` key in the following object would b
 
 ```jsonc
 {
-  "classAttributes": [
+  "attributes": [
     [
       // matches attributes with the name `myAttribute`
       "myAttribute",

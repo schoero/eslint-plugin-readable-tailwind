@@ -5,7 +5,20 @@ import { lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
 import { MatcherType } from "readable-tailwind:types:rule.js";
 
 
-describe(tailwindSortClasses.name, () => {
+describe("vue", () => {
+
+  it("should match attribute names via regex", () => {
+    lint(tailwindSortClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 1,
+          options: [{ attributes: [".*Attribute"], order: "asc" }],
+          vue: `<template><img customAttribute="b a" /></template>`,
+          vueOutput: `<template><img customAttribute="a b" /></template>`
+        }
+      ]
+    });
+  });
 
   it("should work in objects in bound classes", () => {
     lint(tailwindSortClasses, TEST_SYNTAXES, {
@@ -69,15 +82,28 @@ describe(tailwindSortClasses.name, () => {
       invalid: [
         {
           errors: 1,
-          options: [{ classAttributes: [[":custom-class", [{ match: MatcherType.String }]]], order: "asc" }],
+          options: [{ attributes: [[":custom-class", [{ match: MatcherType.String }]]], order: "asc" }],
           vue: `<template><img v-bind:custom-class="['c b a']" /></template>`,
           vueOutput: `<template><img v-bind:custom-class="['a b c']" /></template>`
         },
         {
           errors: 1,
-          options: [{ classAttributes: [["v-bind:custom-class", [{ match: MatcherType.String }]]], order: "asc" }],
+          options: [{ attributes: [["v-bind:custom-class", [{ match: MatcherType.String }]]], order: "asc" }],
           vue: `<template><img :custom-class="['c b a']" /></template>`,
           vueOutput: `<template><img :custom-class="['a b c']" /></template>`
+        }
+      ]
+    });
+  });
+
+  it("should match bound classes via regex", () => {
+    lint(tailwindSortClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 1,
+          options: [{ attributes: [[":.*Styles$", [{ match: MatcherType.String }]]], order: "asc" }],
+          vue: `<template><img v-bind:testStyles="['c b a']" /></template>`,
+          vueOutput: `<template><img v-bind:testStyles="['a b c']" /></template>`
         }
       ]
     });

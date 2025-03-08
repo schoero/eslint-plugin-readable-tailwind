@@ -201,6 +201,63 @@ describe("matchers", () => {
 
     });
 
+    it("should match callees names via regex", () => {
+      lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+        invalid: [
+          {
+            errors: 1,
+            jsx: `testStyles(" lint ");`,
+            jsxOutput: `testStyles("lint");`,
+            options: [{
+              callees: [["^.*Styles$", [{ match: MatcherType.String }]]]
+            }],
+            svelte: `<script>testStyles(" lint ");</script>`,
+            svelteOutput: `<script>testStyles("lint");</script>`,
+            vue: `<script>testStyles(" lint ");</script>`,
+            vueOutput: `<script>testStyles("lint");</script>`
+          }
+        ]
+      });
+    });
+
+    it("should match variable names via regex", () => {
+      lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+        invalid: [
+          {
+            errors: 1,
+            jsx: `const testStyles = " lint ";`,
+            jsxOutput: `const testStyles = "lint";`,
+            options: [{
+              variables: [["^.*Styles$", [{ match: MatcherType.String }]]]
+            }],
+            svelte: `<script>const testStyles = " lint ";</script>`,
+            svelteOutput: `<script>const testStyles = "lint";</script>`,
+            vue: `<script>const testStyles = " lint ";</script>`,
+            vueOutput: `<script>const testStyles = "lint";</script>`
+          }
+        ]
+      });
+    });
+
+    it("should match attributes via regex", () => {
+      lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+        invalid: [
+          {
+            errors: 1,
+            jsx: `<img testStyles=" lint " />`,
+            jsxOutput: `<img testStyles="lint" />`,
+            options: [{
+              attributes: [["^.*Styles$", [{ match: MatcherType.String }]]]
+            }],
+            svelte: `<img testStyles=" lint " />`,
+            svelteOutput: `<img testStyles="lint" />`,
+            vue: `<template><img testStyles=" lint " /> </template>`,
+            vueOutput: `<template><img testStyles="lint" /> </template>`
+          }
+        ]
+      });
+    });
+
   });
 
   describe("variables", () => {
@@ -278,9 +335,9 @@ describe("matchers", () => {
 
   });
 
-  describe("class attributes", () => {
+  describe("attributes", () => {
 
-    it("should lint literals in class attributes", () => {
+    it("should lint literals in attributes", () => {
 
       const dirtyDefined = `{
         "nested": {
@@ -328,7 +385,7 @@ describe("matchers", () => {
               jsx: `<img defined={${dirtyDefined}} />`,
               jsxOutput: `<img defined={${cleanDefined}} />`,
               options: [{
-                classAttributes: [
+                attributes: [
                   [
                     "defined",
                     [
@@ -548,8 +605,8 @@ describe("matchers", () => {
           jsx: "<img class={{ key: defined('  a b c  ')}} />",
           jsxOutput: "<img class={{ key: defined('a b c')}} />",
           options: [{
-            callees: [["defined", [{ match: MatcherType.String }]]],
-            classAttributes: [["class", [{ match: MatcherType.ObjectValue }]]]
+            attributes: [["class", [{ match: MatcherType.ObjectValue }]]],
+            callees: [["defined", [{ match: MatcherType.String }]]]
           }]
         }
       ]

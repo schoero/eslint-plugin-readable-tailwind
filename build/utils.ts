@@ -1,16 +1,12 @@
-import { exec } from 'node:child_process'
+import { exec, type ExecOptions } from 'node:child_process'
 
-export async function $(
-    command: TemplateStringsArray,
-    ...values: (boolean | number | string)[]
-): Promise<string | Buffer> {
+export async function $(command: string, options?: ExecOptions): Promise<string | Buffer> {
     return new Promise((resolve, reject) => {
-        exec(String.raw(command, ...values), (error, stdout, stderr) => {
-            if (error && stderr) {
-                console.error(error, stderr)
-                reject(error)
+        exec(command, options, (error, stdout, stderr) => {
+            if (error) {
+                reject(error || stderr)
             }
-            resolve(stdout || stderr)
+            resolve(stdout)
         })
     })
 }

@@ -76,20 +76,20 @@ describe(tailwindSortClasses.name, () => {
     );
   });
 
-  it("should improve the sorting by grouping all classes with the same modifier together", () => {
+  it("should group all classes with the same variant together", () => {
     lint(tailwindSortClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
-          html: `<img class="c:a a:a b:a a:b c:b b:b" />`,
-          htmlOutput: `<img class="a:a a:b b:a b:b c:a c:b" />`,
-          jsx: `() => <img class="c:a a:a b:a a:b c:b b:b" />`,
-          jsxOutput: `() => <img class="a:a a:b b:a b:b c:a c:b" />`,
-          options: [{ order: "improved" }],
-          svelte: `<img class="c:a a:a b:a a:b c:b b:b" />`,
-          svelteOutput: `<img class="a:a a:b b:a b:b c:a c:b" />`,
-          vue: `<template><img class="c:a a:a b:a a:b c:b b:b" /></template>`,
-          vueOutput: `<template><img class="a:a a:b b:a b:b c:a c:b" /></template>`
+          html: `<img class="hover:text-black focus:text-black dark:text-black focus:text-white hover:text-white dark:text-white" />`,
+          htmlOutput: `<img class="hover:text-black hover:text-white focus:text-black focus:text-white dark:text-black dark:text-white" />`,
+          jsx: `() => <img class="hover:text-black focus:text-black dark:text-black focus:text-white hover:text-white dark:text-white" />`,
+          jsxOutput: `() => <img class="hover:text-black hover:text-white focus:text-black focus:text-white dark:text-black dark:text-white" />`,
+          options: [{ order: "official" }],
+          svelte: `<img class="hover:text-black focus:text-black dark:text-black focus:text-white hover:text-white dark:text-white" />`,
+          svelteOutput: `<img class="hover:text-black hover:text-white focus:text-black focus:text-white dark:text-black dark:text-white" />`,
+          vue: `<template><img class="hover:text-black focus:text-black dark:text-black focus:text-white hover:text-white dark:text-white" /></template>`,
+          vueOutput: `<template><img class="hover:text-black hover:text-white focus:text-black focus:text-white dark:text-black dark:text-white" /></template>`
         }
       ]
     });

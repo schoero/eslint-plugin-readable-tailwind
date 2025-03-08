@@ -10,7 +10,7 @@ export function getDefaultCallees() {
   return DEFAULT_CALLEE_NAMES;
 }
 
-export function getDefaultClassAttributes() {
+export function getDefaultAttributes() {
   return DEFAULT_ATTRIBUTE_NAMES;
 }
 

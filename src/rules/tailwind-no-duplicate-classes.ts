@@ -5,37 +5,23 @@ import {
   DEFAULT_VARIABLE_NAMES
 } from "readable-tailwind:options:default-options.js";
 import {
-  getCalleeSchema,
-  getClassAttributeSchema,
-  getTagsSchema,
-  getVariableSchema
+  ATTRIBUTE_SCHEMA,
+  CALLEE_SCHEMA,
+  TAG_SCHEMA,
+  VARIABLE_SCHEMA
 } from "readable-tailwind:options:descriptions.js";
-import {
-  getLiteralsByESCallExpression,
-  getLiteralsByESVariableDeclarator,
-  getLiteralsByTaggedTemplateExpression,
-  hasESNodeParentExtension,
-  isESCallExpression,
-  isESVariableDeclarator
-} from "readable-tailwind:parsers:es.js";
-import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readable-tailwind:parsers:html.js";
-import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx.js";
-import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
-import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "readable-tailwind:parsers:vue.js";
+import { hasESNodeParentExtension, isESCallExpression, isESVariableDeclarator } from "readable-tailwind:parsers:es.js";
 import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
-import { splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
+import { createRuleListener } from "readable-tailwind:utils:rule.js";
+import { getCommonOptions, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
-import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { CallExpression, Node as ESNode, TaggedTemplateExpression, VariableDeclarator } from "estree";
-import type { JSXOpeningElement } from "estree-jsx";
-import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
-import type { AST } from "vue-eslint-parser";
+import type { Node as ESNode } from "estree";
 
 import type { Literal } from "readable-tailwind:types:ast.js";
 import type {
+  AttributeOption,
   CalleeOption,
-  ClassAttributeOption,
   ESLintRule,
   TagOption,
   VariableOption
@@ -44,8 +30,8 @@ import type {
 
 export type Options = [
   Partial<
+    AttributeOption &
     CalleeOption &
-    ClassAttributeOption &
     TagOption &
     VariableOption &
     {
@@ -54,114 +40,17 @@ export type Options = [
   >
 ];
 
+const defaultOptions = {
+  attributes: DEFAULT_ATTRIBUTE_NAMES,
+  callees: DEFAULT_CALLEE_NAMES,
+  tags: DEFAULT_TAG_NAMES,
+  variables: DEFAULT_VARIABLE_NAMES
+} as const satisfies Options[0];
+
 export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
   name: "no-duplicate-classes" as const,
   rule: {
-    create(ctx) {
-
-      const { callees, classAttributes, tags, variables } = getOptions(ctx);
-
-      const callExpression = {
-        CallExpression(node: ESNode) {
-          const callExpressionNode = node as CallExpression;
-
-          const literals = getLiteralsByESCallExpression(ctx, callExpressionNode, callees);
-          lintLiterals(ctx, literals);
-        }
-      };
-
-      const variableDeclarators = {
-        VariableDeclarator(node: ESNode) {
-          const variableDeclaratorNode = node as VariableDeclarator;
-
-          const literals = getLiteralsByESVariableDeclarator(ctx, variableDeclaratorNode, variables);
-          lintLiterals(ctx, literals);
-        }
-      };
-
-      const taggedTemplateExpression = {
-        TaggedTemplateExpression(node: ESNode) {
-          const taggedTemplateExpressionNode = node as TaggedTemplateExpression;
-
-          const literals = getLiteralsByTaggedTemplateExpression(ctx, taggedTemplateExpressionNode, tags);
-          lintLiterals(ctx, literals);
-        }
-      };
-
-      const jsx = {
-        JSXOpeningElement(node: ESNode) {
-          const jsxNode = node as JSXOpeningElement;
-          const jsxAttributes = getAttributesByJSXElement(ctx, jsxNode);
-
-          for(const attribute of jsxAttributes){
-            const literals = getLiteralsByJSXClassAttribute(ctx, attribute, classAttributes);
-            lintLiterals(ctx, literals);
-          }
-        }
-      };
-
-      const svelte = {
-        SvelteStartTag(node: ESNode) {
-          const svelteNode = node as unknown as SvelteStartTag;
-          const svelteAttributes = getAttributesBySvelteTag(ctx, svelteNode);
-
-          for(const attribute of svelteAttributes){
-            const literals = getLiteralsBySvelteClassAttribute(ctx, attribute, classAttributes);
-            lintLiterals(ctx, literals);
-          }
-        }
-      };
-
-      const vue = {
-        VStartTag(node: ESNode) {
-          const vueNode = node as unknown as AST.VStartTag;
-          const vueAttributes = getAttributesByVueStartTag(ctx, vueNode);
-
-          for(const attribute of vueAttributes){
-            const literals = getLiteralsByVueClassAttribute(ctx, attribute, classAttributes);
-            lintLiterals(ctx, literals);
-          }
-        }
-      };
-
-      const html = {
-        Tag(node: ESNode) {
-          const htmlTagNode = node as unknown as TagNode;
-          const htmlAttributes = getAttributesByHTMLTag(ctx, htmlTagNode);
-
-          for(const htmlAttribute of htmlAttributes){
-            const literals = getLiteralsByHTMLClassAttribute(ctx, htmlAttribute, classAttributes);
-            lintLiterals(ctx, literals);
-          }
-        }
-      };
-
-      // Vue
-      if(typeof ctx.sourceCode.parserServices?.defineTemplateBodyVisitor === "function"){
-        return {
-          // script tag
-          ...callExpression,
-          ...variableDeclarators,
-          ...taggedTemplateExpression,
-
-          // bound classes
-          ...ctx.sourceCode.parserServices.defineTemplateBodyVisitor({
-            ...callExpression,
-            ...vue
-          })
-        };
-      }
-
-      return {
-        ...callExpression,
-        ...variableDeclarators,
-        ...taggedTemplateExpression,
-        ...jsx,
-        ...svelte,
-        ...html
-      };
-
-    },
+    create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
     meta: {
       docs: {
         category: "Stylistic Issues",
@@ -174,10 +63,10 @@ export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
         {
           additionalProperties: false,
           properties: {
-            ...getCalleeSchema(getOptions().callees),
-            ...getClassAttributeSchema(getOptions().classAttributes),
-            ...getVariableSchema(getOptions().variables),
-            ...getTagsSchema(getOptions().tags)
+            ...CALLEE_SCHEMA,
+            ...ATTRIBUTE_SCHEMA,
+            ...VARIABLE_SCHEMA,
+            ...TAG_SCHEMA
           },
           type: "object"
         }
@@ -188,14 +77,6 @@ export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
 };
 
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
-
-  const duplicateRegister: {
-    [literalPosition: string]: {
-      classes: string[];
-      duplicates: string[];
-    };
-  } = {};
-
   for(const literal of literals){
 
     const esNode = ctx.sourceCode.getNodeByRangeIndex(literal.range[0]);
@@ -340,35 +221,6 @@ function getClassesFromLiteralNodes(literals: (Literal | undefined)[]) {
   }, []);
 }
 
-function getOptions(ctx?: Rule.RuleContext) {
-
-  const options: Options[0] = ctx?.options[0] ?? {};
-
-  const classAttributes = options.classAttributes ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.classAttributes ??
-    ctx?.settings["readable-tailwind"]?.classAttributes ??
-    DEFAULT_ATTRIBUTE_NAMES;
-
-  const callees = options.callees ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.callees ??
-    ctx?.settings["readable-tailwind"]?.callees ??
-    DEFAULT_CALLEE_NAMES;
-
-  const variables = options.variables ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.variables ??
-    ctx?.settings["readable-tailwind"]?.variables ??
-    DEFAULT_VARIABLE_NAMES;
-
-  const tags = options.tags ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.tags ??
-    ctx?.settings["readable-tailwind"]?.tags ??
-    DEFAULT_TAG_NAMES;
-
-  return {
-    callees,
-    classAttributes,
-    tags,
-    variables
-  };
-
+function getOptions(ctx: Rule.RuleContext) {
+  return getCommonOptions(ctx);
 }

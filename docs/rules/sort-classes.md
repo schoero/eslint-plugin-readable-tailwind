@@ -4,26 +4,28 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
 <br/>
 
-> [!WARNING]
-> If you also use [eslint-plugin-tailwindcss](https://github.com/francoismassart/eslint-plugin-tailwindcss) you should disable the rule [eslint-plugin-tailwindcss/classnames-order](https://github.com/francoismassart/eslint-plugin-tailwindcss/blob/master/docs/rules/classnames-order.md), and use this rule instead. Otherwise, the two rules may conflict with each other.
+> [!NOTE]
+> In order to sort classes logically, the plugin needs to know the order of the tailwind classes.
+> This is done by providing the [`configPath`](#tailwindconfig) to the tailwind config file or the [`entryPoint`](#entrypoint) of the css based tailwind config.
 
 ## Options
 
-- `order`
+### `order`
 
-  - `asc`: Sort classes alphabetically in ascending order.
-  - `desc`: Sort classes alphabetically in descending order.
-  - `official`: Sort classes according to the official sorting order from tailwindcss.
-  - `improved`: Same as `official` but also sorts by data-attributes.
+- `asc`: Sort classes alphabetically in ascending order.
+- `desc`: Sort classes alphabetically in descending order.
+- `official`: Sort classes according to the official sorting order from tailwindcss.
+- `improved`: Same as `official` but sorts variants more strictly.
 
   **Type**: `"asc" | "desc" | "official" | "improved"`  
   **Default**: `"improved"`
 
 <br/>
 
-- `tailwindConfig`
+### `entryPoint`
 
-  The path to the tailwind config file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.  
+  The path to the entry file of the css based tailwind config (eg: `src/global.css`). This can also be set globally via the [`settings` object](../settings/settings.md#entrypoint).  
+  If not specified, the plugin will fall back to the default configuration.  
   The tailwind config is used to determine the sorting order.
 
   **Type**: `string`  
@@ -31,36 +33,50 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
 <br/>
 
-- `classAttributes`
+### `tailwindConfig`
 
-  The name of the attribute that contains the tailwind classes. This can also be set globally via the [`settings` object](../settings/settings.md).  
+  The path to the `tailwind.config.js` file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.  
+  This can also be set globally via the [`settings` object](../settings/settings.md#tailwindConfig).  
+  
+  The tailwind config is used to determine the sorting order.
+
+  For tailwindcss v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
+
+  **Type**: `string`  
+  **Default**: `undefined`
+
+<br/>
+
+### `attributes`
+
+  The name of the attribute that contains the tailwind classes. This can also be set globally via the [`settings` object](../settings/settings.md#attributes).  
 
   **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
   **Default**: [Name](../concepts/concepts.md#name) for `"class"` and [strings Matcher](../concepts/concepts.md#types-of-matchers) for `"class", "className"`
 
 <br/>
 
-- `callees`
+### `callees`
 
-  List of function names which arguments should also get linted. This can also be set globally via the [`settings` object](../settings/settings.md).  
+  List of function names which arguments should also get linted. This can also be set globally via the [`settings` object](../settings/settings.md#callees).  
   
   **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
   **Default**: [Matchers](../concepts/concepts.md#types-of-matchers) for `"cc", "clb", "clsx", "cn", "cnb", "ctl", "cva", "cx", "dcnb", "objstr", "tv", "twJoin", "twMerge"`
 
 <br/>
 
-- `variables`
+### `variables`
 
-  List of variable names whose initializer should also get linted. This can also be set globally via the [`settings` object](../settings/settings.md).  
+  List of variable names whose initializer should also get linted. This can also be set globally via the [`settings` object](../settings/settings.md#variables).  
   
   **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
   **Default**:  [strings Matcher](../concepts/concepts.md#types-of-matchers) for `"className", "classNames", "classes", "style", "styles"`
 
 <br/>
 
-- `tags`
+### `tags`
 
-  List of template literal tag names whose content should get linted. This can also be set globally via the [`settings` object](../settings/settings.md).  
+  List of template literal tag names whose content should get linted. This can also be set globally via the [`settings` object](../settings/settings.md#tags).  
   
   **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
   **Default**: None
@@ -89,9 +105,4 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 ```tsx
 // ✅ GOOD: with option { order: 'official' }
 <div class="text-black underline hover:font-bold hover:text-opacity-70 focus:font-bold focus:text-opacity-70"/>;
-```
-
-```tsx
-// ✅ GOOD: with option { order: 'improved' }
-<div class="text-black underline focus:font-bold focus:text-opacity-70 hover:font-bold hover:text-opacity-70"/>;
 ```

@@ -6,7 +6,7 @@ Disallow unnecessary whitespace in between and around tailwind classes.
 
 ## Options
 
-- `allowMultiline`
+### `allowMultiline`
 
   Allow multi-line class declarations.  
   If this option is disabled, template literal strings will be collapsed into a single line string wherever possible. Must be set to `true` when used in combination with [readable-tailwind/multiline](./multiline.md).  
@@ -16,36 +16,36 @@ Disallow unnecessary whitespace in between and around tailwind classes.
 
 <br/>
 
-- `classAttributes`
+### `attributes`
 
-  The name of the attribute that contains the tailwind classes. This can also be set globally via the [`settings` object](../settings/settings.md).  
+  The name of the attribute that contains the tailwind classes. This can also be set globally via the [`settings` object](../settings/settings.md#attributes).  
 
   **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
   **Default**: [Name](../concepts/concepts.md#name) for `"class"` and [strings Matcher](../concepts/concepts.md#types-of-matchers) for `"class", "className"`
 
 <br/>
 
-- `callees`
+### `callees`
 
-  List of function names which arguments should also get linted. This can also be set globally via the [`settings` object](../settings/settings.md).  
+  List of function names which arguments should also get linted. This can also be set globally via the [`settings` object](../settings/settings.md#callees).  
   
   **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
   **Default**: [Matchers](../concepts/concepts.md#types-of-matchers) for `"cc", "clb", "clsx", "cn", "cnb", "ctl", "cva", "cx", "dcnb", "objstr", "tv", "twJoin", "twMerge"`
 
 <br/>
 
-- `variables`
+### `variables`
 
-  List of variable names whose initializer should also get linted. This can also be set globally via the [`settings` object](../settings/settings.md).  
+  List of variable names whose initializer should also get linted. This can also be set globally via the [`settings` object](../settings/settings.md#variables).  
   
   **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
   **Default**:  [strings Matcher](../concepts/concepts.md#types-of-matchers) for `"className", "classNames", "classes", "style", "styles"`
 
 <br/>
 
-- `tags`
+### `tags`
 
-  List of template literal tag names whose content should get linted. This can also be set globally via the [`settings` object](../settings/settings.md).  
+  List of template literal tag names whose content should get linted. This can also be set globally via the [`settings` object](../settings/settings.md#tags).  
   
   **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
   **Default**: None

@@ -1,5 +1,83 @@
 # Changelog
 
+## v2.0.0-beta.4
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.0.0-beta.3...v2.0.0-beta.4)
+
+### Features
+
+- Invalidate cache on tailwind config change ([18d17e8](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/18d17e8)))
+
+## v2.0.0-beta.3
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.0.0-beta.2...v2.0.0-beta.3)
+
+### Fixes
+
+- Improve `matchesName` function to ensure full name matches ([a866772](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/a866772))
+- `setupContextUtils` import ([7357e61](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/7357e61))
+
+## v2.0.0-beta.2
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.0.0-beta.1...v2.0.0-beta.2)
+
+### Fixes
+
+- Import of typescript files in css config ([aee5bf9](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/aee5bf9))
+
+### Refactors
+
+- Change `"improved"` sorting order to only group identical variants ([8a5d5cb](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/8a5d5cb))
+
+## v2.0.0-beta.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.0.0...v2.0.0-beta.1)
+
+### Fixes
+
+- Override settings correctly ([6e27500](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/6e27500))
+- Transform import.meta for `cjs` output ([dde40a9](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/dde40a9))
+- Module imports in `cjs` ([a7fc4b9](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/a7fc4b9))
+
+### Refactors
+
+- Disable warning in output ([b5e1eca](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/b5e1eca))
+
+### Tests
+
+- Add end to end tests ([03ab8d1](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/03ab8d1))
+
+## v2.0.0-beta.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v1.9.0...v2.0.0-beta.0)
+
+### Features
+
+- ⚠️  Add support for tailwindcss v4 ([#25](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/25))
+- ⚠️  Regex names ([#63](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/63))
+
+### Fixes
+
+- Options correctly override settings ([#66](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/66))
+
+### Refactors
+
+- ⚠️  Enable `no-duplicate-classes` by default ([#67](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/67))
+- ⚠️  Change default  `multiline` grouping to `newLine` ([#68](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/68))
+- ⚠️  Rename `classAttributes` to `attributes` ([#69](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/69))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Drop support for Node.js < 20 due to incompatibility of worker threads.
+- ⚠️  Add support for tailwindcss v4 ([#25](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/25))
+  - The official class ordering seems to have changed slightly.
+  
+- ⚠️  Regex names ([#63](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/63))
+  - ["Names"](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/v2/docs/concepts/concepts.md#name) can now be regular expressions. This is a breaking change, if you have names configured that contain reserved characters in regular expressions like `$`.
+- ⚠️  Enable `no-duplicate-classes` by default ([#67](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/67))
+- ⚠️  Change default  `multiline` grouping to `newLine` ([#68](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/68))
+- ⚠️  Rename `classAttributes` to `attributes` ([#69](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/69))
+
 ## v1.9.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.0.0-beta.2...v1.9.1)

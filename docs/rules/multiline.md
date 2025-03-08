@@ -6,7 +6,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 ## Options
 
-- `printWidth`
+### `printWidth`
 
   The maximum line length. Lines are wrapped appropriately to stay within this limit. The value `0` disables line wrapping by `printWidth`.
 
@@ -15,7 +15,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 <br/>
 
-- `classesPerLine`
+### `classesPerLine`
 
   The maximum amount of classes per line. Lines are wrapped appropriately to stay within this limit . The value `0` disables line wrapping by `classesPerLine`.
 
@@ -24,16 +24,16 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 <br/>
 
-- `group`
+### `group`
 
   Defines how different groups of classes should be separated. A group is a set of classes that share the same modifier/variant.
 
   **Type**: `"emptyLine" | "never" | "newLine"`  
-  **Default**: `"emptyLine"`  
+  **Default**: `"newLine"`  
 
 <br/>
 
-- `preferSingleLine`
+### `preferSingleLine`
 
   Prefer a single line for different modifiers/variants. When set to `true`, the rule will keep all modifiers/variants on a single line until the line exceeds the `printWidth` or `classesPerLine` limit.
 
@@ -42,7 +42,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 <br/>
 
-- `indent`
+### `indent`
 
   Determines how the code should be indented. A number defines the amount of space characters, and the string `"tab"` will use a single tab character.
 
@@ -51,7 +51,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 <br/>
 
-- `lineBreakStyle`
+### `lineBreakStyle`
 
   The line break style.  
   The style `windows` will use `\r\n` as line breaks and `unix` will use `\n`.
@@ -61,36 +61,36 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 <br/>
 
-- `classAttributes`
+### `attributes`
 
-  The name of the attribute that contains the tailwind classes. This can also be set globally via the [`settings` object](../settings/settings.md).  
+  The name of the attribute that contains the tailwind classes. This can also be set globally via the [`settings` object](../settings/settings.md#attributes).  
 
   **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
   **Default**: [Name](../concepts/concepts.md#name) for `"class"` and [strings Matcher](../concepts/concepts.md#types-of-matchers) for `"class", "className"`
 
 <br/>
 
-- `callees`
+### `callees`
 
-  List of function names which arguments should get linted. This can also be set globally via the [`settings` object](../settings/settings.md).  
+  List of function names which arguments should get linted. This can also be set globally via the [`settings` object](../settings/settings.md#callees).  
   
   **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
   **Default**: [Matchers](../concepts/concepts.md#types-of-matchers) for `"cc", "clb", "clsx", "cn", "cnb", "ctl", "cva", "cx", "dcnb", "objstr", "tv", "twJoin", "twMerge"`
 
 <br/>
 
-- `variables`
+### `variables`
 
-  List of variable names whose initializer should get linted. This can also be set globally via the [`settings` object](../settings/settings.md).  
+  List of variable names whose initializer should get linted. This can also be set globally via the [`settings` object](../settings/settings.md#variables).  
   
   **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
   **Default**:  [strings Matcher](../concepts/concepts.md#types-of-matchers) for `"className", "classNames", "classes", "style", "styles"`
 
 <br/>
 
-- `tags`
+### `tags`
 
-  List of template literal tag names whose content should get linted. This can also be set globally via the [`settings` object](../settings/settings.md).  
+  List of template literal tag names whose content should get linted. This can also be set globally via the [`settings` object](../settings/settings.md#tags).  
   
   **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
   **Default**: None

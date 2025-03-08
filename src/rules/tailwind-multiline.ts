@@ -5,40 +5,28 @@ import {
   DEFAULT_VARIABLE_NAMES
 } from "readable-tailwind:options:default-options.js";
 import {
-  getCalleeSchema,
-  getClassAttributeSchema,
-  getTagsSchema,
-  getVariableSchema
+  ATTRIBUTE_SCHEMA,
+  CALLEE_SCHEMA,
+  TAG_SCHEMA,
+  VARIABLE_SCHEMA
 } from "readable-tailwind:options:descriptions.js";
-import {
-  getLiteralsByESCallExpression,
-  getLiteralsByESVariableDeclarator,
-  getLiteralsByTaggedTemplateExpression,
-  isESObjectKey
-} from "readable-tailwind:parsers:es.js";
-import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readable-tailwind:parsers:html.js";
-import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx.js";
-import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
-import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "readable-tailwind:parsers:vue.js";
+import { isESObjectKey } from "readable-tailwind:parsers:es.js";
 import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
+import { createRuleListener } from "readable-tailwind:utils:rule.js";
 import {
   display,
   findLineStartPosition,
   findLiteralStartPosition,
+  getCommonOptions,
   splitClasses
 } from "readable-tailwind:utils:utils.js";
 
-import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { CallExpression, Node, TaggedTemplateExpression, VariableDeclarator } from "estree";
-import type { JSXOpeningElement } from "estree-jsx";
-import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
-import type { AST } from "vue-eslint-parser";
 
 import type { Literal, Meta } from "readable-tailwind:types:ast.js";
 import type {
+  AttributeOption,
   CalleeOption,
-  ClassAttributeOption,
   ESLintRule,
   TagOption,
   VariableOption
@@ -47,8 +35,8 @@ import type {
 
 export type Options = [
   Partial<
+    AttributeOption &
     CalleeOption &
-    ClassAttributeOption &
     TagOption &
     VariableOption &
     {
@@ -62,126 +50,23 @@ export type Options = [
   >
 ];
 
+const defaultOptions = {
+  attributes: DEFAULT_ATTRIBUTE_NAMES,
+  callees: DEFAULT_CALLEE_NAMES,
+  classesPerLine: 0,
+  group: "newLine",
+  indent: 2,
+  lineBreakStyle: "unix",
+  preferSingleLine: false,
+  printWidth: 80,
+  tags: DEFAULT_TAG_NAMES,
+  variables: DEFAULT_VARIABLE_NAMES
+} as const satisfies Options[0];
+
 export const tailwindMultiline: ESLintRule<Options> = {
   name: "multiline" as const,
   rule: {
-    create(ctx) {
-
-      const { callees, classAttributes, tags, variables } = getOptions(ctx);
-
-      const callExpression = {
-        CallExpression(node: Node) {
-          const callExpressionNode = node as CallExpression;
-
-          const literals = getLiteralsByESCallExpression(ctx, callExpressionNode, callees);
-          lintLiterals(ctx, literals);
-        }
-      };
-
-      const variableDeclarators = {
-        VariableDeclarator(node: Node) {
-          const variableDeclaratorNode = node as VariableDeclarator;
-
-          const literals = getLiteralsByESVariableDeclarator(ctx, variableDeclaratorNode, variables);
-          lintLiterals(ctx, literals);
-        }
-      };
-
-      const taggedTemplateExpression = {
-        TaggedTemplateExpression(node: Node) {
-          const taggedTemplateExpressionNode = node as TaggedTemplateExpression;
-
-          const literals = getLiteralsByTaggedTemplateExpression(ctx, taggedTemplateExpressionNode, tags);
-          lintLiterals(ctx, literals);
-        }
-      };
-
-      const jsx = {
-        JSXOpeningElement(node: Node) {
-          const jsxNode = node as JSXOpeningElement;
-          const jsxAttributes = getAttributesByJSXElement(ctx, jsxNode);
-
-          for(const jsxAttribute of jsxAttributes){
-
-            const attributeValue = jsxAttribute.value;
-            const attributeName = jsxAttribute.name.name;
-
-            if(!attributeValue){ continue; }
-            if(typeof attributeName !== "string"){ continue; }
-
-            const literals = getLiteralsByJSXClassAttribute(ctx, jsxAttribute, classAttributes);
-            lintLiterals(ctx, literals);
-          }
-        }
-      };
-
-      const svelte = {
-        SvelteStartTag(node: Node) {
-          const svelteNode = node as unknown as SvelteStartTag;
-          const svelteAttributes = getAttributesBySvelteTag(ctx, svelteNode);
-
-          for(const svelteAttribute of svelteAttributes){
-            const attributeName = svelteAttribute.key.name;
-
-            if(typeof attributeName !== "string"){ continue; }
-
-            const literals = getLiteralsBySvelteClassAttribute(ctx, svelteAttribute, classAttributes);
-            lintLiterals(ctx, literals);
-          }
-        }
-      };
-
-      const vue = {
-        VStartTag(node: Node) {
-          const vueNode = node as unknown as AST.VStartTag;
-          const vueAttributes = getAttributesByVueStartTag(ctx, vueNode);
-
-          for(const attribute of vueAttributes){
-            const literals = getLiteralsByVueClassAttribute(ctx, attribute, classAttributes);
-            lintLiterals(ctx, literals);
-          }
-        }
-      };
-
-      const html = {
-        Tag(node: Node) {
-          const htmlTagNode = node as unknown as TagNode;
-          const htmlAttributes = getAttributesByHTMLTag(ctx, htmlTagNode);
-
-          for(const htmlAttribute of htmlAttributes){
-            const literals = getLiteralsByHTMLClassAttribute(ctx, htmlAttribute, classAttributes);
-            lintLiterals(ctx, literals);
-          }
-        }
-      };
-
-      // Vue
-      if(typeof ctx.sourceCode.parserServices?.defineTemplateBodyVisitor === "function"){
-        return {
-          // script tag
-          ...callExpression,
-          ...variableDeclarators,
-          ...taggedTemplateExpression,
-
-          // bound classes
-          ...ctx.sourceCode.parserServices.defineTemplateBodyVisitor({
-            ...callExpression,
-            ...vue
-          })
-        };
-      }
-
-      return {
-        ...callExpression,
-        ...variableDeclarators,
-        ...taggedTemplateExpression,
-        ...jsx,
-        ...svelte,
-        ...vue,
-        ...html
-      };
-
-    },
+    create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
     meta: {
       docs: {
         category: "Stylistic Issues",
@@ -194,23 +79,23 @@ export const tailwindMultiline: ESLintRule<Options> = {
         {
           additionalProperties: false,
           properties: {
-            ...getCalleeSchema(getOptions().callees),
-            ...getClassAttributeSchema(getOptions().classAttributes),
-            ...getVariableSchema(getOptions().variables),
-            ...getTagsSchema(getOptions().tags),
+            ...CALLEE_SCHEMA,
+            ...ATTRIBUTE_SCHEMA,
+            ...VARIABLE_SCHEMA,
+            ...TAG_SCHEMA,
             classesPerLine: {
-              default: getOptions().classesPerLine,
+              default: defaultOptions.classesPerLine,
               description: "The maximum amount of classes per line. Lines are wrapped appropriately to stay within this limit . The value `0` disables line wrapping by `classesPerLine`.",
               type: "integer"
             },
             group: {
-              default: getOptions().group,
+              default: defaultOptions.group,
               description: "Defines how different groups of classes should be separated. A group is a set of classes that share the same modifier/variant.",
               enum: ["emptyLine", "never", "newLine"],
               type: "string"
             },
             indent: {
-              default: getOptions().indent,
+              default: defaultOptions.indent,
               description: "Determines how the code should be indented.",
               oneOf: [
                 {
@@ -224,18 +109,18 @@ export const tailwindMultiline: ESLintRule<Options> = {
               ]
             },
             lineBreakStyle: {
-              default: getOptions().lineBreakStyle,
+              default: defaultOptions.lineBreakStyle,
               description: "The line break style. The style `windows` will use `\\r\\n` as line breaks and `unix` will use `\\n`.",
               enum: ["unix", "windows"],
               type: "string"
             },
             preferSingleLine: {
-              default: getOptions().preferSingleLine,
+              default: defaultOptions.preferSingleLine,
               description: "Prefer a single line for the classes. When set to `true`, the rule will keep all classes on a single line until the line exceeds the `printWidth` or `classesPerLine` limit.",
               type: "boolean"
             },
             printWidth: {
-              default: getOptions().printWidth,
+              default: defaultOptions.printWidth,
               description: "The maximum line length. Lines are wrapped appropriately to stay within this limit. The value `0` disables line wrapping by `printWidth`.",
               type: "integer"
             }
@@ -635,49 +520,27 @@ function getIndentation(ctx: Rule.RuleContext, indentation: Options[0]["indent"]
   return indentation === "tab" ? 1 : indentation ?? 0;
 }
 
-function getOptions(ctx?: Rule.RuleContext) {
+function getOptions(ctx: Rule.RuleContext) {
 
-  const options: Options[0] = ctx?.options[0] ?? {};
+  const options: Options[0] = ctx.options[0] ?? {};
 
-  const printWidth = options.printWidth ?? 80;
-  const classesPerLine = options.classesPerLine ?? 0;
-  const indent = options.indent ?? 2;
-  const group = options.group ?? "emptyLine";
-  const preferSingleLine = options.preferSingleLine ?? false;
+  const common = getCommonOptions(ctx);
 
-  const classAttributes = options.classAttributes ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.classAttributes ??
-    ctx?.settings["readable-tailwind"]?.classAttributes ??
-    DEFAULT_ATTRIBUTE_NAMES;
-
-  const callees = options.callees ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.callees ??
-    ctx?.settings["readable-tailwind"]?.callees ??
-    DEFAULT_CALLEE_NAMES;
-
-  const variables = options.variables ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.variables ??
-    ctx?.settings["readable-tailwind"]?.variables ??
-    DEFAULT_VARIABLE_NAMES;
-
-  const tags = options.tags ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.tags ??
-    ctx?.settings["readable-tailwind"]?.tags ??
-    DEFAULT_TAG_NAMES;
-
-  const lineBreakStyle = options.lineBreakStyle ?? "unix";
+  const printWidth = options.printWidth ?? defaultOptions.printWidth;
+  const classesPerLine = options.classesPerLine ?? defaultOptions.classesPerLine;
+  const indent = options.indent ?? defaultOptions.indent;
+  const group = options.group ?? defaultOptions.group;
+  const preferSingleLine = options.preferSingleLine ?? defaultOptions.preferSingleLine;
+  const lineBreakStyle = options.lineBreakStyle ?? defaultOptions.lineBreakStyle;
 
   return {
-    callees,
-    classAttributes,
+    ...common,
     classesPerLine,
     group,
     indent,
     lineBreakStyle,
     preferSingleLine,
-    printWidth,
-    tags,
-    variables
+    printWidth
   };
 
 }

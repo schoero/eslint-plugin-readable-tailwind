@@ -1,7 +1,36 @@
+import {
+  DEFAULT_ATTRIBUTE_NAMES,
+  DEFAULT_CALLEE_NAMES,
+  DEFAULT_TAG_NAMES,
+  DEFAULT_VARIABLE_NAMES
+} from "readable-tailwind:options:default-options.js";
+
 import type { Rule } from "eslint";
 
 import type { Literal, Node, QuoteMeta } from "readable-tailwind:types:ast.js";
 
+
+export function getCommonOptions(ctx: Rule.RuleContext) {
+
+  const attributes = getOption(ctx, "attributes") ?? DEFAULT_ATTRIBUTE_NAMES;
+  const callees = getOption(ctx, "callees") ?? DEFAULT_CALLEE_NAMES;
+  const variables = getOption(ctx, "variables") ?? DEFAULT_VARIABLE_NAMES;
+  const tags = getOption(ctx, "tags") ?? DEFAULT_TAG_NAMES;
+  const tailwindConfig = getOption(ctx, "entryPoint") ?? getOption(ctx, "tailwindConfig");
+
+  return {
+    attributes,
+    callees,
+    tags,
+    tailwindConfig,
+    variables
+  };
+}
+
+function getOption(ctx: Rule.RuleContext, key: string) {
+  return ctx.options[0]?.[key] ?? ctx.settings["eslint-plugin-readable-tailwind"]?.[key] ??
+    ctx.settings["readable-tailwind"]?.[key];
+}
 
 export function getWhitespace(classes: string) {
   const leadingWhitespace = classes.match(/^\s*/)?.[0];
@@ -56,6 +85,13 @@ export function findLiteralStartPosition(ctx: Rule.RuleContext, literal: Literal
 
 export function isLiteral(node: Node): node is Literal {
   return node.type === "Literal";
+}
+
+export function matchesName(pattern: string, name: string | undefined): boolean {
+  if(!name){ return false; }
+
+  const match = name.match(pattern);
+  return !!match && match[0] === name;
 }
 
 export function deduplicateLiterals(literals: Literal[]): Literal[] {

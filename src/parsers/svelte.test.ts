@@ -4,7 +4,20 @@ import { tailwindSortClasses } from "readable-tailwind:rules:tailwind-sort-class
 import { lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
 
 
-describe(tailwindSortClasses.name, () => {
+describe("svelte", () => {
+
+  it("should match attribute names via regex", () => {
+    lint(tailwindSortClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 1,
+          options: [{ attributes: [".*Attribute"], order: "asc" }],
+          svelte: `<img customAttribute="b a" />`,
+          svelteOutput: `<img customAttribute="a b" />`
+        }
+      ]
+    });
+  });
 
   // #42
   it("should work with shorthand attributes", () => {

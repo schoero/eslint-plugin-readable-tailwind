@@ -65,16 +65,6 @@ In addition it sorts the classes logically, removes unnecessary whitespaces and 
 <br/>
 <br/>
 
-> [!NOTE]
-> Support for tailwindcss v4 is currently in beta.
->
-> If you are on tailwindcss v4, install the beta version of this plugin: `npm i -D eslint-plugin-readable-tailwind@beta`.
-> Please report any feedback or issues you encounter with the beta version in the [discussions](https://github.com/schoero/eslint-plugin-readable-tailwind/discussions/71).
-> Additional breaking changes are documented in the [CHANGELOG on the v2 branch](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/v2/CHANGELOG.md).
-
-<br/>
-<br/>
-
 <div align="center">
   <img alt="eslint-plugin-readable-tailwind example" width="640px" src="./assets/eslint-plugin-readable-tailwind-demo.webp">
 </div>
@@ -152,7 +142,7 @@ The following table shows the available rules and if they are enabled by default
 | [multiline](docs/rules/multiline.md) | Enforce consistent line wrapping for tailwind classes. | ✔ | ✔ | ✔ |
 | [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | ✔ | ✔ | ✔ |
 | [sort-classes](docs/rules/sort-classes.md) | Enforce a consistent order for tailwind classes. | ✔ | ✔ | ✔ |
-| [no-duplicate-classes](docs/rules/no-duplicate-classes.md) | Remove duplicate classes. |   |   | ✔ |
+| [no-duplicate-classes](docs/rules/no-duplicate-classes.md) | Remove duplicate classes. | ✔ | ✔ | ✔ |
 
 <br/>
 <br/>

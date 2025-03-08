@@ -5,34 +5,21 @@ import {
   DEFAULT_VARIABLE_NAMES
 } from "readable-tailwind:options:default-options.js";
 import {
-  getCalleeSchema,
-  getClassAttributeSchema,
-  getTagsSchema,
-  getVariableSchema
+  ATTRIBUTE_SCHEMA,
+  CALLEE_SCHEMA,
+  TAG_SCHEMA,
+  VARIABLE_SCHEMA
 } from "readable-tailwind:options:descriptions.js";
-import {
-  getLiteralsByESCallExpression,
-  getLiteralsByESVariableDeclarator,
-  getLiteralsByTaggedTemplateExpression
-} from "readable-tailwind:parsers:es.js";
-import { getAttributesByHTMLTag, getLiteralsByHTMLClassAttribute } from "readable-tailwind:parsers:html.js";
-import { getAttributesByJSXElement, getLiteralsByJSXClassAttribute } from "readable-tailwind:parsers:jsx.js";
-import { getAttributesBySvelteTag, getLiteralsBySvelteClassAttribute } from "readable-tailwind:parsers:svelte.js";
-import { getAttributesByVueStartTag, getLiteralsByVueClassAttribute } from "readable-tailwind:parsers:vue.js";
 import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
-import { display, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
+import { createRuleListener } from "readable-tailwind:utils:rule.js";
+import { display, getCommonOptions, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
-import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { CallExpression, Node, TaggedTemplateExpression, VariableDeclarator } from "estree";
-import type { JSXOpeningElement } from "estree-jsx";
-import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
-import type { AST } from "vue-eslint-parser";
 
 import type { Literal } from "readable-tailwind:types:ast.js";
 import type {
+  AttributeOption,
   CalleeOption,
-  ClassAttributeOption,
   ESLintRule,
   TagOption,
   VariableOption
@@ -41,8 +28,8 @@ import type {
 
 export type Options = [
   Partial<
+    AttributeOption &
     CalleeOption &
-    ClassAttributeOption &
     TagOption &
     VariableOption &
     {
@@ -51,114 +38,18 @@ export type Options = [
   >
 ];
 
+const defaultOptions = {
+  allowMultiline: true,
+  attributes: DEFAULT_ATTRIBUTE_NAMES,
+  callees: DEFAULT_CALLEE_NAMES,
+  tags: DEFAULT_TAG_NAMES,
+  variables: DEFAULT_VARIABLE_NAMES
+} as const satisfies Options[0];
+
 export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
   name: "no-unnecessary-whitespace" as const,
   rule: {
-    create(ctx) {
-
-      const { callees, classAttributes, tags, variables } = getOptions(ctx);
-
-      const callExpression = {
-        CallExpression(node: Node) {
-          const callExpressionNode = node as CallExpression;
-
-          const literals = getLiteralsByESCallExpression(ctx, callExpressionNode, callees);
-          lintLiterals(ctx, literals);
-        }
-      };
-
-      const variableDeclarators = {
-        VariableDeclarator(node: Node) {
-          const variableDeclaratorNode = node as VariableDeclarator;
-
-          const literals = getLiteralsByESVariableDeclarator(ctx, variableDeclaratorNode, variables);
-          lintLiterals(ctx, literals);
-        }
-      };
-
-      const taggedTemplateExpression = {
-        TaggedTemplateExpression(node: Node) {
-          const taggedTemplateExpressionNode = node as TaggedTemplateExpression;
-
-          const literals = getLiteralsByTaggedTemplateExpression(ctx, taggedTemplateExpressionNode, tags);
-          lintLiterals(ctx, literals);
-        }
-      };
-
-      const jsx = {
-        JSXOpeningElement(node: Node) {
-          const jsxNode = node as JSXOpeningElement;
-          const jsxAttributes = getAttributesByJSXElement(ctx, jsxNode);
-
-          for(const attribute of jsxAttributes){
-            const literals = getLiteralsByJSXClassAttribute(ctx, attribute, classAttributes);
-            lintLiterals(ctx, literals);
-          }
-        }
-      };
-
-      const svelte = {
-        SvelteStartTag(node: Node) {
-          const svelteNode = node as unknown as SvelteStartTag;
-          const svelteAttributes = getAttributesBySvelteTag(ctx, svelteNode);
-
-          for(const attribute of svelteAttributes){
-            const literals = getLiteralsBySvelteClassAttribute(ctx, attribute, classAttributes);
-            lintLiterals(ctx, literals);
-          }
-        }
-      };
-
-      const vue = {
-        VStartTag(node: Node) {
-          const vueNode = node as unknown as AST.VStartTag;
-          const vueAttributes = getAttributesByVueStartTag(ctx, vueNode);
-
-          for(const attribute of vueAttributes){
-            const literals = getLiteralsByVueClassAttribute(ctx, attribute, classAttributes);
-            lintLiterals(ctx, literals);
-          }
-        }
-      };
-
-      const html = {
-        Tag(node: Node) {
-          const htmlTagNode = node as unknown as TagNode;
-          const htmlAttributes = getAttributesByHTMLTag(ctx, htmlTagNode);
-
-          for(const htmlAttribute of htmlAttributes){
-            const literals = getLiteralsByHTMLClassAttribute(ctx, htmlAttribute, classAttributes);
-            lintLiterals(ctx, literals);
-          }
-        }
-      };
-
-      // Vue
-      if(typeof ctx.sourceCode.parserServices?.defineTemplateBodyVisitor === "function"){
-        return {
-          // script tag
-          ...callExpression,
-          ...variableDeclarators,
-          ...taggedTemplateExpression,
-
-          // bound classes
-          ...ctx.sourceCode.parserServices.defineTemplateBodyVisitor({
-            ...callExpression,
-            ...vue
-          })
-        };
-      }
-
-      return {
-        ...callExpression,
-        ...variableDeclarators,
-        ...taggedTemplateExpression,
-        ...jsx,
-        ...svelte,
-        ...html
-      };
-
-    },
+    create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
     meta: {
       docs: {
         category: "Stylistic Issues",
@@ -172,14 +63,14 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
           additionalProperties: false,
           properties: {
             allowMultiline: {
-              default: getOptions().allowMultiline,
+              default: defaultOptions.allowMultiline,
               description: "Allow multi-line class declarations. If this option is disabled, template literal strings will be collapsed into a single line string wherever possible. Must be set to `true` when used in combination with [readable-tailwind/multiline](./multiline.md).",
               type: "boolean"
             },
-            ...getCalleeSchema(getOptions().callees),
-            ...getClassAttributeSchema(getOptions().classAttributes),
-            ...getVariableSchema(getOptions().variables),
-            ...getTagsSchema(getOptions().tags)
+            ...CALLEE_SCHEMA,
+            ...ATTRIBUTE_SCHEMA,
+            ...VARIABLE_SCHEMA,
+            ...TAG_SCHEMA
           },
           type: "object"
         }
@@ -274,38 +165,17 @@ function splitClassesKeepWhitespace(literal: Literal, allowMultiline: boolean): 
 
 }
 
-function getOptions(ctx?: Rule.RuleContext) {
+function getOptions(ctx: Rule.RuleContext) {
 
-  const options: Options[0] = ctx?.options[0] ?? {};
+  const options: Options[0] = ctx.options[0] ?? {};
 
-  const allowMultiline = options.allowMultiline ?? true;
+  const common = getCommonOptions(ctx);
 
-  const classAttributes = options.classAttributes ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.classAttributes ??
-    ctx?.settings["readable-tailwind"]?.classAttributes ??
-    DEFAULT_ATTRIBUTE_NAMES;
-
-  const callees = options.callees ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.callees ??
-    ctx?.settings["readable-tailwind"]?.callees ??
-    DEFAULT_CALLEE_NAMES;
-
-  const variables = options.variables ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.variables ??
-    ctx?.settings["readable-tailwind"]?.variables ??
-    DEFAULT_VARIABLE_NAMES;
-
-  const tags = options.tags ??
-    ctx?.settings["eslint-plugin-readable-tailwind"]?.tags ??
-    ctx?.settings["readable-tailwind"]?.tags ??
-    DEFAULT_TAG_NAMES;
+  const allowMultiline = options.allowMultiline ?? defaultOptions.allowMultiline;
 
   return {
-    allowMultiline,
-    callees,
-    classAttributes,
-    tags,
-    variables
+    ...common,
+    allowMultiline
   };
 
 }
