@@ -6,6 +6,8 @@ import { matchesName } from "readable-tailwind:utils:utils.js";
 describe("matchesName", () => {
   it("should match name", () => {
     expect(matchesName("class", "class")).toBe(true);
+    expect(matchesName("data-attribute", "data-attribute")).toBe(true);
+    expect(matchesName("custom_variable", "custom_variable")).toBe(true);
   });
 
   it("should not match partial matches", () => {
