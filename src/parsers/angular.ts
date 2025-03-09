@@ -1,5 +1,5 @@
 import { isAttributesMatchers, isAttributesName, isAttributesRegex } from "readable-tailwind:utils:matchers.js";
-import { deduplicateLiterals, getQuotes, getWhitespace } from "readable-tailwind:utils:utils.js";
+import { deduplicateLiterals, getQuotes, getWhitespace, matchesName } from "readable-tailwind:utils:utils.js";
 
 import type { ParseSourceSpan, TmplAstElement, TmplAstTextAttribute } from "@angular/compiler";
 import type { Rule } from "eslint";
@@ -16,7 +16,7 @@ export function getAttributesByAngularElement(ctx: Rule.RuleContext, node: TmplA
 export function getLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: TmplAstTextAttribute, attributes: Attributes): Literal[] {
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {
     if(isAttributesName(attributes)){
-      if(attributes.toLowerCase() !== attribute.name.toLowerCase()){ return literals; }
+      if(!matchesName(attributes.toLowerCase(), attribute.name.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByAngularAttributeNode(ctx, attribute));
     } else if(isAttributesRegex(attributes)){
       // console.warn("Regex not supported for now");
