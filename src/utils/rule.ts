@@ -4,10 +4,10 @@ import {
   getLiteralsByESVariableDeclarator,
   getLiteralsByTaggedTemplateExpression
 } from "readable-tailwind:parsers:es.js";
-import { getAttributesByHTMLTag, getLiteralsByHTMLAttributes } from "readable-tailwind:parsers:html.js";
-import { getAttributesByJSXElement, getLiteralsByJSXAttributes } from "readable-tailwind:parsers:jsx.js";
-import { getAttributesBySvelteTag, getLiteralsBySvelteAttributes } from "readable-tailwind:parsers:svelte.js";
-import { getAttributesByVueStartTag, getLiteralsByVueAttributes } from "readable-tailwind:parsers:vue.js";
+import { getAttributesByHTMLTag, getLiteralsByHTMLAttribute } from "readable-tailwind:parsers:html.js";
+import { getAttributesByJSXElement, getLiteralsByJSXAttribute } from "readable-tailwind:parsers:jsx.js";
+import { getAttributesBySvelteTag, getLiteralsBySvelteAttribute } from "readable-tailwind:parsers:svelte.js";
+import { getAttributesByVueStartTag, getLiteralsByVueAttribute } from "readable-tailwind:parsers:vue.js";
 
 import type { TmplAstElement } from "@angular-eslint/bundled-angular-compiler";
 import type { TagNode } from "es-html-parser";
@@ -70,7 +70,7 @@ export function createRuleListener(ctx: Rule.RuleContext, options: Options, lint
         if(!attributeValue){ continue; }
         if(typeof attributeName !== "string"){ continue; }
 
-        const literals = getLiteralsByJSXAttributes(ctx, jsxAttribute, attributes);
+        const literals = getLiteralsByJSXAttribute(ctx, jsxAttribute, attributes);
         lintLiterals(ctx, literals);
       }
     }
@@ -86,7 +86,7 @@ export function createRuleListener(ctx: Rule.RuleContext, options: Options, lint
 
         if(typeof attributeName !== "string"){ continue; }
 
-        const literals = getLiteralsBySvelteAttributes(ctx, svelteAttribute, attributes);
+        const literals = getLiteralsBySvelteAttribute(ctx, svelteAttribute, attributes);
         lintLiterals(ctx, literals);
       }
     }
@@ -98,7 +98,7 @@ export function createRuleListener(ctx: Rule.RuleContext, options: Options, lint
       const vueAttributes = getAttributesByVueStartTag(ctx, vueNode);
 
       for(const attribute of vueAttributes){
-        const literals = getLiteralsByVueAttributes(ctx, attribute, attributes);
+        const literals = getLiteralsByVueAttribute(ctx, attribute, attributes);
         lintLiterals(ctx, literals);
       }
     }
@@ -110,7 +110,7 @@ export function createRuleListener(ctx: Rule.RuleContext, options: Options, lint
       const htmlAttributes = getAttributesByHTMLTag(ctx, htmlTagNode);
 
       for(const htmlAttribute of htmlAttributes){
-        const literals = getLiteralsByHTMLAttributes(ctx, htmlAttribute, attributes);
+        const literals = getLiteralsByHTMLAttribute(ctx, htmlAttribute, attributes);
         lintLiterals(ctx, literals);
       }
     }

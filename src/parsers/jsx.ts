@@ -19,7 +19,7 @@ import type { Literal } from "readable-tailwind:types:ast.js";
 import type { Attributes } from "readable-tailwind:types:rule.js";
 
 
-export function getLiteralsByJSXAttributes(ctx: Rule.RuleContext, attribute: JSXAttribute, attributes: Attributes): Literal[] {
+export function getLiteralsByJSXAttribute(ctx: Rule.RuleContext, attribute: JSXAttribute, attributes: Attributes): Literal[] {
   const value = attribute.value;
 
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {

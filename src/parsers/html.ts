@@ -1,5 +1,5 @@
 import { isAttributesMatchers, isAttributesName, isAttributesRegex } from "readable-tailwind:utils:matchers.js";
-import { deduplicateLiterals } from "readable-tailwind:utils:utils.js";
+import { deduplicateLiterals, matchesName } from "readable-tailwind:utils:utils.js";
 
 import type { AttributeNode, TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
@@ -8,10 +8,10 @@ import type { Literal, QuoteMeta } from "readable-tailwind:types:ast.js";
 import type { Attributes } from "readable-tailwind:types:rule.js";
 
 
-export function getLiteralsByHTMLAttributes(ctx: Rule.RuleContext, attribute: AttributeNode, attributes: Attributes): Literal[] {
+export function getLiteralsByHTMLAttribute(ctx: Rule.RuleContext, attribute: AttributeNode, attributes: Attributes): Literal[] {
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {
     if(isAttributesName(attributes)){
-      if(attributes.toLowerCase() !== attribute.key.value.toLowerCase()){ return literals; }
+      if(!matchesName(attributes.toLowerCase(), attribute.key.value.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByHTMLAttributeNode(ctx, attribute));
     } else if(isAttributesRegex(attributes)){
       // console.warn("Regex not supported in HTML");
