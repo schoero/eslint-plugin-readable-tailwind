@@ -13,7 +13,7 @@ export function getAttributesByAngularElement(ctx: Rule.RuleContext, node: TmplA
   return node.attributes;
 }
 
-export function getLiteralsByAngularAttributes(ctx: Rule.RuleContext, attribute: TmplAstTextAttribute, attributes: Attributes): Literal[] {
+export function getLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: TmplAstTextAttribute, attributes: Attributes): Literal[] {
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {
     if(isAttributesName(attributes)){
       if(attributes.toLowerCase() !== attribute.name.toLowerCase()){ return literals; }

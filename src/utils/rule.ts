@@ -1,4 +1,4 @@
-import { getAttributesByAngularElement, getLiteralsByAngularAttributes } from "readable-tailwind:parsers:angular.js";
+import { getAttributesByAngularElement, getLiteralsByAngularAttribute } from "readable-tailwind:parsers:angular.js";
 import {
   getLiteralsByESCallExpression,
   getLiteralsByESVariableDeclarator,
@@ -121,7 +121,7 @@ export function createRuleListener(ctx: Rule.RuleContext, options: Options, lint
       const angularElementNode = node as unknown as TmplAstElement;
       const angularAttributes = getAttributesByAngularElement(ctx, angularElementNode);
       for(const angularAttribute of angularAttributes){
-        const literals = getLiteralsByAngularAttributes(ctx, angularAttribute, attributes);
+        const literals = getLiteralsByAngularAttribute(ctx, angularAttribute, attributes);
         lintLiterals(ctx, literals);
       }
     }
