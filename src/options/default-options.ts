@@ -33,24 +33,32 @@ export const DEFAULT_CALLEE_NAMES = [
 ] satisfies Callees;
 
 export const DEFAULT_ATTRIBUTE_NAMES = [
-  "class",
-  "className",
+  // general
+  "^class(?:Name)?$",
   [
-    "class", [
+    "^class(?:Name)?$", [
       {
         match: MatcherType.String
       }
     ]
   ],
+
+  // angular
+  "(?:^\\[class\\]$)|(?:^\\[ngClass\\]$)",
   [
-    "className", [
+    "(?:^\\[class\\]$)|(?:^\\[ngClass\\]$)", [
       {
         match: MatcherType.String
+      },
+      {
+        match: MatcherType.ObjectKey
       }
     ]
   ],
+
+  // vue
   [
-    "v-bind:class", [
+    "^v-bind:class$", [
       {
         match: MatcherType.String
       },
@@ -63,35 +71,21 @@ export const DEFAULT_ATTRIBUTE_NAMES = [
 
 export const DEFAULT_VARIABLE_NAMES = [
   [
-    "className", [
+    "^classNames?$", [
       {
         match: MatcherType.String
       }
     ]
   ],
   [
-    "classNames", [
+    "^classes$", [
       {
         match: MatcherType.String
       }
     ]
   ],
   [
-    "classes", [
-      {
-        match: MatcherType.String
-      }
-    ]
-  ],
-  [
-    "style", [
-      {
-        match: MatcherType.String
-      }
-    ]
-  ],
-  [
-    "styles", [
+    "^styles?$", [
       {
         match: MatcherType.String
       }
