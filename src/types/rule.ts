@@ -25,8 +25,8 @@ export type ObjectValueMatcher = {
   pathPattern?: Regex;
 };
 
-export type MatcherFunction = (node: ESNode) => boolean;
-export type MatcherFunctions = MatcherFunction[];
+export type MatcherFunction<Node = ESNode> = (node: Node) => boolean;
+export type MatcherFunctions<Node = ESNode> = MatcherFunction<Node>[];
 
 export type Matcher = ObjectKeyMatcher | ObjectValueMatcher | StringMatcher;
 

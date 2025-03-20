@@ -155,6 +155,8 @@ describe(tailwindMultiline.name, () => {
       {
         invalid: [
           {
+            angular: `<img class="{{\`${incorrect}\`}}" />`,
+            angularOutput: `<img class="{{\`${correct}\`}}" />`,
             errors: 1,
             jsx: `() => <img class={\`${incorrect}\`} />`,
             jsxOutput: `() => <img class={\`${correct}\`} />`,

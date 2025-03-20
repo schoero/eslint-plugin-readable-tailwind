@@ -31,8 +31,8 @@ export interface BracesMeta {
   openingBraces?: string;
 }
 
-export interface Meta extends QuoteMeta, BracesMeta, WhitespaceMeta {
-  indentation?: string;
+export interface Indentation {
+  indentation: number;
 }
 
 interface NodeBase extends Range, Loc {
@@ -44,7 +44,7 @@ export interface Node extends NodeBase {
   parent: Node;
 }
 
-interface LiteralBase extends NodeBase, Meta, Range, Loc {
+interface LiteralBase extends NodeBase, QuoteMeta, BracesMeta, WhitespaceMeta, Indentation, Range, Loc {
   content: string;
   node: Node;
   raw: string;

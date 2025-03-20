@@ -16,7 +16,13 @@ import {
   matchesPathPattern
 } from "readable-tailwind:utils:matchers.js";
 import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex.js";
-import { deduplicateLiterals, getQuotes, getWhitespace, matchesName } from "readable-tailwind:utils:utils.js";
+import {
+  deduplicateLiterals,
+  getIndentation,
+  getQuotes,
+  getWhitespace,
+  matchesName
+} from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type {
@@ -126,17 +132,10 @@ export function getLiteralsByESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNo
 }
 
 export function getLiteralsByESMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: Matcher[]): Literal[] {
-
   const matcherFunctions = getESMatcherFunctions(matchers);
   const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
-
-  const literals = literalNodes.reduce<Literal[]>((literals, literalNode) => {
-    literals.push(...getLiteralsByESLiteralNode(ctx, literalNode));
-    return literals;
-  }, []);
-
+  const literals = literalNodes.flatMap(literalNode => getLiteralsByESLiteralNode(ctx, literalNode));
   return deduplicateLiterals(literals);
-
 }
 
 export function getLiteralNodesByRegex(ctx: Rule.RuleContext, node: ESNode, regex: RegExp): ESNode[] {
@@ -174,13 +173,17 @@ export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: E
     return;
   }
 
+  const line = ctx.sourceCode.lines[node.loc.start.line - 1];
+
   const quotes = getQuotes(raw);
   const whitespaces = getWhitespace(content);
+  const indentation = getIndentation(line);
 
   return {
     ...quotes,
     ...whitespaces,
     content,
+    indentation,
     loc: node.loc,
     node: node as unknown as Node,
     parent: node.parent as Node,
@@ -200,15 +203,19 @@ function getLiteralByESTemplateElement(ctx: Rule.RuleContext, node: ESTemplateEl
     return;
   }
 
+  const line = ctx.sourceCode.lines[node.parent.loc.start.line - 1];
+
   const quotes = getQuotes(raw);
   const whitespaces = getWhitespace(content);
   const braces = getBracesByString(ctx, raw);
+  const indentation = getIndentation(line);
 
   return {
     ...whitespaces,
     ...quotes,
     ...braces,
     content,
+    indentation,
     loc: node.loc,
     node: node as unknown as Node,
     parent: node.parent as Node,

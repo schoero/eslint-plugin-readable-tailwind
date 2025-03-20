@@ -9,9 +9,9 @@ import eslintParserSvelte from "svelte-eslint-parser";
 import eslintParserVue from "vue-eslint-parser";
 
 import type { Linter } from "eslint";
-import type { Node as ESNode, Program } from "estree";
+import type { Node as ESNode } from "estree";
 
-import type { ESLintRule, MatcherFunction } from "readable-tailwind:types:rule.js";
+import type { ESLintRule } from "readable-tailwind:types:rule.js";
 
 
 export const TEST_SYNTAXES = {
@@ -104,19 +104,30 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
 
 }
 
-export function findNode(node: ESNode | Program, matcherFunction: MatcherFunction): ESNode[] {
-  return Object.entries(node).reduce<ESNode[]>((matchedNodes, [key, value]) => {
-    if(typeof value !== "object" || key === "parent"){
-      return matchedNodes;
+type GuardedType<Type> = Type extends (value: any) => value is infer ResultType ? ResultType : never;
+
+export function findNode<Matcher extends (node: unknown) => node is any>(node: unknown, matcherFunction: Matcher): GuardedType<Matcher> | undefined {
+  if(!node || typeof node !== "object"){
+    return;
+  }
+
+  for(const key in node){
+    const value = node[key];
+
+    if(!value || typeof value !== "object" || key === "parent"){
+      continue;
     }
 
     if(matcherFunction(value)){
-      matchedNodes.push(value);
+      return value;
     }
 
-    matchedNodes.push(...findNode(value, matcherFunction));
-    return matchedNodes;
-  }, []);
+    const foundNode = findNode(value, matcherFunction);
+
+    if(foundNode){
+      return foundNode;
+    }
+  }
 }
 
 export function withParentNodeExtension(node: ESNode, parent: ESNode = node) {
@@ -149,10 +160,8 @@ function customIndentStripTransformer(count: number) {
 }
 
 export function getFilesInDirectory(importURL: string) {
-
   const path = normalize(importURL);
   const files = readdirSync(path);
 
   return files.filter(file => !file.includes(".test.ts"));
-
 }

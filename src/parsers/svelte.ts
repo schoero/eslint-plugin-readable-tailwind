@@ -17,7 +17,13 @@ import {
   matchesPathPattern
 } from "readable-tailwind:utils:matchers.js";
 import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex.js";
-import { deduplicateLiterals, getQuotes, getWhitespace, matchesName } from "readable-tailwind:utils:utils.js";
+import {
+  deduplicateLiterals,
+  getIndentation,
+  getQuotes,
+  getWhitespace,
+  matchesName
+} from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
@@ -81,12 +87,7 @@ export function getLiteralsBySvelteAttribute(ctx: Rule.RuleContext, attribute: S
 function getLiteralsBySvelteMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: Matcher[]): Literal[] {
   const matcherFunctions = getSvelteMatcherFunctions(matchers);
   const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
-
-  const literals = literalNodes.reduce<Literal[]>((literals, literalNode) => {
-    literals.push(...getLiteralsBySvelteLiteralNode(ctx, literalNode));
-    return literals;
-  }, []);
-
+  const literals = literalNodes.flatMap(literalNode => getLiteralsBySvelteLiteralNode(ctx, literalNode));
   return deduplicateLiterals(literals);
 }
 
@@ -116,14 +117,17 @@ function getStringLiteralBySvelteStringLiteral(ctx: Rule.RuleContext, node: Svel
 
   const content = node.value;
   const raw = ctx.sourceCode.getText(node as unknown as ESNode, 1, 1);
+  const line = ctx.sourceCode.lines[node.loc.start.line - 1];
 
   const quotes = getQuotes(raw);
   const whitespaces = getWhitespace(content);
+  const indentation = getIndentation(line);
 
   return {
     ...whitespaces,
     ...quotes,
     content,
+    indentation,
     loc: node.loc,
     node: node as unknown as Node,
     parent: node.parent as unknown as Node,

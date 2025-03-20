@@ -120,6 +120,7 @@ export function createRuleListener(ctx: Rule.RuleContext, options: Options, lint
     Element$1(node: Node) {
       const angularElementNode = node as unknown as TmplAstElement;
       const angularAttributes = getAttributesByAngularElement(ctx, angularElementNode);
+
       for(const angularAttribute of angularAttributes){
         const literals = getLiteralsByAngularAttribute(ctx, angularAttribute, attributes);
         lintLiterals(ctx, literals);

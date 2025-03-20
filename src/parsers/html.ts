@@ -1,5 +1,5 @@
 import { isAttributesMatchers, isAttributesName, isAttributesRegex } from "readable-tailwind:utils:matchers.js";
-import { deduplicateLiterals, matchesName } from "readable-tailwind:utils:utils.js";
+import { deduplicateLiterals, getIndentation, matchesName } from "readable-tailwind:utils:utils.js";
 
 import type { AttributeNode, TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
@@ -38,12 +38,16 @@ export function getLiteralsByHTMLAttributeNode(ctx: Rule.RuleContext, attribute:
     return [];
   }
 
+  const line = ctx.sourceCode.lines[attribute.loc.start.line - 1];
   const raw = attribute.startWrapper?.value + value.value + attribute.endWrapper?.value;
+
   const { closingQuote, openingQuote } = getQuotesByHTMLAttribute(ctx, attribute);
+  const indentation = getIndentation(line);
 
   return [{
     closingQuote,
     content: value.value,
+    indentation,
     loc: value.loc,
     // @ts-expect-error - Missing in types
     node: attribute,
