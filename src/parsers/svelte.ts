@@ -40,7 +40,7 @@ import type {
   SvelteStyleDirective
 } from "svelte-eslint-parser/lib/ast/index.js";
 
-import type { Literal, Node, StringLiteral } from "readable-tailwind:types:ast.js";
+import type { Literal, LiteralValueQuotes, MultilineMeta, Node, StringLiteral } from "readable-tailwind:types:ast.js";
 import type { Attributes, Matcher, MatcherFunctions } from "readable-tailwind:types:rule.js";
 
 
@@ -106,11 +106,26 @@ function getLiteralsBySvelteLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode)
   }
 
   if(isESStringLike(node)){
-    return getLiteralsByESLiteralNode(ctx, node);
+    return getLiteralsBySvelteESLiteralNode(ctx, node);
   }
 
   return [];
 
+}
+
+function getLiteralsBySvelteESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): Literal[] {
+  const literals = getLiteralsByESLiteralNode(ctx, node);
+
+  return literals.map(literal => {
+    const { multilineQuotes, surroundingBraces } = getMultilineQuotes(node);
+
+    if(multilineQuotes && multilineQuotes.length > 0){
+      literal.multilineQuotes = multilineQuotes;
+      literal.surroundingBraces = surroundingBraces;
+    }
+
+    return literal;
+  });
 }
 
 function getStringLiteralBySvelteStringLiteral(ctx: Rule.RuleContext, node: SvelteLiteral): StringLiteral | undefined {
@@ -122,10 +137,12 @@ function getStringLiteralBySvelteStringLiteral(ctx: Rule.RuleContext, node: Svel
   const quotes = getQuotes(raw);
   const whitespaces = getWhitespace(content);
   const indentation = getIndentation(line);
+  const multilineQuotes = getMultilineQuotes(node);
 
   return {
     ...whitespaces,
     ...quotes,
+    ...multilineQuotes,
     content,
     indentation,
     loc: node.loc,
@@ -133,9 +150,26 @@ function getStringLiteralBySvelteStringLiteral(ctx: Rule.RuleContext, node: Svel
     parent: node.parent as unknown as Node,
     range: [node.range[0] - 1, node.range[1] + 1], // include quotes in range
     raw,
+    supportsMultiline: true,
     type: "StringLiteral"
   };
 
+}
+
+function getMultilineQuotes(node: (ESBaseNode) | SvelteLiteral): MultilineMeta {
+  const containerTypesToReplaceQuotes = [
+    "SvelteMustacheTag"
+  ];
+
+  const surroundingBraces = false;
+  const multiline: LiteralValueQuotes[] = "parent" in node && containerTypesToReplaceQuotes.includes(node.parent.type)
+    ? ["'", "\"", "`"]
+    : [];
+
+  return {
+    multilineQuotes: multiline,
+    surroundingBraces
+  };
 }
 
 function isSvelteAttribute(attribute:

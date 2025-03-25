@@ -29,7 +29,7 @@ import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
 import type { AST } from "vue-eslint-parser";
 
-import type { Literal, Node, StringLiteral } from "readable-tailwind:types:ast.js";
+import type { Literal, LiteralValueQuotes, MultilineMeta, Node, StringLiteral } from "readable-tailwind:types:ast.js";
 import type { Attributes, Matcher, MatcherFunctions } from "readable-tailwind:types:rule.js";
 
 
@@ -72,7 +72,7 @@ function getLiteralsByVueLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): L
   }
 
   if(isESStringLike(node)){
-    return getLiteralsByESLiteralNode(ctx, node);
+    return getLiteralsByVueESLiteralNode(ctx, node);
   }
 
   return [];
@@ -85,6 +85,21 @@ function getLiteralsByVueMatchers(ctx: Rule.RuleContext, node: ESBaseNode, match
   return deduplicateLiterals(literals);
 }
 
+function getLiteralsByVueESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): Literal[] {
+  const literals = getLiteralsByESLiteralNode(ctx, node);
+
+  return literals.map(literal => {
+    const { multilineQuotes, surroundingBraces } = getMultilineQuotes(node);
+
+    if(multilineQuotes && multilineQuotes.length > 0){
+      literal.multilineQuotes = multilineQuotes;
+      literal.surroundingBraces = surroundingBraces;
+    }
+
+    return literal;
+  });
+}
+
 function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLiteral): StringLiteral {
 
   const content = node.value;
@@ -94,10 +109,12 @@ function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLi
   const quotes = getQuotes(raw);
   const whitespaces = getWhitespace(content);
   const indentation = getIndentation(line);
+  const multilineQuotes = getMultilineQuotes(node);
 
   return {
     ...whitespaces,
     ...quotes,
+    ...multilineQuotes,
     content,
     indentation,
     loc: node.loc,
@@ -105,9 +122,19 @@ function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLi
     parent: node.parent as unknown as Node,
     range: [node.range[0], node.range[1]],
     raw,
+    supportsMultiline: true,
     type: "StringLiteral"
   };
 
+}
+
+function getMultilineQuotes(node: ESBaseNode): MultilineMeta {
+  const multilineQuotes: LiteralValueQuotes[] = ["'", "\""];
+
+  return {
+    multilineQuotes,
+    surroundingBraces: false
+  };
 }
 
 function getVueBoundName(name: string): string {

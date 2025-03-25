@@ -10,7 +10,6 @@ import {
   TAG_SCHEMA,
   VARIABLE_SCHEMA
 } from "readable-tailwind:options:descriptions.js";
-import { isESObjectKey } from "readable-tailwind:parsers:es.js";
 import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
 import { createRuleListener } from "readable-tailwind:utils:rule.js";
 import { display, getCommonOptions, splitClasses } from "readable-tailwind:utils:utils.js";
@@ -135,22 +134,9 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
   const { classesPerLine, group: groupSeparator, indent, lineBreakStyle, preferSingleLine, printWidth } = getOptions(ctx);
 
-  const containersTypesToReplaceQuotes = [
-    "JSXAttribute",
-    "JSXExpressionContainer",
-    "ArrayExpression",
-    "Property",
-    "CallExpression",
-    "SvelteMustacheTag",
-    "VariableDeclarator",
-    "ConditionalExpression",
-    "LogicalExpression"
-  ];
-
   for(const literal of literals){
 
-    // skip if literal is object key
-    if(isESObjectKey(literal.node)){
+    if(!literal.supportsMultiline){
       continue;
     }
 
@@ -164,7 +150,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     const singlelineClasses = new Lines(ctx, lineStartPosition);
 
     if(literal.openingQuote){
-      if(containersTypesToReplaceQuotes.includes(literal.parent.type)){
+      if(literal.multilineQuotes?.includes("`")){
         multilineClasses.line.addMeta({ openingQuote: "`" });
       } else {
         multilineClasses.line.addMeta({ openingQuote: literal.openingQuote });
@@ -354,7 +340,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       multilineClasses.addLine();
       multilineClasses.line.indent(lineStartPosition - getIndentation(ctx, indent));
 
-      if(containersTypesToReplaceQuotes.includes(literal.parent.type)){
+      if(literal.multilineQuotes?.includes("`")){
         multilineClasses.line.addMeta({ closingQuote: "`" });
       } else {
         multilineClasses.line.addMeta({ closingQuote: literal.closingQuote });
@@ -492,7 +478,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         readable: display(fixedClasses)
       },
       fix(fixer) {
-        return literal.parent.type === "JSXAttribute"
+        return literal.surroundingBraces
           ? fixer.replaceTextRange(literal.range, `{${fixedClasses}}`)
           : fixer.replaceTextRange(literal.range, fixedClasses);
       },

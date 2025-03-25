@@ -242,6 +242,7 @@ function createLiteralByLiteralMapKey(ctx: Rule.RuleContext, key: LiteralMapKey)
     parent: literalMap,
     range,
     raw,
+    supportsMultiline: false,
     type: "StringLiteral"
   }];
 }
@@ -275,6 +276,7 @@ function createLiteralsByAngularTextAttribute(ctx: Rule.RuleContext, attribute: 
     parent: attribute.parent,
     range,
     raw,
+    supportsMultiline: true,
     type: "StringLiteral"
   }];
 }
@@ -309,6 +311,7 @@ function createLiteralByAngularLiteralPrimitive(ctx: Rule.RuleContext, literal: 
     parent: literal.parent,
     range,
     raw,
+    supportsMultiline: true,
     type: "StringLiteral"
   }];
 }
@@ -350,6 +353,7 @@ function createLiteralByAngularTemplateLiteralElement(ctx: Rule.RuleContext, lit
     parent: literal.parent,
     range,
     raw,
+    supportsMultiline: true,
     type: "TemplateLiteral"
   }];
 }

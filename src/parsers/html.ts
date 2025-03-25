@@ -56,6 +56,7 @@ export function getLiteralsByHTMLAttributeNode(ctx: Rule.RuleContext, attribute:
     parent: attribute.parent,
     range: [value.range[0] - 1, value.range[1] + 1], // include quotes in range
     raw,
+    supportsMultiline: true,
     type: "StringLiteral"
   }];
 

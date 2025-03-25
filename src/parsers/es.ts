@@ -39,7 +39,15 @@ import type {
   VariableDeclarator as ESVariableDeclarator
 } from "estree";
 
-import type { BracesMeta, Literal, Node, StringLiteral, TemplateLiteral } from "readable-tailwind:types:ast.js";
+import type {
+  BracesMeta,
+  Literal,
+  LiteralValueQuotes,
+  MultilineMeta,
+  Node,
+  StringLiteral,
+  TemplateLiteral
+} from "readable-tailwind:types:ast.js";
 import type { Callees, Matcher, MatcherFunctions, Tags, Variables } from "readable-tailwind:types:rule.js";
 
 
@@ -178,10 +186,13 @@ export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: E
   const quotes = getQuotes(raw);
   const whitespaces = getWhitespace(content);
   const indentation = getIndentation(line);
+  const multilineQuotes = getMultilineQuotes(node);
+  const supportsMultiline = !isESObjectKey(node);
 
   return {
     ...quotes,
     ...whitespaces,
+    ...multilineQuotes,
     content,
     indentation,
     loc: node.loc,
@@ -189,6 +200,7 @@ export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: E
     parent: node.parent as Node,
     range: node.range,
     raw,
+    supportsMultiline,
     type: "StringLiteral"
   };
 
@@ -209,11 +221,13 @@ function getLiteralByESTemplateElement(ctx: Rule.RuleContext, node: ESTemplateEl
   const whitespaces = getWhitespace(content);
   const braces = getBracesByString(ctx, raw);
   const indentation = getIndentation(line);
+  const multilineQuotes = getMultilineQuotes(node);
 
   return {
     ...whitespaces,
     ...quotes,
     ...braces,
+    ...multilineQuotes,
     content,
     indentation,
     loc: node.loc,
@@ -221,9 +235,37 @@ function getLiteralByESTemplateElement(ctx: Rule.RuleContext, node: ESTemplateEl
     parent: node.parent as Node,
     range: node.range,
     raw,
+    supportsMultiline: true,
     type: "TemplateLiteral"
   };
 
+}
+
+function getMultilineQuotes(node: ESNode & Rule.NodeParentExtension): MultilineMeta {
+  const containerTypesToReplaceQuotes = [
+    "JSXAttribute",
+    "JSXExpressionContainer",
+    "ArrayExpression",
+    "Property",
+    "CallExpression",
+    "VariableDeclarator",
+    "ConditionalExpression",
+    "LogicalExpression"
+  ];
+
+  const containerTypesToInsertBraces = [
+    "JSXAttribute"
+  ];
+
+  const surroundingBraces = containerTypesToInsertBraces.includes(node.parent.type);
+  const multilineQuotes: LiteralValueQuotes[] = containerTypesToReplaceQuotes.includes(node.parent.type)
+    ? ["'", "\"", "`"]
+    : [];
+
+  return {
+    multilineQuotes,
+    surroundingBraces
+  };
 }
 
 function getLiteralsByESExpression(ctx: Rule.RuleContext, args: (ESExpression | ESSpreadElement)[]): Literal[] {
