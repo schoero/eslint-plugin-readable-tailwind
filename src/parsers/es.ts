@@ -1,7 +1,7 @@
 import { MatcherType } from "readable-tailwind:types:rule.js";
 import {
+  findMatchingParentNodes,
   getLiteralNodesByMatchers,
-  getObjectPath,
   isCalleeMatchers,
   isCalleeName,
   isCalleeRegex,
@@ -292,6 +292,78 @@ export function findParentESTemplateLiteralByESTemplateElement(node: ESNode & Pa
   return findParentESTemplateLiteralByESTemplateElement(node.parent);
 }
 
+
+export function getESObjectPath(node: ESNode & Partial<Rule.NodeParentExtension>): string | undefined {
+
+  if(!hasESNodeParentExtension(node)){ return; }
+
+  if(
+    node.type !== "Property" &&
+    node.type !== "ObjectExpression" &&
+    node.type !== "ArrayExpression" &&
+    node.type !== "Identifier" &&
+    node.type !== "Literal"
+  ){
+    return;
+  }
+
+  const paths: (string | undefined)[] = [];
+
+  if(node.type === "Property"){
+    if(node.key.type === "Identifier"){
+      paths.unshift(createObjectPathElement(node.key.name));
+    } else if(node.key.type === "Literal"){
+      paths.unshift(createObjectPathElement(node.key.value?.toString() ?? node.key.raw));
+    } else {
+      return "";
+    }
+  }
+
+  if(isESStringLike(node) && isInsideObjectValue(node)){
+    const property = findMatchingParentNodes<ESNode>(node, [(node): node is ESNode => {
+      return isESNode(node) && node.type === "Property";
+    }])[0];
+
+    return getESObjectPath(property);
+  }
+
+  if(isESObjectKey(node)){
+    const property = node.parent;
+    return getESObjectPath(property);
+  }
+
+  if(node.parent.type === "ArrayExpression" && node.type !== "Property"){
+    const index = node.parent.elements.indexOf(node);
+    paths.unshift(`[${index}]`);
+  }
+
+  paths.unshift(getESObjectPath(node.parent));
+
+  return paths.reduce<string[]>((paths, currentPath) => {
+    if(!currentPath){ return paths; }
+
+    if(paths.length === 0){
+      return [currentPath];
+    }
+
+    if(currentPath.startsWith("[") && currentPath.endsWith("]")){
+      return [...paths, currentPath];
+    }
+
+    return [...paths, ".", currentPath];
+  }, []).join("");
+
+}
+
+function createObjectPathElement(path?: string): string {
+  if(!path){ return ""; }
+
+  return path.match(/^[A-Z_a-z]\w*$/)
+    ? path
+    : `["${path}"]`;
+}
+
+
 export interface ESSimpleStringLiteral extends Rule.NodeParentExtension, ESSimpleLiteral {
   value: string;
 }
@@ -387,11 +459,13 @@ function getBracesByString(ctx: Rule.RuleContext, raw: string): BracesMeta {
   };
 }
 
-function getESMatcherFunctions(matchers: Matcher[]): MatcherFunctions {
-  return matchers.reduce<MatcherFunctions>((matcherFunctions, matcher) => {
+function getESMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESNode> {
+  return matchers.reduce<MatcherFunctions<ESNode>>((matcherFunctions, matcher) => {
     switch (matcher.match){
       case MatcherType.String: {
-        matcherFunctions.push(node => {
+        matcherFunctions.push((node): node is ESNode => {
+
+          if(!isESNode(node)){ return false; }
 
           if(isInsideConditionalExpressionTest(node)){ return false; }
           if(isInsideLogicalExpressionLeft(node)){ return false; }
@@ -406,7 +480,9 @@ function getESMatcherFunctions(matchers: Matcher[]): MatcherFunctions {
         break;
       }
       case MatcherType.ObjectKey: {
-        matcherFunctions.push(node => {
+        matcherFunctions.push((node): node is ESNode => {
+
+          if(!isESNode(node)){ return false; }
 
           if(isInsideConditionalExpressionTest(node)){ return false; }
           if(isInsideLogicalExpressionLeft(node)){ return false; }
@@ -414,21 +490,23 @@ function getESMatcherFunctions(matchers: Matcher[]): MatcherFunctions {
           if(!hasESNodeParentExtension(node)){ return false; }
           if(!isESObjectKey(node)){ return false; }
 
-          const path = getObjectPath(node);
+          const path = getESObjectPath(node);
 
           return path && matcher.pathPattern ? matchesPathPattern(path, matcher.pathPattern) : true;
         });
         break;
       }
       case MatcherType.ObjectValue: {
-        matcherFunctions.push(node => {
+        matcherFunctions.push((node): node is ESNode => {
+
+          if(!isESNode(node)){ return false; }
 
           if(isInsideConditionalExpressionTest(node)){ return false; }
           if(isInsideLogicalExpressionLeft(node)){ return false; }
           if(!hasESNodeParentExtension(node)){ return false; }
           if(isESObjectKey(node)){ return false; }
 
-          const path = getObjectPath(node);
+          const path = getESObjectPath(node);
           const matchesPattern = path !== undefined &&
             matcher.pathPattern
             ? matchesPathPattern(path, matcher.pathPattern)

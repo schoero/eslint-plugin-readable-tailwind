@@ -117,7 +117,7 @@ export function createRuleListener(ctx: Rule.RuleContext, options: Options, lint
   };
 
   const angular = {
-    Element$1(node: Node) {
+    Element(node: Node) {
       const angularElementNode = node as unknown as TmplAstElement;
       const angularAttributes = getAttributesByAngularElement(ctx, angularElementNode);
 

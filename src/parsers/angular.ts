@@ -1,5 +1,10 @@
 import { MatcherType } from "readable-tailwind:types:rule.js";
-import { isAttributesMatchers, isAttributesName, isAttributesRegex } from "readable-tailwind:utils:matchers.js";
+import {
+  getLiteralNodesByMatchers,
+  isAttributesMatchers,
+  isAttributesName,
+  isAttributesRegex
+} from "readable-tailwind:utils:matchers.js";
 import {
   deduplicateLiterals,
   getIndentation,
@@ -35,6 +40,8 @@ import type { Attributes, Matcher, MatcherFunctions } from "readable-tailwind:ty
 
 // https://angular.dev/api/common/NgClass
 // https://angular.dev/guide/templates/binding#css-class-and-style-property-bindings
+
+// /Users/schoero/testing/angular-tailwind-demo/src/app/child/child.component.ts/1_inline-template-child.component.ts-1.component.html
 
 export function getAttributesByAngularElement(ctx: Rule.RuleContext, node: TmplAstElement): (TmplAstBoundAttribute | TmplAstTextAttribute)[] {
   return [
@@ -78,7 +85,7 @@ function createLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: Tmpl
 
 function getLiteralsByAngularMatchers(ctx: Rule.RuleContext, ast: AST, matchers: Matcher[]): Literal[] {
   const matcherFunctions = getAngularMatcherFunctions(ctx, matchers);
-  const matchingAstNodes = getAstByAngularMatchers(ctx, ast, matcherFunctions);
+  const matchingAstNodes = getLiteralNodesByMatchers(ctx, ast, matcherFunctions, value => isAST(value) && isCallExpression(value));
   const literals = matchingAstNodes.flatMap(ast => createLiteralsByAngularAst(ctx, ast));
   return deduplicateLiterals(literals);
 }
@@ -125,32 +132,6 @@ function createLiteralsByAngularConditional(ctx: Rule.RuleContext, conditional: 
   return literals;
 }
 
-function getAstByAngularMatchers(ctx: Rule.RuleContext, ast: AST, matcherFunctions: MatcherFunctions<AST>): AST[] {
-  if(!hasParent(ast)){ return []; }
-
-  const nestedLiterals = findMatchingNestedNodes(ast, matcherFunctions);
-  const self = astMatches(ast, matcherFunctions) ? [ast] : [];
-
-  return [...nestedLiterals, ...self];
-}
-
-function findMatchingNestedNodes(node: AST, matcherFunctions: MatcherFunctions<AST>): AST[] {
-  return Object.entries(node).reduce<AST[]>((matchedNodes, [key, value]) => {
-    if(!value || typeof value !== "object" || key === "parent"){
-      return matchedNodes;
-    }
-
-    if(isCallExpression(value)){ return matchedNodes; }
-
-    if(astMatches(value, matcherFunctions)){
-      matchedNodes.push(value);
-    }
-
-    matchedNodes.push(...findMatchingNestedNodes(value, matcherFunctions));
-    return matchedNodes;
-  }, []);
-}
-
 function astMatches(ast: AST, matcherFunctions: MatcherFunctions<AST>): boolean {
   for(const matcherFunction of matcherFunctions){
     if(matcherFunction(ast)){ return true; }
@@ -162,7 +143,9 @@ function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: Matcher[]):
   return matchers.reduce<MatcherFunctions<AST>>((matcherFunctions, matcher) => {
     switch (matcher.match){
       case MatcherType.String: {
-        matcherFunctions.push(ast => {
+        matcherFunctions.push((ast): ast is AST => {
+
+          if(!isAST(ast)){ return false; }
 
           if(isInsideConditionalExpressionCondition(ctx, ast)){ return false; }
           if(isInsideLogicalExpressionLeft(ctx, ast)){ return false; }
@@ -179,11 +162,11 @@ function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: Matcher[]):
         break;
       }
       case MatcherType.ObjectKey: {
-        matcherFunctions.push(ast => isObjectKey(ast));
+        matcherFunctions.push((ast): ast is AST => isAST(ast) && isObjectKey(ast));
         break;
       }
       case MatcherType.ObjectValue: {
-        matcherFunctions.push(ast => isObjectValue(ast));
+        matcherFunctions.push((ast): ast is AST => isAST(ast) && isObjectValue(ast));
         break;
       }
     }
@@ -464,7 +447,6 @@ export function isInsideLogicalExpressionLeft(ctx: Rule.RuleContext, ast: AST): 
   return isInsideConditionalExpressionCondition(ctx, parent);
 }
 
-
 export function hasParent(ast: AST): ast is AST & Parent {
   return "parent" in ast && ast.parent !== undefined;
 }
@@ -530,7 +512,7 @@ function is<Type extends AST | TmplAstNode>(ast: AST | TmplAstNode, type: string
 
 const isCallExpression = (ast: AST) => is<Call>(ast, "Call");
 const isASTWithSource = (ast: AST) => is<ASTWithSource>(ast, "ASTWithSource");
-const isInterpolation = (ast: AST) => is<Interpolation>(ast, "Interpolation$1");
+const isInterpolation = (ast: AST) => is<Interpolation>(ast, "Interpolation");
 const isConditional = (ast: AST) => is<Conditional>(ast, "Conditional");
 const isBinary = (ast: AST) => is<Binary>(ast, "Binary");
 const isLiteralArray = (ast: AST) => is<LiteralArray>(ast, "LiteralArray");

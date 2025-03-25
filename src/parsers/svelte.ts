@@ -1,6 +1,8 @@
 import {
+  getESObjectPath,
   getLiteralsByESLiteralNode,
   hasESNodeParentExtension,
+  isESNode,
   isESObjectKey,
   isESStringLike,
   isInsideObjectValue
@@ -8,7 +10,6 @@ import {
 import { MatcherType } from "readable-tailwind:types:rule.js";
 import {
   getLiteralNodesByMatchers,
-  getObjectPath,
   isAttributesMatchers,
   isAttributesName,
   isAttributesRegex,
@@ -192,11 +193,13 @@ function isSvelteMustacheTag(node: ESBaseNode): node is SvelteMustacheTagText {
     "kind" in node && node.kind === "text";
 }
 
-function getSvelteMatcherFunctions(matchers: Matcher[]): MatcherFunctions {
-  return matchers.reduce<MatcherFunctions>((matcherFunctions, matcher) => {
+function getSvelteMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBaseNode> {
+  return matchers.reduce<MatcherFunctions<ESBaseNode>>((matcherFunctions, matcher) => {
     switch (matcher.match){
       case MatcherType.String: {
-        matcherFunctions.push(node => {
+        matcherFunctions.push((node): node is ESBaseNode => {
+
+          if(!isESNode(node)){ return false; }
 
           if(isInsideConditionalExpressionTest(node)){ return false; }
           if(isInsideLogicalExpressionLeft(node)){ return false; }
@@ -211,7 +214,9 @@ function getSvelteMatcherFunctions(matchers: Matcher[]): MatcherFunctions {
         break;
       }
       case MatcherType.ObjectKey: {
-        matcherFunctions.push(node => {
+        matcherFunctions.push((node): node is ESBaseNode => {
+
+          if(!isESNode(node)){ return false; }
 
           if(isInsideConditionalExpressionTest(node)){ return false; }
           if(isInsideLogicalExpressionLeft(node)){ return false; }
@@ -219,21 +224,23 @@ function getSvelteMatcherFunctions(matchers: Matcher[]): MatcherFunctions {
           if(!hasESNodeParentExtension(node)){ return false; }
           if(!isESObjectKey(node)){ return false; }
 
-          const path = getObjectPath(node);
+          const path = getESObjectPath(node);
 
           return path && matcher.pathPattern ? matchesPathPattern(path, matcher.pathPattern) : true;
         });
         break;
       }
       case MatcherType.ObjectValue: {
-        matcherFunctions.push(node => {
+        matcherFunctions.push((node): node is ESBaseNode => {
+
+          if(!isESNode(node)){ return false; }
 
           if(isInsideConditionalExpressionTest(node)){ return false; }
           if(isInsideLogicalExpressionLeft(node)){ return false; }
           if(!hasESNodeParentExtension(node)){ return false; }
           if(isESObjectKey(node)){ return false; }
 
-          const path = getObjectPath(node);
+          const path = getESObjectPath(node);
           const matchesPattern = path !== undefined &&
             matcher.pathPattern
             ? matchesPathPattern(path, matcher.pathPattern)

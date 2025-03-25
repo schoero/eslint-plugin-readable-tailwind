@@ -2,6 +2,7 @@ import { parse } from "espree";
 import { assert, describe, expect, it } from "vitest";
 
 import {
+  getESObjectPath,
   hasESNodeParentExtension,
   isESNode,
   isESObjectKey,
@@ -11,7 +12,6 @@ import {
 import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
 import { findNode, lint, TEST_SYNTAXES, withParentNodeExtension } from "readable-tailwind:tests:utils.js";
 import { MatcherType } from "readable-tailwind:types:rule.js";
-import { getObjectPath } from "readable-tailwind:utils:matchers.js";
 
 import type { Node as ESNode } from "estree";
 
@@ -49,9 +49,9 @@ describe("matchers", () => {
         assert(nested);
         assert(value);
 
-        expect(getObjectPath(root)).toBe("root");
-        expect(getObjectPath(nested)).toBe("root.nested");
-        expect(getObjectPath(value)).toBe("root.nested.value");
+        expect(getESObjectPath(root)).toBe("root");
+        expect(getESObjectPath(nested)).toBe("root.nested");
+        expect(getESObjectPath(value)).toBe("root.nested.value");
 
       });
 
@@ -65,7 +65,7 @@ describe("matchers", () => {
 
         assert(value);
 
-        const path = getObjectPath(value);
+        const path = getESObjectPath(value);
         expect(path).toBe("root.nested.value");
 
       });
@@ -98,9 +98,9 @@ describe("matchers", () => {
         assert(nested);
         assert(value);
 
-        expect(getObjectPath(root)).toBe(`["root-key"]`);
-        expect(getObjectPath(nested)).toBe(`["root-key"]["1nested"]`);
-        expect(getObjectPath(value)).toBe(`["root-key"]["1nested"].deeply_nested_value`);
+        expect(getESObjectPath(root)).toBe(`["root-key"]`);
+        expect(getESObjectPath(nested)).toBe(`["root-key"]["1nested"]`);
+        expect(getESObjectPath(value)).toBe(`["root-key"]["1nested"].deeply_nested_value`);
 
       });
     }
@@ -133,8 +133,8 @@ describe("matchers", () => {
         assert(value1);
         assert(value2);
 
-        expect(getObjectPath(value1)).toBe("root[0].value1");
-        expect(getObjectPath(value2)).toBe("root[1].value2");
+        expect(getESObjectPath(value1)).toBe("root[0].value1");
+        expect(getESObjectPath(value2)).toBe("root[1].value2");
 
       });
 

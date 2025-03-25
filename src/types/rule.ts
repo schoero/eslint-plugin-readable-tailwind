@@ -1,5 +1,4 @@
 import type { Rule } from "eslint";
-import type { Node as ESNode } from "estree";
 
 
 export enum MatcherType {
@@ -25,8 +24,8 @@ export type ObjectValueMatcher = {
   pathPattern?: Regex;
 };
 
-export type MatcherFunction<Node = ESNode> = (node: Node) => boolean;
-export type MatcherFunctions<Node = ESNode> = MatcherFunction<Node>[];
+export type MatcherFunction<Node> = (node: unknown) => node is Node;
+export type MatcherFunctions<Node> = MatcherFunction<Node>[];
 
 export type Matcher = ObjectKeyMatcher | ObjectValueMatcher | StringMatcher;
 
