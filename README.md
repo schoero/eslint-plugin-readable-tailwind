@@ -60,7 +60,7 @@
 <br/>
 
 ESLint plugin to automatically break up long tailwind class strings into multiple lines based on a specified print width or class count. This improves readability and eliminates horizontal scrolling.  
-In addition it sorts the classes logically, removes unnecessary whitespaces and duplicate classes and groups the classes by their variants. It works in jsx, svelte, vue, and html files.
+In addition it sorts the classes logically, removes unnecessary whitespaces and duplicate classes and groups the classes by their variants. It works in React, Solid.js, Qwik, Svelte, Vue, Angular, HTML, JavaScript and TypeScript projects.
 
 <br/>
 <br/>
@@ -122,6 +122,7 @@ Depending on the flavor you are using, you may need to install and configure the
 - [Svelte](docs/parsers/svelte.md)
 - [Vue](docs/parsers/vue.md)
 - [HTML](docs/parsers/html.md)
+- [Angular](docs/parsers/angular.md)
 - [Plain JavaScript](docs/parsers/javascript.md)
 - [Plain TypeScript](docs/parsers/typescript.md)
 
