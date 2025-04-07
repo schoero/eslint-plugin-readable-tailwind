@@ -47,6 +47,8 @@ const defaultOptions = {
   variables: DEFAULT_VARIABLE_NAMES
 } as const satisfies Options[0];
 
+const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/no-duplicate-classes.md";
+
 export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
   name: "no-duplicate-classes" as const,
   rule: {
@@ -56,7 +58,7 @@ export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
         category: "Stylistic Issues",
         description: "Disallow duplicate class names in tailwind classes.",
         recommended: true,
-        url: "https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/no-duplicate-classes.md"
+        url: DOCUMENTATION_URL
       },
       fixable: "code",
       schema: [

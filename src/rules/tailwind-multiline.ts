@@ -14,6 +14,7 @@ import { isESObjectKey } from "readable-tailwind:parsers:es.js";
 import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
 import { createRuleListener } from "readable-tailwind:utils:rule.js";
 import {
+  augmentMessageWithWarnings,
   display,
   findLineStartPosition,
   findLiteralStartPosition,
@@ -31,6 +32,7 @@ import type {
   TagOption,
   VariableOption
 } from "readable-tailwind:types:rule.js";
+import type { Warning } from "readable-tailwind:utils:utils.js";
 
 
 export type Options = [
@@ -63,6 +65,8 @@ const defaultOptions = {
   variables: DEFAULT_VARIABLE_NAMES
 } as const satisfies Options[0];
 
+const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/multiline.md";
+
 export const tailwindMultiline: ESLintRule<Options> = {
   name: "multiline" as const,
   rule: {
@@ -72,7 +76,7 @@ export const tailwindMultiline: ESLintRule<Options> = {
         category: "Stylistic Issues",
         description: "Enforce consistent line wrapping for tailwind classes.",
         recommended: true,
-        url: "https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/multiline.md"
+        url: DOCUMENTATION_URL
       },
       fixable: "code",
       schema: [
@@ -135,7 +139,8 @@ export const tailwindMultiline: ESLintRule<Options> = {
 
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
-  const { classesPerLine, group: groupSeparator, indent, lineBreakStyle, preferSingleLine, printWidth } = getOptions(ctx);
+  const options = getOptions(ctx);
+  const { classesPerLine, group: groupSeparator, indent, lineBreakStyle, preferSingleLine, printWidth } = options;
 
   for(const literal of literals){
 
@@ -421,7 +426,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           return fixer.replaceTextRange(literal.range, fixedClasses);
         },
         loc: literal.loc,
-        message: "Unnecessary line wrapping. Expected\n\n{{ notReadable }}\n\nto be\n\n{{ readable }}"
+        message: augmentMessage(literal.raw, options, "Unnecessary line wrapping. Expected\n\n{{ notReadable }}\n\nto be\n\n{{ readable }}")
       });
 
       return;
@@ -509,7 +514,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           : fixer.replaceTextRange(literal.range, fixedClasses);
       },
       loc: literal.loc,
-      message: "Incorrect line wrapping. Expected\n\n{{ notReadable }}\n\nto be\n\n{{ readable }}"
+      message: augmentMessage(literal.raw, options, "Incorrect line wrapping. Expected\n\n{{ notReadable }}\n\nto be\n\n{{ readable }}")
     });
 
   }
@@ -745,4 +750,43 @@ class Group {
 
 function getLineBreaks(lineBreakStyle: Options[0]["lineBreakStyle"]) {
   return lineBreakStyle === "unix" ? "\n" : "\r\n";
+}
+
+function augmentMessage(original: string, options: ReturnType<typeof getOptions>, message: string) {
+  const invalidLineBreaks = isLineBreakStyleLikelyMisconfigured(original, options);
+  const invalidIndentations = isIndentationLikelyMisconfigured(original, options);
+
+  const warnings: Warning<Options[0]>[] = [];
+
+  if(invalidLineBreaks){
+    warnings.push({
+      option: "lineBreakStyle",
+      title: "Inconsistent line endings detected",
+      url: `${DOCUMENTATION_URL}#linebreakstyle`
+    });
+  }
+
+  if(invalidIndentations){
+    warnings.push({
+      option: "indent",
+      title: "Inconsistent indentation detected",
+      url: `${DOCUMENTATION_URL}#indent`
+    });
+  }
+
+  return augmentMessageWithWarnings(message, warnings);
+}
+
+function isLineBreakStyleLikelyMisconfigured(original: string, options: ReturnType<typeof getOptions>) {
+  return (
+    original.includes("\r") && options.lineBreakStyle === "unix" ||
+    !original.includes("\r") && options.lineBreakStyle === "windows"
+  );
+}
+
+function isIndentationLikelyMisconfigured(original: string, options: ReturnType<typeof getOptions>) {
+  return (
+    original.includes("  ") && options.indent === "tab" ||
+    original.includes("\t") && typeof options.indent === "number"
+  );
 }
