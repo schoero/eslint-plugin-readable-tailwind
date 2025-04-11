@@ -603,4 +603,65 @@ describe(tailwindNoDuplicateClasses.name, () => {
     );
   });
 
+  // #81
+  it("should not report duplicates for carriage return characters", () => {
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
+      valid: [
+        {
+          html: `<img class="  b  a \r\n c  \r\n  d  " />`,
+          jsx: `() => <img class="  b  a \r\n c  \r\n  d  " />`,
+          svelte: `<img class="  b  a \r\n c  \r\n  d  " />`,
+          vue: `<template><img class="  b  a \r\n c  \r\n  d  " /></template>`
+        }
+      ]
+    });
+  });
+
+  it("should not report duplicates for newline characters", () => {
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
+      valid: [
+        {
+          html: `<img class="  b  a \n c  \n  d  " />`,
+          jsx: `() => <img class="  b  a \n c  \n  d  " />`,
+          svelte: `<img class="  b  a \n c  \n  d  " />`,
+          vue: `<template><img class="  b  a \n c  \n  d  " /></template>`
+        }
+      ]
+    });
+  });
+
+  it("should report fixes with unchanged line endings", () => {
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 1,
+          html: `<img class="  b  a \r\n c  \r\n a d  " />`,
+          htmlOutput: `<img class="  b  a \r\n c  \r\n  d  " />`,
+          jsx: `() => <img class="  b  a \r\n c  \r\n a d  " />`,
+          jsxOutput: `() => <img class="  b  a \r\n c  \r\n  d  " />`,
+          svelte: `<img class="  b  a \r\n c  \r\n a d  " />`,
+          svelteOutput: `<img class="  b  a \r\n c  \r\n  d  " />`,
+          vue: `<template><img class="  b  a \r\n c  \r\n a d  " /></template>`,
+          vueOutput: `<template><img class="  b  a \r\n c  \r\n  d  " /></template>`
+        }
+      ]
+    });
+    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 1,
+          html: `<img class="  b  a \n c  \n a d  " />`,
+          htmlOutput: `<img class="  b  a \n c  \n  d  " />`,
+          jsx: `() => <img class="  b  a \n c  \n a d  " />`,
+          jsxOutput: `() => <img class="  b  a \n c  \n  d  " />`,
+          svelte: `<img class="  b  a \n c  \n a d  " />`,
+          svelteOutput: `<img class="  b  a \n c  \n  d  " />`,
+          vue: `<template><img class="  b  a \n c  \n a d  " /></template>`,
+          vueOutput: `<template><img class="  b  a \n c  \n  d  " /></template>`
+        }
+      ]
+    });
+  });
+
+
 });
