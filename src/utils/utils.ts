@@ -69,6 +69,26 @@ export function display(classes: string): string {
     .replaceAll("\t", "→");
 }
 
+export interface Warning<Options extends Record<string, any> = Record<string, any>> {
+  option: keyof Options;
+  title: string;
+  url: string;
+}
+
+export function augmentMessageWithWarnings(message: string, warnings?: Warning[]) {
+  if(!warnings || warnings.length === 0){
+    return message;
+  }
+
+  return [
+    warnings.flatMap(({ option, title, url }) => [
+      `⚠️ Warning: ${title}. Option \`${option}\` may be misconfigured.`,
+      `Check documentation at ${url}`
+    ]).join("\n"),
+    message
+  ].join("\n\n");
+}
+
 export function splitWhitespaces(classes: string): string[] {
   return classes.split(/\S+/);
 }

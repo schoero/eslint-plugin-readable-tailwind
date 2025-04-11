@@ -46,6 +46,8 @@ const defaultOptions = {
   variables: DEFAULT_VARIABLE_NAMES
 } as const satisfies Options[0];
 
+const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/no-unnecessary-whitespace.md";
+
 export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
   name: "no-unnecessary-whitespace" as const,
   rule: {
@@ -55,7 +57,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
         category: "Stylistic Issues",
         description: "Disallow unnecessary whitespace in tailwind classes.",
         recommended: true,
-        url: "https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/no-unnecessary-whitespace.md"
+        url: DOCUMENTATION_URL
       },
       fixable: "whitespace",
       schema: [

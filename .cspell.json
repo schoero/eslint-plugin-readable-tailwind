@@ -21,12 +21,13 @@
     "eslintrc",
     "espree",
     "estree",
+    "jiti",
     "linebreak",
+    "linebreakstyle",
     "objstr",
     "OBJSTR",
     "quasis",
     "shadcn",
-    "synckit",
-    "jiti"
+    "synckit"
   ]
 }
