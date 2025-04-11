@@ -86,10 +86,15 @@ function getLiteralsByVueMatchers(ctx: Rule.RuleContext, node: ESBaseNode, match
 
 function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLiteral): StringLiteral {
 
-  const content = node.value;
   const raw = ctx.sourceCode.getText(node as unknown as ESNode);
-
   const quotes = getQuotes(raw);
+
+  // #81: node.value converts \r\n to \n
+  const content = raw.substring(
+    quotes.openingQuote?.length ?? 0,
+    raw.length - (quotes.closingQuote?.length ?? 0)
+  );
+
   const whitespaces = getWhitespace(content);
 
   return {
