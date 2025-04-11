@@ -1,5 +1,21 @@
 # Changelog
 
+## v2.0.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.0.0...v2.0.1)
+
+### Fixes
+
+- Keep original newline characters ([a564783](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/a564783))
+
+### Refactors
+
+- Display warning if plugin is misconfigured ([7c532cd](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/7c532cd))
+
+### Documentation
+
+- Update quick start guide ([e570981](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/e570981))
+
 ## v2.0.0
 
 Adds tailwindcss v4 support while keeping support for tailwindcss v3. ([#78](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/78))
