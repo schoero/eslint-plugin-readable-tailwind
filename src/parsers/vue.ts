@@ -20,6 +20,7 @@ import {
 } from "readable-tailwind:utils:matchers.js";
 import {
   deduplicateLiterals,
+  getContent,
   getIndentation,
   getQuotes,
   getWhitespace,
@@ -103,11 +104,11 @@ function getLiteralsByVueESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode):
 
 function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLiteral): StringLiteral {
 
-  const content = node.value;
   const raw = ctx.sourceCode.getText(node as unknown as ESNode);
   const line = ctx.sourceCode.lines[node.loc.start.line - 1];
 
   const quotes = getQuotes(raw);
+  const content = getContent(raw, quotes);
   const whitespaces = getWhitespace(content);
   const indentation = getIndentation(line);
   const multilineQuotes = getMultilineQuotes(node);
@@ -119,6 +120,7 @@ function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLi
     content,
     indentation,
     loc: node.loc,
+    priorLiterals: [],
     range: [node.range[0], node.range[1]],
     raw,
     supportsMultiline: true,

@@ -10,13 +10,11 @@ import {
   TAG_SCHEMA,
   VARIABLE_SCHEMA
 } from "readable-tailwind:options:descriptions.js";
-import { hasESNodeParentExtension, isESCallExpression, isESVariableDeclarator } from "readable-tailwind:parsers:es.js";
 import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
 import { createRuleListener } from "readable-tailwind:utils:rule.js";
 import { getCommonOptions, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
-import type { Node as ESNode } from "estree";
 
 import type { Literal } from "readable-tailwind:types:ast.js";
 import type {
@@ -47,6 +45,8 @@ const defaultOptions = {
   variables: DEFAULT_VARIABLE_NAMES
 } as const satisfies Options[0];
 
+const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/no-duplicate-classes.md";
+
 export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
   name: "no-duplicate-classes" as const,
   rule: {
@@ -56,7 +56,7 @@ export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
         category: "Stylistic Issues",
         description: "Disallow duplicate class names in tailwind classes.",
         recommended: true,
-        url: "https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/no-duplicate-classes.md"
+        url: DOCUMENTATION_URL
       },
       fixable: "code",
       schema: [
@@ -80,11 +80,13 @@ export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
   for(const literal of literals){
 
+    const parentClasses = literal.priorLiterals
+      ? getClassesFromLiteralNodes(literal.priorLiterals)
+      : [];
+
     const duplicates: string[] = [];
 
     const classes = literal.content;
-
-    const parentClasses = getParentClasses(ctx, literal, literals);
 
     const classChunks = splitClasses(classes);
     const whitespaceChunks = splitWhitespaces(classes);
@@ -155,66 +157,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
 }
 
-function findParentLiteralNodes(node: ESNode) {
-
-  if(!hasESNodeParentExtension(node)){ return; }
-
-  const parentLiterals: ESNode[] = [];
-  let currentNode: ESNode = node;
-
-  while(hasESNodeParentExtension(currentNode)){
-    const parent = currentNode.parent;
-
-    if(isESCallExpression(parent)){ break; }
-    if(isESVariableDeclarator(parent)){ break; }
-
-    if(parent.type === "TemplateLiteral"){
-      for(const quasi of parent.quasis){
-        if(quasi.range === node.range){
-          break;
-        }
-
-        if(quasi.type === "TemplateElement"){
-          parentLiterals.push(quasi);
-        }
-      }
-    }
-
-    if(
-      parent.type === "TemplateElement" ||
-      parent.type === "Literal"
-    ){
-      parentLiterals.push(parent);
-    }
-
-    currentNode = parent;
-
-  }
-
-  return parentLiterals;
-
-}
-
-function getParentClasses(ctx: Rule.RuleContext, literal: Literal, literals: Literal[]) {
-  try {
-    const esNode = ctx.sourceCode.getNodeByRangeIndex(literal.range[0]);
-    const parentLiteralNodes = esNode && findParentLiteralNodes(esNode);
-    const parentLiterals = parentLiteralNodes && getLiteralsFromParentLiteralNodes(parentLiteralNodes, literals);
-    const parentClasses = parentLiterals ? getClassesFromLiteralNodes(parentLiterals) : [];
-
-    return parentClasses;
-  } catch {
-    return [];
-  }
-}
-
-function getLiteralsFromParentLiteralNodes(parentLiteralNodes: ESNode[], literals: Literal[]) {
-  return parentLiteralNodes.map(parentLiteralNode => {
-    return literals.find(literal => literal.range === parentLiteralNode.range);
-  });
-}
-
-function getClassesFromLiteralNodes(literals: (Literal | undefined)[]) {
+function getClassesFromLiteralNodes(literals: Literal[]) {
   return literals.reduce<string[]>((combinedClasses, literal) => {
     if(!literal){ return combinedClasses; }
 

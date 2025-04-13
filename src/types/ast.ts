@@ -48,8 +48,8 @@ interface NodeBase extends Range, Loc {
 
 interface LiteralBase extends NodeBase, MultilineMeta, QuoteMeta, BracesMeta, WhitespaceMeta, Indentation, Range, Loc {
   content: string;
-  parentClasses: string[];
   raw: string;
+  priorLiterals?: Literal[];
 }
 
 export interface TemplateLiteral extends LiteralBase {

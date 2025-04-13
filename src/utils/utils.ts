@@ -7,7 +7,7 @@ import {
 
 import type { Rule } from "eslint";
 
-import type { Literal, QuoteMeta } from "readable-tailwind:types:ast.js";
+import type { BracesMeta, Literal, QuoteMeta } from "readable-tailwind:types:ast.js";
 
 
 export function getCommonOptions(ctx: Rule.RuleContext) {
@@ -49,6 +49,13 @@ export function getQuotes(raw: string): QuoteMeta {
   };
 }
 
+export function getContent(raw: string, quotes?: QuoteMeta, braces?: BracesMeta) {
+  return raw.substring(
+    (quotes?.openingQuote?.length ?? 0) + (braces?.closingBraces?.length ?? 0),
+    raw.length - (quotes?.closingQuote?.length ?? 0) - (braces?.openingBraces?.length ?? 0)
+  );
+}
+
 export function splitClasses(classes: string): string[] {
   if(classes.trim() === ""){
     return [];
@@ -65,6 +72,26 @@ export function display(classes: string): string {
     .replaceAll("\n", "↵\n")
     .replaceAll("\r", "↩\r")
     .replaceAll("\t", "→");
+}
+
+export interface Warning<Options extends Record<string, any> = Record<string, any>> {
+  option: keyof Options;
+  title: string;
+  url: string;
+}
+
+export function augmentMessageWithWarnings(message: string, warnings?: Warning[]) {
+  if(!warnings || warnings.length === 0){
+    return message;
+  }
+
+  return [
+    warnings.flatMap(({ option, title, url }) => [
+      `⚠️ Warning: ${title}. Option \`${option}\` may be misconfigured.`,
+      `Check documentation at ${url}`
+    ]).join("\n"),
+    message
+  ].join("\n\n");
 }
 
 export function splitWhitespaces(classes: string): string[] {

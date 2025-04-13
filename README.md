@@ -106,8 +106,25 @@ npm i -D eslint-plugin-readable-tailwind
 
 ## Quick start
 
-1. Follow the [Parsers](#parsers) section below to learn how to configure the plugin for your specific requirements.
-1. Read the [Rules](#rules) section to learn about the available rules and how to configure them.
+1. Follow the [parsers](#parsers) section below to learn how to configure the plugin for your specific requirements.
+
+1. Configure the plugin to be able to read your tailwind configuration via [settings](docs/settings/settings.md) or for each [rule](#rules) separately.
+
+    ```jsonc
+    // eslint.config.js
+    {
+      //...
+      "settings": {
+        "readable-tailwind": {
+          // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
+          "entryPoint": "src/global.css",
+          // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
+          "tailwindConfig": "tailwind.config.js"
+        }
+      }
+    }
+    ```
+
 1. Configure your editor to conveniently [auto-fix on save](#auto-fix-on-save).
 
 <br/>

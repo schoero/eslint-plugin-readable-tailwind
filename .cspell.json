@@ -23,6 +23,7 @@
     "estree",
     "jiti",
     "linebreak",
+    "linebreakstyle",
     "objstr",
     "OBJSTR",
     "quasis",

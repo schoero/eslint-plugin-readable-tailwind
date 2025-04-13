@@ -13,7 +13,13 @@ import {
 } from "readable-tailwind:options:descriptions.js";
 import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
 import { createRuleListener } from "readable-tailwind:utils:rule.js";
-import { display, getCommonOptions, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
+import {
+  augmentMessageWithWarnings,
+  display,
+  getCommonOptions,
+  splitClasses,
+  splitWhitespaces
+} from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 
@@ -25,6 +31,7 @@ import type {
   TagOption,
   VariableOption
 } from "readable-tailwind:types:rule.js";
+import type { Warning } from "readable-tailwind:utils:utils.js";
 
 
 export type Options = [
@@ -49,6 +56,8 @@ const defaultOptions = {
   variables: DEFAULT_VARIABLE_NAMES
 } as const satisfies Options[0];
 
+const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/sort-classes.md";
+
 export const tailwindSortClasses: ESLintRule<Options> = {
   name: "sort-classes" as const,
   rule: {
@@ -58,7 +67,7 @@ export const tailwindSortClasses: ESLintRule<Options> = {
         category: "Stylistic Issues",
         description: "Enforce a consistent order for tailwind classes.",
         recommended: true,
-        url: "https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/sort-classes.md"
+        url: DOCUMENTATION_URL
       },
       fixable: "code",
       schema: [
@@ -116,7 +125,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       unsortableClasses[1] = classChunks.pop() ?? "";
     }
 
-    const sortedClassChunks = sortClasses(ctx, classChunks);
+    const [sortedClassChunks, warnings] = sortClasses(ctx, classChunks);
 
     const classes: string[] = [];
 
@@ -156,25 +165,29 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         return fixer.replaceTextRange(literal.range, fixedClasses);
       },
       loc: literal.loc,
-      message: "Incorrect class order. Expected\n\n{{ notSorted }}\n\nto be\n\n{{ sorted }}"
+      message: augmentMessageWithWarnings("Incorrect class order. Expected\n\n{{ notSorted }}\n\nto be\n\n{{ sorted }}", warnings)
     });
 
   }
 }
 
-function sortClasses(ctx: Rule.RuleContext, classes: string[]): string[] {
+function sortClasses(ctx: Rule.RuleContext, classes: string[]): [classes: string[], warnings?: Warning[]] {
 
   const { order, tailwindConfig } = getOptions(ctx);
 
   if(order === "asc"){
-    return classes.toSorted((a, b) => a.localeCompare(b));
+    return [classes.toSorted((a, b) => a.localeCompare(b))];
   }
 
   if(order === "desc"){
-    return classes.toSorted((a, b) => b.localeCompare(a));
+    return [classes.toSorted((a, b) => b.localeCompare(a))];
   }
 
-  const officiallySortedClasses = getClassOrder({ classes, configPath: tailwindConfig, cwd: ctx.cwd })
+  const [classOrder, warnings] = getClassOrder({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
+
+  const sortClassesWarnings = warnings.map(warning => ({ ...warning, url: DOCUMENTATION_URL }));
+
+  const officiallySortedClasses = classOrder
     .toSorted(([, a], [, z]) => {
       if(a === z){ return 0; }
       if(a === null){ return -1; }
@@ -184,7 +197,7 @@ function sortClasses(ctx: Rule.RuleContext, classes: string[]): string[] {
     .map(([className]) => className);
 
   if(order === "official"){
-    return officiallySortedClasses;
+    return [officiallySortedClasses, sortClassesWarnings];
   }
 
   const groupedByVariant = new Map<string, string[]>();
@@ -194,7 +207,7 @@ function sortClasses(ctx: Rule.RuleContext, classes: string[]): string[] {
     groupedByVariant.set(variant, [...groupedByVariant.get(variant) ?? [], className]);
   }
 
-  return Array.from(groupedByVariant.values()).flat();
+  return [Array.from(groupedByVariant.values()).flat(), sortClassesWarnings];
 
 }
 

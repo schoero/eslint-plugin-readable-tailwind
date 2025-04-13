@@ -20,6 +20,7 @@ import {
 } from "readable-tailwind:utils:matchers.js";
 import {
   deduplicateLiterals,
+  getContent,
   getIndentation,
   getQuotes,
   getWhitespace,
@@ -131,11 +132,11 @@ function getLiteralsBySvelteESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNod
 
 function getStringLiteralBySvelteStringLiteral(ctx: Rule.RuleContext, node: SvelteLiteral): StringLiteral | undefined {
 
-  const content = node.value;
   const raw = ctx.sourceCode.getText(node as unknown as ESNode, 1, 1);
   const line = ctx.sourceCode.lines[node.loc.start.line - 1];
 
   const quotes = getQuotes(raw);
+  const content = getContent(raw, quotes);
   const whitespaces = getWhitespace(content);
   const indentation = getIndentation(line);
   const multilineQuotes = getMultilineQuotes(node);
