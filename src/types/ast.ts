@@ -48,6 +48,7 @@ interface LiteralBase extends NodeBase, Meta, Range, Loc {
   content: string;
   node: Node;
   raw: string;
+  priorLiterals?: Literal[];
 }
 
 export interface TemplateLiteral extends LiteralBase, Node {

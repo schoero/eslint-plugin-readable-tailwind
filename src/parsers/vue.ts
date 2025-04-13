@@ -17,7 +17,13 @@ import {
   matchesPathPattern
 } from "readable-tailwind:utils:matchers.js";
 import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex.js";
-import { deduplicateLiterals, getQuotes, getWhitespace, matchesName } from "readable-tailwind:utils:utils.js";
+import {
+  deduplicateLiterals,
+  getContent,
+  getQuotes,
+  getWhitespace,
+  matchesName
+} from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
@@ -87,14 +93,9 @@ function getLiteralsByVueMatchers(ctx: Rule.RuleContext, node: ESBaseNode, match
 function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLiteral): StringLiteral {
 
   const raw = ctx.sourceCode.getText(node as unknown as ESNode);
+
   const quotes = getQuotes(raw);
-
-  // #81: node.value converts \r\n to \n
-  const content = raw.substring(
-    quotes.openingQuote?.length ?? 0,
-    raw.length - (quotes.closingQuote?.length ?? 0)
-  );
-
+  const content = getContent(raw, quotes);
   const whitespaces = getWhitespace(content);
 
   return {
@@ -104,11 +105,24 @@ function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLi
     loc: node.loc,
     node: node as unknown as Node,
     parent: node.parent as unknown as Node,
+    priorLiterals: [],
     range: [node.range[0], node.range[1]],
     raw,
     type: "StringLiteral"
   };
 
+}
+
+function overrideLiteralContent(literal: Literal, content: string): Literal {
+  // #81: node.value converts \r\n to \n
+  return {
+    ...literal,
+    content: literal.raw.substring(
+      (literal.openingQuote?.length ?? 0) + (literal.closingBraces?.length ?? 0),
+      literal.raw.length - (literal.closingQuote?.length ?? 0) - (literal.openingBraces?.length ?? 0)
+    ),
+    priorLiterals: literal.priorLiterals?.map(literal => overrideLiteralContent(literal, content))
+  };
 }
 
 function getVueBoundName(name: string): string {
