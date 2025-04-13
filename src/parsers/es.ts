@@ -15,13 +15,14 @@ import {
   isVariableRegex,
   matchesPathPattern
 } from "readable-tailwind:utils:matchers.js";
-import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex.js";
+import { getLiteralsByNodeAndRegex } from "readable-tailwind:utils:regex.js";
 import {
   deduplicateLiterals,
   getIndentation,
   getQuotes,
   getWhitespace,
-  matchesName
+  matchesName,
+  splitClasses
 } from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
@@ -44,11 +45,17 @@ import type {
   Literal,
   LiteralValueQuotes,
   MultilineMeta,
-  Node,
   StringLiteral,
   TemplateLiteral
 } from "readable-tailwind:types:ast.js";
-import type { Callees, Matcher, MatcherFunctions, Tags, Variables } from "readable-tailwind:types:rule.js";
+import type {
+  Callees,
+  Matcher,
+  MatcherFunctions,
+  RegexConfig,
+  Tags,
+  Variables
+} from "readable-tailwind:types:rule.js";
 
 
 export function getLiteralsByESVariableDeclarator(ctx: Rule.RuleContext, node: ESVariableDeclarator, variables: Variables): Literal[] {
@@ -146,30 +153,36 @@ export function getLiteralsByESMatchers(ctx: Rule.RuleContext, node: ESBaseNode,
   return deduplicateLiterals(literals);
 }
 
-export function getLiteralNodesByRegex(ctx: Rule.RuleContext, node: ESNode, regex: RegExp): ESNode[] {
+export function getLiteralsByESNodeAndRegex(
+  ctx: Rule.RuleContext,
+  node: ESBaseNode,
+  regex: RegexConfig
+): Literal[] {
+  if(!hasESNodeParentExtension(node)){ return []; }
 
-  const sourceCode = ctx.sourceCode.getText(node);
+  return getLiteralsByNodeAndRegex(
+    ctx,
+    node,
+    regex,
+    {
+      getLiteralsByMatchingNode: (node: unknown) => {
+        if(!isESNode(node)){ return; }
 
-  const matchedNodes: ESNode[] = [];
+        if(isESSimpleStringLiteral(node)){
+          const literal = getStringLiteralByESStringLiteral(ctx, node);
+          return literal ? [literal] : [];
+        }
 
-  const matches = sourceCode.matchAll(regex);
-
-  for(const groups of matches){
-    if(!groups.indices || groups.indices.length < 2){ continue; }
-
-    for(const [startIndex] of groups.indices.slice(1)){
-
-      const literalNode = ctx.sourceCode.getNodeByRangeIndex((node.range?.[0] ?? 0) + startIndex);
-
-      if(!literalNode){ continue; }
-
-      matchedNodes.push(literalNode);
-
+        if(isESTemplateElement(node) && hasESNodeParentExtension(node)){
+          const templateLiteralNode = findParentESTemplateLiteralByESTemplateElement(node);
+          return templateLiteralNode && getLiteralsByESTemplateLiteral(ctx, templateLiteralNode);
+        }
+      },
+      getNodeByRangeStart: (start: number) => ctx.sourceCode.getNodeByRangeIndex(start),
+      getNodeRange: node => isESNode(node) ? [node.range?.[0], node.range?.[1]] : undefined,
+      getNodeSourceCode: node => isESNode(node) ? ctx.sourceCode.getText(node) : undefined
     }
-  }
-
-  return matchedNodes;
-
+  );
 }
 
 export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: ESSimpleStringLiteral): StringLiteral | undefined {
@@ -196,8 +209,6 @@ export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: E
     content,
     indentation,
     loc: node.loc,
-    node: node as unknown as Node,
-    parent: node.parent as Node,
     range: node.range,
     raw,
     supportsMultiline,
@@ -231,8 +242,6 @@ function getLiteralByESTemplateElement(ctx: Rule.RuleContext, node: ESTemplateEl
     content,
     indentation,
     loc: node.loc,
-    node: node as unknown as Node,
-    parent: node.parent as Node,
     range: node.range,
     raw,
     supportsMultiline: true,
@@ -292,6 +301,82 @@ export function findParentESTemplateLiteralByESTemplateElement(node: ESNode & Pa
   return findParentESTemplateLiteralByESTemplateElement(node.parent);
 }
 
+function findParentLiteralNodes(node: ESNode) {
+
+  if(!hasESNodeParentExtension(node)){ return; }
+
+  const parentLiterals: ESNode[] = [];
+  let currentNode: ESNode = node;
+
+  while(hasESNodeParentExtension(currentNode)){
+    const parent = currentNode.parent;
+
+    if(isESCallExpression(parent)){ break; }
+    if(isESVariableDeclarator(parent)){ break; }
+
+    if(parent.type === "TemplateLiteral"){
+      for(const quasi of parent.quasis){
+        if(quasi.range === node.range){
+          break;
+        }
+
+        if(quasi.type === "TemplateElement"){
+          parentLiterals.push(quasi);
+        }
+      }
+    }
+
+    if(
+      parent.type === "TemplateElement" ||
+      parent.type === "Literal"
+    ){
+      parentLiterals.push(parent);
+    }
+
+    currentNode = parent;
+
+  }
+
+  return parentLiterals;
+
+}
+
+function getParentClasses(ctx: Rule.RuleContext, literal: Literal, literals: Literal[]) {
+  try {
+    const esNode = ctx.sourceCode.getNodeByRangeIndex(literal.range[0]);
+    const parentLiteralNodes = esNode && findParentLiteralNodes(esNode);
+    const parentLiterals = parentLiteralNodes && getLiteralsFromParentLiteralNodes(parentLiteralNodes, literals);
+    const parentClasses = parentLiterals ? getClassesFromLiteralNodes(parentLiterals) : [];
+
+    return parentClasses;
+  } catch {
+    return [];
+  }
+}
+
+function getLiteralsFromParentLiteralNodes(parentLiteralNodes: ESNode[], literals: Literal[]) {
+  return parentLiteralNodes.map(parentLiteralNode => {
+    return literals.find(literal => literal.range === parentLiteralNode.range);
+  });
+}
+
+function getClassesFromLiteralNodes(literals: (Literal | undefined)[]) {
+  return literals.reduce<string[]>((combinedClasses, literal) => {
+    if(!literal){ return combinedClasses; }
+
+    const classes = literal.content;
+    const split = splitClasses(classes);
+
+    for(const className of split){
+      if(!combinedClasses.includes(className)){
+        combinedClasses.push(className);
+      }
+    }
+
+    return combinedClasses;
+
+  }, []);
+}
 
 export function getESObjectPath(node: ESNode & Partial<Rule.NodeParentExtension>): string | undefined {
 
@@ -363,12 +448,11 @@ function createObjectPathElement(path?: string): string {
     : `["${path}"]`;
 }
 
-
 export interface ESSimpleStringLiteral extends Rule.NodeParentExtension, ESSimpleLiteral {
   value: string;
 }
 
-export function isESObjectKey(node: ESBaseNode & Rule.NodeParentExtension | Node) {
+export function isESObjectKey(node: ESBaseNode & Rule.NodeParentExtension) {
   return (
     node.parent.type === "Property" &&
     node.parent.parent.type === "ObjectExpression" &&
@@ -506,12 +590,12 @@ function getESMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESNode> {
           if(!hasESNodeParentExtension(node)){ return false; }
           if(isESObjectKey(node)){ return false; }
 
+          if(!isInsideObjectValue(node)){ return false; }
+          if(!isESStringLike(node)){ return false; }
+
           const path = getESObjectPath(node);
-          const matchesPattern = path !== undefined &&
-            matcher.pathPattern
-            ? matchesPathPattern(path, matcher.pathPattern)
-            : true;
-          return isInsideObjectValue(node) && isESStringLike(node) && matchesPattern;
+
+          return path && matcher.pathPattern ? matchesPathPattern(path, matcher.pathPattern) : true;
         });
         break;
       }

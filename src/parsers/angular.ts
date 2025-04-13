@@ -3,7 +3,8 @@ import {
   getLiteralNodesByMatchers,
   isAttributesMatchers,
   isAttributesName,
-  isAttributesRegex
+  isAttributesRegex,
+  matchesPathPattern
 } from "readable-tailwind:utils:matchers.js";
 import {
   deduplicateLiterals,
@@ -35,13 +36,15 @@ import type {
 import type { Rule } from "eslint";
 import type { SourceLocation } from "estree";
 
-import type { BracesMeta, Literal } from "readable-tailwind:types:ast.js";
+import type { BracesMeta, Literal, LiteralValueQuotes } from "readable-tailwind:types:ast.js";
 import type { Attributes, Matcher, MatcherFunctions } from "readable-tailwind:types:rule.js";
 
 // https://angular.dev/api/common/NgClass
 // https://angular.dev/guide/templates/binding#css-class-and-style-property-bindings
 
-// /Users/schoero/testing/angular-tailwind-demo/src/app/child/child.component.ts/1_inline-template-child.component.ts-1.component.html
+// TODO:
+// - Implement regex
+// - Add object keys
 
 export function getAttributesByAngularElement(ctx: Rule.RuleContext, node: TmplAstElement): (TmplAstBoundAttribute | TmplAstTextAttribute)[] {
   return [
@@ -58,7 +61,6 @@ export function getLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: 
     } else if(isAttributesRegex(attributes)){
       // console.warn("Regex not supported for now");
     } else if(isAttributesMatchers(attributes)){
-      // console.log(attribute.name, attribute.keySpan?.toString(), getAttributeName(attribute).toLowerCase(), attributes[0].toLowerCase(), matchesName(attributes[0].toLowerCase(), getAttributeName(attribute).toLowerCase()));
       if(!matchesName(attributes[0].toLowerCase(), getAttributeName(attribute).toLowerCase())){ return literals; }
       if(isTextAttribute(attribute)){
         literals.push(...createLiteralsByAngularTextAttribute(ctx, attribute));
@@ -70,23 +72,6 @@ export function getLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: 
 
     return literals;
   }, []);
-  return deduplicateLiterals(literals);
-}
-
-function createLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: TmplAstBoundAttribute | TmplAstTextAttribute): Literal[] {
-  if(isTextAttribute(attribute)){
-    return createLiteralsByAngularTextAttribute(ctx, attribute);
-  }
-  if(isBoundAttribute(attribute) && isASTWithSource(attribute.value) && isLiteralPrimitive(attribute.value.ast)){
-    return createLiteralsByAngularAst(ctx, attribute.value.ast);
-  }
-  return [];
-}
-
-function getLiteralsByAngularMatchers(ctx: Rule.RuleContext, ast: AST, matchers: Matcher[]): Literal[] {
-  const matcherFunctions = getAngularMatcherFunctions(ctx, matchers);
-  const matchingAstNodes = getLiteralNodesByMatchers(ctx, ast, matcherFunctions, value => isAST(value) && isCallExpression(value));
-  const literals = matchingAstNodes.flatMap(ast => createLiteralsByAngularAst(ctx, ast));
   return deduplicateLiterals(literals);
 }
 
@@ -132,11 +117,21 @@ function createLiteralsByAngularConditional(ctx: Rule.RuleContext, conditional: 
   return literals;
 }
 
-function astMatches(ast: AST, matcherFunctions: MatcherFunctions<AST>): boolean {
-  for(const matcherFunction of matcherFunctions){
-    if(matcherFunction(ast)){ return true; }
+function createLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: TmplAstBoundAttribute | TmplAstTextAttribute): Literal[] {
+  if(isTextAttribute(attribute)){
+    return createLiteralsByAngularTextAttribute(ctx, attribute);
   }
-  return false;
+  if(isBoundAttribute(attribute) && isASTWithSource(attribute.value) && isLiteralPrimitive(attribute.value.ast)){
+    return createLiteralsByAngularAst(ctx, attribute.value.ast);
+  }
+  return [];
+}
+
+function getLiteralsByAngularMatchers(ctx: Rule.RuleContext, ast: AST, matchers: Matcher[]): Literal[] {
+  const matcherFunctions = getAngularMatcherFunctions(ctx, matchers);
+  const matchingAstNodes = getLiteralNodesByMatchers(ctx, ast, matcherFunctions, value => isAST(value) && isCallExpression(value));
+  const literals = matchingAstNodes.flatMap(ast => createLiteralsByAngularAst(ctx, ast));
+  return deduplicateLiterals(literals);
 }
 
 function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: Matcher[]): MatcherFunctions<AST> {
@@ -162,11 +157,29 @@ function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: Matcher[]):
         break;
       }
       case MatcherType.ObjectKey: {
-        matcherFunctions.push((ast): ast is AST => isAST(ast) && isObjectKey(ast));
+        matcherFunctions.push((ast): ast is AST => {
+          if(!isAST(ast)){ return false;}
+          if(!isObjectKey(ast)){ return false; }
+
+          // objects inside angular templates can not be nested
+          const path = ast.key;
+          return path && matcher.pathPattern ? matchesPathPattern(path, matcher.pathPattern) : true;
+        });
         break;
       }
       case MatcherType.ObjectValue: {
-        matcherFunctions.push((ast): ast is AST => isAST(ast) && isObjectValue(ast));
+        matcherFunctions.push((ast): ast is AST => {
+          if(!isAST(ast)){ return false;}
+          if(!isObjectValue(ast)){ return false;}
+          if(!hasParent(ast)){ return false;}
+          if(!isLiteralMap(ast.parent)){ return false;}
+
+          const index = ast.parent.values.indexOf(ast);
+          const objectKey = ast.parent.keys[index];
+
+          const path = objectKey.key;
+          return path && matcher.pathPattern ? matchesPathPattern(path, matcher.pathPattern) : true;
+        });
         break;
       }
     }
@@ -219,10 +232,6 @@ function createLiteralByLiteralMapKey(ctx: Rule.RuleContext, key: LiteralMapKey)
     content: keyContent,
     indentation,
     loc,
-    // @ts-expect-error - Missing in types
-    node: key,
-    // @ts-expect-error - Missing in types
-    parent: literalMap,
     range,
     raw,
     supportsMultiline: false,
@@ -246,6 +255,8 @@ function createLiteralsByAngularTextAttribute(ctx: Rule.RuleContext, attribute: 
   const loc = convertParseSourceSpanToLoc(attribute.valueSpan);
   const line = ctx.sourceCode.lines[loc.start.line - 1];
   const indentation = getIndentation(line);
+  const supportsMultiline = getMultilineSupport(ctx);
+  const multilineQuotes: LiteralValueQuotes[] = ["'", "\""];
 
   return [{
     ...quotes,
@@ -253,13 +264,10 @@ function createLiteralsByAngularTextAttribute(ctx: Rule.RuleContext, attribute: 
     content,
     indentation,
     loc,
-    // @ts-expect-error - Missing in types
-    node: attribute,
-    // @ts-expect-error - Missing in types
-    parent: attribute.parent,
+    multilineQuotes,
     range,
     raw,
-    supportsMultiline: true,
+    supportsMultiline,
     type: "StringLiteral"
   }];
 }
@@ -277,10 +285,11 @@ function createLiteralByAngularLiteralPrimitive(ctx: Rule.RuleContext, literal: 
   const raw = ctx.sourceCode.text.slice(...range);
   const quotes = getQuotes(raw);
   const whitespaces = getWhitespace(content);
-  // The angular template parser does not reliably provide valid loc properties.
   const loc = getLocByRange(ctx, range);
   const line = ctx.sourceCode.lines[loc.start.line - 1];
   const indentation = getIndentation(line);
+  const supportsMultiline = getMultilineSupport(ctx);
+  const multilineQuotes: LiteralValueQuotes[] = supportsMultiline ? ["'", "\"", "`"] : ["'", "\""];
 
   return [{
     ...quotes,
@@ -288,13 +297,10 @@ function createLiteralByAngularLiteralPrimitive(ctx: Rule.RuleContext, literal: 
     content,
     indentation,
     loc,
-    // @ts-expect-error - Missing in types
-    node: literal,
-    // @ts-expect-error - Missing in types
-    parent: literal.parent,
+    multilineQuotes,
     range,
     raw,
-    supportsMultiline: true,
+    supportsMultiline,
     type: "StringLiteral"
   }];
 }
@@ -308,7 +314,7 @@ function createLiteralByAngularTemplateLiteralElement(ctx: Rule.RuleContext, lit
 
   const braces = getBraces(literal);
   const start = literal.sourceSpan.start - (braces.closingBraces?.length ?? 0);
-  const end = literal.sourceSpan.start + content.length + 1 + (braces.openingBraces?.length ?? 0);
+  const end = literal.sourceSpan.end + (braces.openingBraces?.length ?? 0);
   const range = [start, end] satisfies [number, number];
   const raw = ctx.sourceCode.text.slice(...range);
   const quotes = getQuotes(raw);
@@ -322,6 +328,8 @@ function createLiteralByAngularTemplateLiteralElement(ctx: Rule.RuleContext, lit
   const parentLoc = getLocByRange(ctx, parentRange);
   const parentLine = ctx.sourceCode.lines[parentLoc.start.line - 1];
   const indentation = getIndentation(parentLine);
+  const supportsMultiline = getMultilineSupport(ctx);
+  const multilineQuotes: LiteralValueQuotes[] = supportsMultiline ? ["'", "\"", "`"] : ["'", "\""];
 
   return [{
     ...quotes,
@@ -330,13 +338,10 @@ function createLiteralByAngularTemplateLiteralElement(ctx: Rule.RuleContext, lit
     content,
     indentation,
     loc,
-    // @ts-expect-error - Missing in types
-    node: literal,
-    // @ts-expect-error - Missing in types
-    parent: literal.parent,
+    multilineQuotes,
     range,
     raw,
-    supportsMultiline: true,
+    supportsMultiline,
     type: "TemplateLiteral"
   }];
 }
@@ -345,39 +350,11 @@ function getLocByRange(ctx: Rule.RuleContext, range: [number, number]): SourceLo
   const [rangeStart, rangeEnd] = range;
 
   const loc: SourceLocation = {
-    end: {
-      column: 0,
-      line: 0
-    },
-    start: {
-      column: 0,
-      line: 0
-    }
+    end: ctx.sourceCode.getLocFromIndex(rangeEnd),
+    start: ctx.sourceCode.getLocFromIndex(rangeStart)
   };
 
-  for(let consumed = 0, line = 0; line < ctx.sourceCode.lines.length; line++){
-    const currentLine = ctx.sourceCode.lines[line];
-
-    const lineLength = currentLine.length;
-    const lineEnd = consumed + lineLength;
-    const hasReachedStart = lineEnd >= rangeStart;
-    const hasReachedEnd = lineEnd >= rangeEnd;
-
-    if(hasReachedStart && loc.start.line === 0 && loc.start.column === 0){
-      loc.start.line = line + 1;
-      loc.start.column = rangeStart - consumed;
-    }
-    if(hasReachedEnd && loc.end.line === 0 && loc.end.column === 0){
-      loc.end.line = line + 1;
-      loc.end.column = rangeEnd - consumed;
-      break;
-    }
-
-    consumed += lineLength + 1;
-  }
-
   return loc;
-
 }
 
 function convertParseSourceSpanToLoc(sourceSpan: ParseSourceSpan): SourceLocation {
@@ -391,6 +368,23 @@ function convertParseSourceSpanToLoc(sourceSpan: ParseSourceSpan): SourceLocatio
       line: sourceSpan.fullStart.line + 1
     }
   };
+}
+
+function getMultilineSupport(ctx: Rule.RuleContext) {
+  return !isInsideInlineTemplate(ctx);
+}
+
+function isInsideInlineTemplate(ctx: Rule.RuleContext) {
+  return getInlineTemplateComponentIndex(ctx) !== undefined;
+}
+
+function getInlineTemplateComponentIndex(ctx: Rule.RuleContext) {
+  const matches = ctx.filename.match(/^.*_inline-template-[\w.-]+-(\d+)\.component\.html$/);
+
+  if(matches){
+    const [, index] = matches;
+    return +index;
+  }
 }
 
 function getBraces(literal: TemplateLiteralElement): BracesMeta {
@@ -447,7 +441,7 @@ export function isInsideLogicalExpressionLeft(ctx: Rule.RuleContext, ast: AST): 
   return isInsideConditionalExpressionCondition(ctx, parent);
 }
 
-export function hasParent(ast: AST): ast is AST & Parent {
+function hasParent(ast: AST): ast is AST & Parent {
   return "parent" in ast && ast.parent !== undefined;
 }
 
@@ -517,6 +511,7 @@ const isConditional = (ast: AST) => is<Conditional>(ast, "Conditional");
 const isBinary = (ast: AST) => is<Binary>(ast, "Binary");
 const isLiteralArray = (ast: AST) => is<LiteralArray>(ast, "LiteralArray");
 const isLiteralMap = (ast: AST) => is<LiteralMap>(ast, "LiteralMap");
+const isTemplateLiteral = (ast: AST) => is<TemplateLiteral>(ast, "TemplateLiteral");
 const isTemplateLiteralElement = (ast: AST) => is<TemplateLiteralElement>(ast, "TemplateLiteralElement");
 const isLiteralPrimitive = (ast: AST) => is<LiteralPrimitive>(ast, "LiteralPrimitive");
 

@@ -441,25 +441,4 @@ describe("angular", () => {
 
   });
 
-  describe("isInsideDecoratorTemplate", () => {
-    it.skip("should escape template literals inside angular templates", () => {
-      const angularComponent = `
-        @Component({
-          selector: 'angular-component',
-          template: \`<img class={{"a b c d"}} />\`
-        })
-        export class AngularComponent {}
-      `;
-
-      lint(tailwindSortClasses, TEST_SYNTAXES, {
-        valid: [
-          {
-            angular: angularComponent,
-            options: [{ order: "asc" }]
-          }
-        ]
-      });
-    });
-  });
-
 });

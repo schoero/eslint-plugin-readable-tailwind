@@ -4,6 +4,7 @@ import {
   isESNode,
   isESVariableDeclarator
 } from "readable-tailwind:parsers:es.js";
+import { isGenericNodeWithParent } from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { Node as ESNode } from "estree";
@@ -28,11 +29,8 @@ import type {
   VariableRegex,
   Variables
 } from "readable-tailwind:types:rule.js";
+import type { GenericNodeWithParent } from "readable-tailwind:utils:utils.js";
 
-
-interface GenericNodeWithParent {
-  parent: GenericNodeWithParent;
-}
 
 export function getLiteralNodesByMatchers<Node>(ctx: Rule.RuleContext, node: unknown, matcherFunctions: MatcherFunctions<Node>, deadEnd?: (node: unknown) => boolean): Node[] {
   if(!isGenericNodeWithParent(node)){ return []; }
@@ -88,17 +86,6 @@ function isChildNodeOfNode(node: ESNode & Partial<Rule.NodeParentExtension>, par
   if(node.parent === parent){ return true; }
   return isChildNodeOfNode(node.parent, parent);
 }
-
-function isGenericNodeWithParent(node: unknown): node is GenericNodeWithParent {
-  return (
-    typeof node === "object" &&
-    node !== null &&
-    "parent" in node &&
-    node.parent !== null &&
-    typeof node.parent === "object"
-  );
-}
-
 export function matchesPathPattern(path: string, pattern: Regex): boolean {
   const regex = new RegExp(pattern);
   return regex.test(path);

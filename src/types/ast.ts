@@ -46,21 +46,17 @@ interface NodeBase extends Range, Loc {
   type: string;
 }
 
-export interface Node extends NodeBase {
-  parent: Node;
-}
-
 interface LiteralBase extends NodeBase, MultilineMeta, QuoteMeta, BracesMeta, WhitespaceMeta, Indentation, Range, Loc {
   content: string;
-  node: Node;
+  parentClasses: string[];
   raw: string;
 }
 
-export interface TemplateLiteral extends LiteralBase, Node {
+export interface TemplateLiteral extends LiteralBase {
   type: "TemplateLiteral";
 }
 
-export interface StringLiteral extends LiteralBase, Node {
+export interface StringLiteral extends LiteralBase {
   type: "StringLiteral";
 }
 

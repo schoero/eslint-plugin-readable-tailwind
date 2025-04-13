@@ -1,6 +1,7 @@
 import {
   getESObjectPath,
   getLiteralsByESLiteralNode,
+  getLiteralsByESNodeAndRegex,
   hasESNodeParentExtension,
   isESNode,
   isESObjectKey,
@@ -17,7 +18,6 @@ import {
   isInsideLogicalExpressionLeft,
   matchesPathPattern
 } from "readable-tailwind:utils:matchers.js";
-import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex.js";
 import {
   deduplicateLiterals,
   getIndentation,
@@ -30,7 +30,7 @@ import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
 import type { AST } from "vue-eslint-parser";
 
-import type { Literal, LiteralValueQuotes, MultilineMeta, Node, StringLiteral } from "readable-tailwind:types:ast.js";
+import type { Literal, LiteralValueQuotes, MultilineMeta, StringLiteral } from "readable-tailwind:types:ast.js";
 import type { Attributes, Matcher, MatcherFunctions } from "readable-tailwind:types:rule.js";
 
 
@@ -119,8 +119,6 @@ function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLi
     content,
     indentation,
     loc: node.loc,
-    node: node as unknown as Node,
-    parent: node.parent as unknown as Node,
     range: [node.range[0], node.range[1]],
     raw,
     supportsMultiline: true,
@@ -213,12 +211,12 @@ function getVueMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBaseNod
           if(!hasESNodeParentExtension(node)){ return false; }
           if(isESObjectKey(node)){ return false; }
 
+          if(!isInsideObjectValue(node)){ return false; }
+          if(!isESStringLike(node) && !isVueLiteralNode(node)){ return false; }
+
           const path = getESObjectPath(node);
-          const matchesPattern = path !== undefined &&
-            matcher.pathPattern
-            ? matchesPathPattern(path, matcher.pathPattern)
-            : true;
-          return isInsideObjectValue(node) && isESStringLike(node) && matchesPattern;
+
+          return path && matcher.pathPattern ? matchesPathPattern(path, matcher.pathPattern) : true;
         });
         break;
       }
