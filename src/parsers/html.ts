@@ -1,5 +1,5 @@
 import { isAttributesMatchers, isAttributesName, isAttributesRegex } from "readable-tailwind:utils:matchers.js";
-import { deduplicateLiterals, getIndentation, getContent, matchesName } from "readable-tailwind:utils:utils.js";
+import { deduplicateLiterals, getContent, getIndentation, matchesName } from "readable-tailwind:utils:utils.js";
 
 import type { AttributeNode, TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
