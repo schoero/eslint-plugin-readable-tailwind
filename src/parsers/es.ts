@@ -176,6 +176,7 @@ export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: E
 
   const quotes = getQuotes(raw);
   const whitespaces = getWhitespace(content);
+  const priorLiterals = findPriorLiterals(ctx, node);
 
   return {
     ...quotes,
@@ -184,6 +185,7 @@ export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: E
     loc: node.loc,
     node: node as unknown as Node,
     parent: node.parent as Node,
+    priorLiterals,
     range: node.range,
     raw,
     type: "StringLiteral"
@@ -203,6 +205,7 @@ function getLiteralByESTemplateElement(ctx: Rule.RuleContext, node: ESTemplateEl
   const quotes = getQuotes(raw);
   const whitespaces = getWhitespace(content);
   const braces = getBracesByString(ctx, raw);
+  const priorLiterals = findPriorLiterals(ctx, node);
 
   return {
     ...whitespaces,
@@ -212,6 +215,7 @@ function getLiteralByESTemplateElement(ctx: Rule.RuleContext, node: ESTemplateEl
     loc: node.loc,
     node: node as unknown as Node,
     parent: node.parent as Node,
+    priorLiterals,
     range: node.range,
     raw,
     type: "TemplateLiteral"
@@ -241,6 +245,65 @@ export function findParentESTemplateLiteralByESTemplateElement(node: ESNode & Pa
   if(!hasESNodeParentExtension(node)){ return; }
   if(node.parent.type === "TemplateLiteral"){ return node.parent; }
   return findParentESTemplateLiteralByESTemplateElement(node.parent);
+}
+
+function findPriorLiterals(ctx: Rule.RuleContext, node: ESNode) {
+
+  if(!hasESNodeParentExtension(node)){ return; }
+
+  const priorLiterals: Literal[] = [];
+  let currentNode: ESNode = node;
+
+  while(hasESNodeParentExtension(currentNode)){
+    const parent = currentNode.parent;
+
+    if(isESCallExpression(parent)){ break; }
+    if(isESVariableDeclarator(parent)){ break; }
+
+    if(parent.type === "TemplateLiteral"){
+      for(const quasi of parent.quasis){
+        if(quasi.range === node.range){
+          break;
+        }
+
+        if(quasi.type === "TemplateElement" && hasESNodeParentExtension(quasi)){
+          const literal = getLiteralByESTemplateElement(ctx, quasi);
+
+          if(!literal){
+            continue;
+          }
+
+          priorLiterals.push(literal);
+        }
+      }
+    }
+
+    if(parent.type === "TemplateElement"){
+      const literal = getLiteralByESTemplateElement(ctx, parent);
+
+      if(!literal){
+        continue;
+      }
+
+      priorLiterals.push(literal);
+    }
+
+    if(parent.type === "Literal"){
+      const literal = getLiteralsByESLiteralNode(ctx, parent);
+
+      if(!literal){
+        continue;
+      }
+
+      priorLiterals.push(...literal);
+    }
+
+    currentNode = parent;
+
+  }
+
+  return priorLiterals;
+
 }
 
 export interface ESSimpleStringLiteral extends Rule.NodeParentExtension, ESSimpleLiteral {
