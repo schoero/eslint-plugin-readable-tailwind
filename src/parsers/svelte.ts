@@ -17,7 +17,13 @@ import {
   matchesPathPattern
 } from "readable-tailwind:utils:matchers.js";
 import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex.js";
-import { deduplicateLiterals, getQuotes, getWhitespace, matchesName } from "readable-tailwind:utils:utils.js";
+import {
+  deduplicateLiterals,
+  getContent,
+  getQuotes,
+  getWhitespace,
+  matchesName
+} from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
@@ -114,10 +120,10 @@ function getLiteralsBySvelteLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode)
 
 function getStringLiteralBySvelteStringLiteral(ctx: Rule.RuleContext, node: SvelteLiteral): StringLiteral | undefined {
 
-  const content = node.value;
   const raw = ctx.sourceCode.getText(node as unknown as ESNode, 1, 1);
 
   const quotes = getQuotes(raw);
+  const content = getContent(raw, quotes);
   const whitespaces = getWhitespace(content);
 
   return {

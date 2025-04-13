@@ -1,5 +1,5 @@
 import { isAttributesMatchers, isAttributesName, isAttributesRegex } from "readable-tailwind:utils:matchers.js";
-import { deduplicateLiterals, matchesName } from "readable-tailwind:utils:utils.js";
+import { deduplicateLiterals, getContent, matchesName } from "readable-tailwind:utils:utils.js";
 
 import type { AttributeNode, TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
@@ -39,15 +39,16 @@ export function getLiteralsByHTMLAttributeNode(ctx: Rule.RuleContext, attribute:
   }
 
   const raw = attribute.startWrapper?.value + value.value + attribute.endWrapper?.value;
-  const { closingQuote, openingQuote } = getQuotesByHTMLAttribute(ctx, attribute);
+
+  const quotes = getQuotesByHTMLAttribute(ctx, attribute);
+  const content = getContent(raw, quotes);
 
   return [{
-    closingQuote,
-    content: value.value,
+    ...quotes,
+    content,
     loc: value.loc,
     // @ts-expect-error - Missing in types
     node: attribute,
-    openingQuote,
     // @ts-expect-error - Missing in types
     parent: attribute.parent,
     range: [value.range[0] - 1, value.range[1] + 1], // include quotes in range

@@ -17,7 +17,13 @@ import {
   matchesPathPattern
 } from "readable-tailwind:utils:matchers.js";
 import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex.js";
-import { deduplicateLiterals, getQuotes, getWhitespace, matchesName } from "readable-tailwind:utils:utils.js";
+import {
+  deduplicateLiterals,
+  getContent,
+  getQuotes,
+  getWhitespace,
+  matchesName
+} from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
@@ -54,9 +60,7 @@ export function getLiteralsByVueAttribute(ctx: Rule.RuleContext, attribute: AST.
     return literals;
   }, []);
 
-  return deduplicateLiterals(literals.map(
-    literal => overrideLiteralContent(literal, literal.content)
-  ));
+  return deduplicateLiterals(literals);
 
 }
 
@@ -88,10 +92,10 @@ function getLiteralsByVueMatchers(ctx: Rule.RuleContext, node: ESBaseNode, match
 
 function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLiteral): StringLiteral {
 
-  const content = node.value;
   const raw = ctx.sourceCode.getText(node as unknown as ESNode);
-  const quotes = getQuotes(raw);
 
+  const quotes = getQuotes(raw);
+  const content = getContent(raw, quotes);
   const whitespaces = getWhitespace(content);
 
   return {

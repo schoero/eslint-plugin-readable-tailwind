@@ -16,7 +16,13 @@ import {
   matchesPathPattern
 } from "readable-tailwind:utils:matchers.js";
 import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex.js";
-import { deduplicateLiterals, getQuotes, getWhitespace, matchesName } from "readable-tailwind:utils:utils.js";
+import {
+  deduplicateLiterals,
+  getContent,
+  getQuotes,
+  getWhitespace,
+  matchesName
+} from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type {
@@ -168,15 +174,15 @@ export function getLiteralNodesByRegex(ctx: Rule.RuleContext, node: ESNode, rege
 export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: ESSimpleStringLiteral): StringLiteral | undefined {
 
   const raw = node.raw;
-  const content = node.value;
 
   if(!raw || !node.loc || !node.range || !node.parent.loc || !node.parent.range){
     return;
   }
 
   const quotes = getQuotes(raw);
-  const whitespaces = getWhitespace(content);
   const priorLiterals = findPriorLiterals(ctx, node);
+  const content = getContent(raw, quotes);
+  const whitespaces = getWhitespace(content);
 
   return {
     ...quotes,
@@ -196,16 +202,16 @@ export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: E
 function getLiteralByESTemplateElement(ctx: Rule.RuleContext, node: ESTemplateElement & Rule.Node): TemplateLiteral | undefined {
 
   const raw = ctx.sourceCode.getText(node);
-  const content = node.value.raw;
 
   if(!raw || !node.loc || !node.range || !node.parent.loc || !node.parent.range){
     return;
   }
 
   const quotes = getQuotes(raw);
-  const whitespaces = getWhitespace(content);
   const braces = getBracesByString(ctx, raw);
   const priorLiterals = findPriorLiterals(ctx, node);
+  const content = getContent(raw, quotes, braces);
+  const whitespaces = getWhitespace(content);
 
   return {
     ...whitespaces,

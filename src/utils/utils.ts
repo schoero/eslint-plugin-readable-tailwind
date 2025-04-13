@@ -7,7 +7,7 @@ import {
 
 import type { Rule } from "eslint";
 
-import type { Literal, Node, QuoteMeta } from "readable-tailwind:types:ast.js";
+import type { BracesMeta, Literal, Node, QuoteMeta } from "readable-tailwind:types:ast.js";
 
 
 export function getCommonOptions(ctx: Rule.RuleContext) {
@@ -47,6 +47,13 @@ export function getQuotes(raw: string): QuoteMeta {
     closingQuote: closingQuote === "'" || closingQuote === '"' || closingQuote === "`" ? closingQuote : undefined,
     openingQuote: openingQuote === "'" || openingQuote === '"' || openingQuote === "`" ? openingQuote : undefined
   };
+}
+
+export function getContent(raw: string, quotes?: QuoteMeta, braces?: BracesMeta) {
+  return raw.substring(
+    (quotes?.openingQuote?.length ?? 0) + (braces?.closingBraces?.length ?? 0),
+    raw.length - (quotes?.closingQuote?.length ?? 0) - (braces?.openingBraces?.length ?? 0)
+  );
 }
 
 export function splitClasses(classes: string): string[] {
