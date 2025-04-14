@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.1.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.0.1...v2.1.0)
+
+### Features
+
+Experimental angular support. ([#85](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/85))
+
+- Keep carriage return in es literals when used with vue parser ([#84](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/84))
+
 ## v2.0.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.0.0...v2.0.1)
