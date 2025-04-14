@@ -1,14 +1,13 @@
 import {
   hasESNodeParentExtension,
   isESCallExpression,
-  isESObjectKey,
-  isESStringLike,
-  isESVariableDeclarator,
-  isInsideObjectValue
+  isESNode,
+  isESVariableDeclarator
 } from "readable-tailwind:parsers:es.js";
+import { isGenericNodeWithParent } from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
-import type { BaseNode as ESBaseNode, Node as ESNode, Program } from "estree";
+import type { Node as ESNode } from "estree";
 
 import type {
   AttributeMatchers,
@@ -30,39 +29,43 @@ import type {
   VariableRegex,
   Variables
 } from "readable-tailwind:types:rule.js";
+import type { GenericNodeWithParent } from "readable-tailwind:utils:utils.js";
 
 
-export function getLiteralNodesByMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matcherFunctions: MatcherFunctions): ESNode[] {
+export function getLiteralNodesByMatchers<Node>(ctx: Rule.RuleContext, node: unknown, matcherFunctions: MatcherFunctions<Node>, deadEnd?: (node: unknown) => boolean): Node[] {
+  if(!isGenericNodeWithParent(node)){ return []; }
 
-  if(!hasESNodeParentExtension(node)){ return []; }
-
-  const nestedLiterals = findMatchingNestedNodes(node, matcherFunctions);
-  const self = nodeMatches(node, matcherFunctions) ? [node] : [];
+  const nestedLiterals = findMatchingNestedNodes<Node>(node, matcherFunctions, deadEnd);
+  const self = nodeMatches<Node>(node, matcherFunctions) ? [node] : [];
 
   return [...nestedLiterals, ...self];
-
 }
 
-export function findMatchingNestedNodes(node: ESNode | Program, matcherFunctions: MatcherFunctions): ESNode[] {
-  return Object.entries(node).reduce<ESNode[]>((matchedNodes, [key, value]) => {
+function findMatchingNestedNodes<Node>(
+  node: GenericNodeWithParent,
+  matcherFunctions: MatcherFunctions<Node>,
+  deadEnd: (node: unknown) => boolean = value => isESNode(value) && (isESCallExpression(value) || isESVariableDeclarator(value))
+): Node[] {
+  return Object.entries(node).reduce<Node[]>((matchedNodes, [key, value]) => {
     if(!value || typeof value !== "object" || key === "parent"){
       return matchedNodes;
     }
 
-    if(isESCallExpression(value)){ return matchedNodes; }
-    if(isESVariableDeclarator(value)){ return matchedNodes; }
+    if(deadEnd?.(value)){
+      return matchedNodes;
+    }
 
     if(nodeMatches(value, matcherFunctions)){
       matchedNodes.push(value);
     }
 
-    matchedNodes.push(...findMatchingNestedNodes(value, matcherFunctions));
+    matchedNodes.push(...findMatchingNestedNodes(value, matcherFunctions, deadEnd));
     return matchedNodes;
   }, []);
 }
 
-export function findMatchingParentNodes(node: ESNode & Partial<Rule.NodeParentExtension>, matcherFunctions: MatcherFunctions): ESNode[] {
-  if(!hasESNodeParentExtension(node)){ return []; }
+export function findMatchingParentNodes<Node>(node: GenericNodeWithParent, matcherFunctions: MatcherFunctions<Node>): Node[] {
+  if(!isGenericNodeWithParent(node)){ return []; }
 
   if(nodeMatches(node.parent, matcherFunctions)){
     return [node.parent];
@@ -71,7 +74,7 @@ export function findMatchingParentNodes(node: ESNode & Partial<Rule.NodeParentEx
   return findMatchingParentNodes(node.parent, matcherFunctions);
 }
 
-function nodeMatches(node: ESNode, matcherFunctions: MatcherFunctions): boolean {
+function nodeMatches<Node>(node: unknown, matcherFunctions: MatcherFunctions<Node>): node is Node {
   for(const matcherFunction of matcherFunctions){
     if(matcherFunction(node)){ return true; }
   }
@@ -83,77 +86,6 @@ function isChildNodeOfNode(node: ESNode & Partial<Rule.NodeParentExtension>, par
   if(node.parent === parent){ return true; }
   return isChildNodeOfNode(node.parent, parent);
 }
-
-export function getObjectPath(node: ESNode & Partial<Rule.NodeParentExtension>): string | undefined {
-
-  if(!hasESNodeParentExtension(node)){ return; }
-
-  if(
-    node.type !== "Property" &&
-    node.type !== "ObjectExpression" &&
-    node.type !== "ArrayExpression" &&
-    node.type !== "Identifier" &&
-    node.type !== "Literal"
-  ){
-    return;
-  }
-
-  const paths: (string | undefined)[] = [];
-
-  if(node.type === "Property"){
-    if(node.key.type === "Identifier"){
-      paths.unshift(createObjectPathElement(node.key.name));
-    } else if(node.key.type === "Literal"){
-      paths.unshift(createObjectPathElement(node.key.value?.toString() ?? node.key.raw));
-    } else {
-      return "";
-    }
-  }
-
-  if(isESStringLike(node) && isInsideObjectValue(node)){
-    const property = findMatchingParentNodes(node, [node => {
-      return node.type === "Property";
-    }])[0];
-
-    return getObjectPath(property);
-  }
-
-  if(isESObjectKey(node)){
-    const property = node.parent;
-    return getObjectPath(property);
-  }
-
-  if(node.parent.type === "ArrayExpression" && node.type !== "Property"){
-    const index = node.parent.elements.indexOf(node);
-    paths.unshift(`[${index}]`);
-  }
-
-  paths.unshift(getObjectPath(node.parent));
-
-  return paths.reduce<string[]>((paths, currentPath) => {
-    if(!currentPath){ return paths; }
-
-    if(paths.length === 0){
-      return [currentPath];
-    }
-
-    if(currentPath.startsWith("[") && currentPath.endsWith("]")){
-      return [...paths, currentPath];
-    }
-
-    return [...paths, ".", currentPath];
-  }, []).join("");
-
-}
-
-function createObjectPathElement(path?: string): string {
-  if(!path){ return ""; }
-
-  return path.match(/^[A-Z_a-z]\w*$/)
-    ? path
-    : `["${path}"]`;
-}
-
 export function matchesPathPattern(path: string, pattern: Regex): boolean {
   const regex = new RegExp(pattern);
   return regex.test(path);

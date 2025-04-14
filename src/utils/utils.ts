@@ -7,7 +7,7 @@ import {
 
 import type { Rule } from "eslint";
 
-import type { BracesMeta, Literal, Node, QuoteMeta } from "readable-tailwind:types:ast.js";
+import type { BracesMeta, Literal, QuoteMeta } from "readable-tailwind:types:ast.js";
 
 
 export function getCommonOptions(ctx: Rule.RuleContext) {
@@ -57,7 +57,6 @@ export function getContent(raw: string, quotes?: QuoteMeta, braces?: BracesMeta)
 }
 
 export function splitClasses(classes: string): string[] {
-
   if(classes.trim() === ""){
     return [];
   }
@@ -65,7 +64,6 @@ export function splitClasses(classes: string): string[] {
   return classes
     .trim()
     .split(/\s+/);
-
 }
 
 export function display(classes: string): string {
@@ -100,18 +98,8 @@ export function splitWhitespaces(classes: string): string[] {
   return classes.split(/\S+/);
 }
 
-export function findLineStartPosition(ctx: Rule.RuleContext, node: Node) {
-  const line = node.loc.start.line;
-  return ctx.sourceCode.lines[line - 1].match(/^\s*/)?.[0]?.length ?? 0;
-}
-
-export function findLiteralStartPosition(ctx: Rule.RuleContext, literal: Literal) {
-  const column = literal.loc.start.column;
-  return column;
-}
-
-export function isLiteral(node: Node): node is Literal {
-  return node.type === "Literal";
+export function getIndentation(line: string): number {
+  return line.match(/^[\t ]*/)?.[0].length ?? 0;
 }
 
 export function matchesName(pattern: string, name: string | undefined): boolean {
@@ -129,4 +117,18 @@ export function deduplicateLiterals(literals: Literal[]): Literal[] {
         l1.range[1] === l2.range[1];
     }) === index;
   });
+}
+
+export interface GenericNodeWithParent {
+  parent: GenericNodeWithParent;
+}
+
+export function isGenericNodeWithParent(node: unknown): node is GenericNodeWithParent {
+  return (
+    typeof node === "object" &&
+    node !== null &&
+    "parent" in node &&
+    node.parent !== null &&
+    typeof node.parent === "object"
+  );
 }

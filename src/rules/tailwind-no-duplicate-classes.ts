@@ -76,6 +76,7 @@ export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
   }
 };
 
+
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
   for(const literal of literals){
 

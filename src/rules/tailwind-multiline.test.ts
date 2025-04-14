@@ -14,12 +14,14 @@ describe(tailwindMultiline.name, () => {
       {
         valid: [
           {
+            angular: `<img class="" />`,
             html: `<img class="" />`,
             jsx: `() => <img class="" />`,
             svelte: `<img class="" />`,
             vue: `<template><img class="" /></template>`
           },
           {
+            angular: `<img class='' />`,
             html: `<img class='' />`,
             jsx: `() => <img class='' />`,
             svelte: `<img class='' />`,
@@ -49,12 +51,14 @@ describe(tailwindMultiline.name, () => {
       {
         valid: [
           {
+            angular: `<img class="a b c" />`,
             html: `<img class="a b c" />`,
             jsx: `() => <img class="a b c" />`,
             svelte: `<img class="a b c" />`,
             vue: `<template><img class="a b c" /></template>`
           },
           {
+            angular: `<img class='a b c' />`,
             html: `<img class='a b c' />`,
             jsx: `() => <img class='a b c' />`,
             svelte: `<img class='a b c' />`,
@@ -93,6 +97,8 @@ describe(tailwindMultiline.name, () => {
       {
         invalid: [
           {
+            angular: `<img class="${dirty}" />`,
+            angularOutput: `<img class="${clean}" />`,
             errors: 1,
             html: `<img class="${dirty}" />`,
             htmlOutput: `<img class="${clean}" />`,
@@ -116,6 +122,7 @@ describe(tailwindMultiline.name, () => {
       {
         valid: [
           {
+            angular: `<img class="  a  b  c  " />`,
             html: `<img class="  a  b  c  " />`,
             jsx: `() => <img class="  a  b  c  " />`,
             options: [{ printWidth: 60 }],
@@ -148,6 +155,8 @@ describe(tailwindMultiline.name, () => {
       {
         invalid: [
           {
+            angular: `<img class="{{\`${incorrect}\`}}" />`,
+            angularOutput: `<img class="{{\`${correct}\`}}" />`,
             errors: 1,
             jsx: `() => <img class={\`${incorrect}\`} />`,
             jsxOutput: `() => <img class={\`${correct}\`} />`,
@@ -176,6 +185,8 @@ describe(tailwindMultiline.name, () => {
       {
         invalid: [
           {
+            angular: `<img class="${dirty}" />`,
+            angularOutput: `<img class="${clean}" />`,
             errors: 1,
             html: `<img class="${dirty}" />`,
             htmlOutput: `<img class="${clean}" />`,
@@ -207,6 +218,8 @@ describe(tailwindMultiline.name, () => {
       {
         invalid: [
           {
+            angular: `<img class="${dirty}" />`,
+            angularOutput: `<img class="${clean}" />`,
             errors: 1,
             html: `<img class="${dirty}" />`,
             htmlOutput: `<img class="${clean}" />`,
@@ -230,6 +243,7 @@ describe(tailwindMultiline.name, () => {
       {
         valid: [
           {
+            angular: `<img class="this string literal is longer than 80 characters and would be wrapped using the default printWidth" />`,
             html: `<img class="this string literal is longer than 80 characters and would be wrapped using the default printWidth" />`,
             jsx: `() => <img class="this string literal is longer than 80 characters and would be wrapped using the default printWidth" />`,
             options: [{ printWidth: 0 }],
@@ -559,11 +573,13 @@ describe(tailwindMultiline.name, () => {
             svelte: `<img class={\`${multiline}\`} />`
           },
           {
+            angular: `<img class="${multiline}" />`,
             html: `<img class="${multiline}" />`,
             options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<img class="${multiline}" />`
           },
           {
+            angular: `<img class='${multiline}' />`,
             html: `<img class='${multiline}' />`,
             options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<img class='${multiline}' />`
@@ -587,6 +603,8 @@ describe(tailwindMultiline.name, () => {
     lint(tailwindMultiline, TEST_SYNTAXES, {
       invalid: [
         {
+          angular: `<img class="${singleLine}" />`,
+          angularOutput: `<img class="${multiline}" />`,
           errors: 1,
           html: `<img class="${singleLine}" />`,
           htmlOutput: `<img class="${multiline}" />`,
@@ -599,6 +617,8 @@ describe(tailwindMultiline.name, () => {
           vueOutput: `<template><img class="${multiline}" /></template>`
         },
         {
+          angular: `<img class='${singleLine}' />`,
+          angularOutput: `<img class='${multiline}' />`,
           errors: 1,
           html: `<img class='${singleLine}' />`,
           htmlOutput: `<img class='${multiline}' />`,
@@ -1010,6 +1030,8 @@ describe(tailwindMultiline.name, () => {
       {
         invalid: [
           {
+            angular: `<img class="${dirty}" />`,
+            angularOutput: `<img class="${clean}" />`,
             errors: 1,
             html: `<img class="${dirty}" />`,
             htmlOutput: `<img class="${clean}" />`,
@@ -1038,6 +1060,8 @@ describe(tailwindMultiline.name, () => {
       {
         invalid: [
           {
+            angular: `<img class="${dirty}" />`,
+            angularOutput: `<img class="${clean}" />`,
             errors: 1,
             html: `<img class="${dirty}" />`,
             htmlOutput: `<img class="${clean}" />`,
@@ -1090,6 +1114,8 @@ describe(tailwindMultiline.name, () => {
       {
         invalid: [
           {
+            angular: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
+            angularOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
             errors: 1,
             html: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             htmlOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
@@ -1113,6 +1139,8 @@ describe(tailwindMultiline.name, () => {
       {
         invalid: [
           {
+            angular: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
+            angularOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
             errors: 1,
             html: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             htmlOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
@@ -1136,6 +1164,8 @@ describe(tailwindMultiline.name, () => {
       {
         invalid: [
           {
+            angular: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
+            angularOutput: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             errors: 1,
             html: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
             htmlOutput: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
@@ -1148,6 +1178,8 @@ describe(tailwindMultiline.name, () => {
             vueOutput: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`
           },
           {
+            angular: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
+            angularOutput: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
             errors: 1,
             html: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             htmlOutput: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
@@ -1162,6 +1194,7 @@ describe(tailwindMultiline.name, () => {
         ],
         valid: [
           {
+            angular: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             html: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             jsx: `() => <img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             options: [{ indent: 2, preferSingleLine: true }],

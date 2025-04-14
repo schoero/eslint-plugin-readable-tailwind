@@ -1,4 +1,4 @@
-export type LiteralValueQuotes = "'" | "\"" | "`";
+export type LiteralValueQuotes = "'" | "\"" | "\\`" | "`";
 
 export interface Range {
   range: [number, number];
@@ -17,6 +17,12 @@ export interface Loc {
   };
 }
 
+export interface MultilineMeta {
+  multilineQuotes?: LiteralValueQuotes[];
+  supportsMultiline?: boolean;
+  surroundingBraces?: boolean;
+}
+
 export interface WhitespaceMeta {
   leadingWhitespace?: string;
   trailingWhitespace?: string;
@@ -31,8 +37,8 @@ export interface BracesMeta {
   openingBraces?: string;
 }
 
-export interface Meta extends QuoteMeta, BracesMeta, WhitespaceMeta {
-  indentation?: string;
+export interface Indentation {
+  indentation: number;
 }
 
 interface NodeBase extends Range, Loc {
@@ -40,22 +46,17 @@ interface NodeBase extends Range, Loc {
   type: string;
 }
 
-export interface Node extends NodeBase {
-  parent: Node;
-}
-
-interface LiteralBase extends NodeBase, Meta, Range, Loc {
+interface LiteralBase extends NodeBase, MultilineMeta, QuoteMeta, BracesMeta, WhitespaceMeta, Indentation, Range, Loc {
   content: string;
-  node: Node;
   raw: string;
   priorLiterals?: Literal[];
 }
 
-export interface TemplateLiteral extends LiteralBase, Node {
+export interface TemplateLiteral extends LiteralBase {
   type: "TemplateLiteral";
 }
 
-export interface StringLiteral extends LiteralBase, Node {
+export interface StringLiteral extends LiteralBase {
   type: "StringLiteral";
 }
 

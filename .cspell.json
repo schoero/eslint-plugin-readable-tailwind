@@ -28,6 +28,7 @@
     "OBJSTR",
     "quasis",
     "shadcn",
-    "synckit"
+    "synckit",
+    "Tmpl"
   ]
 }

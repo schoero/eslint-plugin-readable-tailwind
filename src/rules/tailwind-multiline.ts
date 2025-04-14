@@ -10,21 +10,13 @@ import {
   TAG_SCHEMA,
   VARIABLE_SCHEMA
 } from "readable-tailwind:options:descriptions.js";
-import { isESObjectKey } from "readable-tailwind:parsers:es.js";
 import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
 import { createRuleListener } from "readable-tailwind:utils:rule.js";
-import {
-  augmentMessageWithWarnings,
-  display,
-  findLineStartPosition,
-  findLiteralStartPosition,
-  getCommonOptions,
-  splitClasses
-} from "readable-tailwind:utils:utils.js";
+import { augmentMessageWithWarnings, display, getCommonOptions, splitClasses } from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 
-import type { Literal, Meta } from "readable-tailwind:types:ast.js";
+import type { BracesMeta, Literal, QuoteMeta, WhitespaceMeta } from "readable-tailwind:types:ast.js";
 import type {
   AttributeOption,
   CalleeOption,
@@ -51,6 +43,10 @@ export type Options = [
     }
   >
 ];
+
+interface Meta extends QuoteMeta, BracesMeta, WhitespaceMeta {
+  indentation?: string;
+}
 
 const defaultOptions = {
   attributes: DEFAULT_ATTRIBUTE_NAMES,
@@ -144,16 +140,12 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
   for(const literal of literals){
 
-    // skip if literal is object key
-    if(isESObjectKey(literal.node)){
+    if(!literal.supportsMultiline){
       continue;
     }
 
-    const lineStartPosition = literal.type === "TemplateLiteral"
-      ? findLineStartPosition(ctx, literal.parent) + getIndentation(ctx, indent)
-      : findLineStartPosition(ctx, literal) + getIndentation(ctx, indent);
-
-    const literalStartPosition = findLiteralStartPosition(ctx, literal);
+    const lineStartPosition = literal.indentation + getIndentation(ctx, indent);
+    const literalStartPosition = literal.loc.start.column;
 
     const classChunks = splitClasses(literal.content);
     const groupedClasses = groupClasses(ctx, classChunks);
@@ -162,17 +154,9 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     const singlelineClasses = new Lines(ctx, lineStartPosition);
 
     if(literal.openingQuote){
-      if(
-        literal.parent.type === "JSXAttribute" ||
-        literal.parent.type === "JSXExpressionContainer" ||
-        literal.parent.type === "ArrayExpression" ||
-        literal.parent.type === "Property" ||
-        literal.parent.type === "CallExpression" ||
-        literal.parent.type === "SvelteMustacheTag" ||
-        literal.parent.type === "VariableDeclarator" ||
-        literal.parent.type === "ConditionalExpression" ||
-        literal.parent.type === "LogicalExpression"
-      ){
+      if(literal.multilineQuotes?.includes("\\`")){
+        multilineClasses.line.addMeta({ openingQuote: "\\`" });
+      } else if(literal.multilineQuotes?.includes("`")){
         multilineClasses.line.addMeta({ openingQuote: "`" });
       } else {
         multilineClasses.line.addMeta({ openingQuote: literal.openingQuote });
@@ -362,16 +346,9 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       multilineClasses.addLine();
       multilineClasses.line.indent(lineStartPosition - getIndentation(ctx, indent));
 
-      if(
-        literal.parent.type === "JSXAttribute" ||
-        literal.parent.type === "JSXExpressionContainer" ||
-        literal.parent.type === "ArrayExpression" ||
-        literal.parent.type === "Property" ||
-        literal.parent.type === "CallExpression" ||
-        literal.parent.type === "SvelteMustacheTag" ||
-        literal.parent.type === "VariableDeclarator" ||
-        literal.parent.type === "ConditionalExpression" ||
-        literal.parent.type === "LogicalExpression"){
+      if(literal.multilineQuotes?.includes("\\`")){
+        multilineClasses.line.addMeta({ closingQuote: "\\`" });
+      } else if(literal.multilineQuotes?.includes("`")){
         multilineClasses.line.addMeta({ closingQuote: "`" });
       } else {
         multilineClasses.line.addMeta({ closingQuote: literal.closingQuote });
@@ -509,7 +486,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         readable: display(fixedClasses)
       },
       fix(fixer) {
-        return literal.parent.type === "JSXAttribute"
+        return literal.surroundingBraces
           ? fixer.replaceTextRange(literal.range, `{${fixedClasses}}`)
           : fixer.replaceTextRange(literal.range, fixedClasses);
       },

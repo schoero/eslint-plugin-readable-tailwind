@@ -1,8 +1,10 @@
 import { parse } from "espree";
-import { describe, expect, it } from "vitest";
+import { assert, describe, expect, it } from "vitest";
 
 import {
+  getESObjectPath,
   hasESNodeParentExtension,
+  isESNode,
   isESObjectKey,
   isESStringLike,
   isInsideObjectValue
@@ -10,7 +12,6 @@ import {
 import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
 import { findNode, lint, TEST_SYNTAXES, withParentNodeExtension } from "readable-tailwind:tests:utils.js";
 import { MatcherType } from "readable-tailwind:types:rule.js";
-import { getObjectPath } from "readable-tailwind:utils:matchers.js";
 
 import type { Node as ESNode } from "estree";
 
@@ -32,21 +33,25 @@ describe("matchers", () => {
 
         const ast = withParentNodeExtension(parse(code, { ecmaVersion: "latest" }) as ESNode);
 
-        const root = findNode(ast, (node: ESNode) => {
-          return hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Identifier" && node.name === "root";
+        const root = findNode(ast, (node): node is ESNode => {
+          return isESNode(node) && hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Identifier" && node.name === "root";
         });
 
-        const nested = findNode(ast, (node: ESNode) => {
-          return hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Identifier" && node.name === "nested";
+        const nested = findNode(ast, (node): node is ESNode => {
+          return isESNode(node) && hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Identifier" && node.name === "nested";
         });
 
-        const value = findNode(ast, (node: ESNode) => {
-          return hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Identifier" && node.name === "value";
+        const value = findNode(ast, (node): node is ESNode => {
+          return isESNode(node) && hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Identifier" && node.name === "value";
         });
 
-        expect(getObjectPath(root[0])).toBe("root");
-        expect(getObjectPath(nested[0])).toBe("root.nested");
-        expect(getObjectPath(value[0])).toBe("root.nested.value");
+        assert(root);
+        assert(nested);
+        assert(value);
+
+        expect(getESObjectPath(root)).toBe("root");
+        expect(getESObjectPath(nested)).toBe("root.nested");
+        expect(getESObjectPath(value)).toBe("root.nested.value");
 
       });
 
@@ -54,11 +59,13 @@ describe("matchers", () => {
 
         const ast = withParentNodeExtension(parse(code, { ecmaVersion: "latest" }) as ESNode);
 
-        const value = findNode(ast, (node: ESNode) => {
-          return isESStringLike(node) && isInsideObjectValue(node);
+        const value = findNode(ast, (node): node is ESNode => {
+          return isESNode(node) && isESStringLike(node) && isInsideObjectValue(node);
         });
 
-        const path = getObjectPath(value[0]);
+        assert(value);
+
+        const path = getESObjectPath(value);
         expect(path).toBe("root.nested.value");
 
       });
@@ -75,21 +82,25 @@ describe("matchers", () => {
 
         const ast = withParentNodeExtension(parse(code, { ecmaVersion: "latest" }) as ESNode);
 
-        const root = findNode(ast, (node: ESNode) => {
-          return hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Literal" && node.value === "root-key";
+        const root = findNode(ast, (node): node is ESNode => {
+          return isESNode(node) && hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Literal" && node.value === "root-key";
         });
 
-        const nested = findNode(ast, (node: ESNode) => {
-          return hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Literal" && node.value === "1nested";
+        const nested = findNode(ast, (node): node is ESNode => {
+          return isESNode(node) && hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Literal" && node.value === "1nested";
         });
 
-        const value = findNode(ast, (node: ESNode) => {
-          return hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Literal" && node.value === "deeply_nested_value";
+        const value = findNode(ast, (node): node is ESNode => {
+          return isESNode(node) && hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Literal" && node.value === "deeply_nested_value";
         });
 
-        expect(getObjectPath(root[0])).toBe(`["root-key"]`);
-        expect(getObjectPath(nested[0])).toBe(`["root-key"]["1nested"]`);
-        expect(getObjectPath(value[0])).toBe(`["root-key"]["1nested"].deeply_nested_value`);
+        assert(root);
+        assert(nested);
+        assert(value);
+
+        expect(getESObjectPath(root)).toBe(`["root-key"]`);
+        expect(getESObjectPath(nested)).toBe(`["root-key"]["1nested"]`);
+        expect(getESObjectPath(value)).toBe(`["root-key"]["1nested"].deeply_nested_value`);
 
       });
     }
@@ -111,16 +122,19 @@ describe("matchers", () => {
 
         const ast = withParentNodeExtension(parse(code, { ecmaVersion: "latest" }) as ESNode);
 
-        const value1 = findNode(ast, (node: ESNode) => {
-          return hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Identifier" && node.name === "value1";
+        const value1 = findNode(ast, (node): node is ESNode => {
+          return isESNode(node) && hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Identifier" && node.name === "value1";
         });
 
-        const value2 = findNode(ast, (node: ESNode) => {
-          return hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Identifier" && node.name === "value2";
+        const value2 = findNode(ast, (node): node is ESNode => {
+          return isESNode(node) && hasESNodeParentExtension(node) && isESObjectKey(node) && node.type === "Identifier" && node.name === "value2";
         });
 
-        expect(getObjectPath(value1[0])).toBe("root[0].value1");
-        expect(getObjectPath(value2[0])).toBe("root[1].value2");
+        assert(value1);
+        assert(value2);
+
+        expect(getESObjectPath(value1)).toBe("root[0].value1");
+        expect(getESObjectPath(value2)).toBe("root[1].value2");
 
       });
 

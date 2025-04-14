@@ -1,7 +1,7 @@
 import { MatcherType } from "readable-tailwind:types:rule.js";
 import {
+  findMatchingParentNodes,
   getLiteralNodesByMatchers,
-  getObjectPath,
   isCalleeMatchers,
   isCalleeName,
   isCalleeRegex,
@@ -15,10 +15,11 @@ import {
   isVariableRegex,
   matchesPathPattern
 } from "readable-tailwind:utils:matchers.js";
-import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex.js";
+import { getLiteralsByNodeAndRegex } from "readable-tailwind:utils:regex.js";
 import {
   deduplicateLiterals,
   getContent,
+  getIndentation,
   getQuotes,
   getWhitespace,
   matchesName
@@ -39,8 +40,22 @@ import type {
   VariableDeclarator as ESVariableDeclarator
 } from "estree";
 
-import type { BracesMeta, Literal, Node, StringLiteral, TemplateLiteral } from "readable-tailwind:types:ast.js";
-import type { Callees, Matcher, MatcherFunctions, Tags, Variables } from "readable-tailwind:types:rule.js";
+import type {
+  BracesMeta,
+  Literal,
+  LiteralValueQuotes,
+  MultilineMeta,
+  StringLiteral,
+  TemplateLiteral
+} from "readable-tailwind:types:ast.js";
+import type {
+  Callees,
+  Matcher,
+  MatcherFunctions,
+  RegexConfig,
+  Tags,
+  Variables
+} from "readable-tailwind:types:rule.js";
 
 
 export function getLiteralsByESVariableDeclarator(ctx: Rule.RuleContext, node: ESVariableDeclarator, variables: Variables): Literal[] {
@@ -132,43 +147,42 @@ export function getLiteralsByESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNo
 }
 
 export function getLiteralsByESMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: Matcher[]): Literal[] {
-
   const matcherFunctions = getESMatcherFunctions(matchers);
   const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
-
-  const literals = literalNodes.reduce<Literal[]>((literals, literalNode) => {
-    literals.push(...getLiteralsByESLiteralNode(ctx, literalNode));
-    return literals;
-  }, []);
-
+  const literals = literalNodes.flatMap(literalNode => getLiteralsByESLiteralNode(ctx, literalNode));
   return deduplicateLiterals(literals);
-
 }
 
-export function getLiteralNodesByRegex(ctx: Rule.RuleContext, node: ESNode, regex: RegExp): ESNode[] {
+export function getLiteralsByESNodeAndRegex(
+  ctx: Rule.RuleContext,
+  node: ESBaseNode,
+  regex: RegexConfig
+): Literal[] {
+  if(!hasESNodeParentExtension(node)){ return []; }
 
-  const sourceCode = ctx.sourceCode.getText(node);
+  return getLiteralsByNodeAndRegex(
+    ctx,
+    node,
+    regex,
+    {
+      getLiteralsByMatchingNode: (node: unknown) => {
+        if(!isESNode(node)){ return; }
 
-  const matchedNodes: ESNode[] = [];
+        if(isESSimpleStringLiteral(node)){
+          const literal = getStringLiteralByESStringLiteral(ctx, node);
+          return literal ? [literal] : [];
+        }
 
-  const matches = sourceCode.matchAll(regex);
-
-  for(const groups of matches){
-    if(!groups.indices || groups.indices.length < 2){ continue; }
-
-    for(const [startIndex] of groups.indices.slice(1)){
-
-      const literalNode = ctx.sourceCode.getNodeByRangeIndex((node.range?.[0] ?? 0) + startIndex);
-
-      if(!literalNode){ continue; }
-
-      matchedNodes.push(literalNode);
-
+        if(isESTemplateElement(node) && hasESNodeParentExtension(node)){
+          const templateLiteralNode = findParentESTemplateLiteralByESTemplateElement(node);
+          return templateLiteralNode && getLiteralsByESTemplateLiteral(ctx, templateLiteralNode);
+        }
+      },
+      getNodeByRangeStart: (start: number) => ctx.sourceCode.getNodeByRangeIndex(start),
+      getNodeRange: node => isESNode(node) ? [node.range?.[0], node.range?.[1]] : undefined,
+      getNodeSourceCode: node => isESNode(node) ? ctx.sourceCode.getText(node) : undefined
     }
-  }
-
-  return matchedNodes;
-
+  );
 }
 
 export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: ESSimpleStringLiteral): StringLiteral | undefined {
@@ -179,21 +193,27 @@ export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: E
     return;
   }
 
+  const line = ctx.sourceCode.lines[node.loc.start.line - 1];
+
   const quotes = getQuotes(raw);
   const priorLiterals = findPriorLiterals(ctx, node);
   const content = getContent(raw, quotes);
   const whitespaces = getWhitespace(content);
+  const indentation = getIndentation(line);
+  const multilineQuotes = getMultilineQuotes(node);
+  const supportsMultiline = !isESObjectKey(node);
 
   return {
     ...quotes,
     ...whitespaces,
+    ...multilineQuotes,
     content,
+    indentation,
     loc: node.loc,
-    node: node as unknown as Node,
-    parent: node.parent as Node,
     priorLiterals,
     range: node.range,
     raw,
+    supportsMultiline,
     type: "StringLiteral"
   };
 
@@ -207,26 +227,58 @@ function getLiteralByESTemplateElement(ctx: Rule.RuleContext, node: ESTemplateEl
     return;
   }
 
+  const line = ctx.sourceCode.lines[node.parent.loc.start.line - 1];
+
   const quotes = getQuotes(raw);
   const braces = getBracesByString(ctx, raw);
   const priorLiterals = findPriorLiterals(ctx, node);
   const content = getContent(raw, quotes, braces);
   const whitespaces = getWhitespace(content);
+  const indentation = getIndentation(line);
+  const multilineQuotes = getMultilineQuotes(node);
 
   return {
     ...whitespaces,
     ...quotes,
     ...braces,
+    ...multilineQuotes,
     content,
+    indentation,
     loc: node.loc,
-    node: node as unknown as Node,
-    parent: node.parent as Node,
     priorLiterals,
     range: node.range,
     raw,
+    supportsMultiline: true,
     type: "TemplateLiteral"
   };
 
+}
+
+function getMultilineQuotes(node: ESNode & Rule.NodeParentExtension): MultilineMeta {
+  const containerTypesToReplaceQuotes = [
+    "JSXAttribute",
+    "JSXExpressionContainer",
+    "ArrayExpression",
+    "Property",
+    "CallExpression",
+    "VariableDeclarator",
+    "ConditionalExpression",
+    "LogicalExpression"
+  ];
+
+  const containerTypesToInsertBraces = [
+    "JSXAttribute"
+  ];
+
+  const surroundingBraces = containerTypesToInsertBraces.includes(node.parent.type);
+  const multilineQuotes: LiteralValueQuotes[] = containerTypesToReplaceQuotes.includes(node.parent.type)
+    ? ["'", "\"", "`"]
+    : [];
+
+  return {
+    multilineQuotes,
+    surroundingBraces
+  };
 }
 
 function getLiteralsByESExpression(ctx: Rule.RuleContext, args: (ESExpression | ESSpreadElement)[]): Literal[] {
@@ -312,11 +364,82 @@ function findPriorLiterals(ctx: Rule.RuleContext, node: ESNode) {
 
 }
 
+export function getESObjectPath(node: ESNode & Partial<Rule.NodeParentExtension>): string | undefined {
+
+  if(!hasESNodeParentExtension(node)){ return; }
+
+  if(
+    node.type !== "Property" &&
+    node.type !== "ObjectExpression" &&
+    node.type !== "ArrayExpression" &&
+    node.type !== "Identifier" &&
+    node.type !== "Literal"
+  ){
+    return;
+  }
+
+  const paths: (string | undefined)[] = [];
+
+  if(node.type === "Property"){
+    if(node.key.type === "Identifier"){
+      paths.unshift(createObjectPathElement(node.key.name));
+    } else if(node.key.type === "Literal"){
+      paths.unshift(createObjectPathElement(node.key.value?.toString() ?? node.key.raw));
+    } else {
+      return "";
+    }
+  }
+
+  if(isESStringLike(node) && isInsideObjectValue(node)){
+    const property = findMatchingParentNodes<ESNode>(node, [(node): node is ESNode => {
+      return isESNode(node) && node.type === "Property";
+    }])[0];
+
+    return getESObjectPath(property);
+  }
+
+  if(isESObjectKey(node)){
+    const property = node.parent;
+    return getESObjectPath(property);
+  }
+
+  if(node.parent.type === "ArrayExpression" && node.type !== "Property"){
+    const index = node.parent.elements.indexOf(node);
+    paths.unshift(`[${index}]`);
+  }
+
+  paths.unshift(getESObjectPath(node.parent));
+
+  return paths.reduce<string[]>((paths, currentPath) => {
+    if(!currentPath){ return paths; }
+
+    if(paths.length === 0){
+      return [currentPath];
+    }
+
+    if(currentPath.startsWith("[") && currentPath.endsWith("]")){
+      return [...paths, currentPath];
+    }
+
+    return [...paths, ".", currentPath];
+  }, []).join("");
+
+}
+
+function createObjectPathElement(path?: string): string {
+  if(!path){ return ""; }
+
+  return path.match(/^[A-Z_a-z]\w*$/)
+    ? path
+    : `["${path}"]`;
+}
+
+
 export interface ESSimpleStringLiteral extends Rule.NodeParentExtension, ESSimpleLiteral {
   value: string;
 }
 
-export function isESObjectKey(node: ESBaseNode & Rule.NodeParentExtension | Node) {
+export function isESObjectKey(node: ESBaseNode & Rule.NodeParentExtension) {
   return (
     node.parent.type === "Property" &&
     node.parent.parent.type === "ObjectExpression" &&
@@ -407,11 +530,13 @@ function getBracesByString(ctx: Rule.RuleContext, raw: string): BracesMeta {
   };
 }
 
-function getESMatcherFunctions(matchers: Matcher[]): MatcherFunctions {
-  return matchers.reduce<MatcherFunctions>((matcherFunctions, matcher) => {
+function getESMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESNode> {
+  return matchers.reduce<MatcherFunctions<ESNode>>((matcherFunctions, matcher) => {
     switch (matcher.match){
       case MatcherType.String: {
-        matcherFunctions.push(node => {
+        matcherFunctions.push((node): node is ESNode => {
+
+          if(!isESNode(node)){ return false; }
 
           if(isInsideConditionalExpressionTest(node)){ return false; }
           if(isInsideLogicalExpressionLeft(node)){ return false; }
@@ -426,7 +551,9 @@ function getESMatcherFunctions(matchers: Matcher[]): MatcherFunctions {
         break;
       }
       case MatcherType.ObjectKey: {
-        matcherFunctions.push(node => {
+        matcherFunctions.push((node): node is ESNode => {
+
+          if(!isESNode(node)){ return false; }
 
           if(isInsideConditionalExpressionTest(node)){ return false; }
           if(isInsideLogicalExpressionLeft(node)){ return false; }
@@ -434,26 +561,28 @@ function getESMatcherFunctions(matchers: Matcher[]): MatcherFunctions {
           if(!hasESNodeParentExtension(node)){ return false; }
           if(!isESObjectKey(node)){ return false; }
 
-          const path = getObjectPath(node);
+          const path = getESObjectPath(node);
 
           return path && matcher.pathPattern ? matchesPathPattern(path, matcher.pathPattern) : true;
         });
         break;
       }
       case MatcherType.ObjectValue: {
-        matcherFunctions.push(node => {
+        matcherFunctions.push((node): node is ESNode => {
+
+          if(!isESNode(node)){ return false; }
 
           if(isInsideConditionalExpressionTest(node)){ return false; }
           if(isInsideLogicalExpressionLeft(node)){ return false; }
           if(!hasESNodeParentExtension(node)){ return false; }
           if(isESObjectKey(node)){ return false; }
 
-          const path = getObjectPath(node);
-          const matchesPattern = path !== undefined &&
-            matcher.pathPattern
-            ? matchesPathPattern(path, matcher.pathPattern)
-            : true;
-          return isInsideObjectValue(node) && isESStringLike(node) && matchesPattern;
+          if(!isInsideObjectValue(node)){ return false; }
+          if(!isESStringLike(node)){ return false; }
+
+          const path = getESObjectPath(node);
+
+          return path && matcher.pathPattern ? matchesPathPattern(path, matcher.pathPattern) : true;
         });
         break;
       }

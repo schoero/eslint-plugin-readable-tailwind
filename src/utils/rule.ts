@@ -1,3 +1,4 @@
+import { getAttributesByAngularElement, getLiteralsByAngularAttribute } from "readable-tailwind:parsers:angular.js";
 import {
   getLiteralsByESCallExpression,
   getLiteralsByESVariableDeclarator,
@@ -8,6 +9,7 @@ import { getAttributesByJSXElement, getLiteralsByJSXAttribute } from "readable-t
 import { getAttributesBySvelteTag, getLiteralsBySvelteAttribute } from "readable-tailwind:parsers:svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueAttribute } from "readable-tailwind:parsers:vue.js";
 
+import type { TmplAstElement } from "@angular-eslint/bundled-angular-compiler";
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
 import type { CallExpression, Node, TaggedTemplateExpression, VariableDeclarator } from "estree";
@@ -114,6 +116,18 @@ export function createRuleListener(ctx: Rule.RuleContext, options: Options, lint
     }
   };
 
+  const angular = {
+    Element(node: Node) {
+      const angularElementNode = node as unknown as TmplAstElement;
+      const angularAttributes = getAttributesByAngularElement(ctx, angularElementNode);
+
+      for(const angularAttribute of angularAttributes){
+        const literals = getLiteralsByAngularAttribute(ctx, angularAttribute, attributes);
+        lintLiterals(ctx, literals);
+      }
+    }
+  };
+
   // Vue
   if(typeof ctx.sourceCode.parserServices?.defineTemplateBodyVisitor === "function"){
     return {
@@ -137,6 +151,7 @@ export function createRuleListener(ctx: Rule.RuleContext, options: Options, lint
     ...jsx,
     ...svelte,
     ...vue,
-    ...html
+    ...html,
+    ...angular
   };
 }

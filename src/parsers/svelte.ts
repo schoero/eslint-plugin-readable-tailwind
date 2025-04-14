@@ -1,6 +1,9 @@
 import {
+  getESObjectPath,
   getLiteralsByESLiteralNode,
+  getLiteralsByESNodeAndRegex,
   hasESNodeParentExtension,
+  isESNode,
   isESObjectKey,
   isESStringLike,
   isInsideObjectValue
@@ -8,7 +11,6 @@ import {
 import { MatcherType } from "readable-tailwind:types:rule.js";
 import {
   getLiteralNodesByMatchers,
-  getObjectPath,
   isAttributesMatchers,
   isAttributesName,
   isAttributesRegex,
@@ -16,10 +18,10 @@ import {
   isInsideLogicalExpressionLeft,
   matchesPathPattern
 } from "readable-tailwind:utils:matchers.js";
-import { getLiteralsByESNodeAndRegex } from "readable-tailwind:utils:regex.js";
 import {
   deduplicateLiterals,
   getContent,
+  getIndentation,
   getQuotes,
   getWhitespace,
   matchesName
@@ -40,7 +42,7 @@ import type {
   SvelteStyleDirective
 } from "svelte-eslint-parser/lib/ast/index.js";
 
-import type { Literal, Node, StringLiteral } from "readable-tailwind:types:ast.js";
+import type { Literal, LiteralValueQuotes, MultilineMeta, StringLiteral } from "readable-tailwind:types:ast.js";
 import type { Attributes, Matcher, MatcherFunctions } from "readable-tailwind:types:rule.js";
 
 
@@ -87,12 +89,7 @@ export function getLiteralsBySvelteAttribute(ctx: Rule.RuleContext, attribute: S
 function getLiteralsBySvelteMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: Matcher[]): Literal[] {
   const matcherFunctions = getSvelteMatcherFunctions(matchers);
   const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
-
-  const literals = literalNodes.reduce<Literal[]>((literals, literalNode) => {
-    literals.push(...getLiteralsBySvelteLiteralNode(ctx, literalNode));
-    return literals;
-  }, []);
-
+  const literals = literalNodes.flatMap(literalNode => getLiteralsBySvelteLiteralNode(ctx, literalNode));
   return deduplicateLiterals(literals);
 }
 
@@ -111,33 +108,68 @@ function getLiteralsBySvelteLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode)
   }
 
   if(isESStringLike(node)){
-    return getLiteralsByESLiteralNode(ctx, node);
+    return getLiteralsBySvelteESLiteralNode(ctx, node);
   }
 
   return [];
 
 }
 
+function getLiteralsBySvelteESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): Literal[] {
+  const literals = getLiteralsByESLiteralNode(ctx, node);
+
+  return literals.map(literal => {
+    const { multilineQuotes, surroundingBraces } = getMultilineQuotes(node);
+
+    if(multilineQuotes && multilineQuotes.length > 0){
+      literal.multilineQuotes = multilineQuotes;
+      literal.surroundingBraces = surroundingBraces;
+    }
+
+    return literal;
+  });
+}
+
 function getStringLiteralBySvelteStringLiteral(ctx: Rule.RuleContext, node: SvelteLiteral): StringLiteral | undefined {
 
   const raw = ctx.sourceCode.getText(node as unknown as ESNode, 1, 1);
+  const line = ctx.sourceCode.lines[node.loc.start.line - 1];
 
   const quotes = getQuotes(raw);
   const content = getContent(raw, quotes);
   const whitespaces = getWhitespace(content);
+  const indentation = getIndentation(line);
+  const multilineQuotes = getMultilineQuotes(node);
 
   return {
     ...whitespaces,
     ...quotes,
+    ...multilineQuotes,
     content,
+    indentation,
     loc: node.loc,
-    node: node as unknown as Node,
-    parent: node.parent as unknown as Node,
     range: [node.range[0] - 1, node.range[1] + 1], // include quotes in range
     raw,
+    supportsMultiline: true,
     type: "StringLiteral"
   };
 
+}
+
+function getMultilineQuotes(node: (ESBaseNode) | SvelteLiteral): MultilineMeta {
+  const containerTypesToReplaceQuotes = [
+    "SvelteMustacheTag"
+  ];
+
+  const surroundingBraces = false;
+  const multiline: LiteralValueQuotes[] = "parent" in node && containerTypesToReplaceQuotes.includes(node.parent.type)
+    ? ["'", "\"", "`"]
+    : [];
+
+  return {
+    multilineQuotes: multiline,
+    surroundingBraces
+  };
 }
 
 function isSvelteAttribute(attribute:
@@ -160,11 +192,13 @@ function isSvelteMustacheTag(node: ESBaseNode): node is SvelteMustacheTagText {
     "kind" in node && node.kind === "text";
 }
 
-function getSvelteMatcherFunctions(matchers: Matcher[]): MatcherFunctions {
-  return matchers.reduce<MatcherFunctions>((matcherFunctions, matcher) => {
+function getSvelteMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBaseNode> {
+  return matchers.reduce<MatcherFunctions<ESBaseNode>>((matcherFunctions, matcher) => {
     switch (matcher.match){
       case MatcherType.String: {
-        matcherFunctions.push(node => {
+        matcherFunctions.push((node): node is ESBaseNode => {
+
+          if(!isESNode(node)){ return false; }
 
           if(isInsideConditionalExpressionTest(node)){ return false; }
           if(isInsideLogicalExpressionLeft(node)){ return false; }
@@ -179,7 +213,9 @@ function getSvelteMatcherFunctions(matchers: Matcher[]): MatcherFunctions {
         break;
       }
       case MatcherType.ObjectKey: {
-        matcherFunctions.push(node => {
+        matcherFunctions.push((node): node is ESBaseNode => {
+
+          if(!isESNode(node)){ return false; }
 
           if(isInsideConditionalExpressionTest(node)){ return false; }
           if(isInsideLogicalExpressionLeft(node)){ return false; }
@@ -187,26 +223,28 @@ function getSvelteMatcherFunctions(matchers: Matcher[]): MatcherFunctions {
           if(!hasESNodeParentExtension(node)){ return false; }
           if(!isESObjectKey(node)){ return false; }
 
-          const path = getObjectPath(node);
+          const path = getESObjectPath(node);
 
           return path && matcher.pathPattern ? matchesPathPattern(path, matcher.pathPattern) : true;
         });
         break;
       }
       case MatcherType.ObjectValue: {
-        matcherFunctions.push(node => {
+        matcherFunctions.push((node): node is ESBaseNode => {
+
+          if(!isESNode(node)){ return false; }
 
           if(isInsideConditionalExpressionTest(node)){ return false; }
           if(isInsideLogicalExpressionLeft(node)){ return false; }
           if(!hasESNodeParentExtension(node)){ return false; }
           if(isESObjectKey(node)){ return false; }
 
-          const path = getObjectPath(node);
-          const matchesPattern = path !== undefined &&
-            matcher.pathPattern
-            ? matchesPathPattern(path, matcher.pathPattern)
-            : true;
-          return isInsideObjectValue(node) && isESStringLike(node) && matchesPattern;
+          if(!isInsideObjectValue(node)){ return false; }
+          if(!isESStringLike(node)){ return false; }
+
+          const path = getESObjectPath(node);
+
+          return path && matcher.pathPattern ? matchesPathPattern(path, matcher.pathPattern) : true;
         });
         break;
       }
