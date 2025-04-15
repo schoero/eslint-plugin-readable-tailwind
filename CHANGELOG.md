@@ -6,7 +6,9 @@
 
 ### Features
 
-Experimental angular support. ([#85](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/85))
+- Experimental angular support. ([#85](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/85))
+
+### Fixes
 
 - Keep carriage return in es literals when used with vue parser ([#84](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/84))
 
