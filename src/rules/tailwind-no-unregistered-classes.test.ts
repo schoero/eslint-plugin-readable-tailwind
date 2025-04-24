@@ -99,14 +99,42 @@ describe(tailwindNoUnregisteredClasses.name, () => {
     );
   });
 
-  it.todo("should be possible to whitelist classes in options");
+  it("should be possible to whitelist classes in options", () => {
+    lint(
+      tailwindNoUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="unregistered" />`,
+            html: `<img class="unregistered" />`,
+            jsx: `() => <img class="unregistered" />`,
+            options: [{ ignoredClasses: ["unregistered"] }],
+            svelte: `<img class="unregistered" />`,
+            vue: `<template><img class="unregistered" /></template>`
+          }
+        ]
+      }
+    );
+  });
 
-  it.todo("should be possible to whitelist classes in options via regex");
-
-  it.todo("should be possible to register custom classes in the config");
-
-  it.todo("should not report on custom utility classes");
-
-  it.todo("should not report on classes from plugins");
+  it("should be possible to whitelist classes in options via regex", () => {
+    lint(
+      tailwindNoUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="ignored-unregistered" />`,
+            html: `<img class="ignored-unregistered" />`,
+            jsx: `() => <img class="ignored-unregistered" />`,
+            options: [{ ignoredClasses: ["^ignored-.*$"] }],
+            svelte: `<img class="ignored-unregistered" />`,
+            vue: `<template><img class="ignored-unregistered" /></template>`
+          }
+        ]
+      }
+    );
+  });
 
 });

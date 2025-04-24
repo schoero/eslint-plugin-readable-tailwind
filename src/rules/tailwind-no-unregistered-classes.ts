@@ -8,7 +8,9 @@ import {
 import {
   ATTRIBUTE_SCHEMA,
   CALLEE_SCHEMA,
+  ENTRYPOINT_SCHEMA,
   TAG_SCHEMA,
+  TAILWIND_CONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "readable-tailwind:options:descriptions.js";
 import { createRuleListener } from "readable-tailwind:utils:rule.js";
@@ -71,20 +73,14 @@ export const tailwindNoUnregisteredClasses: ESLintRule<Options> = {
             ...ATTRIBUTE_SCHEMA,
             ...VARIABLE_SCHEMA,
             ...TAG_SCHEMA,
-            entryPoint: {
-              description: "The path to the css entry point of the project. If not specified, the plugin will fall back to the default tailwind classes.",
-              type: "string"
-            },
+            ...ENTRYPOINT_SCHEMA,
+            ...TAILWIND_CONFIG_SCHEMA,
             ignoredClasses: {
               description: "A list of classes that should be ignored by the rule.",
               items: {
                 type: "string"
               },
               type: "array"
-            },
-            tailwindConfig: {
-              description: "The path to the tailwind config file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.",
-              type: "string"
             }
           },
           type: "object"
@@ -112,7 +108,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     }
 
     for(const unregisteredClass of unregisteredClasses){
-      if(ignoredClasses.some(ignoredClass => ignoredClass.match(unregisteredClass))){
+      if(ignoredClasses.some(ignoredClass => unregisteredClass.match(ignoredClass))){
         continue;
       }
 
