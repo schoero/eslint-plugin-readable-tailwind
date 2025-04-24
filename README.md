@@ -59,8 +59,8 @@
 <br/>
 <br/>
 
-ESLint plugin to automatically break up long tailwind class strings into multiple lines based on a specified print width or class count. This improves readability and eliminates horizontal scrolling.  
-In addition it sorts the classes logically, removes unnecessary whitespaces and duplicate classes and groups the classes by their variants. It works in React, Solid.js, Qwik, Svelte, Vue, Angular, HTML, JavaScript and TypeScript projects.
+ESLint plugin with a strong focus on improving readability of lengthy tailwindcss class strings. The core feature is to automatically break up long tailwind class strings into multiple lines based on a specified print width or class count. This makes your code cleaner and easier to read while eliminating the need for horizontal scrolling.  
+Beyond formatting, it also sorts classes in a logical order, removes duplicates and unnecessary whitespace, and groups classes by their variants. It works in React, Solid.js, Qwik, Svelte, Vue, Angular, HTML, JavaScript and TypeScript projects.
 
 <br/>
 <br/>
@@ -161,6 +161,7 @@ The following table shows the available rules and if they are enabled by default
 | [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | ✔ | ✔ | ✔ |
 | [sort-classes](docs/rules/sort-classes.md) | Enforce a consistent order for tailwind classes. | ✔ | ✔ | ✔ |
 | [no-duplicate-classes](docs/rules/no-duplicate-classes.md) | Remove duplicate classes. | ✔ | ✔ | ✔ |
+| [no-unregistered-classes](docs/rules/no-duplicate-classes.md) | Remove duplicate classes. |  |  |  |
 
 <br/>
 <br/>
@@ -195,7 +196,7 @@ Read the [API documentation](./docs/api/defaults.md) to learn how to override or
 
 ##### Auto-fix on save
 
-All rules are intended to automatically fix the tailwind classes. If you have installed the [VSCode ESLint plugin](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint), you can configure it to automatically fix the classes on save by adding the following options to your `.vscode/settings.json`:
+Most rules are intended to automatically fix the tailwind classes. If you have installed the [VSCode ESLint plugin](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint), you can configure it to automatically fix the classes on save by adding the following options to your `.vscode/settings.json`:
 
 ```jsonc
 {
