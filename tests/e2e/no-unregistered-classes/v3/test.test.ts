@@ -21,7 +21,7 @@ describe.skipIf(getTailwindcssVersion().major > 3)("e2e/no-unregistered-classes/
     expect(json.warningCount).toBe(1);
 
     expect(json.messages.map(({ ruleId }) => ruleId)).toEqual([
-      "readable-tailwind/no-unregistered-classes",
+      "readable-tailwind/no-unregistered-classes"
     ]);
 
   });

@@ -1,14 +1,15 @@
-import { plugin } from "./plugin.js"
+import { plugin } from "./plugin.js";
+
 
 export default {
   plugins: [
-    plugin(),
+    plugin()
   ],
   theme: {
     extend: {
       colors: {
-        "config": "red"
-      },
-    },
-  },
-}
+        config: "red"
+      }
+    }
+  }
+};

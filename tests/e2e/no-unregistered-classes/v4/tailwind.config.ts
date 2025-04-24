@@ -2,8 +2,8 @@ export default {
   theme: {
     extend: {
       colors: {
-        "config": "red"
-      },
-    },
-  },
-}
+        config: "red"
+      }
+    }
+  }
+};
