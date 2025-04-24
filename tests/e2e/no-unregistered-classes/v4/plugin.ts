@@ -1,3 +1,5 @@
+/* eslint-disable eslint-plugin-typescript/naming-convention */
+
 import createPlugin from "tailwindcss/plugin";
 
 

@@ -1,3 +1,5 @@
+/* eslint-disable eslint-plugin-typescript/naming-convention */
+
 import type { PluginCreator } from "tailwindcss/types/config";
 
 
