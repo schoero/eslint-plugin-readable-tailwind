@@ -99,6 +99,10 @@ describe(tailwindNoUnregisteredClasses.name, () => {
     );
   });
 
+  it.todo("should be possible to whitelist classes in options");
+
+  it.todo("should be possible to whitelist classes in options via regex");
+
   it.todo("should be possible to register custom classes in the config");
 
   it.todo("should not report on custom utility classes");
