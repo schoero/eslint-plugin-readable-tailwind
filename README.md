@@ -161,7 +161,7 @@ The following table shows the available rules and if they are enabled by default
 | [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | ✔ | ✔ | ✔ |
 | [sort-classes](docs/rules/sort-classes.md) | Enforce a consistent order for tailwind classes. | ✔ | ✔ | ✔ |
 | [no-duplicate-classes](docs/rules/no-duplicate-classes.md) | Remove duplicate classes. | ✔ | ✔ | ✔ |
-| [no-unregistered-classes](docs/rules/no-duplicate-classes.md) | Remove duplicate classes. |  |  |  |
+| [no-unregistered-classes](docs/rules/no-unregistered-classes.md) | Report classes not registered with tailwindcss. |  |  |  |
 
 <br/>
 <br/>
