@@ -141,9 +141,14 @@ export async function createTailwindContextFromEntryPoint(entryPoint: string, in
     }
   });
 
+  const getUnregisteredClasses = (classList: string[]) => {
+    const css = design.candidatesToCss(classList);
+    return classList.filter((_, index) => css.at(index) === null);
+  };
+
   const context = {
     getClassOrder: (classList: string[]) => design.getClassOrder(classList),
-    getVariants: (className: string) => design.getVariants(className)
+    getUnregisteredClasses: (classList: string[]) => getUnregisteredClasses(classList)
   };
 
   CACHE.set(entryPoint, context);

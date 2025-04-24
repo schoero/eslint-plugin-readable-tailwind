@@ -1,6 +1,7 @@
 import { tailwindMultiline } from "readable-tailwind:rules:tailwind-multiline.js";
 import { tailwindNoDuplicateClasses } from "readable-tailwind:rules:tailwind-no-duplicate-classes.js";
 import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
+import { tailwindNoUnregisteredClasses } from "readable-tailwind:rules:tailwind-no-unregistered-classes.js";
 import { tailwindSortClasses } from "readable-tailwind:rules:tailwind-sort-classes.js";
 
 import type { ESLint } from "eslint";
@@ -15,6 +16,7 @@ export const config = {
         [`${pluginName}/${tailwindMultiline.name}`]: "error",
         [`${pluginName}/${tailwindNoDuplicateClasses.name}`]: "error",
         [`${pluginName}/${tailwindNoUnnecessaryWhitespace.name}`]: "error",
+        [`${pluginName}/${tailwindNoUnregisteredClasses.name}`]: "error",
         [`${pluginName}/${tailwindSortClasses.name}`]: "error"
       }
     },
@@ -23,6 +25,7 @@ export const config = {
         [`${pluginName}/${tailwindMultiline.name}`]: "warn",
         [`${pluginName}/${tailwindNoDuplicateClasses.name}`]: "warn",
         [`${pluginName}/${tailwindNoUnnecessaryWhitespace.name}`]: "warn",
+        [`${pluginName}/${tailwindNoUnregisteredClasses.name}`]: "warn",
         [`${pluginName}/${tailwindSortClasses.name}`]: "warn"
       }
     }
@@ -31,6 +34,7 @@ export const config = {
     [tailwindMultiline.name]: tailwindMultiline.rule,
     [tailwindNoDuplicateClasses.name]: tailwindNoDuplicateClasses.rule,
     [tailwindNoUnnecessaryWhitespace.name]: tailwindNoUnnecessaryWhitespace.rule,
+    [tailwindNoUnregisteredClasses.name]: tailwindNoUnregisteredClasses.rule,
     [tailwindSortClasses.name]: tailwindSortClasses.rule
   }
 } satisfies ESLint.Plugin;
