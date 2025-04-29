@@ -140,7 +140,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         ...classes,
         unsortableClasses[1]
       ].join(""),
-      literal.openingQuote ?? "`"
+      literal.openingQuote ?? literal.closingQuote ?? "`"
     );
 
     const fixedClasses =
