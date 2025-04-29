@@ -1,9 +1,6 @@
 /* eslint-disable eslint-plugin-typescript/naming-convention */
 
-import type { PluginCreator } from "tailwindcss/types/config";
-
-
-export function plugin(): PluginCreator {
+export function plugin() {
   return function({ addUtilities }) {
     addUtilities({
       ".from-plugin": {
