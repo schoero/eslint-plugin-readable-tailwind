@@ -31,11 +31,3 @@ export async function getUnregisteredClasses({ classes, configPath, cwd }: GetUn
 
   return [invalidClasses, warnings];
 }
-
-interface Variant {
-  hasDash: boolean;
-  isArbitrary: boolean;
-  name: string;
-  selectors: unknown;
-  values: string[];
-}
