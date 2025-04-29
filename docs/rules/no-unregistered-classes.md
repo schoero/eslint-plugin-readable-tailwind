@@ -13,6 +13,8 @@ Disallow unregistered classes in tailwindcss class strings. Unregistered classes
   **Type**: `string[]`  
   **Default**: `[]`
 
+<br/>
+
 ### `attributes`
 
   The name of the attribute that contains the tailwind classes. This can also be set globally via the [`settings` object](../settings/settings.md#attributes).  
