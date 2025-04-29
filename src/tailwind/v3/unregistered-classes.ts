@@ -1,4 +1,4 @@
-import rules from "tailwindcss3/lib/lib/generateRules.js";
+import * as rules from "tailwindcss3/lib/lib/generateRules.js";
 
 import { findTailwindConfig } from "./config.js";
 import { createTailwindContextFromConfigFile } from "./context.js";
@@ -26,7 +26,7 @@ export async function getUnregisteredClasses({ classes, configPath, cwd }: GetUn
 
   const invalidClasses = classes
     .filter(className => {
-      return rules.generateRules([className], context).length === 0;
+      return (rules.generateRules?.([className], context) ?? rules.default?.generateRules?.([className], context)).length === 0;
     });
 
   return [invalidClasses, warnings];
