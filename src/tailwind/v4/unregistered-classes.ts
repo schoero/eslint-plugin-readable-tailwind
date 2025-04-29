@@ -31,5 +31,9 @@ export async function getUnregisteredClasses({ classes, configPath, cwd }: GetUn
   }
 
   const context = await createTailwindContextFromEntryPoint(path, invalidate);
-  return [context.getUnregisteredClasses(classes), warnings];
+
+  const css = context.candidatesToCss(classes);
+  const invalidClasses = classes.filter((_, index) => css.at(index) === null);
+
+  return [invalidClasses, warnings];
 }

@@ -141,19 +141,9 @@ export async function createTailwindContextFromEntryPoint(entryPoint: string, in
     }
   });
 
-  const getUnregisteredClasses = (classList: string[]) => {
-    const css = design.candidatesToCss(classList);
-    return classList.filter((_, index) => css.at(index) === null);
-  };
+  CACHE.set(entryPoint, design);
 
-  const context = {
-    getClassOrder: (classList: string[]) => design.getClassOrder(classList),
-    getUnregisteredClasses: (classList: string[]) => getUnregisteredClasses(classList)
-  };
-
-  CACHE.set(entryPoint, context);
-
-  return context;
+  return design;
 }
 
 function getCurrentFilename() {
