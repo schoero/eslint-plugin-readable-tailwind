@@ -174,4 +174,38 @@ describe(tailwindNoUnregisteredClasses.name, () => {
     );
   });
 
+  it.fails("should not report on tailwind utility classes that don't produce a css output", () => {
+    lint(
+      tailwindNoUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="group" />`,
+            html: `<img class="group" />`,
+            jsx: `() => <img class="group" />`,
+            svelte: `<img class="group" />`,
+            vue: `<template><img class="group" /></template>`
+          }
+        ]
+      }
+    );
+
+    lint(
+      tailwindNoUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="group/custom-group" />`,
+            html: `<img class="group/custom-group" />`,
+            jsx: `() => <img class="group/custom-group" />`,
+            svelte: `<img class="group/custom-group" />`,
+            vue: `<template><img class="group/custom-group" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
 });
