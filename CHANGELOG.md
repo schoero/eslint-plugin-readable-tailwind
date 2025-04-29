@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.1.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.1.0...v2.1.1)
+
+### Fixes
+
+- Unnecessarily escaped quotes in autofixed classes ([de63d11](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/de63d11))
+
 ## v2.1.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.0.1...v2.1.0)
