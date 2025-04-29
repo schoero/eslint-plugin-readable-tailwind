@@ -43,6 +43,43 @@ describe(tailwindNoUnregisteredClasses.name, () => {
     );
   });
 
+  it("should not report standard tailwind classes with many variants", () => {
+    lint(
+      tailwindNoUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="dark:hover:before:inset-0" />`,
+            html: `<img class="dark:hover:before:inset-0" />`,
+            jsx: `() => <img class="dark:hover:before:inset-0" />`,
+            svelte: `<img class="dark:hover:before:inset-0" />`,
+            vue: `<template><img class="dark:hover:before:inset-0" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it("should report standard tailwind classes with an unregistered variant in many variants", () => {
+    lint(
+      tailwindNoUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="dark:unregistered:before:inset-0" />`,
+            errors: 1,
+            html: `<img class="dark:unregistered:before:inset-0" />`,
+            jsx: `() => <img class="dark:unregistered:before:inset-0" />`,
+            svelte: `<img class="dark:unregistered:before:inset-0" />`,
+            vue: `<template><img class="dark:unregistered:before:inset-0" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
   it.skipIf(getTailwindcssVersion().major < 4)("should not report on dynamic utility values in tailwind >= 4", () => {
     lint(
       tailwindNoUnregisteredClasses,

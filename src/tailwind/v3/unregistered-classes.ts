@@ -1,3 +1,5 @@
+import rules from "tailwindcss3/lib/lib/generateRules.js";
+
 import { findTailwindConfig } from "./config.js";
 import { createTailwindContextFromConfigFile } from "./context.js";
 
@@ -21,23 +23,10 @@ export async function getUnregisteredClasses({ classes, configPath, cwd }: GetUn
   }
 
   const context = createTailwindContextFromConfigFile(config?.path, config?.invalidate);
-  const allClasses: string[] = context.getClassList();
-  const variants: Variant[] = context.getVariants();
-
-  const allVariants = variants.flatMap(variant => {
-    if(variant.values.length){
-      return variant.values.map(value => value === "DEFAULT" ? variant.name : `${variant.name}${variant.hasDash ? "-" : ""}${value}`);
-    }
-    return [variant.name];
-  });
 
   const invalidClasses = classes
-    .filter(className => !allClasses.includes(className))
-    .filter(invalidClass => {
-      const potentialVariants = allVariants.filter(variant => invalidClass.startsWith(variant));
-      return allClasses.some(className => potentialVariants.some(variant => {
-        return `${variant}:${className}` === invalidClass;
-      })) !== true;
+    .filter(className => {
+      return rules.generateRules([className], context).length === 0;
     });
 
   return [invalidClasses, warnings];
