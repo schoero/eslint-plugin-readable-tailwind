@@ -6,7 +6,7 @@
 
 ### Fixes
 
-- Unnecessarily escaped quotes in autofixed classes ([de63d11](https://github.com/schoero/eslint-plugin-readable-tailwind/commit/de63d11))
+- Unnecessarily escaped quotes in autofixed classes ([#88](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/88))
 
 ## v2.1.0
 
