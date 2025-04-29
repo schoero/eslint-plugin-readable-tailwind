@@ -146,7 +146,7 @@ describe(tailwindNoUnregisteredClasses.name, () => {
             angular: `<img class="unregistered" />`,
             html: `<img class="unregistered" />`,
             jsx: `() => <img class="unregistered" />`,
-            options: [{ ignoredClasses: ["unregistered"] }],
+            options: [{ ignore: ["unregistered"] }],
             svelte: `<img class="unregistered" />`,
             vue: `<template><img class="unregistered" /></template>`
           }
@@ -165,7 +165,7 @@ describe(tailwindNoUnregisteredClasses.name, () => {
             angular: `<img class="ignored-unregistered" />`,
             html: `<img class="ignored-unregistered" />`,
             jsx: `() => <img class="ignored-unregistered" />`,
-            options: [{ ignoredClasses: ["^ignored-.*$"] }],
+            options: [{ ignore: ["^ignored-.*$"] }],
             svelte: `<img class="ignored-unregistered" />`,
             vue: `<template><img class="ignored-unregistered" /></template>`
           }

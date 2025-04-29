@@ -35,9 +35,8 @@ export type Options = [
     TagOption &
     VariableOption &
     {
-      autofix?: "remove" | false;
       entryPoint?: string;
-      ignoredClasses?: string[];
+      ignore?: string[];
       tailwindConfig?: string;
     }
   >
@@ -45,9 +44,8 @@ export type Options = [
 
 const defaultOptions = {
   attributes: DEFAULT_ATTRIBUTE_NAMES,
-  autofix: false,
   callees: DEFAULT_CALLEE_NAMES,
-  ignoredClasses: [],
+  ignore: [],
   tags: DEFAULT_TAG_NAMES,
   variables: DEFAULT_VARIABLE_NAMES
 } as const satisfies Options[0];
@@ -75,7 +73,7 @@ export const tailwindNoUnregisteredClasses: ESLintRule<Options> = {
             ...TAG_SCHEMA,
             ...ENTRYPOINT_SCHEMA,
             ...TAILWIND_CONFIG_SCHEMA,
-            ignoredClasses: {
+            ignore: {
               description: "A list of classes that should be ignored by the rule.",
               items: {
                 type: "string"
@@ -95,7 +93,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
   for(const literal of literals){
 
-    const { autofix, ignoredClasses, tailwindConfig } = getOptions(ctx);
+    const { ignore, tailwindConfig } = getOptions(ctx);
 
     const classes = splitClasses(literal.content);
 
@@ -108,7 +106,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     }
 
     for(const unregisteredClass of unregisteredClasses){
-      if(ignoredClasses.some(ignoredClass => unregisteredClass.match(ignoredClass))){
+      if(ignore.some(ignoredClass => unregisteredClass.match(ignoredClass))){
         continue;
       }
 
@@ -155,13 +153,11 @@ export function getOptions(ctx: Rule.RuleContext) {
 
   const common = getCommonOptions(ctx);
 
-  const ignoredClasses = options.ignoredClasses ?? defaultOptions.ignoredClasses;
-  const autofix = options.autofix ?? defaultOptions.autofix;
+  const ignore = options.ignore ?? defaultOptions.ignore;
 
   return {
     ...common,
-    autofix,
-    ignoredClasses
+    ignore
   };
 
 }
