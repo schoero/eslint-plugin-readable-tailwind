@@ -16,7 +16,6 @@ export const config = {
         [`${pluginName}/${tailwindMultiline.name}`]: "error",
         [`${pluginName}/${tailwindNoDuplicateClasses.name}`]: "error",
         [`${pluginName}/${tailwindNoUnnecessaryWhitespace.name}`]: "error",
-        [`${pluginName}/${tailwindNoUnregisteredClasses.name}`]: "error",
         [`${pluginName}/${tailwindSortClasses.name}`]: "error"
       }
     },
@@ -25,7 +24,6 @@ export const config = {
         [`${pluginName}/${tailwindMultiline.name}`]: "warn",
         [`${pluginName}/${tailwindNoDuplicateClasses.name}`]: "warn",
         [`${pluginName}/${tailwindNoUnnecessaryWhitespace.name}`]: "warn",
-        [`${pluginName}/${tailwindNoUnregisteredClasses.name}`]: "warn",
         [`${pluginName}/${tailwindSortClasses.name}`]: "warn"
       }
     }
