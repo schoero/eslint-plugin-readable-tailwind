@@ -123,7 +123,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 }
 
 function getExactLocation(loc: Loc["loc"], literal: Literal, className: string) {
-  const startIndex = literal.content.indexOf(className); // + (literal.openingQuote?.length ?? 0) + (literal.surroundingBraces ? 1 : 0);
+  const startIndex = literal.content.indexOf(className);
   const linesUpToStartIndex = literal.content.slice(0, startIndex).split("\n");
   const isOnFirstLine = linesUpToStartIndex.length === 1;
   const containingLine = linesUpToStartIndex.at(-1);
