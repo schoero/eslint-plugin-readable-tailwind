@@ -8,7 +8,7 @@ Disallow unregistered classes in tailwindcss class strings. Unregistered classes
 
 ### `ignore`
 
-  List of classes that should not report an error.
+  List of classes that should not report an error. The entries in this list are treated as regular expressions.
 
   **Type**: `string[]`  
   **Default**: `[]`
