@@ -102,6 +102,10 @@ export function getIndentation(line: string): number {
   return line.match(/^[\t ]*/)?.[0].length ?? 0;
 }
 
+export function escapeForRegex(word: string) {
+  return word.replace(/[$()*+.?[\\\]^{|}]/g, "\\$&");
+}
+
 export function matchesName(pattern: string, name: string | undefined): boolean {
   if(!name){ return false; }
 

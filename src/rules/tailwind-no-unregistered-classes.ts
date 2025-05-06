@@ -14,7 +14,13 @@ import {
   VARIABLE_SCHEMA
 } from "readable-tailwind:options:descriptions.js";
 import { createRuleListener } from "readable-tailwind:utils:rule.js";
-import { augmentMessageWithWarnings, display, getCommonOptions, splitClasses } from "readable-tailwind:utils:utils.js";
+import {
+  augmentMessageWithWarnings,
+  display,
+  escapeForRegex,
+  getCommonOptions,
+  splitClasses
+} from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 
@@ -128,8 +134,19 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 }
 
 function getExactLocation(loc: Loc["loc"], literal: Literal, className: string) {
-  const startIndex = literal.content.indexOf(className);
-  const linesUpToStartIndex = literal.content.slice(0, startIndex).split("\n");
+  const escapedClass = escapeForRegex(className);
+  const regex = new RegExp(`(?:^|\\s+)(${escapedClass})(?=\\s+|$)`);
+  const match = literal.content.match(regex);
+
+  if(!match?.index){
+    return loc;
+  }
+
+  const fullMatchIndex = match.index;
+  const word = match?.[1];
+  const indexOfClass = fullMatchIndex + match[0].indexOf(word);
+
+  const linesUpToStartIndex = literal.content.slice(0, indexOfClass).split("\n");
   const isOnFirstLine = linesUpToStartIndex.length === 1;
   const containingLine = linesUpToStartIndex.at(-1);
 
