@@ -138,7 +138,7 @@ function getExactLocation(loc: Loc["loc"], literal: Literal, className: string) 
   const regex = new RegExp(`(?:^|\\s+)(${escapedClass})(?=\\s+|$)`);
   const match = literal.content.match(regex);
 
-  if(!match?.index){
+  if(match?.index === undefined){
     return loc;
   }
 
