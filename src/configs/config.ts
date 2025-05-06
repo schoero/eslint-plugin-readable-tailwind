@@ -1,4 +1,5 @@
 import { tailwindMultiline } from "readable-tailwind:rules:tailwind-multiline.js";
+import { tailwindNoConflictingClasses } from "readable-tailwind:rules:tailwind-no-conflicting-classes.js";
 import { tailwindNoDuplicateClasses } from "readable-tailwind:rules:tailwind-no-duplicate-classes.js";
 import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
 import { tailwindNoUnregisteredClasses } from "readable-tailwind:rules:tailwind-no-unregistered-classes.js";
@@ -30,6 +31,7 @@ export const config = {
   },
   rules: {
     [tailwindMultiline.name]: tailwindMultiline.rule,
+    [tailwindNoConflictingClasses.name]: tailwindNoConflictingClasses.rule,
     [tailwindNoDuplicateClasses.name]: tailwindNoDuplicateClasses.rule,
     [tailwindNoUnnecessaryWhitespace.name]: tailwindNoUnnecessaryWhitespace.rule,
     [tailwindNoUnregisteredClasses.name]: tailwindNoUnregisteredClasses.rule,
