@@ -9,9 +9,13 @@ Disallow unregistered classes in tailwindcss class strings. Unregistered classes
 ### `ignore`
 
   List of classes that should not report an error. The entries in this list are treated as regular expressions.
+  
+  The rule works, by checking the output that a given class will produce. By default, the utilities `group` and `peer` are ignored, because they don't produce any css output.
+  
+  If you want to customize the ignore list, it is recommended to add the default options to the ignore override. You can use the function `getDefaultIgnoredUnregisteredClasses()` exported from `/api/defaults` to get the original ignore list.
 
   **Type**: `string[]`  
-  **Default**: `[]`
+  **Default**: `["^group(?:\\/(\\S*))?$", "^peer(?:\\/(\\S*))?$"]`
 
 <br/>
 

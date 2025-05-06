@@ -4,6 +4,7 @@ import {
   DEFAULT_TAG_NAMES,
   DEFAULT_VARIABLE_NAMES
 } from "readable-tailwind:options:default-options.js";
+import { DEFAULT_IGNORED_UNREGISTERED_CLASSES } from "readable-tailwind:rules:tailwind-no-unregistered-classes.js";
 
 
 export function getDefaultCallees() {
@@ -20,4 +21,8 @@ export function getDefaultVariables() {
 
 export function getDefaultTags() {
   return DEFAULT_TAG_NAMES;
+}
+
+export function getDefaultIgnoredUnregisteredClasses() {
+  return DEFAULT_IGNORED_UNREGISTERED_CLASSES;
 }

@@ -42,10 +42,15 @@ export type Options = [
   >
 ];
 
+export const DEFAULT_IGNORED_UNREGISTERED_CLASSES = [
+  "^group(?:\\/(\\S*))?$",
+  "^peer(?:\\/(\\S*))?$"
+];
+
 const defaultOptions = {
   attributes: DEFAULT_ATTRIBUTE_NAMES,
   callees: DEFAULT_CALLEE_NAMES,
-  ignore: [],
+  ignore: DEFAULT_IGNORED_UNREGISTERED_CLASSES,
   tags: DEFAULT_TAG_NAMES,
   variables: DEFAULT_VARIABLE_NAMES
 } as const satisfies Options[0];
