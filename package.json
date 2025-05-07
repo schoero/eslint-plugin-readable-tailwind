@@ -80,7 +80,7 @@
     "jiti": "^2.4.2",
     "postcss": "^8.5.3",
     "postcss-import": "^16.1.0",
-    "synckit": "0.11.4"
+    "synckit": "0.9.2"
   },
   "devDependencies": {
     "@angular/compiler": "^19.2.10",
