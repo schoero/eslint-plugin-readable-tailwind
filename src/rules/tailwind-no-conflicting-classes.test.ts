@@ -79,4 +79,24 @@ describe(tailwindNoConflictingClasses.name, () => {
     );
   });
 
+  it("should report on the same variants", () => {
+    lint(
+      tailwindNoConflictingClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<div class="hover:flex hover:block"></div>`,
+            errors: 2,
+            html: `<div class="hover:flex hover:block"></div>`,
+            jsx: `() => <div class="hover:flex hover:block"></div>`,
+            svelte: `<div class="hover:flex hover:block"></div>`,
+            vue: `<template><div class="hover:flex hover:block"></div></template>`
+          }
+        ]
+      }
+    );
+  });
+
+
 });
