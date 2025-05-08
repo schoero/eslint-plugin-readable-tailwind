@@ -8,7 +8,9 @@ import {
 import {
   ATTRIBUTE_SCHEMA,
   CALLEE_SCHEMA,
+  ENTRYPOINT_SCHEMA,
   TAG_SCHEMA,
+  TAILWIND_CONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "readable-tailwind:options:descriptions.js";
 import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
@@ -78,10 +80,8 @@ export const tailwindSortClasses: ESLintRule<Options> = {
             ...ATTRIBUTE_SCHEMA,
             ...VARIABLE_SCHEMA,
             ...TAG_SCHEMA,
-            entryPoint: {
-              description: "The path to the css entry point of the project. If not specified, the plugin will fall back to the default tailwind classes.",
-              type: "string"
-            },
+            ...ENTRYPOINT_SCHEMA,
+            ...TAILWIND_CONFIG_SCHEMA,
             order: {
               default: defaultOptions.order,
               description: "The algorithm to use when sorting classes.",
@@ -91,10 +91,6 @@ export const tailwindSortClasses: ESLintRule<Options> = {
                 "official",
                 "improved"
               ],
-              type: "string"
-            },
-            tailwindConfig: {
-              description: "The path to the tailwind config file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.",
               type: "string"
             }
           },
