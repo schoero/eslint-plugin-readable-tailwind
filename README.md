@@ -6,7 +6,7 @@
   </picture>
 </div>
 
-<h1 align="center">better-tailwindcss</h1>
+<h1 align="center">eslint-plugin-better-tailwindcss</h1>
 
 <br/>
 <br/>
