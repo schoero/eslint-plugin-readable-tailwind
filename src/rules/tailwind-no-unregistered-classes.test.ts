@@ -1,8 +1,8 @@
 import { getTailwindcssVersion } from "src/tailwind/utils/version.js";
 import { describe, it } from "vitest";
 
-import { tailwindNoUnregisteredClasses } from "readable-tailwind:rules:tailwind-no-unregistered-classes.js";
-import { lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
+import { tailwindNoUnregisteredClasses } from "better-tailwindcss:rules:tailwind-no-unregistered-classes.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 
 
 describe(tailwindNoUnregisteredClasses.name, () => {

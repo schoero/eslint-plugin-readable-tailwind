@@ -1,4 +1,4 @@
-# readable-tailwind/sort-classes
+# better-tailwindcss/sort-classes
 
 Enforce the order of tailwind classes. It is possible to sort classes alphabetically or logically.
 

@@ -3,27 +3,27 @@ import {
   DEFAULT_CALLEE_NAMES,
   DEFAULT_TAG_NAMES,
   DEFAULT_VARIABLE_NAMES
-} from "readable-tailwind:options:default-options.js";
+} from "better-tailwindcss:options:default-options.js";
 import {
   ATTRIBUTE_SCHEMA,
   CALLEE_SCHEMA,
   TAG_SCHEMA,
   VARIABLE_SCHEMA
-} from "readable-tailwind:options:descriptions.js";
-import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
-import { createRuleListener } from "readable-tailwind:utils:rule.js";
-import { display, getCommonOptions, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
+} from "better-tailwindcss:options:descriptions.js";
+import { escapeNestedQuotes } from "better-tailwindcss:utils:quotes.js";
+import { createRuleListener } from "better-tailwindcss:utils:rule.js";
+import { display, getCommonOptions, splitClasses, splitWhitespaces } from "better-tailwindcss:utils:utils.js";
 
 import type { Rule } from "eslint";
 
-import type { Literal } from "readable-tailwind:types:ast.js";
+import type { Literal } from "better-tailwindcss:types:ast.js";
 import type {
   AttributeOption,
   CalleeOption,
   ESLintRule,
   TagOption,
   VariableOption
-} from "readable-tailwind:types:rule.js";
+} from "better-tailwindcss:types:rule.js";
 
 
 export type Options = [
@@ -46,7 +46,7 @@ const defaultOptions = {
   variables: DEFAULT_VARIABLE_NAMES
 } as const satisfies Options[0];
 
-const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/no-unnecessary-whitespace.md";
+const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-unnecessary-whitespace.md";
 
 export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
   name: "no-unnecessary-whitespace" as const,
@@ -66,7 +66,7 @@ export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
           properties: {
             allowMultiline: {
               default: defaultOptions.allowMultiline,
-              description: "Allow multi-line class declarations. If this option is disabled, template literal strings will be collapsed into a single line string wherever possible. Must be set to `true` when used in combination with [readable-tailwind/multiline](./multiline.md).",
+              description: "Allow multi-line class declarations. If this option is disabled, template literal strings will be collapsed into a single line string wherever possible. Must be set to `true` when used in combination with [better-tailwindcss/multiline](./multiline.md).",
               type: "boolean"
             },
             ...CALLEE_SCHEMA,

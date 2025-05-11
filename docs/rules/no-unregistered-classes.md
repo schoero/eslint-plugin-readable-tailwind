@@ -1,4 +1,4 @@
-# readable-tailwind/no-unregistered-classes
+# better-tailwindcss/no-unregistered-classes
 
 Disallow unregistered classes in tailwindcss class strings. Unregistered classes are classes that are not defined in your tailwind config file and therefore not recognized by tailwindcss.
 

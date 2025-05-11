@@ -1,10 +1,10 @@
-import { getUnregisteredClasses } from "readable-tailwind:async:unregistered-classes.sync.js";
+import { getUnregisteredClasses } from "better-tailwindcss:async:unregistered-classes.sync.js";
 import {
   DEFAULT_ATTRIBUTE_NAMES,
   DEFAULT_CALLEE_NAMES,
   DEFAULT_TAG_NAMES,
   DEFAULT_VARIABLE_NAMES
-} from "readable-tailwind:options:default-options.js";
+} from "better-tailwindcss:options:default-options.js";
 import {
   ATTRIBUTE_SCHEMA,
   CALLEE_SCHEMA,
@@ -12,26 +12,26 @@ import {
   TAG_SCHEMA,
   TAILWIND_CONFIG_SCHEMA,
   VARIABLE_SCHEMA
-} from "readable-tailwind:options:descriptions.js";
-import { createRuleListener } from "readable-tailwind:utils:rule.js";
+} from "better-tailwindcss:options:descriptions.js";
+import { createRuleListener } from "better-tailwindcss:utils:rule.js";
 import {
   augmentMessageWithWarnings,
   display,
   escapeForRegex,
   getCommonOptions,
   splitClasses
-} from "readable-tailwind:utils:utils.js";
+} from "better-tailwindcss:utils:utils.js";
 
 import type { Rule } from "eslint";
 
-import type { Literal, Loc } from "readable-tailwind:types:ast.js";
+import type { Literal, Loc } from "better-tailwindcss:types:ast.js";
 import type {
   AttributeOption,
   CalleeOption,
   ESLintRule,
   TagOption,
   VariableOption
-} from "readable-tailwind:types:rule.js";
+} from "better-tailwindcss:types:rule.js";
 
 
 export type Options = [
@@ -61,7 +61,7 @@ const defaultOptions = {
   variables: DEFAULT_VARIABLE_NAMES
 } as const satisfies Options[0];
 
-const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/no-unregistered-classes.md";
+const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-unregistered-classes.md";
 
 export const tailwindNoUnregisteredClasses: ESLintRule<Options> = {
   name: "no-unregistered-classes" as const,

@@ -1,13 +1,13 @@
-import { tailwindMultiline } from "readable-tailwind:rules:tailwind-multiline.js";
-import { tailwindNoDuplicateClasses } from "readable-tailwind:rules:tailwind-no-duplicate-classes.js";
-import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
-import { tailwindNoUnregisteredClasses } from "readable-tailwind:rules:tailwind-no-unregistered-classes.js";
-import { tailwindSortClasses } from "readable-tailwind:rules:tailwind-sort-classes.js";
+import { tailwindMultiline } from "better-tailwindcss:rules:tailwind-multiline.js";
+import { tailwindNoDuplicateClasses } from "better-tailwindcss:rules:tailwind-no-duplicate-classes.js";
+import { tailwindNoUnnecessaryWhitespace } from "better-tailwindcss:rules:tailwind-no-unnecessary-whitespace.js";
+import { tailwindNoUnregisteredClasses } from "better-tailwindcss:rules:tailwind-no-unregistered-classes.js";
+import { tailwindSortClasses } from "better-tailwindcss:rules:tailwind-sort-classes.js";
 
 import type { ESLint } from "eslint";
 
 
-const pluginName = "readable-tailwind";
+const pluginName = "better-tailwindcss";
 
 export const config = {
   configs: {
