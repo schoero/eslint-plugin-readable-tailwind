@@ -59,8 +59,11 @@
 <br/>
 <br/>
 
-ESLint plugin to automatically break up long tailwind class strings into multiple lines based on a specified print width or class count. This improves readability and eliminates horizontal scrolling.  
-In addition it sorts the classes logically, removes unnecessary whitespaces and duplicate classes and groups the classes by their variants. It works in React, Solid.js, Qwik, Svelte, Vue, Angular, HTML, JavaScript and TypeScript projects.
+An ESLint plugin that brings formatting and linting rules to help you write cleaner, more maintainable Tailwind CSS.  
+
+The formatting rules focus on improving readability by automatically breaking up long Tailwind class strings into multiple lines and sorting/grouping them in a logical order. The linting rules enforce best practices and catch potential issues, ensuring that you're writing valid Tailwind CSS.  
+
+This plugin supports a with a wide range of projects, including React, Solid.js, Qwik, Svelte, Vue, Angular, HTML or plain JavaScript or TypeScript.  
 
 <br/>
 <br/>
@@ -87,7 +90,7 @@ In addition it sorts the classes logically, removes unnecessary whitespaces and 
   
   [Buy me a coffee](https://buymeacoffee.com/schoero) | [GitHub Sponsors](https://github.com/sponsors/schoero)
   
-  This project is financed by the community.  
+  Help support this project.  
   If you or your company benefit from this project, please consider becoming a sponsor or making a one-time donation.  
   Your contribution will help me to maintain and develop the project.
 
@@ -153,14 +156,14 @@ Two predefined configurations are available that contain the recommended rules:
 - `error` - will throw an error if the rule is violated
 - `warning` - will throw a warning if the rule is violated
   
-The following table shows the available rules and if they are enabled by default in the different configurations:
+The following table shows the available rules, the supported tailwindcss versions and if they are enabled by default in the different configurations:
 
-| Name | Description | `error` | `warning` | autofix |
-| :--- | :--- | :---: | :---: | :---: |
-| [multiline](docs/rules/multiline.md) | Enforce consistent line wrapping for tailwind classes. | ✔ | ✔ | ✔ |
-| [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | ✔ | ✔ | ✔ |
-| [sort-classes](docs/rules/sort-classes.md) | Enforce a consistent order for tailwind classes. | ✔ | ✔ | ✔ |
-| [no-duplicate-classes](docs/rules/no-duplicate-classes.md) | Remove duplicate classes. | ✔ | ✔ | ✔ |
+| Name | Description | `tw3` | `tw4` |`error` | `warning` | autofix |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
+| [multiline](docs/rules/multiline.md) | Enforce consistent line wrapping for tailwind classes. | ✔ | ✔ | ✔ | ✔ | ✔ |
+| [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | ✔ | ✔ | ✔ | ✔ | ✔ |
+| [sort-classes](docs/rules/sort-classes.md) | Enforce a consistent order for tailwind classes. | ✔ | ✔ | ✔ | ✔ | ✔ |
+| [no-duplicate-classes](docs/rules/no-duplicate-classes.md) | Remove duplicate classes. | ✔ | ✔ | ✔ | ✔ | ✔ |
 
 <br/>
 <br/>
