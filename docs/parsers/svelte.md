@@ -2,7 +2,7 @@
 
 To use ESLint with Svelte files, first install the [svelte-eslint-parser](https://github.com/sveltejs/svelte-eslint-parser). Then, configure ESLint to use this parser for Svelte files.
 
-To enable eslint-plugin-readable-tailwind, you need to add it to the plugins section of your eslint configuration and enable the rules you want to use.
+To enable eslint-plugin-better-tailwindcss, you need to add it to the plugins section of your eslint configuration and enable the rules you want to use.
 
 ```sh
 npm i -D svelte-eslint-parser
@@ -18,7 +18,7 @@ Read more about the new [ESLint flat config format](https://eslint.org/docs/late
 
 ```js
 // eslint.config.js
-import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
+import eslintPluginReadableTailwind from "eslint-plugin-better-tailwindcss";
 import eslintParserSvelte from "svelte-eslint-parser";
 
 export default [
@@ -30,7 +30,7 @@ export default [
   },
   {
     plugins: {
-      "readable-tailwind": eslintPluginReadableTailwind
+      "better-tailwindcss": eslintPluginReadableTailwind
     },
     rules: {
       // enable all recommended rules to warn
@@ -39,7 +39,7 @@ export default [
       ...eslintPluginReadableTailwind.configs.error.rules,
 
       // or configure rules individually
-      "readable-tailwind/multiline": ["warn", { printWidth: 100 }]
+      "better-tailwindcss/multiline": ["warn", { printWidth: 100 }]
     }
   }
 ];
@@ -54,15 +54,15 @@ export default [
 {
   "extends": [
     // enable all recommended rules to warn
-    "plugin:readable-tailwind/warning",
+    "plugin:better-tailwindcss/warning",
     // enable all recommended rules to error
-    "plugin:readable-tailwind/error"
+    "plugin:better-tailwindcss/error"
   ],
   "parser": "svelte-eslint-parser",
-  "plugins": ["readable-tailwind"],
+  "plugins": ["better-tailwindcss"],
   "rules": {
     // or configure rules individually
-    "readable-tailwind/multiline": ["warn", { "printWidth": 100 }]
+    "better-tailwindcss/multiline": ["warn", { "printWidth": 100 }]
   }
 }
 ```

@@ -1,13 +1,13 @@
-import { getAttributesByAngularElement, getLiteralsByAngularAttribute } from "readable-tailwind:parsers:angular.js";
+import { getAttributesByAngularElement, getLiteralsByAngularAttribute } from "better-tailwindcss:parsers:angular.js";
 import {
   getLiteralsByESCallExpression,
   getLiteralsByESVariableDeclarator,
   getLiteralsByTaggedTemplateExpression
-} from "readable-tailwind:parsers:es.js";
-import { getAttributesByHTMLTag, getLiteralsByHTMLAttribute } from "readable-tailwind:parsers:html.js";
-import { getAttributesByJSXElement, getLiteralsByJSXAttribute } from "readable-tailwind:parsers:jsx.js";
-import { getAttributesBySvelteTag, getLiteralsBySvelteAttribute } from "readable-tailwind:parsers:svelte.js";
-import { getAttributesByVueStartTag, getLiteralsByVueAttribute } from "readable-tailwind:parsers:vue.js";
+} from "better-tailwindcss:parsers:es.js";
+import { getAttributesByHTMLTag, getLiteralsByHTMLAttribute } from "better-tailwindcss:parsers:html.js";
+import { getAttributesByJSXElement, getLiteralsByJSXAttribute } from "better-tailwindcss:parsers:jsx.js";
+import { getAttributesBySvelteTag, getLiteralsBySvelteAttribute } from "better-tailwindcss:parsers:svelte.js";
+import { getAttributesByVueStartTag, getLiteralsByVueAttribute } from "better-tailwindcss:parsers:vue.js";
 
 import type { TmplAstElement } from "@angular-eslint/bundled-angular-compiler";
 import type { TagNode } from "es-html-parser";
@@ -17,8 +17,8 @@ import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { AST } from "vue-eslint-parser";
 
-import type { Literal } from "readable-tailwind:types:ast.js";
-import type { AttributeOption, CalleeOption, TagOption, VariableOption } from "readable-tailwind:types:rule.js";
+import type { Literal } from "better-tailwindcss:types:ast.js";
+import type { AttributeOption, CalleeOption, TagOption, VariableOption } from "better-tailwindcss:types:rule.js";
 
 
 export type Options =

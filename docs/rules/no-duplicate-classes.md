@@ -1,4 +1,4 @@
-# readable-tailwind/no-duplicate-classes
+# better-tailwindcss/no-duplicate-classes
 
 Disallow duplicate classes in tailwindcss class strings.
 

@@ -2,7 +2,7 @@
 
 To use ESLint with HTML files, first install the [@html-eslint/parser](https://github.com/yeonjuan/html-eslint/tree/main/packages/parser). Then, configure ESLint to use this parser for HTML files.
 
-To enable eslint-plugin-readable-tailwind, you need to add it to the plugins section of your eslint configuration and enable the rules you want to use.
+To enable eslint-plugin-better-tailwindcss, you need to add it to the plugins section of your eslint configuration and enable the rules you want to use.
 
 ```sh
 npm i -D @html-eslint/parser
@@ -19,7 +19,7 @@ Read more about the new [ESLint flat config format](https://eslint.org/docs/late
 ```js
 // eslint.config.js
 import eslintParserHTML from "@html-eslint/parser";
-import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
+import eslintPluginReadableTailwind from "eslint-plugin-better-tailwindcss";
 
 export default [
   {
@@ -30,7 +30,7 @@ export default [
   },
   {
     plugins: {
-      "readable-tailwind": eslintPluginReadableTailwind
+      "better-tailwindcss": eslintPluginReadableTailwind
     },
     rules: {
       // enable all recommended rules to warn
@@ -39,7 +39,7 @@ export default [
       ...eslintPluginReadableTailwind.configs.error.rules,
 
       // or configure rules individually
-      "readable-tailwind/multiline": ["warn", { printWidth: 100 }]
+      "better-tailwindcss/multiline": ["warn", { printWidth: 100 }]
     }
   }
 ];
@@ -54,15 +54,15 @@ export default [
 {
   "extends": [
     // enable all recommended rules to warn
-    "plugin:readable-tailwind/warning",
+    "plugin:better-tailwindcss/warning",
     // enable all recommended rules to error
-    "plugin:readable-tailwind/error"
+    "plugin:better-tailwindcss/error"
   ],
   "parser": "@html-eslint/parser",
-  "plugins": ["readable-tailwind"],
+  "plugins": ["better-tailwindcss"],
   "rules": {
     // or configure rules individually
-    "readable-tailwind/multiline": ["warn", { "printWidth": 100 }]
+    "better-tailwindcss/multiline": ["warn", { "printWidth": 100 }]
   }
 }
 ```

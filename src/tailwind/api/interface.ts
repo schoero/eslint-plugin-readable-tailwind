@@ -1,6 +1,4 @@
-import type { ConflictingClasses } from "src/tailwind/v4/conflicting-classes.js";
-
-import type { Warning } from "readable-tailwind:utils:utils.js";
+import type { Warning } from "better-tailwindcss:utils:utils.js";
 
 
 export interface GetClassOrderRequest {

@@ -1,4 +1,4 @@
-# readable-tailwind/multiline
+# better-tailwindcss/multiline
 
 Enforce tailwind classes to be broken up into multiple lines. It is possible to break at a certain print width or a certain number of classes per line.
 

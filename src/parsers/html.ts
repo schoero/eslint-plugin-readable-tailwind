@@ -1,11 +1,11 @@
-import { isAttributesMatchers, isAttributesName, isAttributesRegex } from "readable-tailwind:utils:matchers.js";
-import { deduplicateLiterals, getContent, getIndentation, matchesName } from "readable-tailwind:utils:utils.js";
+import { isAttributesMatchers, isAttributesName, isAttributesRegex } from "better-tailwindcss:utils:matchers.js";
+import { deduplicateLiterals, getContent, getIndentation, matchesName } from "better-tailwindcss:utils:utils.js";
 
 import type { AttributeNode, TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
 
-import type { Literal, QuoteMeta } from "readable-tailwind:types:ast.js";
-import type { Attributes } from "readable-tailwind:types:rule.js";
+import type { Literal, QuoteMeta } from "better-tailwindcss:types:ast.js";
+import type { Attributes } from "better-tailwindcss:types:rule.js";
 
 
 export function getLiteralsByHTMLAttribute(ctx: Rule.RuleContext, attribute: AttributeNode, attributes: Attributes): Literal[] {

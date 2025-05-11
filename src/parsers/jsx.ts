@@ -6,17 +6,17 @@ import {
   isESNode,
   isESSimpleStringLiteral,
   isESTemplateLiteral
-} from "readable-tailwind:parsers:es.js";
-import { isAttributesMatchers, isAttributesName, isAttributesRegex } from "readable-tailwind:utils:matchers.js";
-import { deduplicateLiterals, matchesName } from "readable-tailwind:utils:utils.js";
+} from "better-tailwindcss:parsers:es.js";
+import { isAttributesMatchers, isAttributesName, isAttributesRegex } from "better-tailwindcss:utils:matchers.js";
+import { deduplicateLiterals, matchesName } from "better-tailwindcss:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { TemplateLiteral as ESTemplateLiteral } from "estree";
 import type { JSXAttribute, BaseNode as JSXBaseNode, JSXExpressionContainer, JSXOpeningElement } from "estree-jsx";
 
-import type { ESSimpleStringLiteral } from "readable-tailwind:parsers:es.js";
-import type { Literal } from "readable-tailwind:types:ast.js";
-import type { Attributes } from "readable-tailwind:types:rule.js";
+import type { ESSimpleStringLiteral } from "better-tailwindcss:parsers:es.js";
+import type { Literal } from "better-tailwindcss:types:ast.js";
+import type { Attributes } from "better-tailwindcss:types:rule.js";
 
 
 export function getLiteralsByJSXAttribute(ctx: Rule.RuleContext, attribute: JSXAttribute, attributes: Attributes): Literal[] {

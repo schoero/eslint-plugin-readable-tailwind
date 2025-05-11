@@ -1,10 +1,10 @@
-import { getClassOrder } from "readable-tailwind:async:class-order.sync.js";
+import { getClassOrder } from "better-tailwindcss:async:class-order.sync.js";
 import {
   DEFAULT_ATTRIBUTE_NAMES,
   DEFAULT_CALLEE_NAMES,
   DEFAULT_TAG_NAMES,
   DEFAULT_VARIABLE_NAMES
-} from "readable-tailwind:options:default-options.js";
+} from "better-tailwindcss:options:default-options.js";
 import {
   ATTRIBUTE_SCHEMA,
   CALLEE_SCHEMA,
@@ -12,28 +12,28 @@ import {
   TAG_SCHEMA,
   TAILWIND_CONFIG_SCHEMA,
   VARIABLE_SCHEMA
-} from "readable-tailwind:options:descriptions.js";
-import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
-import { createRuleListener } from "readable-tailwind:utils:rule.js";
+} from "better-tailwindcss:options:descriptions.js";
+import { escapeNestedQuotes } from "better-tailwindcss:utils:quotes.js";
+import { createRuleListener } from "better-tailwindcss:utils:rule.js";
 import {
   augmentMessageWithWarnings,
   display,
   getCommonOptions,
   splitClasses,
   splitWhitespaces
-} from "readable-tailwind:utils:utils.js";
+} from "better-tailwindcss:utils:utils.js";
 
 import type { Rule } from "eslint";
 
-import type { Literal } from "readable-tailwind:types:ast.js";
+import type { Literal } from "better-tailwindcss:types:ast.js";
 import type {
   AttributeOption,
   CalleeOption,
   ESLintRule,
   TagOption,
   VariableOption
-} from "readable-tailwind:types:rule.js";
-import type { Warning } from "readable-tailwind:utils:utils.js";
+} from "better-tailwindcss:types:rule.js";
+import type { Warning } from "better-tailwindcss:utils:utils.js";
 
 
 export type Options = [
@@ -58,7 +58,7 @@ const defaultOptions = {
   variables: DEFAULT_VARIABLE_NAMES
 } as const satisfies Options[0];
 
-const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/docs/rules/sort-classes.md";
+const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/sort-classes.md";
 
 export const tailwindSortClasses: ESLintRule<Options> = {
   name: "sort-classes" as const,

@@ -9,10 +9,10 @@
   "eslint.validate": ["javascript", "typescript", "json", "jsonc", "json5", "yaml"],
 
   "eslint.rules.customizations": [
-    { "rule": "readable-tailwind/*", "severity": "off" }
+    { "rule": "better-tailwindcss/*", "severity": "off" }
   ],
   "eslint.codeActionsOnSave.rules": [
-    "!readable-tailwind/*",
+    "!better-tailwindcss/*",
     "*"
   ],
 

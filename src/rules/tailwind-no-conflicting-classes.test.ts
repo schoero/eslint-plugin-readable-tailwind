@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
-import { tailwindNoConflictingClasses } from "readable-tailwind:rules:tailwind-no-conflicting-classes.js";
-import { lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
+import { tailwindNoConflictingClasses } from "better-tailwindcss:rules:tailwind-no-conflicting-classes.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 
 
 describe(tailwindNoConflictingClasses.name, () => {

@@ -1,4 +1,4 @@
-# readable-tailwind/no-unnecessary-whitespace
+# better-tailwindcss/no-unnecessary-whitespace
 
 Disallow unnecessary whitespace in between and around tailwind classes.
 
@@ -9,7 +9,7 @@ Disallow unnecessary whitespace in between and around tailwind classes.
 ### `allowMultiline`
 
   Allow multi-line class declarations.  
-  If this option is disabled, template literal strings will be collapsed into a single line string wherever possible. Must be set to `true` when used in combination with [readable-tailwind/multiline](./multiline.md).  
+  If this option is disabled, template literal strings will be collapsed into a single line string wherever possible. Must be set to `true` when used in combination with [better-tailwindcss/multiline](./multiline.md).  
   
   **Type**: `boolean`  
   **Default**: `true`
