@@ -153,8 +153,8 @@ Depending on the flavor you are using, you may need to install and configure the
 
 Two predefined configurations are available that contain the recommended rules:
 
-- `error` - will throw an error if the rule is violated
-- `warning` - will throw a warning if the rule is violated
+- `error` - will report an error if the rule is violated
+- `warning` - will report a warning if the rule is violated
   
 The following table shows the available rules, the supported tailwindcss versions and if they are enabled by default in the different configurations:
 
