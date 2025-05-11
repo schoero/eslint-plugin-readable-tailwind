@@ -69,7 +69,7 @@ This plugin supports a with a wide range of projects, including React, Solid.js,
 <br/>
 
 <div align="center">
-  <img alt="eslint-plugin-better-tailwindcss example" width="640px" src="./assets/eslint-plugin-better-tailwindcss-demo.webp">
+  <img alt="eslint-plugin-better-tailwindcss example" width="640px" src="./assets/eslint-plugin-better-tailwindcss-demo.png">
 </div>
 
 <br/>
