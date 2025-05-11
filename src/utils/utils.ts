@@ -3,11 +3,11 @@ import {
   DEFAULT_CALLEE_NAMES,
   DEFAULT_TAG_NAMES,
   DEFAULT_VARIABLE_NAMES
-} from "readable-tailwind:options:default-options.js";
+} from "better-tailwindcss:options:default-options.js";
 
 import type { Rule } from "eslint";
 
-import type { BracesMeta, Literal, QuoteMeta } from "readable-tailwind:types:ast.js";
+import type { BracesMeta, Literal, QuoteMeta } from "better-tailwindcss:types:ast.js";
 
 
 export function getCommonOptions(ctx: Rule.RuleContext) {
@@ -28,8 +28,8 @@ export function getCommonOptions(ctx: Rule.RuleContext) {
 }
 
 function getOption(ctx: Rule.RuleContext, key: string) {
-  return ctx.options[0]?.[key] ?? ctx.settings["eslint-plugin-readable-tailwind"]?.[key] ??
-    ctx.settings["readable-tailwind"]?.[key];
+  return ctx.options[0]?.[key] ?? ctx.settings["eslint-plugin-better-tailwindcss"]?.[key] ??
+    ctx.settings["better-tailwindcss"]?.[key];
 }
 
 export function getWhitespace(classes: string) {

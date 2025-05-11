@@ -14,16 +14,16 @@
     // strictness
     "noImplicitAny": false,
     "paths": {
-      "readable-tailwind:build:*": ["build/*"],
-      "readable-tailwind:async:*": ["src/tailwind/async/*"],
-      "readable-tailwind:tailwindcss:*": ["src/tailwindcss/*"],
-      "readable-tailwind:options:*": ["src/options/*"],
-      "readable-tailwind:configs:*": ["src/configs/*"],
-      "readable-tailwind:parsers:*": ["src/parsers/*"],
-      "readable-tailwind:rules:*": ["src/rules/*"],
-      "readable-tailwind:tests:*": ["tests/*"],
-      "readable-tailwind:types:*": ["src/types/*"],
-      "readable-tailwind:utils:*": ["src/utils/*"]
+      "better-tailwindcss:build:*": ["build/*"],
+      "better-tailwindcss:async:*": ["src/tailwind/async/*"],
+      "better-tailwindcss:tailwindcss:*": ["src/tailwindcss/*"],
+      "better-tailwindcss:options:*": ["src/options/*"],
+      "better-tailwindcss:configs:*": ["src/configs/*"],
+      "better-tailwindcss:parsers:*": ["src/parsers/*"],
+      "better-tailwindcss:rules:*": ["src/rules/*"],
+      "better-tailwindcss:tests:*": ["tests/*"],
+      "better-tailwindcss:types:*": ["src/types/*"],
+      "better-tailwindcss:utils:*": ["src/utils/*"]
     },
 
     // imports

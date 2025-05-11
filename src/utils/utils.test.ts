@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { matchesName } from "readable-tailwind:utils:utils.js";
+import { matchesName } from "better-tailwindcss:utils:utils.js";
 
 
 describe("matchesName", () => {

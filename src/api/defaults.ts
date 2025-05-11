@@ -3,7 +3,7 @@ import {
   DEFAULT_CALLEE_NAMES,
   DEFAULT_TAG_NAMES,
   DEFAULT_VARIABLE_NAMES
-} from "readable-tailwind:options:default-options.js";
+} from "better-tailwindcss:options:default-options.js";
 
 
 export function getDefaultCallees() {

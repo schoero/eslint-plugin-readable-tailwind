@@ -1,6 +1,6 @@
 import { mkdir, rm, writeFile } from "fs/promises";
- import { transformDirname, transformImports } from "readable-tailwind:build:transform.js";
- import { $ } from "readable-tailwind:build:utils.js";
+ import { transformDirname, transformImports } from "better-tailwindcss:build:transform.js";
+ import { $ } from "better-tailwindcss:build:utils.js";
 
  async function build(){
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
+import { escapeNestedQuotes } from "better-tailwindcss:utils:quotes.js";
 
 
 describe("escapeNestedQuotes", () => {

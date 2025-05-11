@@ -1,8 +1,8 @@
 import { describe, it } from "vitest";
 
-import { TV_COMPOUND_VARIANTS_CLASS, TV_STRINGS, TV_VARIANT_VALUES } from "readable-tailwind:options:callees/tv.js";
-import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
+import { TV_COMPOUND_VARIANTS_CLASS, TV_STRINGS, TV_VARIANT_VALUES } from "better-tailwindcss:options:callees/tv.js";
+import { tailwindNoUnnecessaryWhitespace } from "better-tailwindcss:rules:tailwind-no-unnecessary-whitespace.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 
 
 describe("tv", () => {

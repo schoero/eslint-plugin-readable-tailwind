@@ -4,9 +4,9 @@ import {
   CVA_COMPOUND_VARIANTS_CLASS,
   CVA_STRINGS,
   CVA_VARIANT_VALUES
-} from "readable-tailwind:options:callees/cva.js";
-import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
+} from "better-tailwindcss:options:callees/cva.js";
+import { tailwindNoUnnecessaryWhitespace } from "better-tailwindcss:rules:tailwind-no-unnecessary-whitespace.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 
 
 describe("cva", () => {

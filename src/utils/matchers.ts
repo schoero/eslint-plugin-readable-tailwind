@@ -3,8 +3,8 @@ import {
   isESCallExpression,
   isESNode,
   isESVariableDeclarator
-} from "readable-tailwind:parsers:es.js";
-import { isGenericNodeWithParent } from "readable-tailwind:utils:utils.js";
+} from "better-tailwindcss:parsers:es.js";
+import { isGenericNodeWithParent } from "better-tailwindcss:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { Node as ESNode } from "estree";
@@ -28,8 +28,8 @@ import type {
   VariableName,
   VariableRegex,
   Variables
-} from "readable-tailwind:types:rule.js";
-import type { GenericNodeWithParent } from "readable-tailwind:utils:utils.js";
+} from "better-tailwindcss:types:rule.js";
+import type { GenericNodeWithParent } from "better-tailwindcss:utils:utils.js";
 
 
 export function getLiteralNodesByMatchers<Node>(ctx: Rule.RuleContext, node: unknown, matcherFunctions: MatcherFunctions<Node>, deadEnd?: (node: unknown) => boolean): Node[] {
