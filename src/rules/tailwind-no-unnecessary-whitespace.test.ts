@@ -1,10 +1,11 @@
+import { getTailwindcssVersion, TailwindcssVersion } from "src/tailwind/utils/version.js";
 import { describe, it } from "vitest";
 
 import { tailwindNoUnnecessaryWhitespace } from "better-tailwindcss:rules:tailwind-no-unnecessary-whitespace.js";
 import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 
 
-describe(tailwindNoUnnecessaryWhitespace.name, () => {
+describe.skipIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)(tailwindNoUnnecessaryWhitespace.name, () => {
 
   it("should trim leading and trailing white space in literals", () => {
     lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {

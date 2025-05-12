@@ -1,4 +1,4 @@
-import { getTailwindcssVersion } from "src/tailwind/utils/version.js";
+import { getTailwindcssVersion, TailwindcssVersion } from "src/tailwind/utils/version.js";
 import { describe, it } from "vitest";
 
 import { tailwindNoUnregisteredClasses } from "better-tailwindcss:rules:tailwind-no-unregistered-classes.js";
@@ -80,7 +80,7 @@ describe(tailwindNoUnregisteredClasses.name, () => {
     );
   });
 
-  it.skipIf(getTailwindcssVersion().major < 4)("should not report on dynamic utility values in tailwind >= 4", () => {
+  it.skipIf(getTailwindcssVersion().major < TailwindcssVersion.V4)("should not report on dynamic utility values in tailwind >= 4", () => {
     lint(
       tailwindNoUnregisteredClasses,
       TEST_SYNTAXES,
@@ -98,7 +98,7 @@ describe(tailwindNoUnregisteredClasses.name, () => {
     );
   });
 
-  it.skipIf(getTailwindcssVersion().major > 3)("should report on dynamic utility values in tailwind <= 3", () => {
+  it.skipIf(getTailwindcssVersion().major > TailwindcssVersion.V3)("should report on dynamic utility values in tailwind <= 3", () => {
     lint(
       tailwindNoUnregisteredClasses,
       TEST_SYNTAXES,
