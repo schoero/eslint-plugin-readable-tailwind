@@ -3,12 +3,24 @@ import { readFileSync } from "node:fs";
 import { jsonResolver } from "../utils/resolvers.js";
 
 
-export type SupportedTailwindVersion = 3 | 4;
-
-export function isSupportedVersion(version: number): version is SupportedTailwindVersion {
-  return version === 3 || version === 4;
+export const enum TailwindcssVersion {
+  V3 = 3,
+  V4 = 4
 }
 
+export type SupportedTailwindVersion = TailwindcssVersion.V3 | TailwindcssVersion.V4;
+
+export function isSupportedVersion(version: number): version is SupportedTailwindVersion {
+  return version === TailwindcssVersion.V3 || version === TailwindcssVersion.V4;
+}
+
+export function isTailwindcssVersion3(version: number): version is TailwindcssVersion.V3 {
+  return version === TailwindcssVersion.V3;
+}
+
+export function isTailwindcssVersion4(version: number): version is TailwindcssVersion.V4 {
+  return version === TailwindcssVersion.V4;
+}
 
 export function getTailwindcssVersion() {
   const packageJsonPath = jsonResolver.resolveSync({}, process.cwd(), "tailwindcss/package.json");

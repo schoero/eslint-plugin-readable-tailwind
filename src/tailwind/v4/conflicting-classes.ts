@@ -1,10 +1,13 @@
 import { findDefaultConfig, findTailwindConfig } from "./config.js";
 import { createTailwindContextFromEntryPoint } from "./context.js";
 
-import type { ConfigWarning, GetConflictingClassesRequest, GetConflictingClassesResponse } from "../api/interface.js";
+import type {
+  ConfigWarning,
+  ConflictingClasses,
+  GetConflictingClassesRequest,
+  GetConflictingClassesResponse
+} from "../api/interface.js";
 
-
-export type ConflictingClasses = { [hierarchy: string]: { cssPropertyName: string; tailwindClassName: string; cssPropertyValue?: string; }[]; };
 
 export async function getConflictingClasses({ classes, configPath, cwd }: GetConflictingClassesRequest): Promise<GetConflictingClassesResponse> {
   const warnings: ConfigWarning[] = [];

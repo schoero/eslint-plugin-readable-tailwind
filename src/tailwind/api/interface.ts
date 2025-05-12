@@ -1,17 +1,24 @@
 import type { Warning } from "better-tailwindcss:utils:utils.js";
 
 
+export type ConfigWarning = Omit<Warning, "url"> & Partial<Pick<Warning, "url">>;
+
+
 export interface GetClassOrderRequest {
   classes: string[];
   cwd: string;
   configPath?: string;
 }
+export type GetClassOrderResponse = [classOrder: [className: string, order: bigint | null][], warnings: ConfigWarning[]];
+
 
 export interface GetUnregisteredClassesRequest {
   classes: string[];
   cwd: string;
   configPath?: string;
 }
+export type GetUnregisteredClassesResponse = [unregisteredClasses: string[], warnings: ConfigWarning[]];
+
 
 export interface GetConflictingClassesRequest {
   classes: string[];
@@ -19,8 +26,12 @@ export interface GetConflictingClassesRequest {
   configPath?: string;
 }
 
-export type ConfigWarning = Omit<Warning, "url"> & Partial<Pick<Warning, "url">>;
+export type ConflictingClasses = {
+  [hierarchy: string]: {
+    cssPropertyName: string;
+    tailwindClassName: string;
+    cssPropertyValue?: string;
+  }[];
+};
 
-export type GetClassOrderResponse = [classOrder: [className: string, order: bigint | null][], warnings: ConfigWarning[]];
-export type GetUnregisteredClassesResponse = [unregisteredClasses: string[], warnings: ConfigWarning[]];
 export type GetConflictingClassesResponse = [conflictingClasses: ConflictingClasses, warnings: ConfigWarning[]];
