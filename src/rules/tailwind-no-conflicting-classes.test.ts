@@ -1,10 +1,11 @@
+import { getTailwindcssVersion, TailwindcssVersion } from "src/tailwind/utils/version.js";
 import { describe, it } from "vitest";
 
 import { tailwindNoConflictingClasses } from "better-tailwindcss:rules:tailwind-no-conflicting-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 
 
-describe(tailwindNoConflictingClasses.name, () => {
+describe.skipIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)(tailwindNoConflictingClasses.name, () => {
 
   it("should not report on non-conflicting tailwind classes", () => {
     lint(
