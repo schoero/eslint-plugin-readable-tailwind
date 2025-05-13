@@ -17,14 +17,14 @@ import { createRuleListener } from "better-tailwindcss:utils:rule.js";
 import {
   augmentMessageWithWarnings,
   display,
-  escapeForRegex,
   getCommonOptions,
+  getExactClassLocation,
   splitClasses
 } from "better-tailwindcss:utils:utils.js";
 
 import type { Rule } from "eslint";
 
-import type { Literal, Loc } from "better-tailwindcss:types:ast.js";
+import type { Literal } from "better-tailwindcss:types:ast.js";
 import type {
   AttributeOption,
   CalleeOption,
@@ -96,73 +96,42 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     const classes = splitClasses(literal.content);
 
-    const [conflictingCssPropertyPaths, warnings] = getConflictingClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
+    const [conflictingClasses, warnings] = getConflictingClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
 
     const conflictingClassesWarnings = warnings.map(warning => ({ ...warning, url: DOCUMENTATION_URL }));
 
-    if(Object.keys(conflictingCssPropertyPaths).length === 0){
+    if(Object.keys(conflictingClasses).length === 0){
       continue;
     }
 
-    for(const conflictingCssPropertyPath in conflictingCssPropertyPaths){
-      const conflictingClasses = conflictingCssPropertyPaths[conflictingCssPropertyPath];
+    for(const conflictingClass in conflictingClasses){
+      const conflicts = conflictingClasses[conflictingClass];
 
-      for(const conflictingClass of conflictingClasses){
-        ctx.report({
-          data: {
-            conflicting: display(conflictingClass.tailwindClassName),
-            other: conflictingClasses.reduce<string[]>((conflictingClasses, otherClass) => {
-              if(otherClass.tailwindClassName !== conflictingClass.tailwindClassName){
-                conflictingClasses.push(`${otherClass.tailwindClassName} -> (${otherClass.cssPropertyName}: ${otherClass.cssPropertyValue})`);
-              }
-              return conflictingClasses;
-            }, []).join(", "),
-            property: conflictingClass.cssPropertyName,
-            value: conflictingClass.cssPropertyValue ?? ""
-          },
-          loc: getExactLocation(literal.loc, literal, conflictingClass.tailwindClassName),
-          message: augmentMessageWithWarnings("Conflicting class detected: {{ conflicting }} -> ({{property}}: {{value}}) applies the same css property as {{ other }}", conflictingClassesWarnings)
-        });
+      const otherConflicts = conflicts.filter(conflict => conflict.tailwindClassName !== conflictingClass);
+      const conflict = conflicts.find(conflict => conflict.tailwindClassName === conflictingClass);
+
+      if(!conflict || otherConflicts.length === 0){
+        continue;
       }
+
+      ctx.report({
+        data: {
+          conflicting: display(conflict.tailwindClassName),
+          other: otherConflicts.reduce<string[]>((otherConflicts, otherConflict) => {
+            if(otherConflict.tailwindClassName !== conflict.tailwindClassName){
+              otherConflicts.push(`${otherConflict.tailwindClassName} -> (${otherConflict.cssPropertyName}: ${otherConflict.cssPropertyValue})`);
+            }
+            return otherConflicts;
+          }, []).join(", "),
+          property: conflict.cssPropertyName,
+          value: conflict.cssPropertyValue ?? ""
+        },
+        loc: getExactClassLocation(literal, conflict.tailwindClassName),
+        message: augmentMessageWithWarnings("Conflicting class detected: {{ conflicting }} -> ({{property}}: {{value}}) applies the same css property as {{ other }}", conflictingClassesWarnings)
+      });
     }
 
   }
-}
-
-function getExactLocation(loc: Loc["loc"], literal: Literal, className: string) {
-  const escapedClass = escapeForRegex(className);
-  const regex = new RegExp(`(?:^|\\s+)(${escapedClass})(?=\\s+|$)`);
-  const match = literal.content.match(regex);
-
-  if(match?.index === undefined){
-    return loc;
-  }
-
-  const fullMatchIndex = match.index;
-  const word = match?.[1];
-  const indexOfClass = fullMatchIndex + match[0].indexOf(word);
-
-  const linesUpToStartIndex = literal.content.slice(0, indexOfClass).split("\n");
-  const isOnFirstLine = linesUpToStartIndex.length === 1;
-  const containingLine = linesUpToStartIndex.at(-1);
-
-  const line = loc.start.line + linesUpToStartIndex.length - 1;
-  const column = (
-    isOnFirstLine
-      ? loc.start.column + (literal.openingQuote?.length ?? 0)
-      : 0
-  ) + (containingLine?.length ?? 0);
-
-  return {
-    end: {
-      column: column + className.length,
-      line
-    },
-    start: {
-      column,
-      line
-    }
-  };
 }
 
 export function getOptions(ctx: Rule.RuleContext) {

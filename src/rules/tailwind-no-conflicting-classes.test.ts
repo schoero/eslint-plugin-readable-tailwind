@@ -87,7 +87,7 @@ describe.skipIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)(tailwind
       {
         invalid: [
           {
-            angular: `<div class="hover:flex hover:block"></div>`,
+            angular: `<div class="md:hover:flex md:hover:block"></div>`,
             errors: 2,
             html: `<div class="hover:flex hover:block"></div>`,
             jsx: `() => <div class="hover:flex hover:block"></div>`,
