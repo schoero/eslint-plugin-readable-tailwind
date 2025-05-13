@@ -102,6 +102,48 @@ export function getIndentation(line: string): number {
   return line.match(/^[\t ]*/)?.[0].length ?? 0;
 }
 
+export function escapeForRegex(word: string) {
+  return word.replace(/[$()*+.?[\\\]^{|}]/g, "\\$&");
+}
+
+export function getExactClassLocation(literal: Literal, className: string, lastIndex?: boolean) {
+  const escapedClass = escapeForRegex(className);
+  const regex = new RegExp(`(?:^|\\s+)(${escapedClass})(?=\\s+|$)`, "g");
+  const [...matches] = literal.content.matchAll(regex);
+
+  const match = lastIndex ? matches.at(-1) : matches.at(0);
+
+  if(match?.index === undefined){
+    return literal.loc;
+  }
+
+  const fullMatchIndex = match.index;
+  const word = match?.[1];
+  const indexOfClass = fullMatchIndex + match[0].indexOf(word);
+
+  const linesUpToStartIndex = literal.content.slice(0, indexOfClass).split("\n");
+  const isOnFirstLine = linesUpToStartIndex.length === 1;
+  const containingLine = linesUpToStartIndex.at(-1);
+
+  const line = literal.loc.start.line + linesUpToStartIndex.length - 1;
+  const column = (
+    isOnFirstLine
+      ? literal.loc.start.column + (literal.openingQuote?.length ?? 0)
+      : 0
+  ) + (containingLine?.length ?? 0);
+
+  return {
+    end: {
+      column: column + className.length,
+      line
+    },
+    start: {
+      column,
+      line
+    }
+  };
+}
+
 export function matchesName(pattern: string, name: string | undefined): boolean {
   if(!name){ return false; }
 
