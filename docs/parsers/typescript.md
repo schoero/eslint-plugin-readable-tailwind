@@ -19,7 +19,7 @@ Read more about the new [ESLint flat config format](https://eslint.org/docs/late
 ```js
 // eslint.config.js
 import eslintParserTypeScript from "@typescript-eslint/parser";
-import eslintPluginReadableTailwind from "eslint-plugin-better-tailwindcss";
+import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
 
 export default [
   {
@@ -33,13 +33,13 @@ export default [
   },
   {
     plugins: {
-      "better-tailwindcss": eslintPluginReadableTailwind
+      "better-tailwindcss": eslintPluginBetterTailwindcss
     },
     rules: {
       // enable all recommended rules to warn
-      ...eslintPluginReadableTailwind.configs.warning.rules,
+      ...eslintPluginBetterTailwindcss.configs.warning.rules,
       // enable all recommended rules to error
-      ...eslintPluginReadableTailwind.configs.error.rules,
+      ...eslintPluginBetterTailwindcss.configs.error.rules,
 
       // or configure rules individually
       "better-tailwindcss/multiline": ["warn", { printWidth: 100 }]
