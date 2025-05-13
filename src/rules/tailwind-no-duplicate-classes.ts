@@ -12,7 +12,12 @@ import {
 } from "readable-tailwind:options:descriptions.js";
 import { escapeNestedQuotes } from "readable-tailwind:utils:quotes.js";
 import { createRuleListener } from "readable-tailwind:utils:rule.js";
-import { getCommonOptions, splitClasses, splitWhitespaces } from "readable-tailwind:utils:utils.js";
+import {
+  getCommonOptions,
+  getExactClassLocation,
+  splitClasses,
+  splitWhitespaces
+} from "readable-tailwind:utils:utils.js";
 
 import type { Rule } from "eslint";
 
@@ -142,16 +147,18 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       continue;
     }
 
-    ctx.report({
-      data: {
-        duplicateClassname: duplicates.join(", ")
-      },
-      fix(fixer) {
-        return fixer.replaceTextRange(literal.range, fixedClasses);
-      },
-      loc: literal.loc,
-      message: "Duplicate classname: \"{{ duplicateClassname }}\"."
-    });
+    for(const className of duplicates){
+      ctx.report({
+        data: {
+          duplicateClassname: className
+        },
+        fix(fixer) {
+          return fixer.replaceTextRange(literal.range, fixedClasses);
+        },
+        loc: getExactClassLocation(literal, className, true),
+        message: "Duplicate classname: \"{{ duplicateClassname }}\"."
+      });
+    }
 
   }
 

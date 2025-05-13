@@ -220,7 +220,7 @@ describe(tailwindNoDuplicateClasses.name, () => {
     lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 2,
+          errors: 3,
           jsx: `() => <img class={\`${dirtyExpressionBetween}\`} />`,
           jsxOutput: `() => <img class={\`${cleanExpressionBetween}\`} />`,
           svelte: `<img class={\`${dirtyExpressionBetween}\`} />`,
@@ -260,7 +260,7 @@ describe(tailwindNoDuplicateClasses.name, () => {
     lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 2,
+          errors: 4,
           jsx: `() => <img class={\`${dirtyStickyExpressionAtStart}\`} />`,
           jsxOutput: `() => <img class={\`${cleanStickyExpressionAtStart}\`} />`,
           svelte: `<img class={\`${dirtyStickyExpressionAtStart}\`} />`,
@@ -272,7 +272,7 @@ describe(tailwindNoDuplicateClasses.name, () => {
     lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 2,
+          errors: 4,
           jsx: `() => <img class={\`${dirtyStickyExpressionBetween}\`} />`,
           jsxOutput: `() => <img class={\`${cleanStickyExpressionBetween}\`} />`,
           svelte: `<img class={\`${dirtyStickyExpressionBetween}\`} />`,
@@ -285,7 +285,7 @@ describe(tailwindNoDuplicateClasses.name, () => {
     lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 2,
+          errors: 4,
           jsx: `() => <img class={\`${dirtyStickyExpressionAtEnd}\`} />`,
           jsxOutput: `() => <img class={\`${cleanStickyExpressionAtEnd}\`} />`,
           svelte: `<img class={\`${dirtyStickyExpressionAtEnd}\`} />`,
@@ -313,7 +313,7 @@ describe(tailwindNoDuplicateClasses.name, () => {
     lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 2,
+          errors: 4,
           jsx: `() => <img class={\`${dirtyStickyExpressionAtStart}\`} />`,
           jsxOutput: `() => <img class={\`${cleanStickyExpressionAtStart}\`} />`,
           svelte: `<img class={\`${dirtyStickyExpressionAtStart}\`} />`,
@@ -325,7 +325,7 @@ describe(tailwindNoDuplicateClasses.name, () => {
     lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 2,
+          errors: 4,
           jsx: `() => <img class={\`${dirtyStickyExpressionBetween}\`} />`,
           jsxOutput: `() => <img class={\`${cleanStickyExpressionBetween}\`} />`,
           svelte: `<img class={\`${dirtyStickyExpressionBetween}\`} />`,
@@ -338,7 +338,7 @@ describe(tailwindNoDuplicateClasses.name, () => {
     lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 2,
+          errors: 4,
           jsx: `() => <img class={\`${dirtyStickyExpressionAtEnd}\`} />`,
           jsxOutput: `() => <img class={\`${cleanStickyExpressionAtEnd}\`} />`,
           svelte: `<img class={\`${dirtyStickyExpressionAtEnd}\`} />`,
