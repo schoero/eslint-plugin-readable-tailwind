@@ -1,5 +1,5 @@
 import eslintParserHTML from "@html-eslint/parser";
-import eslintPluginReadableTailwind from "eslint-plugin-better-tailwindcss";
+import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
 
 
 export default {
@@ -8,7 +8,7 @@ export default {
     parser: eslintParserHTML
   },
   plugins: {
-    "better-tailwindcss": eslintPluginReadableTailwind
+    "better-tailwindcss": eslintPluginBetterTailwindcss
   },
-  rules: eslintPluginReadableTailwind.configs.warning.rules
+  rules: eslintPluginBetterTailwindcss.configs.warning.rules
 };
