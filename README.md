@@ -6,7 +6,7 @@
   </picture>
 </div>
 
-<h1 align="center">better-tailwindcss</h1>
+<h1 align="center">eslint-plugin-better-tailwindcss</h1>
 
 <br/>
 <br/>
@@ -69,7 +69,7 @@ This plugin supports a with a wide range of projects, including React, Solid.js,
 <br/>
 
 <div align="center">
-  <img alt="eslint-plugin-better-tailwindcss example" width="640px" src="./assets/eslint-plugin-better-tailwindcss-demo.webp">
+  <img alt="eslint-plugin-better-tailwindcss example" width="640px" src="./assets/eslint-plugin-better-tailwindcss-demo.png">
 </div>
 
 <br/>
@@ -153,8 +153,8 @@ Depending on the flavor you are using, you may need to install and configure the
 
 Two predefined configurations are available that contain the recommended rules:
 
-- `error` - will throw an error if the rule is violated
-- `warning` - will throw a warning if the rule is violated
+- `error` - will report an error if the rule is violated
+- `warning` - will report a warning if the rule is violated
   
 The following table shows the available rules, the supported tailwindcss versions and if they are enabled by default in the different configurations:
 

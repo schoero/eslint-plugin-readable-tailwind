@@ -21,9 +21,9 @@ describe("e2e/commonjs", async () => {
 
     expect(json.messages.map(({ ruleId }) => ruleId)).toEqual([
       "better-tailwindcss/multiline",
-      "better-tailwindcss/no-duplicate-classes",
       "better-tailwindcss/no-unnecessary-whitespace",
-      "better-tailwindcss/sort-classes"
+      "better-tailwindcss/sort-classes",
+      "better-tailwindcss/no-duplicate-classes"
     ]);
 
   });

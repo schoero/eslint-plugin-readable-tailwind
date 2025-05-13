@@ -41,7 +41,7 @@ import {
 ## Extending the config
 
 ```ts
-import eslintPluginReadableTailwind from "eslint-plugin-better-tailwindcss";
+import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
 import {
   getDefaultAttributes,
   getDefaultCallees,
@@ -53,7 +53,7 @@ import { MatcherType } from "eslint-plugin-better-tailwindcss/api/types";
 export default [
   {
     plugins: {
-      "better-tailwindcss": eslintPluginReadableTailwind
+      "better-tailwindcss": eslintPluginBetterTailwindcss
     },
     rules: {
       "better-tailwindcss/multiline": ["warn", {
