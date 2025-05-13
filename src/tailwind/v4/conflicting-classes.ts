@@ -86,6 +86,9 @@ export async function getConflictingClasses({ classes, configPath, cwd }: GetCon
               potentialConflicts[className] ??= [];
               potentialConflicts[className].push({
                 ...classRuleProperty,
+                tailwindClassName: className
+              }, {
+                ...otherClassRuleProperty,
                 tailwindClassName: otherClassName
               });
             }

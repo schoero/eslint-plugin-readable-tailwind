@@ -113,7 +113,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
             conflicting: display(conflictingClass.tailwindClassName),
             other: conflictingClasses.reduce<string[]>((conflictingClasses, otherClass) => {
               if(otherClass.tailwindClassName !== conflictingClass.tailwindClassName){
-                conflictingClasses.push(`${otherClass.tailwindClassName} -> (${conflictingCssPropertyPath}: ${otherClass.cssPropertyValue})`);
+                conflictingClasses.push(`${otherClass.tailwindClassName} -> (${otherClass.cssPropertyName}: ${otherClass.cssPropertyValue})`);
               }
               return conflictingClasses;
             }, []).join(", "),
