@@ -33,22 +33,73 @@ export async function getConflictingClasses({ classes, configPath, cwd }: GetCon
 
   const context = await createTailwindContextFromEntryPoint(path, invalidate);
 
-  const potentialConflicts: ConflictingClasses = {};
+  const conflicts: ConflictingClasses = {};
 
-  for(const className of classes){
-    const candidates = context.parseCandidate(className);
+  const classRules = classes.reduce<Record<string, RuleContext>>((classRules, className) => ({
+    ...classRules,
+    [className]: context.parseCandidate(className).reduce((classRules, candidate) => {
+      const [rule] = context.compileAstNodes(candidate);
+      return {
+        ...classRules,
+        ...getRuleContext(rule?.node?.nodes)
+      };
+    }, {})
+  }), {});
 
-    for(const candidate of candidates){
-      const rules = context.compileAstNodes(candidate);
-      for(const rule of rules){
-        extractCssProperty(className, rule.node.nodes, potentialConflicts, "");
+  for(const className in classRules){
+    otherClassLoop: for(const otherClassName in classRules){
+      if(className === otherClassName){
+        continue otherClassLoop;
       }
+
+      const classRule = classRules[className];
+      const otherClassRule = classRules[otherClassName];
+
+      const paths = Object.keys(classRule);
+      const otherPaths = Object.keys(otherClassRule);
+
+      if(paths.length !== otherPaths.length){
+        continue otherClassLoop;
+      }
+
+      const potentialConflicts: ConflictingClasses = {};
+
+      for(const path of paths){
+        for(const otherPath of otherPaths){
+          if(path !== otherPath){
+            continue otherClassLoop;
+          }
+
+          if(classRule[path].length !== otherClassRule[otherPath].length){
+            continue otherClassLoop;
+          }
+
+          for(const classRuleProperty of classRule[path]){
+            for(const otherClassRuleProperty of otherClassRule[otherPath]){
+              if(
+                classRuleProperty.cssPropertyName !== otherClassRuleProperty.cssPropertyName ||
+                classRuleProperty.important !== otherClassRuleProperty.important
+              ){
+                continue otherClassLoop;
+              }
+
+              potentialConflicts[className] ??= [];
+              potentialConflicts[className].push({
+                ...classRuleProperty,
+                tailwindClassName: otherClassName
+              });
+            }
+          }
+        }
+      }
+
+      conflicts[className] ??= [];
+      conflicts[className].push(...potentialConflicts[className]);
+
     }
   }
 
-  const conflictingClasses = Object.fromEntries(Object.entries(potentialConflicts).filter(([_, value]) => value.length > 1));
-
-  return [conflictingClasses, warnings];
+  return [conflicts, warnings];
 }
 
 export type StyleRule = {
@@ -91,26 +142,51 @@ export type Rule = AtRule | StyleRule;
 export type AstNode = AtRoot | AtRule | Comment | Context | Declaration | StyleRule;
 
 
-function extractCssProperty(className: string, nodes: AstNode[], conflicts: ConflictingClasses, path: string): ConflictingClasses {
-  for(const node of nodes){
-    if(node.kind === "declaration"){
-      conflicts[`${path}${node.property}`] ??= [];
-      conflicts[`${path}${node.property}`].push({
-        cssPropertyName: node.property,
-        cssPropertyValue: node.value,
-        tailwindClassName: className
-      });
-      continue;
-    }
+interface Property {
+  cssPropertyName: string;
+  important: boolean;
+  cssPropertyValue?: string;
+}
 
-    if(node.kind === "rule"){
-      return extractCssProperty(className, node.nodes, conflicts, path + node.selector);
-    }
+interface RuleContext {
+  [hierarchy: string]: Property[];
+}
 
-    if(node.kind === "at-rule"){
-      return extractCssProperty(className, node.nodes, conflicts, path + node.name + node.params);
-    }
+function getRuleContext(nodes: AstNode[]): RuleContext {
+  const context: RuleContext = {};
+
+  if(!nodes){
+    return context;
   }
 
-  return conflicts;
+  const checkNested = (nodes: AstNode[], context: RuleContext, path: string = "") => {
+    for(const node of nodes.filter(node => !!node)){
+      if(node.kind === "declaration"){
+        context[path] ??= [];
+
+        if(node.value === undefined){
+          continue;
+        }
+
+        context[path].push({
+          cssPropertyName: node.property,
+          cssPropertyValue: node.value,
+          important: node.important
+        });
+        continue;
+      }
+
+      if(node.kind === "rule"){
+        return void checkNested(node.nodes, context, path + node.selector);
+      }
+
+      if(node.kind === "at-rule"){
+        return void checkNested(node.nodes, context, path + node.name + node.params);
+      }
+    }
+  };
+
+  checkNested(nodes, context);
+
+  return context;
 }

@@ -29,6 +29,7 @@ export interface GetConflictingClassesRequest {
 export type ConflictingClasses = {
   [hierarchy: string]: {
     cssPropertyName: string;
+    important: boolean;
     tailwindClassName: string;
     cssPropertyValue?: string;
   }[];

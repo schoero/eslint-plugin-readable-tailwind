@@ -98,4 +98,40 @@ describe(tailwindNoConflictingClasses.name, () => {
     );
   });
 
+  it("should not report on classes if one of them has an important flag", () => {
+    lint(
+      tailwindNoConflictingClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<div class="flex block!"></div>`,
+            html: `<div class="flex block!"></div>`,
+            jsx: `() => <div class="flex block!"></div>`,
+            svelte: `<div class="flex block!"></div>`,
+            vue: `<template><div class="flex block!"></div></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it("should not report for css properties with an `undefined` value", () => {
+    lint(
+      tailwindNoConflictingClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<div class="text-sm font-thin"></div>`,
+            html: `<div class="text-sm font-thin"></div>`,
+            jsx: `() => <div class="text-sm font-thin"></div>`,
+            svelte: `<div class="text-sm font-thin"></div>`,
+            vue: `<template><div class="text-sm font-thin"></div></template>`
+          }
+        ]
+      }
+    );
+  });
+
 });
