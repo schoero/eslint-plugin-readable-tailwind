@@ -16,16 +16,20 @@ export const config = {
     error: {
       rules: {
         [`${pluginName}/${tailwindMultiline.name}`]: "error",
+        [`${pluginName}/${tailwindNoConflictingClasses.name}`]: "error",
         [`${pluginName}/${tailwindNoDuplicateClasses.name}`]: "error",
         [`${pluginName}/${tailwindNoUnnecessaryWhitespace.name}`]: "error",
+        [`${pluginName}/${tailwindNoUnregisteredClasses.name}`]: "error",
         [`${pluginName}/${tailwindSortClasses.name}`]: "error"
       }
     },
     warning: {
       rules: {
         [`${pluginName}/${tailwindMultiline.name}`]: "warn",
+        [`${pluginName}/${tailwindNoConflictingClasses.name}`]: "warn",
         [`${pluginName}/${tailwindNoDuplicateClasses.name}`]: "warn",
         [`${pluginName}/${tailwindNoUnnecessaryWhitespace.name}`]: "warn",
+        [`${pluginName}/${tailwindNoUnregisteredClasses.name}`]: "warn",
         [`${pluginName}/${tailwindSortClasses.name}`]: "warn"
       }
     }
