@@ -166,6 +166,7 @@ The following table shows the available rules, the supported tailwindcss version
 | [no-duplicate-classes](docs/rules/no-duplicate-classes.md) | Remove duplicate classes. | ✔ | ✔ | ✔ | ✔ | ✔ |
 | [no-unregistered-classes](docs/rules/no-unregistered-classes.md) | Report classes not registered with tailwindcss. | ✔ | ✔ | ✔ | ✔ |  |
 | [no-conflicting-classes](docs/rules/no-conflicting-classes.md) | Report classes that produce conflicting styles. |  | ✔ | ✔ | ✔ |  |
+| [no-restricted-classes](docs/rules/no-restricted-classes.md) | Disallow restricted classes. | ✔ | ✔ |  |  |  |
 
 <br/>
 <br/>
