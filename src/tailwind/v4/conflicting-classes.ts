@@ -62,7 +62,7 @@ export async function getConflictingClasses({ classes, configPath, cwd }: GetCon
         continue otherClassLoop;
       }
 
-      const potentialConflicts: ConflictingClasses = {};
+      const potentialConflicts: ConflictingClasses[string] = [];
 
       for(const path of paths){
         for(const otherPath of otherPaths){
@@ -83,8 +83,7 @@ export async function getConflictingClasses({ classes, configPath, cwd }: GetCon
                 continue otherClassLoop;
               }
 
-              potentialConflicts[className] ??= [];
-              potentialConflicts[className].push({
+              potentialConflicts.push({
                 ...classRuleProperty,
                 tailwindClassName: className
               }, {
@@ -97,7 +96,7 @@ export async function getConflictingClasses({ classes, configPath, cwd }: GetCon
       }
 
       conflicts[className] ??= [];
-      conflicts[className].push(...potentialConflicts[className]);
+      conflicts[className].push(...potentialConflicts);
 
     }
   }
