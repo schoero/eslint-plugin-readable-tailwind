@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
 import { DCNB_OBJECT_KEYS, DCNB_STRINGS } from "better-tailwindcss:options:callees/dcnb.js";
-import { tailwindNoUnnecessaryWhitespace } from "better-tailwindcss:rules:tailwind-no-unnecessary-whitespace.js";
+import { noUnnecessaryWhitespace } from "better-tailwindcss:rules:tailwind-no-unnecessary-whitespace.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 
 
@@ -12,7 +12,7 @@ describe("dcnb", () => {
     const dirty = `dcnb(" lint ", [" lint ", " lint "])`;
     const clean = `dcnb("lint", ["lint", "lint"])`;
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 3,
@@ -44,7 +44,7 @@ describe("dcnb", () => {
       )
     `;
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 2,

@@ -60,7 +60,7 @@ const defaultOptions = {
 
 const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/sort-classes.md";
 
-export const tailwindSortClasses: ESLintRule<Options> = {
+export const sortClasses: ESLintRule<Options> = {
   name: "sort-classes" as const,
   rule: {
     create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
@@ -121,7 +121,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       unsortableClasses[1] = classChunks.pop() ?? "";
     }
 
-    const [sortedClassChunks, warnings] = sortClasses(ctx, classChunks);
+    const [sortedClassChunks, warnings] = sortClassNames(ctx, classChunks);
 
     const classes: string[] = [];
 
@@ -167,7 +167,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
   }
 }
 
-function sortClasses(ctx: Rule.RuleContext, classes: string[]): [classes: string[], warnings?: Warning[]] {
+function sortClassNames(ctx: Rule.RuleContext, classes: string[]): [classes: string[], warnings?: Warning[]] {
 
   const { order, tailwindConfig } = getOptions(ctx);
 

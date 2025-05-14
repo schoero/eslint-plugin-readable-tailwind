@@ -1,6 +1,6 @@
 import { describe, it } from "vitest";
 
-import { tailwindSortClasses } from "better-tailwindcss:rules:tailwind-sort-classes.js";
+import { sortClasses } from "better-tailwindcss:rules:tailwind-sort-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 import { MatcherType } from "better-tailwindcss:types:rule.js";
 
@@ -8,7 +8,7 @@ import { MatcherType } from "better-tailwindcss:types:rule.js";
 describe("vue", () => {
 
   it("should match attribute names via regex", () => {
-    lint(tailwindSortClasses, TEST_SYNTAXES, {
+    lint(sortClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -21,7 +21,7 @@ describe("vue", () => {
   });
 
   it("should work in objects in bound classes", () => {
-    lint(tailwindSortClasses, TEST_SYNTAXES, {
+    lint(sortClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -40,7 +40,7 @@ describe("vue", () => {
   });
 
   it("should work in arrays in bound classes", () => {
-    lint(tailwindSortClasses, TEST_SYNTAXES, {
+    lint(sortClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 2,
@@ -59,7 +59,7 @@ describe("vue", () => {
   });
 
   it("should evaluate bound classes", () => {
-    lint(tailwindSortClasses, TEST_SYNTAXES, {
+    lint(sortClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -78,7 +78,7 @@ describe("vue", () => {
   });
 
   it("should automatically prefix bound classes", () => {
-    lint(tailwindSortClasses, TEST_SYNTAXES, {
+    lint(sortClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -97,7 +97,7 @@ describe("vue", () => {
   });
 
   it("should match bound classes via regex", () => {
-    lint(tailwindSortClasses, TEST_SYNTAXES, {
+    lint(sortClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,

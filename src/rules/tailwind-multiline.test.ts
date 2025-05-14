@@ -1,15 +1,15 @@
 import { describe, it } from "vitest";
 
-import { tailwindMultiline } from "better-tailwindcss:rules:tailwind-multiline.js";
+import { multiline } from "better-tailwindcss:rules:tailwind-multiline.js";
 import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 import { MatcherType } from "better-tailwindcss:types:rule.js";
 
 
-describe(tailwindMultiline.name, () => {
+describe(multiline.name, () => {
 
   it("should not wrap empty strings", () => {
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         valid: [
@@ -46,7 +46,7 @@ describe(tailwindMultiline.name, () => {
 
   it("should not wrap short lines", () => {
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         valid: [
@@ -92,7 +92,7 @@ describe(tailwindMultiline.name, () => {
     const clean = "a b";
 
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -117,7 +117,7 @@ describe(tailwindMultiline.name, () => {
 
   it("should not clean up whitespace in single line strings", () => {
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         valid: [
@@ -150,7 +150,7 @@ describe(tailwindMultiline.name, () => {
     `;
 
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -180,7 +180,7 @@ describe(tailwindMultiline.name, () => {
     `;
 
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -213,7 +213,7 @@ describe(tailwindMultiline.name, () => {
     `;
 
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -238,7 +238,7 @@ describe(tailwindMultiline.name, () => {
 
   it("should disable the `printWidth` limit when set to `0`", () => {
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         valid: [
@@ -270,7 +270,7 @@ describe(tailwindMultiline.name, () => {
     const dirtyUndefined = "notDefined('a b c d e f g h')";
 
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -294,7 +294,7 @@ describe(tailwindMultiline.name, () => {
     );
 
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -334,7 +334,7 @@ describe(tailwindMultiline.name, () => {
     const dirtyUndefined = `const notDefined = "a b c d e f g h"`;
 
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -365,7 +365,7 @@ describe(tailwindMultiline.name, () => {
     const cleanConditionalExpression = `true ? \`\n  1 2 3\n  4 5 6\n  7 8\n\` : \`\n  9 10 11\n  12 13 14\n  15 16\n\``;
 
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -389,7 +389,7 @@ describe(tailwindMultiline.name, () => {
     const cleanLogicalExpression = `true && \`\n  1 2 3\n  4 5 6\n  7 8\n\``;
 
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -413,7 +413,7 @@ describe(tailwindMultiline.name, () => {
     const cleanArray = `[\`\n  1 2 3\n  4 5 6\n  7 8\n\`, \`\n  9 10 11\n  12 13 14\n  15 16\n\`]`;
 
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -488,7 +488,7 @@ describe(tailwindMultiline.name, () => {
     );`;
 
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -533,7 +533,7 @@ describe(tailwindMultiline.name, () => {
     `;
 
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -600,7 +600,7 @@ describe(tailwindMultiline.name, () => {
       g h
     `;
 
-    lint(tailwindMultiline, TEST_SYNTAXES, {
+    lint(multiline, TEST_SYNTAXES, {
       invalid: [
         {
           angular: `<img class="${singleLine}" />`,
@@ -696,7 +696,7 @@ describe(tailwindMultiline.name, () => {
     `;
 
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -776,7 +776,7 @@ describe(tailwindMultiline.name, () => {
     `;
 
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -828,7 +828,7 @@ describe(tailwindMultiline.name, () => {
     `;
 
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         valid: [
@@ -856,7 +856,7 @@ describe(tailwindMultiline.name, () => {
     \`;`;
 
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -922,7 +922,7 @@ describe(tailwindMultiline.name, () => {
     };`;
 
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -993,7 +993,7 @@ describe(tailwindMultiline.name, () => {
     };`;
 
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -1025,7 +1025,7 @@ describe(tailwindMultiline.name, () => {
     const clean = "\r\n  a b c\r\n  d e f\r\n  g h\r\n";
 
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -1055,7 +1055,7 @@ describe(tailwindMultiline.name, () => {
     const clean = "\n\ta b c\n\td e f\n\tg h\n";
 
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -1092,7 +1092,7 @@ describe(tailwindMultiline.name, () => {
     `;
 
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         valid: [
@@ -1109,7 +1109,7 @@ describe(tailwindMultiline.name, () => {
 
   it("should be possible to change group separation by emptyLines", () => {
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -1134,7 +1134,7 @@ describe(tailwindMultiline.name, () => {
 
   it("should be possible to change group separation to emptyLine", () => {
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -1159,7 +1159,7 @@ describe(tailwindMultiline.name, () => {
 
   it("should be wrap groups according to preferSingleLine", () => {
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -1209,7 +1209,7 @@ describe(tailwindMultiline.name, () => {
 
   it("should remove duplicate classes in string literals in defined tagged template literals", () => {
     lint(
-      tailwindMultiline,
+      multiline,
       TEST_SYNTAXES,
       {
         invalid: [

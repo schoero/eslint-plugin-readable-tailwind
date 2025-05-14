@@ -9,7 +9,7 @@ import {
   isESStringLike,
   isInsideObjectValue
 } from "better-tailwindcss:parsers:es.js";
-import { tailwindNoUnnecessaryWhitespace } from "better-tailwindcss:rules:tailwind-no-unnecessary-whitespace.js";
+import { noUnnecessaryWhitespace } from "better-tailwindcss:rules:tailwind-no-unnecessary-whitespace.js";
 import { findNode, lint, TEST_SYNTAXES, withParentNodeExtension } from "better-tailwindcss:tests:utils.js";
 import { MatcherType } from "better-tailwindcss:types:rule.js";
 
@@ -183,7 +183,7 @@ describe("matchers", () => {
       });`;
 
       lint(
-        tailwindNoUnnecessaryWhitespace,
+        noUnnecessaryWhitespace,
         TEST_SYNTAXES,
         {
           invalid: [
@@ -216,7 +216,7 @@ describe("matchers", () => {
     });
 
     it("should match callees names via regex", () => {
-      lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+      lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
         invalid: [
           {
             errors: 1,
@@ -235,7 +235,7 @@ describe("matchers", () => {
     });
 
     it("should match variable names via regex", () => {
-      lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+      lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
         invalid: [
           {
             errors: 1,
@@ -254,7 +254,7 @@ describe("matchers", () => {
     });
 
     it("should match attributes via regex", () => {
-      lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+      lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
         invalid: [
           {
             errors: 1,
@@ -315,7 +315,7 @@ describe("matchers", () => {
       };`;
 
       lint(
-        tailwindNoUnnecessaryWhitespace,
+        noUnnecessaryWhitespace,
         TEST_SYNTAXES,
         {
           invalid: [
@@ -390,7 +390,7 @@ describe("matchers", () => {
       }`;
 
       lint(
-        tailwindNoUnnecessaryWhitespace,
+        noUnnecessaryWhitespace,
         TEST_SYNTAXES,
         {
           invalid: [
@@ -426,7 +426,7 @@ describe("matchers", () => {
 
     it("should lint class names in tagged template literals when matched using the strings matcher", () => {
       lint(
-        tailwindNoUnnecessaryWhitespace,
+        noUnnecessaryWhitespace,
         TEST_SYNTAXES,
         {
           invalid: [
@@ -448,7 +448,7 @@ describe("matchers", () => {
     it("should lint class names in nested literal expressions inside tagged template literals when matched using the strings matcher", () => {
       // eslint thinks the fixes are conflicting so it only applies the first iteration
       lint(
-        tailwindNoUnnecessaryWhitespace,
+        noUnnecessaryWhitespace,
         TEST_SYNTAXES,
         {
           invalid: [
@@ -474,7 +474,7 @@ describe("matchers", () => {
         }
       );
       lint(
-        tailwindNoUnnecessaryWhitespace,
+        noUnnecessaryWhitespace,
         TEST_SYNTAXES,
         {
           invalid: [
@@ -504,7 +504,7 @@ describe("matchers", () => {
   });
 
   it("should lint literals inside object keys when matched", () => {
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -523,7 +523,7 @@ describe("matchers", () => {
   });
 
   it("should lint literals inside object values when matched", () => {
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -542,7 +542,7 @@ describe("matchers", () => {
   });
 
   it("should lint only strings not matched by other matchers", () => {
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 2,
@@ -562,7 +562,7 @@ describe("matchers", () => {
 
   it("should lint strings inside template literal expressions when matched using the strings matcher", () => {
     // eslint thinks the fixes are conflicting so it only applies the first iteration
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 3,
@@ -578,7 +578,7 @@ describe("matchers", () => {
         }
       ]
     });
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -597,7 +597,7 @@ describe("matchers", () => {
   });
 
   it("should not double report if multiple matchers match the same literal", () => {
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 2,
@@ -612,7 +612,7 @@ describe("matchers", () => {
   });
 
   it("should still handle callees even when they are object values", () => {
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,

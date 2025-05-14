@@ -1,13 +1,13 @@
 import { describe, it } from "vitest";
 
-import { tailwindNoRestrictedClasses } from "better-tailwindcss:rules:tailwind-no-restricted-classes.js";
+import { noRestrictedClasses } from "better-tailwindcss:rules:tailwind-no-restricted-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 
 
-describe(tailwindNoRestrictedClasses.name, () => {
+describe(noRestrictedClasses.name, () => {
 
   it("should not report on unrestricted classes", () => {
-    lint(tailwindNoRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, TEST_SYNTAXES, {
       valid: [
         {
           angular: `<img class="font-bold container text-lg" />`,
@@ -21,7 +21,7 @@ describe(tailwindNoRestrictedClasses.name, () => {
   });
 
   it("should report restricted classes", () => {
-    lint(tailwindNoRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, TEST_SYNTAXES, {
       invalid: [
         {
           angular: `<img class="font-bold container text-lg" />`,
@@ -37,7 +37,7 @@ describe(tailwindNoRestrictedClasses.name, () => {
   });
 
   it("should report restricted classes matching a regex", () => {
-    lint(tailwindNoRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, TEST_SYNTAXES, {
       invalid: [
         {
           angular: `<img class="font-bold container text-lg" />`,
@@ -53,7 +53,7 @@ describe(tailwindNoRestrictedClasses.name, () => {
   });
 
   it("should report restricted classes with variants", () => {
-    lint(tailwindNoRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, TEST_SYNTAXES, {
       invalid: [
         {
           angular: `<img class="font-bold lg:container lg:text-lg" />`,
@@ -69,7 +69,7 @@ describe(tailwindNoRestrictedClasses.name, () => {
   });
 
   it("should report restricted classes containing reserved regex characters", () => {
-    lint(tailwindNoRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, TEST_SYNTAXES, {
       invalid: [
         {
           angular: `<img class="font-bold *:container **:text-lg" />`,
@@ -85,7 +85,7 @@ describe(tailwindNoRestrictedClasses.name, () => {
   });
 
   it("should be possible to disallow the important modifier", () => {
-    lint(tailwindNoRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, TEST_SYNTAXES, {
       invalid: [
         {
           angular: `<img class="font-bold text-lg!" />`,

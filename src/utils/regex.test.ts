@@ -1,6 +1,6 @@
 import { describe, it } from "vitest";
 
-import { tailwindNoUnnecessaryWhitespace } from "better-tailwindcss:rules:tailwind-no-unnecessary-whitespace.js";
+import { noUnnecessaryWhitespace } from "better-tailwindcss:rules:tailwind-no-unnecessary-whitespace.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 
 
@@ -47,7 +47,7 @@ describe("regex", () => {
       });`;
 
       lint(
-        tailwindNoUnnecessaryWhitespace,
+        noUnnecessaryWhitespace,
         TEST_SYNTAXES,
         {
           invalid: [
@@ -117,7 +117,7 @@ describe("regex", () => {
       };`;
 
       lint(
-        tailwindNoUnnecessaryWhitespace,
+        noUnnecessaryWhitespace,
         TEST_SYNTAXES,
         {
           invalid: [
@@ -187,7 +187,7 @@ describe("regex", () => {
       }`;
 
       lint(
-        tailwindNoUnnecessaryWhitespace,
+        noUnnecessaryWhitespace,
         TEST_SYNTAXES,
         {
           invalid: [
@@ -218,7 +218,7 @@ describe("regex", () => {
 
     it("should lint literals in tagged template literals", () => {
       lint(
-        tailwindNoUnnecessaryWhitespace,
+        noUnnecessaryWhitespace,
         TEST_SYNTAXES,
         {
           invalid: [

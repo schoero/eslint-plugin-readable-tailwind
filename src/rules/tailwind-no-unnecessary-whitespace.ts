@@ -48,7 +48,7 @@ const defaultOptions = {
 
 const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-unnecessary-whitespace.md";
 
-export const tailwindNoUnnecessaryWhitespace: ESLintRule<Options> = {
+export const noUnnecessaryWhitespace: ESLintRule<Options> = {
   name: "no-unnecessary-whitespace" as const,
   rule: {
     create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),

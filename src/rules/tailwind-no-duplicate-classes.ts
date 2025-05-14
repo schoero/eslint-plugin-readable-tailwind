@@ -52,7 +52,7 @@ const defaultOptions = {
 
 const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-duplicate-classes.md";
 
-export const tailwindNoDuplicateClasses: ESLintRule<Options> = {
+export const noDuplicateClasses: ESLintRule<Options> = {
   name: "no-duplicate-classes" as const,
   rule: {
     create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),

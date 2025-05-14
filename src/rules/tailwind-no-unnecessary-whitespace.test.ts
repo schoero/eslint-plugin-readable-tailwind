@@ -1,13 +1,13 @@
 import { describe, it } from "vitest";
 
-import { tailwindNoUnnecessaryWhitespace } from "better-tailwindcss:rules:tailwind-no-unnecessary-whitespace.js";
+import { noUnnecessaryWhitespace } from "better-tailwindcss:rules:tailwind-no-unnecessary-whitespace.js";
 import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 
 
-describe(tailwindNoUnnecessaryWhitespace.name, () => {
+describe(noUnnecessaryWhitespace.name, () => {
 
   it("should trim leading and trailing white space in literals", () => {
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           angular: `<img class="  b  a  " />`,
@@ -32,7 +32,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
     `;
     const cleanEmptyMultilineString = "";
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           angular: `<img class="${dirtyEmptyMultilineString}" />`,
@@ -52,7 +52,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
   });
 
   it("should keep the quotes as they are", () => {
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           angular: `<img class="  b  a  " />`,
@@ -106,7 +106,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
   });
 
   it("should keep one whitespace around template elements", () => {
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
         // 1st pass: fix template literal.
@@ -145,7 +145,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       c
     `;
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           angular: `<img class="${dirty}" />`,
@@ -214,7 +214,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       ${cleanExpression}
     `;
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
         // 1st pass: fix template literal.
@@ -236,7 +236,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       ]
     });
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
         // 1st pass: fix leading template element and expression.
@@ -258,7 +258,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       ]
     });
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
         // 1st pass: fix leading template element and expression.
@@ -299,7 +299,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
     const cleanExpressionAtEndPass1 = `a ${cleanExpression}  `;
     const cleanExpressionAtEndPass2 = `a ${cleanExpression}`;
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
         // 1st pass: fix leading template element and expression.
@@ -321,7 +321,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       ]
     });
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
         // 1st pass: fix leading template element and expression.
@@ -343,7 +343,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       ]
     });
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
         // 1st pass: fix leading template element and expression.
@@ -384,7 +384,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
     const cleanStickyExpressionAtEndPass1 = `a${cleanExpression}  `;
     const cleanStickyExpressionAtEndPass2 = `a${cleanExpression}`;
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
         // 1st pass: fix leading template element and expression.
@@ -406,7 +406,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       ]
     });
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
         // 1st pass: fix leading template element and expression.
@@ -428,7 +428,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       ]
     });
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
         // 1st pass: fix leading template element and expression.
@@ -465,7 +465,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
 
     const cleanedSinglelineString = "d c b a";
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           angular: `<img class="${uncleanedMultilineString}" />`,
@@ -536,7 +536,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
     const cleanDefined = "defined('f e');";
     const dirtyUndefined = "notDefined(\"  f  e  \");";
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -559,7 +559,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       ]
     });
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -629,7 +629,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
     );`;
 
     lint(
-      tailwindNoUnnecessaryWhitespace,
+      noUnnecessaryWhitespace,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -684,7 +684,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       j i
     `;
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -721,7 +721,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       d c
     \`;`;
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -789,7 +789,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
       d c
     \`;`;
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -856,7 +856,7 @@ describe(tailwindNoUnnecessaryWhitespace.name, () => {
 
   it("should remove unnecessary whitespace in string literals in defined tagged template literals", () => {
     lint(
-      tailwindNoUnnecessaryWhitespace,
+      noUnnecessaryWhitespace,
       TEST_SYNTAXES,
       {
         invalid: [

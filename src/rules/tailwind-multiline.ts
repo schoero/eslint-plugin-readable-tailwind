@@ -68,7 +68,7 @@ const defaultOptions = {
 
 const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/multiline.md";
 
-export const tailwindMultiline: ESLintRule<Options> = {
+export const multiline: ESLintRule<Options> = {
   name: "multiline" as const,
   rule: {
     create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),

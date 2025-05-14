@@ -1,14 +1,14 @@
 /* eslint-disable eslint-plugin-typescript/naming-convention */
 import { describe, it } from "vitest";
 
-import { tailwindNoDuplicateClasses } from "better-tailwindcss:rules:tailwind-no-duplicate-classes.js";
+import { noDuplicateClasses } from "better-tailwindcss:rules:tailwind-no-duplicate-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 
 
 describe("settings", () => {
 
   it("should use the global settings if provided", () => {
-    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -24,7 +24,7 @@ describe("settings", () => {
         }
       ]
     });
-    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -43,7 +43,7 @@ describe("settings", () => {
   });
 
   it("should always use rule options to override settings if provided", () => {
-    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -60,7 +60,7 @@ describe("settings", () => {
         }
       ]
     });
-    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -80,7 +80,7 @@ describe("settings", () => {
   });
 
   it("should only override provided settings on defaults", () => {
-    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -99,7 +99,7 @@ describe("settings", () => {
   });
 
   it("should only override provided options on settings", () => {
-    lint(tailwindNoDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,

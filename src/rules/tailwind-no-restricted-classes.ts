@@ -47,7 +47,7 @@ const defaultOptions = {
 
 const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-restricted-classes.md";
 
-export const tailwindNoRestrictedClasses: ESLintRule<Options> = {
+export const noRestrictedClasses: ESLintRule<Options> = {
   name: "no-restricted-classes" as const,
   rule: {
     create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),

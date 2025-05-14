@@ -63,7 +63,7 @@ const defaultOptions = {
 
 const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-unregistered-classes.md";
 
-export const tailwindNoUnregisteredClasses: ESLintRule<Options> = {
+export const noUnregisteredClasses: ESLintRule<Options> = {
   name: "no-unregistered-classes" as const,
   rule: {
     create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),

@@ -1,14 +1,14 @@
 import { describe, it } from "vitest";
 
-import { tailwindSortClasses } from "better-tailwindcss:rules:tailwind-sort-classes.js";
+import { sortClasses } from "better-tailwindcss:rules:tailwind-sort-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 
 
-describe(tailwindSortClasses.name, () => {
+describe(sortClasses.name, () => {
 
   it("should sort simple class names in string literals by the defined order", () => {
     lint(
-      tailwindSortClasses,
+      sortClasses,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -86,7 +86,7 @@ describe(tailwindSortClasses.name, () => {
   });
 
   it("should group all classes with the same variant together", () => {
-    lint(tailwindSortClasses, TEST_SYNTAXES, {
+    lint(sortClasses, TEST_SYNTAXES, {
       invalid: [
         {
           angular: `<img class="hover:text-black focus:text-black dark:text-black focus:text-white hover:text-white dark:text-white" />`,
@@ -108,7 +108,7 @@ describe(tailwindSortClasses.name, () => {
 
   it("should keep the quotes as they are", () => {
     lint(
-      tailwindSortClasses,
+      sortClasses,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -166,7 +166,7 @@ describe(tailwindSortClasses.name, () => {
   });
 
   it("should keep expressions as they are", () => {
-    lint(tailwindSortClasses, TEST_SYNTAXES, {
+    lint(sortClasses, TEST_SYNTAXES, {
       valid: [
         {
           jsx: `() => <img class={true ? "b a" : "c b"} />`,
@@ -177,7 +177,7 @@ describe(tailwindSortClasses.name, () => {
   });
 
   it("should keep expressions where they are", () => {
-    lint(tailwindSortClasses, TEST_SYNTAXES, {
+    lint(sortClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 2,
@@ -204,7 +204,7 @@ describe(tailwindSortClasses.name, () => {
     const dirty = `c b a${expression}f e d`;
     const clean = `b c a${expression}f d e`;
 
-    lint(tailwindSortClasses, TEST_SYNTAXES, {
+    lint(sortClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 2,
@@ -230,7 +230,7 @@ describe(tailwindSortClasses.name, () => {
     `;
 
     lint(
-      tailwindSortClasses,
+      sortClasses,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -299,7 +299,7 @@ describe(tailwindSortClasses.name, () => {
     const dirtyUndefined = "notDefined(\"b a d c\");";
 
     lint(
-      tailwindSortClasses,
+      sortClasses,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -326,7 +326,7 @@ describe(tailwindSortClasses.name, () => {
     );
 
     lint(
-      tailwindSortClasses,
+      sortClasses,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -398,7 +398,7 @@ describe(tailwindSortClasses.name, () => {
     );`;
 
     lint(
-      tailwindSortClasses,
+      sortClasses,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -458,7 +458,7 @@ describe(tailwindSortClasses.name, () => {
     `;
 
     lint(
-      tailwindSortClasses,
+      sortClasses,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -501,7 +501,7 @@ describe(tailwindSortClasses.name, () => {
     \`;`;
 
     lint(
-      tailwindSortClasses,
+      sortClasses,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -574,7 +574,7 @@ describe(tailwindSortClasses.name, () => {
     \`;`;
 
     lint(
-      tailwindSortClasses,
+      sortClasses,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -648,7 +648,7 @@ describe(tailwindSortClasses.name, () => {
 
   it("should sort simple class names in tagged template literals", () => {
     lint(
-      tailwindSortClasses,
+      sortClasses,
       TEST_SYNTAXES,
       {
         invalid: [

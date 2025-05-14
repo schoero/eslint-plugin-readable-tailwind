@@ -1,15 +1,15 @@
 import { getTailwindcssVersion, TailwindcssVersion } from "src/tailwind/utils/version.js";
 import { describe, it } from "vitest";
 
-import { tailwindNoUnregisteredClasses } from "better-tailwindcss:rules:tailwind-no-unregistered-classes.js";
+import { noUnregisteredClasses } from "better-tailwindcss:rules:tailwind-no-unregistered-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 
 
-describe(tailwindNoUnregisteredClasses.name, () => {
+describe(noUnregisteredClasses.name, () => {
 
   it("should not report standard tailwind classes", () => {
     lint(
-      tailwindNoUnregisteredClasses,
+      noUnregisteredClasses,
       TEST_SYNTAXES,
       {
         valid: [
@@ -27,7 +27,7 @@ describe(tailwindNoUnregisteredClasses.name, () => {
 
   it("should not report standard tailwind classes with variants", () => {
     lint(
-      tailwindNoUnregisteredClasses,
+      noUnregisteredClasses,
       TEST_SYNTAXES,
       {
         valid: [
@@ -45,7 +45,7 @@ describe(tailwindNoUnregisteredClasses.name, () => {
 
   it("should not report standard tailwind classes with many variants", () => {
     lint(
-      tailwindNoUnregisteredClasses,
+      noUnregisteredClasses,
       TEST_SYNTAXES,
       {
         valid: [
@@ -63,7 +63,7 @@ describe(tailwindNoUnregisteredClasses.name, () => {
 
   it("should report standard tailwind classes with an unregistered variant in many variants", () => {
     lint(
-      tailwindNoUnregisteredClasses,
+      noUnregisteredClasses,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -82,7 +82,7 @@ describe(tailwindNoUnregisteredClasses.name, () => {
 
   it.skipIf(getTailwindcssVersion().major < TailwindcssVersion.V4)("should not report on dynamic utility values in tailwind >= 4", () => {
     lint(
-      tailwindNoUnregisteredClasses,
+      noUnregisteredClasses,
       TEST_SYNTAXES,
       {
         valid: [
@@ -100,7 +100,7 @@ describe(tailwindNoUnregisteredClasses.name, () => {
 
   it.skipIf(getTailwindcssVersion().major > TailwindcssVersion.V3)("should report on dynamic utility values in tailwind <= 3", () => {
     lint(
-      tailwindNoUnregisteredClasses,
+      noUnregisteredClasses,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -119,7 +119,7 @@ describe(tailwindNoUnregisteredClasses.name, () => {
 
   it("should report unregistered classes", () => {
     lint(
-      tailwindNoUnregisteredClasses,
+      noUnregisteredClasses,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -138,7 +138,7 @@ describe(tailwindNoUnregisteredClasses.name, () => {
 
   it("should be possible to whitelist classes in options", () => {
     lint(
-      tailwindNoUnregisteredClasses,
+      noUnregisteredClasses,
       TEST_SYNTAXES,
       {
         valid: [
@@ -157,7 +157,7 @@ describe(tailwindNoUnregisteredClasses.name, () => {
 
   it("should be possible to whitelist classes in options via regex", () => {
     lint(
-      tailwindNoUnregisteredClasses,
+      noUnregisteredClasses,
       TEST_SYNTAXES,
       {
         valid: [
@@ -176,7 +176,7 @@ describe(tailwindNoUnregisteredClasses.name, () => {
 
   it("should not report on tailwind utility classes that don't produce a css output", () => {
     lint(
-      tailwindNoUnregisteredClasses,
+      noUnregisteredClasses,
       TEST_SYNTAXES,
       {
         valid: [
@@ -192,7 +192,7 @@ describe(tailwindNoUnregisteredClasses.name, () => {
     );
 
     lint(
-      tailwindNoUnregisteredClasses,
+      noUnregisteredClasses,
       TEST_SYNTAXES,
       {
         valid: [

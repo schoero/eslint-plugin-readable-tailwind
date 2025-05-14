@@ -58,7 +58,7 @@ const defaultOptions = {
 
 const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-conflicting-classes.md";
 
-export const tailwindNoConflictingClasses: ESLintRule<Options> = {
+export const noConflictingClasses: ESLintRule<Options> = {
   name: "no-conflicting-classes" as const,
   rule: {
     create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
