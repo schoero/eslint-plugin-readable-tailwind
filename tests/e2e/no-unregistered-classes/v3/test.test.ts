@@ -1,9 +1,9 @@
 import { loadESLint } from "eslint";
-import { getTailwindcssVersion } from "src/tailwind/utils/version.js";
+import { getTailwindcssVersion, TailwindcssVersion } from "src/tailwind/utils/version.js";
 import { describe, expect, it } from "vitest";
 
 
-describe.skipIf(getTailwindcssVersion().major > 3)("e2e/no-unregistered-classes/v3", async () => {
+describe.skipIf(getTailwindcssVersion().major > TailwindcssVersion.V3)("e2e/no-unregistered-classes/v3", async () => {
   it("should not report on registered utility classes", async () => {
     const ESLint = await loadESLint({ useFlatConfig: true });
 

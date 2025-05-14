@@ -15,6 +15,9 @@
     "!better-tailwindcss/*",
     "*"
   ],
+  
+  // tailwindcss
+  "tailwindCSS.lint.cssConflict": "ignore",
 
   "editor.formatOnSave": false,
 
