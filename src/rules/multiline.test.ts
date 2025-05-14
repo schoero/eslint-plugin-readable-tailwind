@@ -526,7 +526,7 @@ describe(multiline.name, () => {
     const trim = createTrimTag(4);
 
     const singleLine = " a b c d e f g h ";
-    const multiline = trim`
+    const multipleLines = trim`
       a b c
       d e f
       g h
@@ -540,49 +540,49 @@ describe(multiline.name, () => {
           {
             errors: 1,
             jsx: `() => <img class="${singleLine}" />`,
-            jsxOutput: `() => <img class={\`${multiline}\`} />`,
+            jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
             errors: 1,
             jsx: `() => <img class='${singleLine}' />`,
-            jsxOutput: `() => <img class={\`${multiline}\`} />`,
+            jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
             errors: 1,
             jsx: `() => <img class={"${singleLine}"} />`,
-            jsxOutput: `() => <img class={\`${multiline}\`} />`,
+            jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<img class={"${singleLine}"} />`,
-            svelteOutput: `<img class={\`${multiline}\`} />`
+            svelteOutput: `<img class={\`${multipleLines}\`} />`
           },
           {
             errors: 1,
             jsx: `() => <img class={'${singleLine}'} />`,
-            jsxOutput: `() => <img class={\`${multiline}\`} />`,
+            jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<img class={'${singleLine}'} />`,
-            svelteOutput: `<img class={\`${multiline}\`} />`
+            svelteOutput: `<img class={\`${multipleLines}\`} />`
           }
         ],
         valid: [
           {
-            jsx: `() => <img class={\`${multiline}\`} />`,
+            jsx: `() => <img class={\`${multipleLines}\`} />`,
             options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<img class={\`${multiline}\`} />`
+            svelte: `<img class={\`${multipleLines}\`} />`
           },
           {
-            angular: `<img class="${multiline}" />`,
-            html: `<img class="${multiline}" />`,
+            angular: `<img class="${multipleLines}" />`,
+            html: `<img class="${multipleLines}" />`,
             options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<img class="${multiline}" />`
+            svelte: `<img class="${multipleLines}" />`
           },
           {
-            angular: `<img class='${multiline}' />`,
-            html: `<img class='${multiline}' />`,
+            angular: `<img class='${multipleLines}' />`,
+            html: `<img class='${multipleLines}' />`,
             options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<img class='${multiline}' />`
+            svelte: `<img class='${multipleLines}' />`
           }
         ]
       }
@@ -594,7 +594,7 @@ describe(multiline.name, () => {
     const trim = createTrimTag(4);
 
     const singleLine = " a b c d e f g h ";
-    const multiline = trim`
+    const multipleLines = trim`
       a b c
       d e f
       g h
@@ -604,55 +604,55 @@ describe(multiline.name, () => {
       invalid: [
         {
           angular: `<img class="${singleLine}" />`,
-          angularOutput: `<img class="${multiline}" />`,
+          angularOutput: `<img class="${multipleLines}" />`,
           errors: 1,
           html: `<img class="${singleLine}" />`,
-          htmlOutput: `<img class="${multiline}" />`,
+          htmlOutput: `<img class="${multipleLines}" />`,
           jsx: `() => <img class="${singleLine}" />`,
-          jsxOutput: `() => <img class={\`${multiline}\`} />`,
+          jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
           options: [{ classesPerLine: 3, indent: 2 }],
           svelte: `<img class="${singleLine}" />`,
-          svelteOutput: `<img class="${multiline}" />`,
+          svelteOutput: `<img class="${multipleLines}" />`,
           vue: `<template><img class="${singleLine}" /></template>`,
-          vueOutput: `<template><img class="${multiline}" /></template>`
+          vueOutput: `<template><img class="${multipleLines}" /></template>`
         },
         {
           angular: `<img class='${singleLine}' />`,
-          angularOutput: `<img class='${multiline}' />`,
+          angularOutput: `<img class='${multipleLines}' />`,
           errors: 1,
           html: `<img class='${singleLine}' />`,
-          htmlOutput: `<img class='${multiline}' />`,
+          htmlOutput: `<img class='${multipleLines}' />`,
           jsx: `() => <img class='${singleLine}' />`,
-          jsxOutput: `() => <img class={\`${multiline}\`} />`,
+          jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
           options: [{ classesPerLine: 3, indent: 2 }],
           svelte: `<img class='${singleLine}' />`,
-          svelteOutput: `<img class='${multiline}' />`,
+          svelteOutput: `<img class='${multipleLines}' />`,
           vue: `<template><img class='${singleLine}' /></template>`,
-          vueOutput: `<template><img class='${multiline}' /></template>`
+          vueOutput: `<template><img class='${multipleLines}' /></template>`
         },
         {
           errors: 1,
           jsx: `() => <img class={\`${singleLine}\`} />`,
-          jsxOutput: `() => <img class={\`${multiline}\`} />`,
+          jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
           options: [{ classesPerLine: 3, indent: 2 }],
           svelte: `<img class={\`${singleLine}\`} />`,
-          svelteOutput: `<img class={\`${multiline}\`} />`
+          svelteOutput: `<img class={\`${multipleLines}\`} />`
         },
         {
           errors: 1,
           jsx: `() => <img class={"${singleLine}"} />`,
-          jsxOutput: `() => <img class={\`${multiline}\`} />`,
+          jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
           options: [{ classesPerLine: 3, indent: 2 }],
           svelte: `<img class={"${singleLine}"} />`,
-          svelteOutput: `<img class={\`${multiline}\`} />`
+          svelteOutput: `<img class={\`${multipleLines}\`} />`
         },
         {
           errors: 1,
           jsx: `() => <img class={'${singleLine}'} />`,
-          jsxOutput: `() => <img class={\`${multiline}\`} />`,
+          jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
           options: [{ classesPerLine: 3, indent: 2 }],
           svelte: `<img class={'${singleLine}'} />`,
-          svelteOutput: `<img class={\`${multiline}\`} />`
+          svelteOutput: `<img class={\`${multipleLines}\`} />`
         }
       ]
     });
