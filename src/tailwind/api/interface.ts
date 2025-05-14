@@ -1,4 +1,4 @@
-import type { Warning } from "readable-tailwind:utils:utils.js";
+import type { Warning } from "better-tailwindcss:utils:utils.js";
 
 
 export interface GetClassOrderRequest {

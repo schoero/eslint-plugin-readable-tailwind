@@ -1,16 +1,16 @@
 {
   "version": "2.1.1",
   "type": "module",
-  "name": "eslint-plugin-readable-tailwind",
+  "name": "eslint-plugin-better-tailwindcss",
   "description": "auto-wraps tailwind classes after a certain print width or class count into multiple lines to improve readability.",
   "license": "MIT",
   "author": "Roger Schönbächler",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/schoero/eslint-plugin-readable-tailwind.git"
+    "url": "git+https://github.com/schoero/eslint-plugin-better-tailwindcss.git"
   },
   "bugs": {
-    "url": "https://github.com/schoero/eslint-plugin-readable-tailwind/issues"
+    "url": "https://github.com/schoero/eslint-plugin-better-tailwindcss/issues"
   },
   "exports": {
     ".": {
@@ -94,8 +94,8 @@
     "cspell": "^9.0.0",
     "es-html-parser": "^0.2.0",
     "eslint": "^9.26.0",
+    "eslint-plugin-better-tailwindcss": "file:./",
     "eslint-plugin-eslint-plugin": "^6.4.0",
-    "eslint-plugin-readable-tailwind": "file:./",
     "glob": "^11.0.2",
     "json-schema": "^0.4.0",
     "markdownlint": "^0.38.0",

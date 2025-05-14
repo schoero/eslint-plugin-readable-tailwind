@@ -23,7 +23,7 @@ To set the settings object, add a `settings` key to the eslint config.
   "plugins": { /* ... */ },
   "rules": { /* ... */ },
   "settings": {
-    "readable-tailwind": {
+    "better-tailwindcss": {
       "entryPoint": "...",
       "tailwindConfig": "...",
       "attributes": [/* ... */],

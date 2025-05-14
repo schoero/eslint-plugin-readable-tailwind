@@ -1,4 +1,4 @@
-import type { LiteralValueQuotes } from "readable-tailwind:types:ast.js";
+import type { LiteralValueQuotes } from "better-tailwindcss:types:ast.js";
 
 
 export function escapeNestedQuotes(content: string, surroundingQuotes: LiteralValueQuotes): string {

@@ -2,7 +2,7 @@
 
 JSX files are supported out of the box. The only thing you need to do is to enable the `jsx` option in the eslint parser options.
 
-To enable eslint-plugin-readable-tailwind, you need to add it to the plugins section of your eslint configuration and enable the rules you want to use.
+To enable eslint-plugin-better-tailwindcss, you need to add it to the plugins section of your eslint configuration and enable the rules you want to use.
 
 <br/>
 
@@ -14,7 +14,7 @@ Read more about the new [ESLint flat config format](https://eslint.org/docs/late
 
 ```js
 // eslint.config.js
-import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
+import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
 
 export default [
   {
@@ -26,16 +26,16 @@ export default [
       }
     },
     plugins: {
-      "readable-tailwind": eslintPluginReadableTailwind
+      "better-tailwindcss": eslintPluginBetterTailwindcss
     },
     rules: {
       // enable all recommended rules to warn
-      ...eslintPluginReadableTailwind.configs.warning.rules,
+      ...eslintPluginBetterTailwindcss.configs.warning.rules,
       // enable all recommended rules to error
-      ...eslintPluginReadableTailwind.configs.error.rules,
+      ...eslintPluginBetterTailwindcss.configs.error.rules,
 
       // or configure rules individually
-      "readable-tailwind/multiline": ["warn", { printWidth: 100 }]
+      "better-tailwindcss/multiline": ["warn", { printWidth: 100 }]
     }
   }
 ];
@@ -50,9 +50,9 @@ export default [
 {
   "extends": [
     // enable all recommended rules to warn
-    "plugin:readable-tailwind/warning",
+    "plugin:better-tailwindcss/warning",
     // enable all recommended rules to error
-    "plugin:readable-tailwind/error"
+    "plugin:better-tailwindcss/error"
   ],
   "parserOptions": {
     "ecmaFeatures": {
@@ -60,10 +60,10 @@ export default [
     },
     "ecmaVersion": "latest"
   },
-  "plugins": ["readable-tailwind"],
+  "plugins": ["better-tailwindcss"],
   "rules": {
     // or configure rules individually
-    "readable-tailwind/multiline": ["warn", { "printWidth": 100 }]
+    "better-tailwindcss/multiline": ["warn", { "printWidth": 100 }]
   }
 }
 ```

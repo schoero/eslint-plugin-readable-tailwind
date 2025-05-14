@@ -11,7 +11,7 @@ import eslintParserVue from "vue-eslint-parser";
 import type { Linter } from "eslint";
 import type { Node as ESNode } from "estree";
 
-import type { ESLintRule } from "readable-tailwind:types:rule.js";
+import type { ESLintRule } from "better-tailwindcss:types:rule.js";
 
 
 export const TEST_SYNTAXES = {

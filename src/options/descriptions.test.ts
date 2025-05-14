@@ -1,10 +1,10 @@
 import { validate } from "json-schema";
 import { describe, expect, test } from "vitest";
 
-import { ATTRIBUTE_SCHEMA, CALLEE_SCHEMA, VARIABLE_SCHEMA } from "readable-tailwind:options:descriptions.js";
-import { MatcherType } from "readable-tailwind:types:rule.js";
+import { ATTRIBUTE_SCHEMA, CALLEE_SCHEMA, VARIABLE_SCHEMA } from "better-tailwindcss:options:descriptions.js";
+import { MatcherType } from "better-tailwindcss:types:rule.js";
 
-import type { AttributeOption, CalleeOption, VariableOption } from "readable-tailwind:types:rule.js";
+import type { AttributeOption, CalleeOption, VariableOption } from "better-tailwindcss:types:rule.js";
 
 
 describe("descriptions", () => {

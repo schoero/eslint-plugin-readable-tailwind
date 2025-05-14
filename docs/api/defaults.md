@@ -32,7 +32,7 @@ import {
   getDefaultCallees,
   getDefaultTags,
   getDefaultVariables
-} from "eslint-plugin-readable-tailwind/api/defaults";
+} from "eslint-plugin-better-tailwindcss/api/defaults";
 ```
 
 <br/>
@@ -41,22 +41,22 @@ import {
 ## Extending the config
 
 ```ts
-import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
+import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
 import {
   getDefaultAttributes,
   getDefaultCallees,
   getDefaultVariables
-} from "eslint-plugin-readable-tailwind/api/defaults";
-import { MatcherType } from "eslint-plugin-readable-tailwind/api/types";
+} from "eslint-plugin-better-tailwindcss/api/defaults";
+import { MatcherType } from "eslint-plugin-better-tailwindcss/api/types";
 
 
 export default [
   {
     plugins: {
-      "readable-tailwind": eslintPluginReadableTailwind
+      "better-tailwindcss": eslintPluginBetterTailwindcss
     },
     rules: {
-      "readable-tailwind/multiline": ["warn", {
+      "better-tailwindcss/multiline": ["warn", {
         callees: [
           ...getDefaultCallees(),
           [
@@ -68,7 +68,7 @@ export default [
           ]
         ]
       }],
-      "readable-tailwind/no-duplicate-classes": ["warn", {
+      "better-tailwindcss/no-duplicate-classes": ["warn", {
         attributes: [
           ...getDefaultAttributes(),
           [
@@ -80,7 +80,7 @@ export default [
           ]
         ]
       }],
-      "readable-tailwind/no-unnecessary-whitespace": ["warn", {
+      "better-tailwindcss/no-unnecessary-whitespace": ["warn", {
         variables: [
           ...getDefaultVariables(),
           [
@@ -92,7 +92,7 @@ export default [
           ]
         ]
       }],
-      "readable-tailwind/sort-classes": ["warn", {
+      "better-tailwindcss/sort-classes": ["warn", {
         attributes: [
           ...getDefaultTags(),
           [
