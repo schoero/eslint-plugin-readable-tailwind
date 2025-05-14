@@ -17,14 +17,14 @@ import { createRuleListener } from "better-tailwindcss:utils:rule.js";
 import {
   augmentMessageWithWarnings,
   display,
-  escapeForRegex,
   getCommonOptions,
+  getExactClassLocation,
   splitClasses
 } from "better-tailwindcss:utils:utils.js";
 
 import type { Rule } from "eslint";
 
-import type { Literal, Loc } from "better-tailwindcss:types:ast.js";
+import type { Literal } from "better-tailwindcss:types:ast.js";
 import type {
   AttributeOption,
   CalleeOption,
@@ -125,48 +125,12 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         data: {
           unregistered: display(unregisteredClass)
         },
-        loc: getExactLocation(literal.loc, literal, unregisteredClass),
+        loc: getExactClassLocation(literal, unregisteredClass),
         message: augmentMessageWithWarnings("Unregistered class detected: {{ unregistered }}", unregisteredClassesWarnings)
       });
     }
 
   }
-}
-
-function getExactLocation(loc: Loc["loc"], literal: Literal, className: string) {
-  const escapedClass = escapeForRegex(className);
-  const regex = new RegExp(`(?:^|\\s+)(${escapedClass})(?=\\s+|$)`);
-  const match = literal.content.match(regex);
-
-  if(match?.index === undefined){
-    return loc;
-  }
-
-  const fullMatchIndex = match.index;
-  const word = match?.[1];
-  const indexOfClass = fullMatchIndex + match[0].indexOf(word);
-
-  const linesUpToStartIndex = literal.content.slice(0, indexOfClass).split("\n");
-  const isOnFirstLine = linesUpToStartIndex.length === 1;
-  const containingLine = linesUpToStartIndex.at(-1);
-
-  const line = loc.start.line + linesUpToStartIndex.length - 1;
-  const column = (
-    isOnFirstLine
-      ? loc.start.column + (literal.openingQuote?.length ?? 0)
-      : 0
-  ) + (containingLine?.length ?? 0);
-
-  return {
-    end: {
-      column: column + className.length,
-      line
-    },
-    start: {
-      column,
-      line
-    }
-  };
 }
 
 export function getOptions(ctx: Rule.RuleContext) {
