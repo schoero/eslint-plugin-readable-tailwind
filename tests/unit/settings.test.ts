@@ -1,7 +1,7 @@
 /* eslint-disable eslint-plugin-typescript/naming-convention */
 import { describe, it } from "vitest";
 
-import { noDuplicateClasses } from "better-tailwindcss:rules:tailwind-no-duplicate-classes.js";
+import { noDuplicateClasses } from "better-tailwindcss:rules:no-duplicate-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 
 

@@ -1,7 +1,7 @@
 import { getTailwindcssVersion, TailwindcssVersion } from "src/tailwind/utils/version.js";
 import { describe, it } from "vitest";
 
-import { noConflictingClasses } from "better-tailwindcss:rules:tailwind-no-conflicting-classes.js";
+import { noConflictingClasses } from "better-tailwindcss:rules:no-conflicting-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 
 

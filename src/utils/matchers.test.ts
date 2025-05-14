@@ -9,7 +9,7 @@ import {
   isESStringLike,
   isInsideObjectValue
 } from "better-tailwindcss:parsers:es.js";
-import { noUnnecessaryWhitespace } from "better-tailwindcss:rules:tailwind-no-unnecessary-whitespace.js";
+import { noUnnecessaryWhitespace } from "better-tailwindcss:rules:no-unnecessary-whitespace.js";
 import { findNode, lint, TEST_SYNTAXES, withParentNodeExtension } from "better-tailwindcss:tests:utils.js";
 import { MatcherType } from "better-tailwindcss:types:rule.js";
 

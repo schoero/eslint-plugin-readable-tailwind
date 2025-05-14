@@ -1,6 +1,6 @@
 import { describe, it } from "vitest";
 
-import { noRestrictedClasses } from "better-tailwindcss:rules:tailwind-no-restricted-classes.js";
+import { noRestrictedClasses } from "better-tailwindcss:rules:no-restricted-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 
 

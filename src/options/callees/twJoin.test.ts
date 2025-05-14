@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
 import { TW_JOIN_STRINGS } from "better-tailwindcss:options:callees/twJoin.js";
-import { noUnnecessaryWhitespace } from "better-tailwindcss:rules:tailwind-no-unnecessary-whitespace.js";
+import { noUnnecessaryWhitespace } from "better-tailwindcss:rules:no-unnecessary-whitespace.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 
 
