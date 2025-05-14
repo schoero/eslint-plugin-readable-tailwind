@@ -1,5 +1,6 @@
 import { tailwindMultiline } from "better-tailwindcss:rules:tailwind-multiline.js";
 import { tailwindNoDuplicateClasses } from "better-tailwindcss:rules:tailwind-no-duplicate-classes.js";
+import { tailwindNoRestrictedClasses } from "better-tailwindcss:rules:tailwind-no-restricted-classes.js";
 import { tailwindNoUnnecessaryWhitespace } from "better-tailwindcss:rules:tailwind-no-unnecessary-whitespace.js";
 import { tailwindSortClasses } from "better-tailwindcss:rules:tailwind-sort-classes.js";
 
@@ -30,6 +31,7 @@ export const config = {
   rules: {
     [tailwindMultiline.name]: tailwindMultiline.rule,
     [tailwindNoDuplicateClasses.name]: tailwindNoDuplicateClasses.rule,
+    [tailwindNoRestrictedClasses.name]: tailwindNoRestrictedClasses.rule,
     [tailwindNoUnnecessaryWhitespace.name]: tailwindNoUnnecessaryWhitespace.rule,
     [tailwindSortClasses.name]: tailwindSortClasses.rule
   }
