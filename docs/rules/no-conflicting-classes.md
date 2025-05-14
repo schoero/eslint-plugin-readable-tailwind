@@ -4,6 +4,15 @@ Disallow conflicting classes in tailwindcss class strings. Conflicting classes a
 
 <br/>
 
+> [!NOTE]
+> This rule is similar to `cssConflict` from the [TailwinCSS IntelliSense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss) VSCode extension. It is recommended to disable the `cssConflict` rule in your projects `.vscode/settings.json` to avoid confusion.
+>
+> ```jsonc
+> {
+>   "tailwindCSS.lint.cssConflict": "ignore"
+> }
+> ```
+
 ## Options
 
 ### `attributes`
