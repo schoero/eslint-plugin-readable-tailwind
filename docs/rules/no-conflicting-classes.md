@@ -1,4 +1,4 @@
-# better-tailwindcss/no-unregistered-classes
+# better-tailwindcss/no-conflicting-classes
 
 Disallow conflicting classes in tailwindcss class strings. Conflicting classes are classes that apply the same CSS property on the same element. This can cause unexpected behavior as it is not clear which class will take precedence.
 
