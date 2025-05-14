@@ -64,7 +64,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
 
       const ruleTester = new RuleTester(syntaxes[syntax]);
 
-      if(!invalid[syntax] || !invalid[`${syntax}Output`]){
+      if(!invalid[syntax]){
         continue;
       }
 
@@ -73,7 +73,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
           code: invalid[syntax],
           errors: invalid.errors,
           options: invalid.options ?? [],
-          output: invalid[`${syntax}Output`]!,
+          output: invalid[`${syntax}Output`] ?? null,
           settings: invalid.settings ?? {}
         }],
         valid: []

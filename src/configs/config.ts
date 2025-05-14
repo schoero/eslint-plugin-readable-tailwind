@@ -1,6 +1,7 @@
 import { tailwindMultiline } from "better-tailwindcss:rules:tailwind-multiline.js";
 import { tailwindNoDuplicateClasses } from "better-tailwindcss:rules:tailwind-no-duplicate-classes.js";
 import { tailwindNoUnnecessaryWhitespace } from "better-tailwindcss:rules:tailwind-no-unnecessary-whitespace.js";
+import { tailwindNoUnregisteredClasses } from "better-tailwindcss:rules:tailwind-no-unregistered-classes.js";
 import { tailwindSortClasses } from "better-tailwindcss:rules:tailwind-sort-classes.js";
 
 import type { ESLint } from "eslint";
@@ -31,6 +32,7 @@ export const config = {
     [tailwindMultiline.name]: tailwindMultiline.rule,
     [tailwindNoDuplicateClasses.name]: tailwindNoDuplicateClasses.rule,
     [tailwindNoUnnecessaryWhitespace.name]: tailwindNoUnnecessaryWhitespace.rule,
+    [tailwindNoUnregisteredClasses.name]: tailwindNoUnregisteredClasses.rule,
     [tailwindSortClasses.name]: tailwindSortClasses.rule
   }
 } satisfies ESLint.Plugin;
