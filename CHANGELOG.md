@@ -1,5 +1,17 @@
 # Changelog
 
+## v2.1.2
+
+[compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.1.1...v2.1.2)
+
+### Fixes
+
+- Multiline quotes ([#96](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/96))
+
+### Refactors
+
+- Report error for each duplicate class instead of the whole class string ([#91](https://github.com/schoero/eslint-plugin-readable-tailwind/pull/91))
+
 ## v2.1.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.1.0...v2.1.1)
