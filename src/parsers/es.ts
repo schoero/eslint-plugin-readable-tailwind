@@ -4,18 +4,14 @@ import {
   getLiteralNodesByMatchers,
   isCalleeMatchers,
   isCalleeName,
-  isCalleeRegex,
   isInsideConditionalExpressionTest,
   isInsideLogicalExpressionLeft,
   isTagMatchers,
   isTagName,
-  isTagRegex,
   isVariableMatchers,
   isVariableName,
-  isVariableRegex,
   matchesPathPattern
 } from "better-tailwindcss:utils:matchers.js";
-import { getLiteralsByNodeAndRegex } from "better-tailwindcss:utils:regex.js";
 import {
   deduplicateLiterals,
   getContent,
@@ -48,14 +44,7 @@ import type {
   StringLiteral,
   TemplateLiteral
 } from "better-tailwindcss:types:ast.js";
-import type {
-  Callees,
-  Matcher,
-  MatcherFunctions,
-  RegexConfig,
-  Tags,
-  Variables
-} from "better-tailwindcss:types:rule.js";
+import type { Callees, Matcher, MatcherFunctions, Tags, Variables } from "better-tailwindcss:types:rule.js";
 
 
 export function getLiteralsByESVariableDeclarator(ctx: Rule.RuleContext, node: ESVariableDeclarator, variables: Variables): Literal[] {
@@ -68,8 +57,6 @@ export function getLiteralsByESVariableDeclarator(ctx: Rule.RuleContext, node: E
     if(isVariableName(variable)){
       if(!matchesName(variable, node.id.name)){ return literals; }
       literals.push(...getLiteralsByESExpression(ctx, [node.init]));
-    } else if(isVariableRegex(variable)){
-      literals.push(...getLiteralsByESNodeAndRegex(ctx, node, variable));
     } else if(isVariableMatchers(variable)){
       if(!matchesName(variable[0], node.id.name)){ return literals; }
       literals.push(...getLiteralsByESMatchers(ctx, node.init, variable[1]));
@@ -90,8 +77,6 @@ export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCal
     if(isCalleeName(callee)){
       if(!matchesName(callee, node.callee.name)){ return literals; }
       literals.push(...getLiteralsByESExpression(ctx, node.arguments));
-    } else if(isCalleeRegex(callee)){
-      literals.push(...getLiteralsByESNodeAndRegex(ctx, node, callee));
     } else if(isCalleeMatchers(callee)){
       if(!matchesName(callee[0], node.callee.name)){ return literals; }
       literals.push(...getLiteralsByESMatchers(ctx, node, callee[1]));
@@ -112,8 +97,6 @@ export function getLiteralsByTaggedTemplateExpression(ctx: Rule.RuleContext, nod
     if(isTagName(tag)){
       if(tag !== node.tag.name){ return literals; }
       literals.push(...getLiteralsByESTemplateLiteral(ctx, node.quasi));
-    } else if(isTagRegex(tag)){
-      literals.push(...getLiteralsByESNodeAndRegex(ctx, node, tag));
     } else if(isTagMatchers(tag)){
       if(tag[0] !== node.tag.name){ return literals; }
       literals.push(...getLiteralsByESMatchers(ctx, node, tag[1]));
@@ -151,38 +134,6 @@ export function getLiteralsByESMatchers(ctx: Rule.RuleContext, node: ESBaseNode,
   const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
   const literals = literalNodes.flatMap(literalNode => getLiteralsByESLiteralNode(ctx, literalNode));
   return deduplicateLiterals(literals);
-}
-
-export function getLiteralsByESNodeAndRegex(
-  ctx: Rule.RuleContext,
-  node: ESBaseNode,
-  regex: RegexConfig
-): Literal[] {
-  if(!hasESNodeParentExtension(node)){ return []; }
-
-  return getLiteralsByNodeAndRegex(
-    ctx,
-    node,
-    regex,
-    {
-      getLiteralsByMatchingNode: (node: unknown) => {
-        if(!isESNode(node)){ return; }
-
-        if(isESSimpleStringLiteral(node)){
-          const literal = getStringLiteralByESStringLiteral(ctx, node);
-          return literal ? [literal] : [];
-        }
-
-        if(isESTemplateElement(node) && hasESNodeParentExtension(node)){
-          const templateLiteralNode = findParentESTemplateLiteralByESTemplateElement(node);
-          return templateLiteralNode && getLiteralsByESTemplateLiteral(ctx, templateLiteralNode);
-        }
-      },
-      getNodeByRangeStart: (start: number) => ctx.sourceCode.getNodeByRangeIndex(start),
-      getNodeRange: node => isESNode(node) ? [node.range?.[0], node.range?.[1]] : undefined,
-      getNodeSourceCode: node => isESNode(node) ? ctx.sourceCode.getText(node) : undefined
-    }
-  );
 }
 
 export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: ESSimpleStringLiteral): StringLiteral | undefined {

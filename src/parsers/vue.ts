@@ -1,7 +1,6 @@
 import {
   getESObjectPath,
   getLiteralsByESLiteralNode,
-  getLiteralsByESNodeAndRegex,
   hasESNodeParentExtension,
   isESNode,
   isESObjectKey,
@@ -13,7 +12,6 @@ import {
   getLiteralNodesByMatchers,
   isAttributesMatchers,
   isAttributesName,
-  isAttributesRegex,
   isInsideConditionalExpressionTest,
   isInsideLogicalExpressionLeft,
   matchesPathPattern
@@ -52,8 +50,6 @@ export function getLiteralsByVueAttribute(ctx: Rule.RuleContext, attribute: AST.
     if(isAttributesName(attributes)){
       if(!matchesName(getVueBoundName(attributes).toLowerCase(), getVueAttributeName(attribute)?.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByVueLiteralNode(ctx, value));
-    } else if(isAttributesRegex(attributes)){
-      literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, attributes));
     } else if(isAttributesMatchers(attributes)){
       if(!matchesName(getVueBoundName(attributes[0]).toLowerCase(), getVueAttributeName(attribute)?.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByVueMatchers(ctx, value, attributes[1]));

@@ -1,13 +1,12 @@
 import {
   getLiteralsByESMatchers,
-  getLiteralsByESNodeAndRegex,
   getLiteralsByESTemplateLiteral,
   getStringLiteralByESStringLiteral,
   isESNode,
   isESSimpleStringLiteral,
   isESTemplateLiteral
 } from "better-tailwindcss:parsers:es.js";
-import { isAttributesMatchers, isAttributesName, isAttributesRegex } from "better-tailwindcss:utils:matchers.js";
+import { isAttributesMatchers, isAttributesName } from "better-tailwindcss:utils:matchers.js";
 import { deduplicateLiterals, matchesName } from "better-tailwindcss:utils:utils.js";
 
 import type { Rule } from "eslint";
@@ -28,8 +27,6 @@ export function getLiteralsByJSXAttribute(ctx: Rule.RuleContext, attribute: JSXA
     if(isAttributesName(attributes)){
       if(typeof attribute.name.name !== "string" || !matchesName(attributes.toLowerCase(), attribute.name.name.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByJSXAttributeValue(ctx, value));
-    } else if(isAttributesRegex(attributes)){
-      literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, attributes));
     } else if(isAttributesMatchers(attributes)){
       if(typeof attribute.name.name !== "string" || !matchesName(attributes[0].toLowerCase(), attribute.name.name.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByESMatchers(ctx, value, attributes[1]));
