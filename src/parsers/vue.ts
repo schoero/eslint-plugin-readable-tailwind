@@ -1,4 +1,6 @@
 import {
+  ES_CONTAINER_TYPES_TO_INSERT_BRACES,
+  ES_CONTAINER_TYPES_TO_REPLACE_QUOTES,
   getESObjectPath,
   getLiteralsByESLiteralNode,
   getLiteralsByESNodeAndRegex,
@@ -30,15 +32,24 @@ import {
 import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
 import type { AST } from "vue-eslint-parser";
+import type { VLiteral } from "vue-eslint-parser/ast/index";
 
 import type { Literal, LiteralValueQuotes, MultilineMeta, StringLiteral } from "readable-tailwind:types:ast.js";
 import type { Attributes, Matcher, MatcherFunctions } from "readable-tailwind:types:rule.js";
 
 
+export const VUE_CONTAINER_TYPES_TO_REPLACE_QUOTES = [
+  ...ES_CONTAINER_TYPES_TO_REPLACE_QUOTES
+];
+
+export const VUE_CONTAINER_TYPES_TO_INSERT_BRACES = [
+  ...ES_CONTAINER_TYPES_TO_INSERT_BRACES
+];
+
+
 export function getAttributesByVueStartTag(ctx: Rule.RuleContext, node: AST.VStartTag): (AST.VAttribute | AST.VDirective)[] {
   return node.attributes;
 }
-
 
 export function getLiteralsByVueAttribute(ctx: Rule.RuleContext, attribute: AST.VAttribute | AST.VDirective, attributes: Attributes): Literal[] {
 
@@ -68,6 +79,8 @@ export function getLiteralsByVueAttribute(ctx: Rule.RuleContext, attribute: AST.
 
 function getLiteralsByVueLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): Literal[] {
 
+  if(!hasESNodeParentExtension(node)){ return []; }
+
   if(isVueLiteralNode(node)){
     const literal = getStringLiteralByVueStringLiteral(ctx, node);
     return [literal];
@@ -87,18 +100,16 @@ function getLiteralsByVueMatchers(ctx: Rule.RuleContext, node: ESBaseNode, match
   return deduplicateLiterals(literals);
 }
 
-function getLiteralsByVueESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): Literal[] {
+function getLiteralsByVueESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode & Rule.NodeParentExtension): Literal[] {
   const literals = getLiteralsByESLiteralNode(ctx, node);
 
   return literals.map(literal => {
-    const { multilineQuotes, surroundingBraces } = getMultilineQuotes(node);
+    const multilineQuotes = getMultilineQuotes(node);
 
-    if(multilineQuotes && multilineQuotes.length > 0){
-      literal.multilineQuotes = multilineQuotes;
-      literal.surroundingBraces = surroundingBraces;
-    }
-
-    return literal;
+    return {
+      ...literal,
+      ...multilineQuotes
+    };
   });
 }
 
@@ -129,12 +140,15 @@ function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLi
 
 }
 
-function getMultilineQuotes(node: ESBaseNode): MultilineMeta {
-  const multilineQuotes: LiteralValueQuotes[] = ["'", "\""];
+function getMultilineQuotes(node: ESBaseNode & Rule.NodeParentExtension | VLiteral): MultilineMeta {
+  const surroundingBraces = VUE_CONTAINER_TYPES_TO_INSERT_BRACES.includes(node.parent.type);
+  const multilineQuotes: LiteralValueQuotes[] = VUE_CONTAINER_TYPES_TO_REPLACE_QUOTES.includes(node.parent.type)
+    ? ["`"]
+    : [];
 
   return {
     multilineQuotes,
-    surroundingBraces: false
+    surroundingBraces
   };
 }
 

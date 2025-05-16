@@ -1,7 +1,8 @@
 import { describe, it } from "vitest";
 
+import { tailwindMultiline } from "readable-tailwind:rules:tailwind-multiline.js";
 import { tailwindSortClasses } from "readable-tailwind:rules:tailwind-sort-classes.js";
-import { lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
+import { createTrimTag, lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
 
 
 describe("svelte", () => {
@@ -28,6 +29,27 @@ describe("svelte", () => {
           options: [{ order: "asc" }],
           svelte: `<script>let disabled = true;</script><img class="c b a" {disabled} />`,
           svelteOutput: `<script>let disabled = true;</script><img class="a b c" {disabled} />`
+        }
+      ]
+    });
+  });
+
+  it("should change the quotes in expressions to backticks", () => {
+    const trim = createTrimTag(4);
+
+    const singleline = "a b c d e f";
+    const multiline = trim`
+      a b c
+      d e f
+    `;
+
+    lint(tailwindMultiline, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 2,
+          options: [{ classesPerLine: 3 }],
+          svelte: `<img class={true ? '${singleline}' : '${singleline}'} />`,
+          svelteOutput: `<img class={true ? \`${multiline}\` : \`${multiline}\`} />`
         }
       ]
     });

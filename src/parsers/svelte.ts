@@ -1,4 +1,5 @@
 import {
+  ES_CONTAINER_TYPES_TO_REPLACE_QUOTES,
   getESObjectPath,
   getLiteralsByESLiteralNode,
   getLiteralsByESNodeAndRegex,
@@ -44,6 +45,15 @@ import type {
 
 import type { Literal, LiteralValueQuotes, MultilineMeta, StringLiteral } from "readable-tailwind:types:ast.js";
 import type { Attributes, Matcher, MatcherFunctions } from "readable-tailwind:types:rule.js";
+
+
+export const SVELTE_CONTAINER_TYPES_TO_REPLACE_QUOTES = [
+  ...ES_CONTAINER_TYPES_TO_REPLACE_QUOTES,
+  "SvelteMustacheTag"
+];
+
+export const SVELTE_CONTAINER_TYPES_TO_INSERT_BRACES: string[] = [
+];
 
 
 export function getAttributesBySvelteTag(ctx: Rule.RuleContext, node: SvelteStartTag): SvelteAttribute[] {
@@ -119,14 +129,14 @@ function getLiteralsBySvelteESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNod
   const literals = getLiteralsByESLiteralNode(ctx, node);
 
   return literals.map(literal => {
-    const { multilineQuotes, surroundingBraces } = getMultilineQuotes(node);
+    if(!hasESNodeParentExtension(node)){ return literal; }
 
-    if(multilineQuotes && multilineQuotes.length > 0){
-      literal.multilineQuotes = multilineQuotes;
-      literal.surroundingBraces = surroundingBraces;
-    }
+    const multilineQuotes = getMultilineQuotes(node);
 
-    return literal;
+    return {
+      ...literal,
+      ...multilineQuotes
+    };
   });
 }
 
@@ -156,18 +166,14 @@ function getStringLiteralBySvelteStringLiteral(ctx: Rule.RuleContext, node: Svel
 
 }
 
-function getMultilineQuotes(node: (ESBaseNode) | SvelteLiteral): MultilineMeta {
-  const containerTypesToReplaceQuotes = [
-    "SvelteMustacheTag"
-  ];
-
-  const surroundingBraces = false;
-  const multiline: LiteralValueQuotes[] = "parent" in node && containerTypesToReplaceQuotes.includes(node.parent.type)
+function getMultilineQuotes(node: (ESBaseNode & Rule.NodeParentExtension) | SvelteLiteral): MultilineMeta {
+  const surroundingBraces = SVELTE_CONTAINER_TYPES_TO_INSERT_BRACES.includes(node.parent.type);
+  const multilineQuotes: LiteralValueQuotes[] = SVELTE_CONTAINER_TYPES_TO_REPLACE_QUOTES.includes(node.parent.type)
     ? ["'", "\"", "`"]
     : [];
 
   return {
-    multilineQuotes: multiline,
+    multilineQuotes,
     surroundingBraces
   };
 }

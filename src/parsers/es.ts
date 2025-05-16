@@ -58,6 +58,19 @@ import type {
 } from "readable-tailwind:types:rule.js";
 
 
+export const ES_CONTAINER_TYPES_TO_REPLACE_QUOTES: string[] = [
+  "ArrayExpression",
+  "Property",
+  "CallExpression",
+  "VariableDeclarator",
+  "ConditionalExpression",
+  "LogicalExpression"
+];
+
+export const ES_CONTAINER_TYPES_TO_INSERT_BRACES: string[] = [
+];
+
+
 export function getLiteralsByESVariableDeclarator(ctx: Rule.RuleContext, node: ESVariableDeclarator, variables: Variables): Literal[] {
 
   const literals = variables.reduce<Literal[]>((literals, variable) => {
@@ -255,24 +268,9 @@ function getLiteralByESTemplateElement(ctx: Rule.RuleContext, node: ESTemplateEl
 }
 
 function getMultilineQuotes(node: ESNode & Rule.NodeParentExtension): MultilineMeta {
-  const containerTypesToReplaceQuotes = [
-    "JSXAttribute",
-    "JSXExpressionContainer",
-    "ArrayExpression",
-    "Property",
-    "CallExpression",
-    "VariableDeclarator",
-    "ConditionalExpression",
-    "LogicalExpression"
-  ];
-
-  const containerTypesToInsertBraces = [
-    "JSXAttribute"
-  ];
-
-  const surroundingBraces = containerTypesToInsertBraces.includes(node.parent.type);
-  const multilineQuotes: LiteralValueQuotes[] = containerTypesToReplaceQuotes.includes(node.parent.type)
-    ? ["'", "\"", "`"]
+  const surroundingBraces = ES_CONTAINER_TYPES_TO_INSERT_BRACES.includes(node.parent.type);
+  const multilineQuotes: LiteralValueQuotes[] = ES_CONTAINER_TYPES_TO_REPLACE_QUOTES.includes(node.parent.type)
+    ? ["`"]
     : [];
 
   return {
