@@ -181,7 +181,7 @@ The table below lists all available rules, the Tailwind CSS versions they suppor
 #### Stylistic rules
 
 | Name | Description | `tw3` | `tw4` | `enabled` | autofix |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
+| :--- | :--- | :---: | :---: | :---: | :---: |
 | [multiline](docs/rules/multiline.md) | Enforce consistent line wrapping for tailwind classes. | ✔ | ✔ | ✔ | ✔ |
 | [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | ✔ | ✔ | ✔ | ✔ |
 | [sort-classes](docs/rules/sort-classes.md) | Enforce a consistent order for tailwind classes. | ✔ | ✔ | ✔ | ✔ |
@@ -190,7 +190,7 @@ The table below lists all available rules, the Tailwind CSS versions they suppor
 #### Correctness rules
 
 | Name | Description | `tw3` | `tw4` | `enabled` | autofix |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
+| :--- | :--- | :---: | :---: | :---: | :---: |
 | [no-unregistered-classes](docs/rules/no-unregistered-classes.md) | Report classes not registered with tailwindcss. | ✔ | ✔ | ✔ |  |
 | [no-conflicting-classes](docs/rules/no-conflicting-classes.md) | Report classes that produce conflicting styles. |  | ✔ |  |  |
 | [no-restricted-classes](docs/rules/no-restricted-classes.md) | Disallow restricted classes. | ✔ | ✔ |  |  |
