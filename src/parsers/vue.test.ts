@@ -1,7 +1,8 @@
 import { describe, it } from "vitest";
 
+import { multiline } from "better-tailwindcss:rules:multiline.js";
 import { sortClasses } from "better-tailwindcss:rules:sort-classes.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
+import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 import { MatcherType } from "better-tailwindcss:types:rule.js";
 
 
@@ -104,6 +105,28 @@ describe("vue", () => {
           options: [{ attributes: [[":.*Styles$", [{ match: MatcherType.String }]]], order: "asc" }],
           vue: `<template><img v-bind:testStyles="['c b a']" /></template>`,
           vueOutput: `<template><img v-bind:testStyles="['a b c']" /></template>`
+        }
+      ]
+    });
+  });
+
+  // #95
+  it("should change the quotes in expressions to backticks", () => {
+    const trim = createTrimTag(4);
+
+    const singleLine = "a b c d e f";
+    const multiLine = trim`
+      a b c
+      d e f
+    `;
+
+    lint(multiline, TEST_SYNTAXES, {
+      invalid: [
+        {
+          errors: 2,
+          options: [{ classesPerLine: 3 }],
+          vue: `<template><img :class="[true ? '${singleLine}' : '${singleLine}']" /></template>`,
+          vueOutput: `<template><img :class="[true ? \`${multiLine}\` : \`${multiLine}\`]" /></template>`
         }
       ]
     });
