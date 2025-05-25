@@ -31,6 +31,7 @@ import {
 import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
 import type {
+  SvelteAttachTag,
   SvelteAttribute,
   SvelteDirective,
   SvelteGenericsDirective,
@@ -179,6 +180,7 @@ function getMultilineQuotes(node: (ESBaseNode & Rule.NodeParentExtension) | Svel
 }
 
 function isSvelteAttribute(attribute:
+  | SvelteAttachTag
   | SvelteAttribute
   | SvelteDirective
   | SvelteGenericsDirective
