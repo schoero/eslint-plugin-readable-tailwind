@@ -10,5 +10,5 @@ module.exports = {
   plugins: {
     "better-tailwindcss": eslintPluginBetterTailwindcss
   },
-  rules: eslintPluginBetterTailwindcss.configs["all-warn"].rules
+  rules: eslintPluginBetterTailwindcss.configs["stylistic-warn"].rules
 };
