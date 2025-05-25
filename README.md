@@ -151,22 +151,49 @@ Depending on the flavor you are using, you may need to install and configure the
 
 ### Rules
 
-Two predefined configurations are available that contain the recommended rules:
+The rules are categorized into two types: `stylistic` and `correctness`.
 
-- `error` - will report an error if the rule is violated
-- `warning` - will report a warning if the rule is violated
+#### Configs
+
+The plugin offers three recommended configurations to help you get started quickly:
   
-The following table shows the available rules, the supported tailwindcss versions and if they are enabled by default in the different configurations:
+- `stylistic`: Enforces stylistic rules for tailwind classes.
+- `correctness`: Enforces correctness rules for tailwind classes.
+- `all`: Enforces all rules, both stylistic and correctness.
+  
+By default:
 
-| Name | Description | `tw3` | `tw4` |`error` | `warning` | autofix |
+- `stylistic` rules are reported as warnings
+- `correctness` rules are reported as errors
+  
+You can change the severity by adding a suffix to the config name:
+  
+- Use `-error` to report all rules as errors
+Use `-warn` to report all rules as warnings
+  
+For example, `all-warn` will apply every rule but only report them as warnings.
+  
+The table below lists all available rules, the Tailwind CSS versions they support, and whether they are enabled by default in each configuration:
+
+<br/>
+<br/>
+
+#### Stylistic rules
+
+| Name | Description | `tw3` | `tw4` | `enabled` | autofix |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| [multiline](docs/rules/multiline.md) | Enforce consistent line wrapping for tailwind classes. | ✔ | ✔ | ✔ | ✔ | ✔ |
-| [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | ✔ | ✔ | ✔ | ✔ | ✔ |
-| [sort-classes](docs/rules/sort-classes.md) | Enforce a consistent order for tailwind classes. | ✔ | ✔ | ✔ | ✔ | ✔ |
-| [no-duplicate-classes](docs/rules/no-duplicate-classes.md) | Remove duplicate classes. | ✔ | ✔ | ✔ | ✔ | ✔ |
-| [no-unregistered-classes](docs/rules/no-unregistered-classes.md) | Report classes not registered with tailwindcss. | ✔ | ✔ | ✔ | ✔ |  |
-| [no-conflicting-classes](docs/rules/no-conflicting-classes.md) | Report classes that produce conflicting styles. |  | ✔ |  |  |  |
-| [no-restricted-classes](docs/rules/no-restricted-classes.md) | Disallow restricted classes. | ✔ | ✔ |  |  |  |
+| [multiline](docs/rules/multiline.md) | Enforce consistent line wrapping for tailwind classes. | ✔ | ✔ | ✔ | ✔ |
+| [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | ✔ | ✔ | ✔ | ✔ |
+| [sort-classes](docs/rules/sort-classes.md) | Enforce a consistent order for tailwind classes. | ✔ | ✔ | ✔ | ✔ |
+| [no-duplicate-classes](docs/rules/no-duplicate-classes.md) | Remove duplicate classes. | ✔ | ✔ | ✔ | ✔ |
+
+#### Correctness rules
+
+| Name | Description | `tw3` | `tw4` | `enabled` | autofix |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
+| [no-unregistered-classes](docs/rules/no-unregistered-classes.md) | Report classes not registered with tailwindcss. | ✔ | ✔ | ✔ |  |
+| [no-conflicting-classes](docs/rules/no-conflicting-classes.md) | Report classes that produce conflicting styles. |  | ✔ |  |  |
+| [no-restricted-classes](docs/rules/no-restricted-classes.md) | Disallow restricted classes. | ✔ | ✔ |  |  |
 
 <br/>
 <br/>

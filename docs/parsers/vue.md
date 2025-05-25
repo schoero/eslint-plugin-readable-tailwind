@@ -33,10 +33,10 @@ export default [
       "better-tailwindcss": eslintPluginBetterTailwindcss
     },
     rules: {
-      // enable all recommended rules to warn
-      ...eslintPluginBetterTailwindcss.configs.warning.rules,
-      // enable all recommended rules to error
-      ...eslintPluginBetterTailwindcss.configs.error.rules,
+      // enable all recommended rules to report a warning
+      ...eslintPluginBetterTailwindcss.configs["all-warn"].rules,
+      // enable all recommended rules to report an error
+      ...eslintPluginBetterTailwindcss.configs["all-error"].rules,
 
       // or configure rules individually
       "better-tailwindcss/multiline": ["warn", { printWidth: 100 }]
@@ -53,10 +53,10 @@ export default [
 // .eslintrc.json
 {
   "extends": [
-    // enable all recommended rules to warn
-    "plugin:better-tailwindcss/warning",
-    // enable all recommended rules to error
-    "plugin:better-tailwindcss/error"
+    // enable all recommended rules to report a warning
+    "plugin:better-tailwindcss/all-warn",
+    // enable all recommended rules to report an error
+    "plugin:better-tailwindcss/all-error"
   ],
   "parser": "vue-eslint-parser",
   "plugins": ["better-tailwindcss"],

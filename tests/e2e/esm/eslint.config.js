@@ -10,5 +10,5 @@ export default {
   plugins: {
     "better-tailwindcss": eslintPluginBetterTailwindcss
   },
-  rules: eslintPluginBetterTailwindcss.configs.warning.rules
+  rules: eslintPluginBetterTailwindcss.configs["all-warn"].rules
 };
