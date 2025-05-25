@@ -79,21 +79,21 @@ export const config = {
       rules: getCorrectnessRules("warn")
     },
 
-    "all": {
+    "recommended": {
       plugins,
       rules: {
         ...getStylisticRules("warn"),
         ...getCorrectnessRules("error")
       }
     },
-    "all-error": {
+    "recommended-error": {
       plugins,
       rules: {
         ...getStylisticRules("error"),
         ...getCorrectnessRules("error")
       }
     },
-    "all-warn": {
+    "recommended-warn": {
       plugins,
       rules: {
         ...getStylisticRules("warn"),

@@ -159,7 +159,7 @@ The plugin offers three recommended configurations to help you get started quick
   
 - `stylistic`: Enforces stylistic rules for tailwind classes.
 - `correctness`: Enforces correctness rules for tailwind classes.
-- `all`: Enforces all rules, both stylistic and correctness.
+- `recommended`: Enforces both stylistic and correctness rules.
   
 By default:
 
@@ -169,9 +169,9 @@ By default:
 You can change the severity by adding a suffix to the config name:
   
 - Use `-error` to report all rules as errors
-Use `-warn` to report all rules as warnings
+- Use `-warn` to report all rules as warnings
   
-For example, `all-warn` will apply every rule but only report them as warnings.
+For example, `recommended-warn` will apply every rule but only report them as warnings.
   
 The table below lists all available rules, the Tailwind CSS versions they support, and whether they are enabled by default in each recommended configuration:
 

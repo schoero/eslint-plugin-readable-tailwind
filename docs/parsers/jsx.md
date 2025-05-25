@@ -30,9 +30,9 @@ export default [
     },
     rules: {
       // enable all recommended rules to report a warning
-      ...eslintPluginBetterTailwindcss.configs["all-warn"].rules,
+      ...eslintPluginBetterTailwindcss.configs["recommended-warn"].rules,
       // enable all recommended rules to report an error
-      ...eslintPluginBetterTailwindcss.configs["all-error"].rules,
+      ...eslintPluginBetterTailwindcss.configs["recommended-error"].rules,
 
       // or configure rules individually
       "better-tailwindcss/multiline": ["warn", { printWidth: 100 }]
@@ -50,9 +50,9 @@ export default [
 {
   "extends": [
     // enable all recommended rules to report a warning
-    "plugin:better-tailwindcss/all-warn",
+    "plugin:better-tailwindcss/recommended-warn",
     // enable all recommended rules to report an error
-    "plugin:better-tailwindcss/all-error"
+    "plugin:better-tailwindcss/recommended-error"
   ],
   "parserOptions": {
     "ecmaFeatures": {
