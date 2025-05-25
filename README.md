@@ -216,6 +216,8 @@ This plugin works out of the box with most popular tailwind utilities:
 <br/>
 <br/>
 
+### Advanced configuration
+
 If an utility is not supported by default, or you want to customize the configuration, you can define which string literals should be linted for each rule.
 See the [Advanced configuration guide](./configuration/advanced.md) to learn how to override or extend the default settings.
 
