@@ -4,6 +4,7 @@ import {
   DEFAULT_TAG_NAMES,
   DEFAULT_VARIABLE_NAMES
 } from "better-tailwindcss:options:default-options.js";
+import { isAttributesRegex, isCalleeRegex, isVariableRegex } from "better-tailwindcss:utils:matchers.js";
 
 import type { Rule } from "eslint";
 
@@ -17,6 +18,10 @@ export function getCommonOptions(ctx: Rule.RuleContext) {
   const variables = getOption(ctx, "variables") ?? DEFAULT_VARIABLE_NAMES;
   const tags = getOption(ctx, "tags") ?? DEFAULT_TAG_NAMES;
   const tailwindConfig = getOption(ctx, "entryPoint") ?? getOption(ctx, "tailwindConfig");
+
+  if(isAttributesRegex(attributes) || isCalleeRegex(callees) || isVariableRegex(variables)){
+    console.warn("⚠️ Warning: Regex matching is deprecated and will be removed in the next major version. Please use matchers instead.");
+  }
 
   return {
     attributes,
