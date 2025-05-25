@@ -173,14 +173,14 @@ Use `-warn` to report all rules as warnings
   
 For example, `all-warn` will apply every rule but only report them as warnings.
   
-The table below lists all available rules, the Tailwind CSS versions they support, and whether they are enabled by default in each configuration:
+The table below lists all available rules, the Tailwind CSS versions they support, and whether they are enabled by default in each recommended configuration:
 
 <br/>
 <br/>
 
 #### Stylistic rules
 
-| Name | Description | `tw3` | `tw4` | `enabled` | autofix |
+| Name | Description | `tw3` | `tw4` | `recommended` | autofix |
 | :--- | :--- | :---: | :---: | :---: | :---: |
 | [multiline](docs/rules/multiline.md) | Enforce consistent line wrapping for tailwind classes. | ✔ | ✔ | ✔ | ✔ |
 | [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | ✔ | ✔ | ✔ | ✔ |
@@ -189,7 +189,7 @@ The table below lists all available rules, the Tailwind CSS versions they suppor
 
 #### Correctness rules
 
-| Name | Description | `tw3` | `tw4` | `enabled` | autofix |
+| Name | Description | `tw3` | `tw4` | `recommended` | autofix |
 | :--- | :--- | :---: | :---: | :---: | :---: |
 | [no-unregistered-classes](docs/rules/no-unregistered-classes.md) | Report classes not registered with tailwindcss. | ✔ | ✔ | ✔ |  |
 | [no-conflicting-classes](docs/rules/no-conflicting-classes.md) | Report classes that produce conflicting styles. |  | ✔ |  |  |
