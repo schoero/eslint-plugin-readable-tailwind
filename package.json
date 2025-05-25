@@ -100,7 +100,7 @@
     "json-schema": "^0.4.0",
     "markdownlint": "^0.38.0",
     "proper-tags": "^2.0.2",
-    "svelte": "^5.33.1",
+    "svelte": "^5.33.2",
     "svelte-eslint-parser": "^1.2.0",
     "tailwindcss": "^4.1.7",
     "tailwindcss3": "npm:tailwindcss@^3.0.0",
