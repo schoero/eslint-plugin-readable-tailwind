@@ -171,7 +171,7 @@ You can change the severity by adding a suffix to the config name:
 - Use `-error` to report all rules as errors
 - Use `-warn` to report all rules as warnings
   
-For example, `recommended-warn` will apply every rule but only report them as warnings.
+For example, `recommended-warn` will report every rule as a warning and `stylistic-error` will report the formatting rules as errors.
   
 The table below lists all available rules, the Tailwind CSS versions they support, and whether they are enabled by default in each recommended configuration:
 
