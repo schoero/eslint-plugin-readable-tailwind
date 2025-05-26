@@ -1,3 +1,4 @@
+/* eslint-disable eslint-plugin-typescript/naming-convention */
 import { multiline } from "better-tailwindcss:rules:multiline.js";
 import { noConflictingClasses } from "better-tailwindcss:rules:no-conflicting-classes.js";
 import { noDuplicateClasses } from "better-tailwindcss:rules:no-duplicate-classes.js";
@@ -9,28 +10,9 @@ import { sortClasses } from "better-tailwindcss:rules:sort-classes.js";
 import type { ESLint } from "eslint";
 
 
-const pluginName = "better-tailwindcss";
-
-export const config = {
-  configs: {
-    error: {
-      rules: {
-        [`${pluginName}/${multiline.name}`]: "error",
-        [`${pluginName}/${noDuplicateClasses.name}`]: "error",
-        [`${pluginName}/${noUnnecessaryWhitespace.name}`]: "error",
-        [`${pluginName}/${noUnregisteredClasses.name}`]: "error",
-        [`${pluginName}/${sortClasses.name}`]: "error"
-      }
-    },
-    warning: {
-      rules: {
-        [`${pluginName}/${multiline.name}`]: "warn",
-        [`${pluginName}/${noDuplicateClasses.name}`]: "warn",
-        [`${pluginName}/${noUnnecessaryWhitespace.name}`]: "warn",
-        [`${pluginName}/${noUnregisteredClasses.name}`]: "warn",
-        [`${pluginName}/${sortClasses.name}`]: "warn"
-      }
-    }
+const plugin = {
+  meta: {
+    name: "better-tailwindcss"
   },
   rules: {
     [multiline.name]: multiline.rule,
@@ -40,5 +22,83 @@ export const config = {
     [noUnnecessaryWhitespace.name]: noUnnecessaryWhitespace.rule,
     [noUnregisteredClasses.name]: noUnregisteredClasses.rule,
     [sortClasses.name]: sortClasses.rule
+  }
+} satisfies ESLint.Plugin;
+
+const plugins = [plugin.meta.name];
+
+
+const getStylisticRules = (severity: "error" | "warn") => {
+  return {
+    [`${plugin.meta.name}/${multiline.name}`]: severity,
+    [`${plugin.meta.name}/${noDuplicateClasses.name}`]: severity,
+    [`${plugin.meta.name}/${noUnnecessaryWhitespace.name}`]: severity,
+    [`${plugin.meta.name}/${sortClasses.name}`]: severity
+  };
+};
+
+const getCorrectnessRules = (severity: "error" | "warn") => {
+  return {
+    [`${plugin.meta.name}/${noConflictingClasses.name}`]: severity,
+    [`${plugin.meta.name}/${noUnregisteredClasses.name}`]: severity
+  };
+};
+
+
+export const config = {
+  ...plugin,
+
+  configs: {
+    "stylistic": {
+      plugins,
+      rules: {
+        ...getStylisticRules("warn")
+      }
+    },
+    "stylistic-error": {
+      plugins,
+      rules: getStylisticRules("error")
+    },
+    "stylistic-warn": {
+      plugins,
+      rules: getStylisticRules("warn")
+    },
+
+    "correctness": {
+      plugins,
+      rules: {
+        ...getCorrectnessRules("error")
+      }
+    },
+    "correctness-error": {
+      plugins,
+      rules: getCorrectnessRules("error")
+    },
+    "correctness-warn": {
+      plugins,
+      rules: getCorrectnessRules("warn")
+    },
+
+    "recommended": {
+      plugins,
+      rules: {
+        ...getStylisticRules("warn"),
+        ...getCorrectnessRules("error")
+      }
+    },
+    "recommended-error": {
+      plugins,
+      rules: {
+        ...getStylisticRules("error"),
+        ...getCorrectnessRules("error")
+      }
+    },
+    "recommended-warn": {
+      plugins,
+      rules: {
+        ...getStylisticRules("warn"),
+        ...getCorrectnessRules("warn")
+      }
+    }
   }
 } satisfies ESLint.Plugin;

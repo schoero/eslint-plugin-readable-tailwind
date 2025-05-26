@@ -46,10 +46,10 @@ export default [
       "better-tailwindcss": eslintPluginBetterTailwindcss
     },
     rules: {
-      // enable all recommended rules to warn
-      ...eslintPluginBetterTailwindcss.configs.warning.rules,
-      // enable all recommended rules to error
-      ...eslintPluginBetterTailwindcss.configs.error.rules,
+      // enable all recommended rules to report a warning
+      ...eslintPluginBetterTailwindcss.configs["recommended-warn"].rules,
+      // enable all recommended rules to report an error
+      ...eslintPluginBetterTailwindcss.configs["recommended-error"].rules,
 
       // or configure rules individually
       "better-tailwindcss/multiline": ["warn", { printWidth: 100 }]
@@ -67,10 +67,10 @@ export default [
 {
   "parser": "@typescript-eslint/parser",
   "extends": [
-    // enable all recommended rules to warn
-    "plugin:better-tailwindcss/warning",
-    // enable all recommended rules to error
-    "plugin:better-tailwindcss/error"
+    // enable all recommended rules to report a warning
+    "plugin:better-tailwindcss/recommended-warn",
+    // enable all recommended rules to report an error
+    "plugin:better-tailwindcss/recommended-error"
   ],
   "parserOptions": {
     "ecmaFeatures": {

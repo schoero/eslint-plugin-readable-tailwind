@@ -59,7 +59,7 @@
 <br/>
 <br/>
 
-An ESLint plugin that brings formatting and linting rules to help you write cleaner, more maintainable Tailwind CSS.  
+ESLint plugin with formatting and linting rules to help you write cleaner, more maintainable Tailwind CSS.  
 
 The formatting rules focus on improving readability by automatically breaking up long Tailwind class strings into multiple lines and sorting/grouping them in a logical order. The linting rules enforce best practices and catch potential issues, ensuring that you're writing valid Tailwind CSS.  
 
@@ -151,22 +151,49 @@ Depending on the flavor you are using, you may need to install and configure the
 
 ### Rules
 
-Two predefined configurations are available that contain the recommended rules:
+The rules are categorized into two types: `stylistic` and `correctness`.
 
-- `error` - will report an error if the rule is violated
-- `warning` - will report a warning if the rule is violated
+#### Configs
+
+The plugin offers three recommended configurations to help you get started quickly:
   
-The following table shows the available rules, the supported tailwindcss versions and if they are enabled by default in the different configurations:
+- `stylistic`: Enforces stylistic rules for tailwind classes.
+- `correctness`: Enforces correctness rules for tailwind classes.
+- `recommended`: Enforces both stylistic and correctness rules.
+  
+By default:
 
-| Name | Description | `tw3` | `tw4` |`error` | `warning` | autofix |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| [multiline](docs/rules/multiline.md) | Enforce consistent line wrapping for tailwind classes. | ✔ | ✔ | ✔ | ✔ | ✔ |
-| [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | ✔ | ✔ | ✔ | ✔ | ✔ |
-| [sort-classes](docs/rules/sort-classes.md) | Enforce a consistent order for tailwind classes. | ✔ | ✔ | ✔ | ✔ | ✔ |
-| [no-duplicate-classes](docs/rules/no-duplicate-classes.md) | Remove duplicate classes. | ✔ | ✔ | ✔ | ✔ | ✔ |
-| [no-unregistered-classes](docs/rules/no-unregistered-classes.md) | Report classes not registered with tailwindcss. | ✔ | ✔ | ✔ | ✔ |  |
-| [no-conflicting-classes](docs/rules/no-conflicting-classes.md) | Report classes that produce conflicting styles. |  | ✔ |  |  |  |
-| [no-restricted-classes](docs/rules/no-restricted-classes.md) | Disallow restricted classes. | ✔ | ✔ |  |  |  |
+- `stylistic` rules are reported as warnings
+- `correctness` rules are reported as errors
+  
+You can change the severity by adding a suffix to the config name:
+  
+- Use `-error` to report all rules as errors
+- Use `-warn` to report all rules as warnings
+  
+For example, `recommended-warn` will report every rule as a warning and `stylistic-error` will report the formatting rules as errors.
+  
+The table below lists all available rules, the Tailwind CSS versions they support, and whether they are enabled by default in each recommended configuration:
+
+<br/>
+<br/>
+
+#### Stylistic rules
+
+| Name | Description | `tw3` | `tw4` | `recommended` | autofix |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| [multiline](docs/rules/multiline.md) | Enforce consistent line wrapping for tailwind classes. | ✔ | ✔ | ✔ | ✔ |
+| [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | ✔ | ✔ | ✔ | ✔ |
+| [sort-classes](docs/rules/sort-classes.md) | Enforce a consistent order for tailwind classes. | ✔ | ✔ | ✔ | ✔ |
+| [no-duplicate-classes](docs/rules/no-duplicate-classes.md) | Remove duplicate classes. | ✔ | ✔ | ✔ | ✔ |
+
+#### Correctness rules
+
+| Name | Description | `tw3` | `tw4` | `recommended` | autofix |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| [no-unregistered-classes](docs/rules/no-unregistered-classes.md) | Report classes not registered with tailwindcss. | ✔ | ✔ | ✔ |  |
+| [no-conflicting-classes](docs/rules/no-conflicting-classes.md) | Report classes that produce conflicting styles. |  | ✔ |  |  |
+| [no-restricted-classes](docs/rules/no-restricted-classes.md) | Disallow restricted classes. | ✔ | ✔ |  |  |
 
 <br/>
 <br/>
@@ -189,7 +216,9 @@ This plugin works out of the box with most popular tailwind utilities:
 <br/>
 <br/>
 
-If a utility is not supported by default, or you want to customize the configuration, you can define which string literals should be linted for each rule.
+### Advanced configuration
+
+If an utility is not supported by default, or you want to customize the configuration, you can define which string literals should be linted for each rule.
 See the [Advanced configuration guide](./configuration/advanced.md) to learn how to override or extend the default settings.
 
 <br/>
