@@ -4,6 +4,7 @@ The [rules](../../README.md#rules) in this plugin lint string literals that cont
 
 By default, the plugin is configured to work with [most popular tailwind utilities](../../README.md#utilities).  
 
+It is possible to override the default configuration by defining the `attributes`, `callees`, `variables` or `tags` option for each rule individually, or globally via the [settings](../configuration/settings.md) object in ESLint.
 
 In order to extend the default configuration instead of overriding it, you can import the default options from `eslint-plugin-better-tailwindcss/api/defaults` and merge them with your own config.
 
@@ -143,11 +144,11 @@ For example, the following matcher will only match object values for the `compou
 
 ```tsx
 <img class={
-  cva("this will get linted", {
+  cva("this will not get linted", {
     compoundVariants: [
       {
-        class: "and this will get linted",
-        myVariant: "but this will not get linted"
+        class: "but this will get linted",
+        myVariant: "and this will not get linted"
       }
     ]
   })
@@ -183,73 +184,33 @@ For example, the object path for the `value` key in the following object would b
 ### Examples
 
 ```jsonc
-{
-  "attributes": [
-    [
-      // matches attributes with the name `myAttribute`
-      "myAttribute",
-      // matches the object value for the `myProperty` key
-      [
-        {
-          "match": "objectValues",
-          "pathPattern": "^myProperty|\\.myProperty"
-        }
-      ] 
-    ]
-  ]
-}
-```
 
-```tsx
-<img myAttribute={{ myProperty: "this will get linted" }} />;
-```
-
-<br/>
-
-```jsonc
 {
   "callees": [
     [
-      // matches callees with the name `myFunction`
-      "myFunction",
-      // matches the object value for the `myProperty` key
-      [
+      "cva", [
+        {
+          "match": "strings"
+        },
         {
           "match": "objectValues",
-          "pathPattern": "^myProperty|\\.myProperty"
+          "pathPattern": "^compoundVariants\\[\\d+\\]\\.(?:className|class)$"
         }
-      ] 
+      ]
     ]
   ]
 }
 ```
 
 ```tsx
-const myVariable = {
-  myProperty: "this will get linted"
-};
-```
-
-<br/>
-
-```jsonc
-{
-  "variables": [
-    [
-      // matches variables with the name `myVariable`
-      "myVariable",
-      // matches the object value for the `myProperty` key
-      [
-        {
-          "match": "objectValues",
-          "pathPattern": "^myProperty|\\.myProperty"
-        }
-      ] 
+<img class={
+  cva("this will get linted", {
+    compoundVariants: [
+      {
+        class: "and this will get linted",
+        myVariant: "but this will not get linted"
+      }
     ]
-  ]
-}
-```
-
-```tsx
-const test = myFunction({ myProperty: "this will get linted" });
+  })
+} />;
 ```
