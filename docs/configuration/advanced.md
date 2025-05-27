@@ -2,8 +2,8 @@
 
 The [rules](../../README.md#rules) in this plugin lint string literals that contain Tailwind CSS classes. To do this accurately, the plugin needs to know which strings actually contain Tailwind classes. Otherwise it would try to lint every string literal, leading to false errors and potentially broken code.
 
-By default, the plugin is configured to work with [most popular tailwind utilities](../api/defaults.md).  
-It is possible to override the default configuration by defining the `attributes`, `callees`, `variables` or `tags` option for each rule or globally via the [settings](../configuration/settings.md) object in ESLint.
+By default, the plugin is configured to work with [most popular tailwind utilities](../../README.md#utilities).  
+
 
 In order to extend the default configuration instead of overriding it, you can import the default options from `eslint-plugin-better-tailwindcss/api/defaults` and merge them with your own config.
 
