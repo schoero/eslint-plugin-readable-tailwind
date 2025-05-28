@@ -52,14 +52,17 @@ const createConfig = (
 ) => {
   return {
     [`${name}-error`]: {
+      name: `${plugin.meta.name}/${name}-error`,
       plugins,
       rules: getRulesFunction("error")
     },
     [`${name}-warn`]: {
+      name: `${plugin.meta.name}/${name}-warn`,
       plugins,
       rules: getRulesFunction("warn")
     },
     [name]: {
+      name: `${plugin.meta.name}/${name}`,
       plugins,
       rules: getRulesFunction()
     }
