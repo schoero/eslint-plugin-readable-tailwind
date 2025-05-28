@@ -42,7 +42,6 @@ export type Options = [
     VariableOption &
     {
       entryPoint?: string;
-      ignore?: string[];
       tailwindConfig?: string;
     }
   >
