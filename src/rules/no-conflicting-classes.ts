@@ -63,7 +63,7 @@ export const noConflictingClasses: ESLintRule<Options> = {
     create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
     meta: {
       docs: {
-        description: "Disallow any css classes that are not registered in tailwindcss.",
+        description: "Disallow classes that produce conflicting styles.",
         recommended: false,
         url: DOCUMENTATION_URL
       },
