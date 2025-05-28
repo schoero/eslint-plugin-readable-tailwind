@@ -44,7 +44,7 @@ export type Options = [
     VariableOption &
     {
       entryPoint?: string;
-      order?: "asc" | "desc" | "improved" | "official" ;
+      order?: "asc" | "desc" | "improved" | "official";
       tailwindConfig?: string;
     }
   >

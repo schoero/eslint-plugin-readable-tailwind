@@ -15,7 +15,7 @@ export function getLiteralsByNodeAndRegex<LiteralType = unknown>(
     getNodeRange,
     getNodeSourceCode
   }: {
-    getLiteralsByMatchingNode: (node: unknown) => LiteralType[] | undefined ;
+    getLiteralsByMatchingNode: (node: unknown) => LiteralType[] | undefined;
     getNodeByRangeStart: (start: number) => unknown;
     getNodeRange: (node: unknown) => undefined | [number | undefined, number | undefined];
     getNodeSourceCode: (node: unknown) => string | undefined;
