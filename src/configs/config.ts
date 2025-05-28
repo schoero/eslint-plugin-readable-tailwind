@@ -1,4 +1,3 @@
-/* eslint-disable eslint-plugin-typescript/naming-convention */
 import { multiline } from "better-tailwindcss:rules:multiline.js";
 import { noConflictingClasses } from "better-tailwindcss:rules:no-conflicting-classes.js";
 import { noDuplicateClasses } from "better-tailwindcss:rules:no-duplicate-classes.js";
@@ -28,7 +27,7 @@ const plugin = {
 const plugins = [plugin.meta.name];
 
 
-const getStylisticRules = (severity: "error" | "warn") => {
+const getStylisticRules = (severity: "error" | "warn" = "warn") => {
   return {
     [`${plugin.meta.name}/${multiline.name}`]: severity,
     [`${plugin.meta.name}/${noDuplicateClasses.name}`]: severity,
@@ -37,7 +36,7 @@ const getStylisticRules = (severity: "error" | "warn") => {
   };
 };
 
-const getCorrectnessRules = (severity: "error" | "warn") => {
+const getCorrectnessRules = (severity: "error" | "warn" = "error") => {
   return {
     [`${plugin.meta.name}/${noConflictingClasses.name}`]: severity,
     [`${plugin.meta.name}/${noUnregisteredClasses.name}`]: severity
@@ -45,60 +44,37 @@ const getCorrectnessRules = (severity: "error" | "warn") => {
 };
 
 
+const createConfig = (
+  name: string,
+  getRulesFunction: (severity?: "error" | "warn") => {
+    [x: string]: "error" | "warn";
+  }
+) => {
+  return {
+    [`${name}-error`]: {
+      plugins,
+      rules: getRulesFunction("error")
+    },
+    [`${name}-warn`]: {
+      plugins,
+      rules: getRulesFunction("warn")
+    },
+    [name]: {
+      plugins,
+      rules: getRulesFunction()
+    }
+  };
+};
+
 export const config = {
   ...plugin,
 
   configs: {
-    "stylistic": {
-      plugins,
-      rules: {
-        ...getStylisticRules("warn")
-      }
-    },
-    "stylistic-error": {
-      plugins,
-      rules: getStylisticRules("error")
-    },
-    "stylistic-warn": {
-      plugins,
-      rules: getStylisticRules("warn")
-    },
-
-    "correctness": {
-      plugins,
-      rules: {
-        ...getCorrectnessRules("error")
-      }
-    },
-    "correctness-error": {
-      plugins,
-      rules: getCorrectnessRules("error")
-    },
-    "correctness-warn": {
-      plugins,
-      rules: getCorrectnessRules("warn")
-    },
-
-    "recommended": {
-      plugins,
-      rules: {
-        ...getStylisticRules("warn"),
-        ...getCorrectnessRules("error")
-      }
-    },
-    "recommended-error": {
-      plugins,
-      rules: {
-        ...getStylisticRules("error"),
-        ...getCorrectnessRules("error")
-      }
-    },
-    "recommended-warn": {
-      plugins,
-      rules: {
-        ...getStylisticRules("warn"),
-        ...getCorrectnessRules("warn")
-      }
-    }
+    ...createConfig("stylistic", getStylisticRules),
+    ...createConfig("correctness", getCorrectnessRules),
+    ...createConfig("recommended", severity => ({
+      ...getStylisticRules(severity),
+      ...getCorrectnessRules(severity)
+    }))
   }
 } satisfies ESLint.Plugin;
