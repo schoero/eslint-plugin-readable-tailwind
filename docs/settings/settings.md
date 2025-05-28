@@ -23,7 +23,7 @@ To set the settings object, add a `settings` key to the eslint config.
   "plugins": { /* ... */ },
   "rules": { /* ... */ },
   "settings": {
-    "readable-tailwind": {
+    "better-tailwindcss": {
       "entryPoint": "...",
       "tailwindConfig": "...",
       "attributes": [/* ... */],
@@ -43,7 +43,7 @@ To set the settings object, add a `settings` key to the eslint config.
   The path to the entry file of the css based tailwind config (eg: `src/global.css`). If not specified, the plugin will fall back to the default configuration.  
   The tailwind config is used to determine the sorting order.
 
-  **Type**: String
+  **Type**: `string`
 
 <br/>
 
@@ -54,7 +54,7 @@ To set the settings object, add a `settings` key to the eslint config.
 
   For tailwindcss v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
 
-  **Type**: String
+  **Type**: `string`
 
 <br/>
 
@@ -62,8 +62,8 @@ To set the settings object, add a `settings` key to the eslint config.
 
   The name of the attribute that contains the tailwind classes.  
 
-  **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
-  **Default**: [Name](../concepts/concepts.md#name) for `"class"` and [strings Matcher](../concepts/concepts.md#types-of-matchers) for `"class", "className"`
+  **Type**: Array of [Matchers](../configuration/advanced.md)  
+  **Default**: [Name](../configuration/advanced.md#name-based-matching) for `"class"` and [strings Matcher](../configuration/advanced.md#types-of-matchers) for `"class", "className"`
 
 <br/>
 
@@ -71,8 +71,8 @@ To set the settings object, add a `settings` key to the eslint config.
 
   List of function names which arguments should also get linted.  
   
-  **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
-  **Default**: [Matchers](../concepts/concepts.md#types-of-matchers) for `"cc", "clb", "clsx", "cn", "cnb", "ctl", "cva", "cx", "dcnb", "objstr", "tv", "twJoin", "twMerge"`
+  **Type**: Array of [Matchers](../configuration/advanced.md)  
+  **Default**: [Matchers](../configuration/advanced.md#types-of-matchers) for `"cc", "clb", "clsx", "cn", "cnb", "ctl", "cva", "cx", "dcnb", "objstr", "tv", "twJoin", "twMerge"`
 
 <br/>
 
@@ -80,8 +80,8 @@ To set the settings object, add a `settings` key to the eslint config.
 
   List of variable names whose initializer should also get linted.  
   
-  **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
-  **Default**:  [strings Matcher](../concepts/concepts.md#types-of-matchers) for `"className", "classNames", "classes", "style", "styles"`
+  **Type**: Array of [Matchers](../configuration/advanced.md)  
+  **Default**:  [strings Matcher](../configuration/advanced.md#types-of-matchers) for `"className", "classNames", "classes", "style", "styles"`
 
 <br/>
 
@@ -89,7 +89,7 @@ To set the settings object, add a `settings` key to the eslint config.
 
   List of template literal tag names whose content should get linted.  
   
-  **Type**: Array of [Name](../concepts/concepts.md#name), [Regex](../concepts/concepts.md#regular-expressions) or [Matchers](../concepts/concepts.md#matchers)  
+  **Type**: Array of [Matchers](../configuration/advanced.md)  
   **Default**: None
 
-  Note: When using the `tags` option, it is recommended to use the [strings Matcher](../concepts/concepts.md#types-of-matchers) for your tag names. This will ensure that nested expressions get linted correctly.
+  Note: When using the `tags` option, it is recommended to use the [strings Matcher](../configuration/advanced.md#types-of-matchers) for your tag names. This will ensure that nested expressions get linted correctly.

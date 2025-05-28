@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { matchesName } from "readable-tailwind:utils:utils.js";
+import { escapeForRegex, matchesName } from "better-tailwindcss:utils:utils.js";
 
 
 describe("matchesName", () => {
@@ -18,5 +18,15 @@ describe("matchesName", () => {
     expect(matchesName("class.*", "className")).toBe(true);
     expect(matchesName("class$", "class$")).toBe(false);
     expect(matchesName("class\\$", "class$")).toBe(true);
+  });
+});
+
+describe("escapeForRegex", () => {
+  it("should escape an user provided string to be used in a regular expression", () => {
+    expect(escapeForRegex(".*")).toBe("\\.\\*");
+    expect(escapeForRegex("hello?")).toBe("hello\\?");
+    expect(escapeForRegex("[abc]")).toBe("\\[abc\\]");
+    expect(escapeForRegex("a+b*c")).toBe("a\\+b\\*c");
+    expect(escapeForRegex("class$")).toBe("class\\$");
   });
 });

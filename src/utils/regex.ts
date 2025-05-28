@@ -1,8 +1,8 @@
-import { isESNode } from "readable-tailwind:parsers:es.js";
+import { isESNode } from "better-tailwindcss:parsers:es.js";
 
 import type { Rule } from "eslint";
 
-import type { RegexConfig } from "readable-tailwind:types:rule.js";
+import type { RegexConfig } from "better-tailwindcss:types:rule.js";
 
 
 export function getLiteralsByNodeAndRegex<LiteralType = unknown>(
@@ -15,7 +15,7 @@ export function getLiteralsByNodeAndRegex<LiteralType = unknown>(
     getNodeRange,
     getNodeSourceCode
   }: {
-    getLiteralsByMatchingNode: (node: unknown) => LiteralType[] | undefined ;
+    getLiteralsByMatchingNode: (node: unknown) => LiteralType[] | undefined;
     getNodeByRangeStart: (start: number) => unknown;
     getNodeRange: (node: unknown) => undefined | [number | undefined, number | undefined];
     getNodeSourceCode: (node: unknown) => string | undefined;

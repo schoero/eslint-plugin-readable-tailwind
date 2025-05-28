@@ -4,9 +4,9 @@ import {
   CLB_BASE_VALUES,
   CLB_COMPOUND_VARIANTS_CLASSES,
   CLB_VARIANT_VALUES
-} from "readable-tailwind:options:callees/clb.js";
-import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
+} from "better-tailwindcss:options:callees/clb.js";
+import { noUnnecessaryWhitespace } from "better-tailwindcss:rules:no-unnecessary-whitespace.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 
 
 describe("clb", () => {
@@ -28,7 +28,7 @@ describe("clb", () => {
       )
     `;
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -62,7 +62,7 @@ describe("clb", () => {
       )
     `;
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -102,7 +102,7 @@ describe("clb", () => {
       )
     `;
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -168,7 +168,7 @@ describe("clb", () => {
       });
     `;
 
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 5,

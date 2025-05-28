@@ -1,39 +1,8 @@
 
 # Defaults
 
-Every [rule](../../README.md#rules) can target multiple attributes, callee names, variable names or template literal tags.
-
-Read the [concepts documentation](../concepts/concepts.md) first to learn why this is important and what different options there are to define where to look for tailwind classes.
-
-The default configuration is designed to work with the most popular tailwind utilities:
-
-- [tailwind merge](https://github.com/dcastil/tailwind-merge)
-- [class variance authority](https://github.com/joe-bell/cva)
-- [tailwind variants](https://github.com/nextui-org/tailwind-variants?tab=readme-ov-file)
-- [shadcn](https://ui.shadcn.com/docs/installation/manual)
-- [classcat](https://github.com/jorgebucaran/classcat)
-- [class list builder](https://github.com/crswll/clb)
-- [clsx](https://github.com/lukeed/clsx)
-- [cnbuilder](https://github.com/xobotyi/cnbuilder)
-- [classnames template literals](https://github.com/netlify/classnames-template-literals)
-- [obj str](https://github.com/lukeed/obj-str)
-
-<br/>
-<br/>
-
-If an utility is not supported or you have built your own, you can change the matchers in the configuration. If you want to extend the default config, you can import it from the plugin:
-
-<br/>
-<br/>
-
-```ts
-import {
-  getDefaultAttributes,
-  getDefaultCallees,
-  getDefaultTags,
-  getDefaultVariables
-} from "eslint-plugin-readable-tailwind/api/defaults";
-```
+The plugin comes with a set of default [matchers](../configuration/advanced.md#matchers) for `attributes`, `callees`, `variables` and `tags`. These matchers are used to [determine how the rules should behave](../configuration/advanced.md#advanced-configuration) when checking your code.
+In order to extend the default configuration instead of overwriting it, you can import the default options from `eslint-plugin-better-tailwindcss/api/defaults` and merge them with your own options.
 
 <br/>
 <br/>
@@ -41,22 +10,23 @@ import {
 ## Extending the config
 
 ```ts
-import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
+import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
 import {
   getDefaultAttributes,
   getDefaultCallees,
+  getDefaultTags,
   getDefaultVariables
-} from "eslint-plugin-readable-tailwind/api/defaults";
-import { MatcherType } from "eslint-plugin-readable-tailwind/api/types";
+} from "eslint-plugin-better-tailwindcss/api/defaults";
+import { MatcherType } from "eslint-plugin-better-tailwindcss/api/types";
 
 
 export default [
   {
     plugins: {
-      "readable-tailwind": eslintPluginReadableTailwind
+      "better-tailwindcss": eslintPluginBetterTailwindcss
     },
     rules: {
-      "readable-tailwind/multiline": ["warn", {
+      "better-tailwindcss/multiline": ["warn", {
         callees: [
           ...getDefaultCallees(),
           [
@@ -68,7 +38,7 @@ export default [
           ]
         ]
       }],
-      "readable-tailwind/no-duplicate-classes": ["warn", {
+      "better-tailwindcss/no-duplicate-classes": ["warn", {
         attributes: [
           ...getDefaultAttributes(),
           [
@@ -80,7 +50,7 @@ export default [
           ]
         ]
       }],
-      "readable-tailwind/no-unnecessary-whitespace": ["warn", {
+      "better-tailwindcss/no-unnecessary-whitespace": ["warn", {
         variables: [
           ...getDefaultVariables(),
           [
@@ -92,7 +62,7 @@ export default [
           ]
         ]
       }],
-      "readable-tailwind/sort-classes": ["warn", {
+      "better-tailwindcss/sort-classes": ["warn", {
         attributes: [
           ...getDefaultTags(),
           [

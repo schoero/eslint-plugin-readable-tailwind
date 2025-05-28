@@ -3,7 +3,8 @@ import {
   DEFAULT_CALLEE_NAMES,
   DEFAULT_TAG_NAMES,
   DEFAULT_VARIABLE_NAMES
-} from "readable-tailwind:options:default-options.js";
+} from "better-tailwindcss:options:default-options.js";
+import { DEFAULT_IGNORED_UNREGISTERED_CLASSES } from "better-tailwindcss:rules:no-unregistered-classes.js";
 
 
 export function getDefaultCallees() {
@@ -20,4 +21,8 @@ export function getDefaultVariables() {
 
 export function getDefaultTags() {
   return DEFAULT_TAG_NAMES;
+}
+
+export function getDefaultIgnoredUnregisteredClasses() {
+  return DEFAULT_IGNORED_UNREGISTERED_CLASSES;
 }

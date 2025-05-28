@@ -141,14 +141,9 @@ export async function createTailwindContextFromEntryPoint(entryPoint: string, in
     }
   });
 
-  const context = {
-    getClassOrder: (classList: string[]) => design.getClassOrder(classList),
-    getVariants: (className: string) => design.getVariants(className)
-  };
+  CACHE.set(entryPoint, design);
 
-  CACHE.set(entryPoint, context);
-
-  return context;
+  return design;
 }
 
 function getCurrentFilename() {

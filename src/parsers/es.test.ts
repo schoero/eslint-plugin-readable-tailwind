@@ -1,13 +1,13 @@
 import { describe, it } from "vitest";
 
-import { tailwindNoUnnecessaryWhitespace } from "readable-tailwind:rules:tailwind-no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
+import { noUnnecessaryWhitespace } from "better-tailwindcss:rules:no-unnecessary-whitespace.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 
 
 describe("es", () => {
 
   it("should match callees names via regex", () => {
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -26,7 +26,7 @@ describe("es", () => {
   });
 
   it("should match variable names via regex", () => {
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -45,7 +45,7 @@ describe("es", () => {
   });
 
   it("should match attributes via regex", () => {
-    lint(tailwindNoUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,

@@ -4,7 +4,7 @@ To use ESLint with TSX files, first install the [@typescript-eslint/parser](http
 
 In addition, you need to enable `ecmaFeatures.jsx` in the parser options.
 
-To enable eslint-plugin-readable-tailwind, you need to add it to the plugins section of your eslint configuration and enable the rules you want to use.
+To enable eslint-plugin-better-tailwindcss, you need to add it to the plugins section of your eslint configuration and enable the rules you want to use.
 
 ```sh
 npm i -D @typescript-eslint/parser
@@ -21,7 +21,7 @@ Read more about the new [ESLint flat config format](https://eslint.org/docs/late
 ```js
 // eslint.config.js
 import eslintParserTypeScript from "@typescript-eslint/parser";
-import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind";
+import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
 
 export default [
   {
@@ -43,16 +43,16 @@ export default [
       }
     },
     plugins: {
-      "readable-tailwind": eslintPluginReadableTailwind
+      "better-tailwindcss": eslintPluginBetterTailwindcss
     },
     rules: {
-      // enable all recommended rules to warn
-      ...eslintPluginReadableTailwind.configs.warning.rules,
-      // enable all recommended rules to error
-      ...eslintPluginReadableTailwind.configs.error.rules,
+      // enable all recommended rules to report a warning
+      ...eslintPluginBetterTailwindcss.configs["recommended-warn"].rules,
+      // enable all recommended rules to report an error
+      ...eslintPluginBetterTailwindcss.configs["recommended-error"].rules,
 
       // or configure rules individually
-      "readable-tailwind/multiline": ["warn", { printWidth: 100 }]
+      "better-tailwindcss/multiline": ["warn", { printWidth: 100 }]
     }
   }
 ];
@@ -67,10 +67,10 @@ export default [
 {
   "parser": "@typescript-eslint/parser",
   "extends": [
-    // enable all recommended rules to warn
-    "plugin:readable-tailwind/warning",
-    // enable all recommended rules to error
-    "plugin:readable-tailwind/error"
+    // enable all recommended rules to report a warning
+    "plugin:better-tailwindcss/recommended-warn",
+    // enable all recommended rules to report an error
+    "plugin:better-tailwindcss/recommended-error"
   ],
   "parserOptions": {
     "ecmaFeatures": {
@@ -78,10 +78,10 @@ export default [
     },
     "ecmaVersion": "latest"
   },
-  "plugins": ["readable-tailwind"],
+  "plugins": ["better-tailwindcss"],
   "rules": {
     // or configure rules individually
-    "readable-tailwind/multiline": ["warn", { "printWidth": 100 }]
+    "better-tailwindcss/multiline": ["warn", { "printWidth": 100 }]
   }
 }
 ```

@@ -1,5 +1,5 @@
 const eslintParserHTML = require("@html-eslint/parser");
-const eslintPluginReadableTailwind = require("eslint-plugin-readable-tailwind");
+const eslintPluginBetterTailwindcss = require("eslint-plugin-better-tailwindcss");
 
 
 module.exports = {
@@ -8,7 +8,7 @@ module.exports = {
     parser: eslintParserHTML
   },
   plugins: {
-    "readable-tailwind": eslintPluginReadableTailwind
+    "better-tailwindcss": eslintPluginBetterTailwindcss
   },
-  rules: eslintPluginReadableTailwind.configs.warning.rules
+  rules: eslintPluginBetterTailwindcss.configs["stylistic-warn"].rules
 };

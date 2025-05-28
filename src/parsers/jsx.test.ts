@@ -1,13 +1,13 @@
 import { describe, it } from "vitest";
 
-import { tailwindSortClasses } from "readable-tailwind:rules:tailwind-sort-classes.js";
-import { lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
+import { sortClasses } from "better-tailwindcss:rules:sort-classes.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 
 
 describe("jsx", () => {
 
   it("should match attribute names via regex", () => {
-    lint(tailwindSortClasses, TEST_SYNTAXES, {
+    lint(sortClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,

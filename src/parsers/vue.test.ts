@@ -1,15 +1,15 @@
 import { describe, it } from "vitest";
 
-import { tailwindMultiline } from "readable-tailwind:rules:tailwind-multiline.js";
-import { tailwindSortClasses } from "readable-tailwind:rules:tailwind-sort-classes.js";
-import { createTrimTag, lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
-import { MatcherType } from "readable-tailwind:types:rule.js";
+import { multiline } from "better-tailwindcss:rules:multiline.js";
+import { sortClasses } from "better-tailwindcss:rules:sort-classes.js";
+import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
+import { MatcherType } from "better-tailwindcss:types:rule.js";
 
 
 describe("vue", () => {
 
   it("should match attribute names via regex", () => {
-    lint(tailwindSortClasses, TEST_SYNTAXES, {
+    lint(sortClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -22,7 +22,7 @@ describe("vue", () => {
   });
 
   it("should work in objects in bound classes", () => {
-    lint(tailwindSortClasses, TEST_SYNTAXES, {
+    lint(sortClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -41,7 +41,7 @@ describe("vue", () => {
   });
 
   it("should work in arrays in bound classes", () => {
-    lint(tailwindSortClasses, TEST_SYNTAXES, {
+    lint(sortClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 2,
@@ -60,7 +60,7 @@ describe("vue", () => {
   });
 
   it("should evaluate bound classes", () => {
-    lint(tailwindSortClasses, TEST_SYNTAXES, {
+    lint(sortClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -79,7 +79,7 @@ describe("vue", () => {
   });
 
   it("should automatically prefix bound classes", () => {
-    lint(tailwindSortClasses, TEST_SYNTAXES, {
+    lint(sortClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -98,7 +98,7 @@ describe("vue", () => {
   });
 
   it("should match bound classes via regex", () => {
-    lint(tailwindSortClasses, TEST_SYNTAXES, {
+    lint(sortClasses, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 1,
@@ -114,19 +114,19 @@ describe("vue", () => {
   it("should change the quotes in expressions to backticks", () => {
     const trim = createTrimTag(4);
 
-    const singleline = "a b c d e f";
-    const multiline = trim`
+    const singleLine = "a b c d e f";
+    const multiLine = trim`
       a b c
       d e f
     `;
 
-    lint(tailwindMultiline, TEST_SYNTAXES, {
+    lint(multiline, TEST_SYNTAXES, {
       invalid: [
         {
           errors: 2,
           options: [{ classesPerLine: 3 }],
-          vue: `<template><img :class="[true ? '${singleline}' : '${singleline}']" /></template>`,
-          vueOutput: `<template><img :class="[true ? \`${multiline}\` : \`${multiline}\`]" /></template>`
+          vue: `<template><img :class="[true ? '${singleLine}' : '${singleLine}']" /></template>`,
+          vueOutput: `<template><img :class="[true ? \`${multiLine}\` : \`${multiLine}\`]" /></template>`
         }
       ]
     });

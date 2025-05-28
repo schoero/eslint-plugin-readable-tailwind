@@ -1,15 +1,15 @@
 import { describe, it } from "vitest";
 
-import { tailwindSortClasses } from "readable-tailwind:rules:tailwind-sort-classes.js";
-import { createTrimTag, lint, TEST_SYNTAXES } from "readable-tailwind:tests:utils.js";
-import { MatcherType } from "readable-tailwind:types:rule.js";
+import { sortClasses } from "better-tailwindcss:rules:sort-classes.js";
+import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
+import { MatcherType } from "better-tailwindcss:types:rule.js";
 
 
 describe("angular", () => {
 
   describe("defaults", () => {
     it("should support normal classes", () => {
-      lint(tailwindSortClasses, TEST_SYNTAXES, {
+      lint(sortClasses, TEST_SYNTAXES, {
         invalid: [
           {
             angular: `<img class="b a" />`,
@@ -34,7 +34,7 @@ describe("angular", () => {
     });
 
     it("should support array binding in [class] and [ngClass]", () => {
-      lint(tailwindSortClasses, TEST_SYNTAXES, {
+      lint(sortClasses, TEST_SYNTAXES, {
         invalid: [
           {
             angular: `<img [class]="['b a', 'd c']" />`,
@@ -53,7 +53,7 @@ describe("angular", () => {
     });
 
     it("should support expressions in literal arrays", () => {
-      lint(tailwindSortClasses, TEST_SYNTAXES, {
+      lint(sortClasses, TEST_SYNTAXES, {
         invalid: [
           {
             angular: `<img [class]="['b a', expression ? 'd c' : 'f e']" />`,
@@ -72,7 +72,7 @@ describe("angular", () => {
     });
 
     it("should support object keys in [class] and [ngClass]", () => {
-      lint(tailwindSortClasses, TEST_SYNTAXES, {
+      lint(sortClasses, TEST_SYNTAXES, {
         invalid: [
           {
             angular: `<img [class]="{ 'b a': true, 'd c': false }" />`,
@@ -93,7 +93,7 @@ describe("angular", () => {
 
   describe("names", () => {
     it("should match attribute names via names regex", () => {
-      lint(tailwindSortClasses, TEST_SYNTAXES, {
+      lint(sortClasses, TEST_SYNTAXES, {
         invalid: [
           {
             angular: `<img customAttribute="b a" />`,
@@ -128,7 +128,7 @@ describe("angular", () => {
 
     describe("string", () => {
       it("should match attribute names via matchers", () => {
-        lint(tailwindSortClasses, TEST_SYNTAXES, {
+        lint(sortClasses, TEST_SYNTAXES, {
           invalid: [
             {
               angular: `<img class="b a" />`,
@@ -155,7 +155,7 @@ describe("angular", () => {
 
     describe("object keys", () => {
       it("should match object keys", () => {
-        lint(tailwindSortClasses, TEST_SYNTAXES, {
+        lint(sortClasses, TEST_SYNTAXES, {
           invalid: [
             {
               angular: `<img [class]="{ 'b a': true, 'd c': false }" />`,
@@ -196,7 +196,7 @@ describe("angular", () => {
       });
 
       it("should still match the object key when there is a value with the same content", () => {
-        lint(tailwindSortClasses, TEST_SYNTAXES, {
+        lint(sortClasses, TEST_SYNTAXES, {
           invalid: [
             {
               angular: `<img [class]="{ 'b a': 'd c', 'd c': 'b a' }" />`,
@@ -240,7 +240,7 @@ describe("angular", () => {
     describe("object values", () => {
       // this is not used by angular, but matchers should still be able to handle it
       it("should support object values", () => {
-        lint(tailwindSortClasses, TEST_SYNTAXES, {
+        lint(sortClasses, TEST_SYNTAXES, {
           invalid: [
             {
               angular: `<img [ngClass]="{ '0': 'b a', '1': 'd c' }" />`,
@@ -262,7 +262,7 @@ describe("angular", () => {
 
     describe("arrays", () => {
       it("should support arrays", () => {
-        lint(tailwindSortClasses, TEST_SYNTAXES, {
+        lint(sortClasses, TEST_SYNTAXES, {
           invalid: [
             {
               angular: `<img [class]="['b a', 'd c']" />`,
@@ -281,7 +281,7 @@ describe("angular", () => {
       });
 
       it("should support expressions in arrays", () => {
-        lint(tailwindSortClasses, TEST_SYNTAXES, {
+        lint(sortClasses, TEST_SYNTAXES, {
           invalid: [
             {
               angular: `<img [class]="['b a', expression ? 'd c' : 'f e']" />`,
@@ -302,7 +302,7 @@ describe("angular", () => {
 
     describe("expressions", () => {
       it("should lint classes returned from expressions", () => {
-        lint(tailwindSortClasses, TEST_SYNTAXES, {
+        lint(sortClasses, TEST_SYNTAXES, {
           invalid: [
             {
               angular: `<img class="{{ true === 'b a' ? 'b a' : 'd c' }}" />`,
@@ -329,7 +329,7 @@ describe("angular", () => {
 
     describe("template literals", () => {
       it("should support template literals in interpolated class", () => {
-        lint(tailwindSortClasses, TEST_SYNTAXES, {
+        lint(sortClasses, TEST_SYNTAXES, {
           invalid: [
             // 1st pass of multi pass fix
             {
@@ -351,7 +351,7 @@ describe("angular", () => {
       });
 
       it("should support short circuiting", () => {
-        lint(tailwindSortClasses, TEST_SYNTAXES, {
+        lint(sortClasses, TEST_SYNTAXES, {
           invalid: [
             {
               angular: "<img [class]=\"`${'b a' && 'd c'}`\" />",
@@ -370,7 +370,7 @@ describe("angular", () => {
       });
 
       it("should lint classes around expressions", () => {
-        lint(tailwindSortClasses, TEST_SYNTAXES, {
+        lint(sortClasses, TEST_SYNTAXES, {
           invalid: [
           // 1st pass of multi pass fix
             {
@@ -419,7 +419,7 @@ describe("angular", () => {
           c d
         `);
 
-        lint(tailwindSortClasses, TEST_SYNTAXES, {
+        lint(sortClasses, TEST_SYNTAXES, {
           invalid: [
             {
               angular: `<img [class]="\`${dirty}\`" />`,

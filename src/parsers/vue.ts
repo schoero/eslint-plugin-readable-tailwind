@@ -9,8 +9,8 @@ import {
   isESObjectKey,
   isESStringLike,
   isInsideObjectValue
-} from "readable-tailwind:parsers:es.js";
-import { MatcherType } from "readable-tailwind:types:rule.js";
+} from "better-tailwindcss:parsers:es.js";
+import { MatcherType } from "better-tailwindcss:types:rule.js";
 import {
   getLiteralNodesByMatchers,
   isAttributesMatchers,
@@ -19,7 +19,7 @@ import {
   isInsideConditionalExpressionTest,
   isInsideLogicalExpressionLeft,
   matchesPathPattern
-} from "readable-tailwind:utils:matchers.js";
+} from "better-tailwindcss:utils:matchers.js";
 import {
   deduplicateLiterals,
   getContent,
@@ -27,15 +27,15 @@ import {
   getQuotes,
   getWhitespace,
   matchesName
-} from "readable-tailwind:utils:utils.js";
+} from "better-tailwindcss:utils:utils.js";
 
 import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
 import type { AST } from "vue-eslint-parser";
 import type { VLiteral } from "vue-eslint-parser/ast/index";
 
-import type { Literal, LiteralValueQuotes, MultilineMeta, StringLiteral } from "readable-tailwind:types:ast.js";
-import type { Attributes, Matcher, MatcherFunctions } from "readable-tailwind:types:rule.js";
+import type { Literal, LiteralValueQuotes, MultilineMeta, StringLiteral } from "better-tailwindcss:types:ast.js";
+import type { Attributes, Matcher, MatcherFunctions } from "better-tailwindcss:types:rule.js";
 
 
 export const VUE_CONTAINER_TYPES_TO_REPLACE_QUOTES = [

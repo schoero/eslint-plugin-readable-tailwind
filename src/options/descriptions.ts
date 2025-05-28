@@ -1,4 +1,4 @@
-import { MatcherType } from "readable-tailwind:types:rule.js";
+import { MatcherType } from "better-tailwindcss:types:rule.js";
 
 import type { Rule } from "eslint";
 
@@ -272,3 +272,17 @@ export const TAG_SCHEMA = {
     type: "array"
   }
 } satisfies Rule.RuleMetaData["schema"];
+
+export const ENTRYPOINT_SCHEMA = {
+  entryPoint: {
+    description: "The path to the css entry point of the project. If not specified, the plugin will fall back to the default tailwind classes.",
+    type: "string"
+  }
+};
+
+export const TAILWIND_CONFIG_SCHEMA = {
+  tailwindConfig: {
+    description: "The path to the tailwind config file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.",
+    type: "string"
+  }
+};

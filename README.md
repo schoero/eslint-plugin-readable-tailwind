@@ -1,57 +1,57 @@
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./assets/eslint-plugin-readable-tailwind-logo-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="./assets/eslint-plugin-readable-tailwind-logo-light.svg">
-    <img alt="eslint-plugin-readable-tailwind logo" src="./assets/eslint-plugin-readable-tailwind-logo.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/eslint-plugin-better-tailwindcss-logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="./assets/eslint-plugin-better-tailwindcss-logo-light.svg">
+    <img alt="eslint-plugin-better-tailwindcss logo" src="./assets/eslint-plugin-better-tailwindcss-logo.svg">
   </picture>
 </div>
 
-<h1 align="center">readable-tailwind</h1>
+<h1 align="center">eslint-plugin-better-tailwindcss</h1>
 
 <br/>
 <br/>
 
 <div align="center">
-  <a alt="GitHub license" href="https://github.com/schoero/eslint-plugin-readable-tailwind/blob/main/LICENSE">
+  <a alt="GitHub license" href="https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/LICENSE">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/license/schoero/eslint-plugin-readable-tailwind?style=flat-square&labelColor=32363B&color=ffffff">
-      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/license/schoero/eslint-plugin-readable-tailwind?style=flat-square&labelColor=EBEEF2&color=000000">
-      <img alt="eslint-plugin-readable-tailwind logo" src="https://img.shields.io/github/license/schoero/eslint-plugin-readable-tailwind?style=flat-square&labelColor=EBEEF2&color=000000">
+      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/license/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=32363B&color=ffffff">
+      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/license/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000">
+      <img alt="eslint-plugin-better-tailwindcss logo" src="https://img.shields.io/github/license/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000">
     </picture>
   </a>
-  <a alt="npm version" href="https://www.npmjs.com/package/eslint-plugin-readable-tailwind?activeTab=versions">
+  <a alt="npm version" href="https://www.npmjs.com/package/eslint-plugin-better-tailwindcss?activeTab=versions">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/npm/v/eslint-plugin-readable-tailwind?style=flat-square&labelColor=32363B&color=ffffff">
-      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/npm/v/eslint-plugin-readable-tailwind?style=flat-square&labelColor=EBEEF2&color=000000">
-      <img alt="eslint-plugin-readable-tailwind logo" src="https://img.shields.io/npm/v/eslint-plugin-readable-tailwind?style=flat-square&labelColor=EBEEF2&color=000000">
+      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/npm/v/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=32363B&color=ffffff">
+      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/npm/v/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000">
+      <img alt="eslint-plugin-better-tailwindcss logo" src="https://img.shields.io/npm/v/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000">
     </picture>
   </a>
-  <a alt="GitHub issues" href="https://github.com/schoero/eslint-plugin-readable-tailwind/issues">
+  <a alt="GitHub issues" href="https://github.com/schoero/eslint-plugin-better-tailwindcss/issues">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/issues/schoero/eslint-plugin-readable-tailwind?style=flat-square&labelColor=32363B&color=ffffff">
-      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/issues/schoero/eslint-plugin-readable-tailwind?style=flat-square&labelColor=EBEEF2&color=000000">
-      <img alt="eslint-plugin-readable-tailwind logo" src="https://img.shields.io/github/issues/schoero/eslint-plugin-readable-tailwind?style=flat-square&labelColor=EBEEF2&color=000000">
+      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/issues/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=32363B&color=ffffff">
+      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/issues/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000">
+      <img alt="eslint-plugin-better-tailwindcss logo" src="https://img.shields.io/github/issues/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000">
     </picture>
   </a>
-  <a alt="npm total downloads" href="https://www.npmjs.com/package/eslint-plugin-readable-tailwind?activeTab=readme">
+  <a alt="npm total downloads" href="https://www.npmjs.com/package/eslint-plugin-better-tailwindcss?activeTab=readme">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/npm/dt/eslint-plugin-readable-tailwind?style=flat-square&labelColor=32363B&color=ffffff">
-      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/npm/dt/eslint-plugin-readable-tailwind?style=flat-square&labelColor=EBEEF2&color=000000">
-      <img alt="eslint-plugin-readable-tailwind logo" src="https://img.shields.io/npm/dt/eslint-plugin-readable-tailwind?style=flat-square&labelColor=EBEEF2&color=000000">
+      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/npm/dt/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=32363B&color=ffffff">
+      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/npm/dt/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000">
+      <img alt="eslint-plugin-better-tailwindcss logo" src="https://img.shields.io/npm/dt/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000">
     </picture>
   </a>
-  <a alt="GitHub repo stars" href="https://github.com/schoero/eslint-plugin-readable-tailwind/stargazers">
+  <a alt="GitHub repo stars" href="https://github.com/schoero/eslint-plugin-better-tailwindcss/stargazers">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/stars/schoero/eslint-plugin-readable-tailwind?style=flat-square&labelColor=32363B&color=ffffff">
-      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/stars/schoero/eslint-plugin-readable-tailwind?style=flat-square&labelColor=EBEEF2&color=000000">
-      <img alt="eslint-plugin-readable-tailwind logo" src="https://img.shields.io/github/stars/schoero/eslint-plugin-readable-tailwind?style=flat-square&labelColor=EBEEF2&color=000000">
+      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/stars/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=32363B&color=ffffff">
+      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/stars/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000">
+      <img alt="eslint-plugin-better-tailwindcss logo" src="https://img.shields.io/github/stars/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000">
     </picture>
   </a>
-  <a alt="GitHub workflow status" href="https://github.com/schoero/eslint-plugin-readable-tailwind/actions?query=workflow%3ACI">
+  <a alt="GitHub workflow status" href="https://github.com/schoero/eslint-plugin-better-tailwindcss/actions?query=workflow%3ACI">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/actions/workflow/status/schoero/eslint-plugin-readable-tailwind/ci.yml?event=push&style=flat-square&labelColor=32363B&color=ffffff">
-      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/actions/workflow/status/schoero/eslint-plugin-readable-tailwind/ci.yml?event=push&style=flat-square&labelColor=EBEEF2&color=000000">
-      <img alt="eslint-plugin-readable-tailwind logo" src="https://img.shields.io/github/actions/workflow/status/schoero/eslint-plugin-readable-tailwind/ci.yml?event=push&style=flat-square&labelColor=EBEEF2&color=000000">
+      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/actions/workflow/status/schoero/eslint-plugin-better-tailwindcss/ci.yml?event=push&style=flat-square&labelColor=32363B&color=ffffff">
+      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/actions/workflow/status/schoero/eslint-plugin-better-tailwindcss/ci.yml?event=push&style=flat-square&labelColor=EBEEF2&color=000000">
+      <img alt="eslint-plugin-better-tailwindcss logo" src="https://img.shields.io/github/actions/workflow/status/schoero/eslint-plugin-better-tailwindcss/ci.yml?event=push&style=flat-square&labelColor=EBEEF2&color=000000">
     </picture>
   </a>
 </div>
@@ -59,14 +59,17 @@
 <br/>
 <br/>
 
-ESLint plugin to automatically break up long tailwind class strings into multiple lines based on a specified print width or class count. This improves readability and eliminates horizontal scrolling.  
-In addition it sorts the classes logically, removes unnecessary whitespaces and duplicate classes and groups the classes by their variants. It works in React, Solid.js, Qwik, Svelte, Vue, Angular, HTML, JavaScript and TypeScript projects.
+ESLint plugin with formatting and linting rules to help you write cleaner, more maintainable Tailwind CSS.  
+
+The formatting rules focus on improving readability by automatically breaking up long Tailwind class strings into multiple lines and sorting/grouping them in a logical order. The linting rules enforce best practices and catch potential issues, ensuring that you're writing valid Tailwind CSS.  
+
+This plugin supports a wide range of projects, including React, Solid.js, Qwik, Svelte, Vue, Angular, HTML or plain JavaScript or TypeScript.  
 
 <br/>
 <br/>
 
 <div align="center">
-  <img alt="eslint-plugin-readable-tailwind example" width="640px" src="./assets/eslint-plugin-readable-tailwind-demo.webp">
+  <img alt="eslint-plugin-better-tailwindcss example" width="640px" src="./assets/eslint-plugin-better-tailwindcss-demo.png">
 </div>
 
 <br/>
@@ -78,7 +81,7 @@ In addition it sorts the classes logically, removes unnecessary whitespaces and 
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="./assets/sponsor-dark.svg">
       <source media="(prefers-color-scheme: light)" srcset="./assets/sponsor-light.svg">
-      <img alt="eslint-plugin-readable-tailwind logo" src="./assets/sponsor-light.svg">
+      <img alt="eslint-plugin-better-tailwindcss logo" src="./assets/sponsor-light.svg">
     </picture>
   </a>
   
@@ -87,7 +90,7 @@ In addition it sorts the classes logically, removes unnecessary whitespaces and 
   
   [Buy me a coffee](https://buymeacoffee.com/schoero) | [GitHub Sponsors](https://github.com/sponsors/schoero)
   
-  This project is financed by the community.  
+  Help support this project.  
   If you or your company benefit from this project, please consider becoming a sponsor or making a one-time donation.  
   Your contribution will help me to maintain and develop the project.
 
@@ -99,7 +102,7 @@ In addition it sorts the classes logically, removes unnecessary whitespaces and 
 ## Installation
 
 ```sh
-npm i -D eslint-plugin-readable-tailwind
+npm i -D eslint-plugin-better-tailwindcss
 ```
 
 <br/>
@@ -115,7 +118,7 @@ npm i -D eslint-plugin-readable-tailwind
     {
       //...
       "settings": {
-        "readable-tailwind": {
+        "better-tailwindcss": {
           // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
           "entryPoint": "src/global.css",
           // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
@@ -148,19 +151,49 @@ Depending on the flavor you are using, you may need to install and configure the
 
 ### Rules
 
-Two predefined configurations are available that contain the recommended rules:
+The rules are categorized into two types: `stylistic` and `correctness`.
 
-- `error` - will throw an error if the rule is violated
-- `warning` - will throw a warning if the rule is violated
+#### Configs
+
+The plugin offers three recommended configurations to help you get started quickly:
   
-The following table shows the available rules and if they are enabled by default in the different configurations:
+- `stylistic`: Enforces stylistic rules for tailwind classes.
+- `correctness`: Enforces correctness rules for tailwind classes.
+- `recommended`: Enforces both stylistic and correctness rules.
+  
+By default:
 
-| Name | Description | `error` | `warning` | autofix |
-| :--- | :--- | :---: | :---: | :---: |
-| [multiline](docs/rules/multiline.md) | Enforce consistent line wrapping for tailwind classes. | ✔ | ✔ | ✔ |
-| [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | ✔ | ✔ | ✔ |
-| [sort-classes](docs/rules/sort-classes.md) | Enforce a consistent order for tailwind classes. | ✔ | ✔ | ✔ |
-| [no-duplicate-classes](docs/rules/no-duplicate-classes.md) | Remove duplicate classes. | ✔ | ✔ | ✔ |
+- `stylistic` rules are reported as warnings
+- `correctness` rules are reported as errors
+  
+You can change the severity by adding a suffix to the config name:
+  
+- Use `-error` to report all rules as errors
+- Use `-warn` to report all rules as warnings
+  
+For example, `recommended-warn` will report every rule as a warning and `stylistic-error` will report the formatting rules as errors.
+  
+The table below lists all available rules, the Tailwind CSS versions they support, and whether they are enabled by default in each recommended configuration:
+
+<br/>
+<br/>
+
+#### Stylistic rules
+
+| Name | Description | `tw3` | `tw4` | `recommended` | autofix |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| [multiline](docs/rules/multiline.md) | Enforce consistent line wrapping for tailwind classes. | ✔ | ✔ | ✔ | ✔ |
+| [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | ✔ | ✔ | ✔ | ✔ |
+| [sort-classes](docs/rules/sort-classes.md) | Enforce a consistent order for tailwind classes. | ✔ | ✔ | ✔ | ✔ |
+| [no-duplicate-classes](docs/rules/no-duplicate-classes.md) | Remove duplicate classes. | ✔ | ✔ | ✔ | ✔ |
+
+#### Correctness rules
+
+| Name | Description | `tw3` | `tw4` | `recommended` | autofix |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| [no-unregistered-classes](docs/rules/no-unregistered-classes.md) | Report classes not registered with tailwindcss. | ✔ | ✔ | ✔ |  |
+| [no-conflicting-classes](docs/rules/no-conflicting-classes.md) | Report classes that produce conflicting styles. |  | ✔ |  |  |
+| [no-restricted-classes](docs/rules/no-restricted-classes.md) | Disallow restricted classes. | ✔ | ✔ |  |  |
 
 <br/>
 <br/>
@@ -183,8 +216,10 @@ This plugin works out of the box with most popular tailwind utilities:
 <br/>
 <br/>
 
-In case an utility is not supported or you have built your own, you can change which literals will get linted for each rule.
-Read the [API documentation](./docs/api/defaults.md) to learn how to override or extend the default config.
+### Advanced configuration
+
+If an utility is not supported by default, or you want to customize the configuration, you can define which string literals should be linted for each rule.
+See the [Advanced configuration guide](./docs/configuration/advanced.md) to learn how to override or extend the default settings.
 
 <br/>
 <br/>
@@ -195,7 +230,7 @@ Read the [API documentation](./docs/api/defaults.md) to learn how to override or
 
 ##### Auto-fix on save
 
-All rules are intended to automatically fix the tailwind classes. If you have installed the [VSCode ESLint plugin](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint), you can configure it to automatically fix the classes on save by adding the following options to your `.vscode/settings.json`:
+Most rules are intended to automatically fix the tailwind classes. If you have installed the [VSCode ESLint plugin](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint), you can configure it to automatically fix the classes on save by adding the following options to your `.vscode/settings.json`:
 
 ```jsonc
 {

@@ -9,12 +9,15 @@
   "eslint.validate": ["javascript", "typescript", "json", "jsonc", "json5", "yaml"],
 
   "eslint.rules.customizations": [
-    { "rule": "readable-tailwind/*", "severity": "off" }
+    { "rule": "better-tailwindcss/*", "severity": "off" }
   ],
   "eslint.codeActionsOnSave.rules": [
-    "!readable-tailwind/*",
+    "!better-tailwindcss/*",
     "*"
   ],
+  
+  // tailwindcss
+  "tailwindCSS.lint.cssConflict": "ignore",
 
   "editor.formatOnSave": false,
 
@@ -51,6 +54,7 @@
   "editor.rulers": [
     119
   ],
+  "typescript.preferences.autoImportSpecifierExcludeRegexes": ["lib"],
   "search.exclude": {
     "lib": true
   },

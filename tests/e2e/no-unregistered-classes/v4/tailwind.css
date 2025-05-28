@@ -1,0 +1,7 @@
+@import "tailwindcss";
+@config "./tailwind.config.ts";
+@plugin "./plugin.ts";
+
+@utility from-utility {
+  @apply text-red-500;
+} 
