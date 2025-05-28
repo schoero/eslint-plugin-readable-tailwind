@@ -1,5 +1,63 @@
 # Changelog
 
+## v3.0.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v2.1.2...v3.0.0)
+
+This version adds 3 new correctness rules to the plugin. To better reflect the new scope of the plugin it was renamed from `eslint-plugin-readable-tailwind` to `eslint-plugin-better-tailwindcss`. <https://github.com/schoero/eslint-plugin-readable-tailwind/issues/86#issuecomment-2855845766>
+
+The predefined configs also have been renamed to better reflect their scope.
+
+### Features
+
+- [no-unregistered-classes](https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-unregistered-classes.md): Report classes not registered with tailwindcss. ([#89](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/89))
+- [no-conflicting-classes](https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-conflicting-classes.md): Report classes that produce conflicting styles. ([#90](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/90))
+- [no-restricted-classes](https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-restricted-classes.md): Disallow restricted classes. ([#92](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/92))
+
+#### ⚠️ Breaking changes
+
+- Plugin renamed to `eslint-plugin-better-tailwindcss`
+- Deprecate [Regex matchers](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/v2.1.2/docs/concepts/concepts.md#regular-expressions) to simplify the configuration. ([#98](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/98))  
+  [Regex matchers](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/v2.1.2/docs/concepts/concepts.md#regular-expressions) were an early attempt to make the plugin more flexible. However, they were quickly replaced with [Matchers](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/v2.1.2/docs/concepts/concepts.md#matchers) which work on the Abstract Syntax Tree and are far more powerful. Support for [Regex matchers](https://github.com/schoero/eslint-plugin-readable-tailwind/blob/v2.1.2/docs/concepts/concepts.md#regular-expressions) will be removed in the next major version.  
+
+- `warning` and `error` configs have been removed. Use `recommended-warn` or `recommended-error` instead. ([#99](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/99))
+
+### Migration
+
+1. Replace `eslint-plugin-readable-tailwind` with `eslint-plugin-better-tailwindcss`:
+
+  ```sh
+  npm uninstall eslint-plugin-readable-tailwind
+  ```
+
+  ```sh
+  npm i -D eslint-plugin-better-tailwindcss
+  ```
+
+1. Update the imports in your config:
+
+  ```diff
+  - import eslintPluginReadableTailwind from "eslint-plugin-readable-tailwind"; 
+  + import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
+  ```
+
+1. Migrate to the new configs
+
+  ```diff
+  rules: {
+       // enable all recommended rules to warn
+  -    ...eslintPluginReadableTailwind.configs.warning.rules,
+  +   ...eslintPluginBetterTailwindcss.configs["recommended-warn"].rules,
+       // enable all recommended rules to error
+  -    ...eslintPluginReadableTailwind.configs.error.rules,
+  +    ...eslintPluginBetterTailwindcss.configs["recommended-error"].rules,
+
+      // or configure rules individually
+  -    "readable-tailwind/multiline": ["warn", { printWidth: 100 }]
+  +    "better-tailwindcss/multiline": ["warn", { printWidth: 100 }] 
+    }
+  ```
+
 ## v2.1.2
 
 [compare changes](https://github.com/schoero/eslint-plugin-readable-tailwind/compare/v2.1.1...v2.1.2)
