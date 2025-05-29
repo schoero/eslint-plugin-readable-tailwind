@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
 import { enforceConsistentVariableSyntax } from "better-tailwindcss:rules:enforce-consistent-variable-syntax.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
+import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
 
 
 describe(enforceConsistentVariableSyntax.name, () => {
@@ -286,6 +286,56 @@ describe(enforceConsistentVariableSyntax.name, () => {
             svelteOutput: `<img class="bg-(--special_variable_😏)" />`,
             vue: `<template><img class="bg-[var(--special_variable_😏)]" /></template>`,
             vueOutput: `<template><img class="bg-(--special_variable_😏)" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it("should work with multiline classes", () => {
+    const trim = createTrimTag(4);
+
+    const multilineParentheses = trim`
+      bg-(--primary)
+      hover:bg-(--secondary)
+    `;
+    const multilineArbitrary = trim`
+      bg-[var(--primary)]
+      hover:bg-[var(--secondary)]
+    `;
+
+    lint(
+      enforceConsistentVariableSyntax,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="${multilineParentheses}"} />`,
+            angularOutput: `<img class="${multilineArbitrary}"} />`,
+            errors: 2,
+            html: `<img class="${multilineParentheses}"} />`,
+            htmlOutput: `<img class="${multilineArbitrary}"} />`,
+            jsx: `() => <img class={\`${multilineParentheses}\`} />`,
+            jsxOutput: `() => <img class={\`${multilineArbitrary}\`} />`,
+            options: [{ syntax: "arbitrary" }],
+            svelte: `<img class="${multilineParentheses}"} />`,
+            svelteOutput: `<img class="${multilineArbitrary}"} />`,
+            vue: `<template><img class="${multilineParentheses}"} /></template>`,
+            vueOutput: `<template><img class="${multilineArbitrary}"} /></template>`
+          },
+          {
+            angular: `<img class="${multilineArbitrary}"} />`,
+            angularOutput: `<img class="${multilineParentheses}"} />`,
+            errors: 2,
+            html: `<img class="${multilineArbitrary}"} />`,
+            htmlOutput: `<img class="${multilineParentheses}"} />`,
+            jsx: `() => <img class={\`${multilineArbitrary}\`} />`,
+            jsxOutput: `() => <img class={\`${multilineParentheses}\`} />`,
+            options: [{ syntax: "parentheses" }],
+            svelte: `<img class="${multilineArbitrary}"} />`,
+            svelteOutput: `<img class="${multilineParentheses}"} />`,
+            vue: `<template><img class="${multilineArbitrary}"} /></template>`,
+            vueOutput: `<template><img class="${multilineParentheses}"} /></template>`
           }
         ]
       }

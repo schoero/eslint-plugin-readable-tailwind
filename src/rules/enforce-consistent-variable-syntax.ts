@@ -94,16 +94,17 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     const { syntax } = getOptions(ctx);
 
     const classChunks = splitClasses(literal.content);
-    const whiteSpaceChunks = splitWhitespaces(literal.content);
+    const whitespaceChunks = splitWhitespaces(literal.content);
+
+    const startsWithWhitespace = whitespaceChunks.length > 0 && whitespaceChunks[0] !== "";
 
     for(let classIndex = 0, literalIndex = 0; classIndex < classChunks.length; classIndex++){
 
       const className = classChunks[classIndex];
 
-      const classStart = literalIndex;
-      const classEnd = literalIndex + className.length;
+      const classStart = literalIndex + (startsWithWhitespace ? whitespaceChunks[classIndex].length : 0);
 
-      literalIndex += classChunks[classIndex].length + whiteSpaceChunks[classIndex].length;
+      literalIndex += classStart + classChunks[classIndex].length;
 
       for(
         let i = 0,
