@@ -134,12 +134,5 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 }
 
 export function getOptions(ctx: Rule.RuleContext) {
-
-  const options: Options[0] = ctx.options[0] ?? {};
-  const common = getCommonOptions(ctx);
-
-  return {
-    ...common
-  };
-
+  return getCommonOptions(ctx);
 }
