@@ -72,6 +72,31 @@ describe(enforceConsistentVariableSyntax.name, () => {
     );
   });
 
+  it("should work when surrounded by underlines in arbitrary syntax", () => {
+    lint(
+      enforceConsistentVariableSyntax,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="bg-[__var(--brand)__]" />`,
+            angularOutput: `<img class="bg-(--brand)" />`,
+            errors: 1,
+            html: `<img class="bg-[__var(--brand)__]" />`,
+            htmlOutput: `<img class="bg-(--brand)" />`,
+            jsx: `() => <img class="bg-[__var(--brand)__]" />`,
+            jsxOutput: `() => <img class="bg-(--brand)" />`,
+            options: [{ syntax: "parentheses" }],
+            svelte: `<img class="bg-[__var(--brand)__]" />`,
+            svelteOutput: `<img class="bg-(--brand)" />`,
+            vue: `<template><img class="bg-[__var(--brand)__]" /></template>`,
+            vueOutput: `<template><img class="bg-(--brand)" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
   it("should preserve fallback values", () => {
     lint(
       enforceConsistentVariableSyntax,
