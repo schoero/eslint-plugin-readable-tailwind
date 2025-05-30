@@ -3,6 +3,7 @@ import { normalize } from "node:path";
 
 import eslintParserAngular from "@angular-eslint/template-parser";
 import eslintParserHTML from "@html-eslint/parser";
+import eslintParserAstro from "astro-eslint-parser";
 import { RuleTester } from "eslint";
 import { createTag } from "proper-tags";
 import eslintParserSvelte from "svelte-eslint-parser";
@@ -17,6 +18,9 @@ import type { ESLintRule } from "better-tailwindcss:types:rule.js";
 export const TEST_SYNTAXES = {
   angular: {
     languageOptions: { parser: eslintParserAngular }
+  },
+  astro: {
+    languageOptions: { parser: eslintParserAstro }
   },
   html: {
     languageOptions: { parser: eslintParserHTML }

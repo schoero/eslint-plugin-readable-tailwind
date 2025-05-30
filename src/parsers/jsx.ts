@@ -40,13 +40,19 @@ export function getLiteralsByJSXAttribute(ctx: Rule.RuleContext, attribute: JSXA
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {
     if(!value){ return literals; }
 
+    const name = getAttributeName(attribute);
+
+    if(typeof name !== "string"){
+      return literals;
+    }
+
     if(isAttributesName(attributes)){
-      if(typeof attribute.name.name !== "string" || !matchesName(attributes.toLowerCase(), attribute.name.name.toLowerCase())){ return literals; }
+      if(!matchesName(attributes.toLowerCase(), name.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByJSXAttributeValue(ctx, value));
     } else if(isAttributesRegex(attributes)){
       literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, attributes));
     } else if(isAttributesMatchers(attributes)){
-      if(typeof attribute.name.name !== "string" || !matchesName(attributes[0].toLowerCase(), attribute.name.name.toLowerCase())){ return literals; }
+      if(!matchesName(attributes[0].toLowerCase(), name.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByESMatchers(ctx, value, attributes[1]));
     }
 
@@ -64,6 +70,15 @@ export function getAttributesByJSXElement(ctx: Rule.RuleContext, node: JSXOpenin
     }
     return acc;
   }, []);
+}
+
+function getAttributeName(attribute: JSXAttribute): string | undefined {
+  if(attribute.name.type === "JSXIdentifier"){
+    return attribute.name.name;
+  }
+  if(attribute.name.type === "JSXNamespacedName"){
+    return `${attribute.name.namespace.name}:${attribute.name.name.name}`;
+  }
 }
 
 function getLiteralsByJSXAttributeValue(ctx: Rule.RuleContext, value: JSXAttribute["value"]): Literal[] {

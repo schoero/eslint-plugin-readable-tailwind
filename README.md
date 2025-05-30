@@ -63,7 +63,7 @@ ESLint plugin with formatting and linting rules to help you write cleaner, more 
 
 The formatting rules focus on improving readability by automatically breaking up long Tailwind class strings into multiple lines and sorting/grouping them in a logical order. The linting rules enforce best practices and catch potential issues, ensuring that you're writing valid Tailwind CSS.  
 
-This plugin supports a wide range of projects, including React, Solid.js, Qwik, Svelte, Vue, Angular, HTML or plain JavaScript or TypeScript.  
+This plugin supports a wide range of projects, including React, Solid.js, Qwik, Svelte, Vue, Astro, Angular, HTML or plain JavaScript or TypeScript.  
 
 <br/>
 <br/>
@@ -141,8 +141,9 @@ Depending on the flavor you are using, you may need to install and configure the
 - [TSX (React, Solid.js, Qwik) with TypeScript support](docs/parsers/tsx.md)
 - [Svelte](docs/parsers/svelte.md)
 - [Vue](docs/parsers/vue.md)
-- [HTML](docs/parsers/html.md)
+- [Astro](docs/parsers/astro.md)
 - [Angular](docs/parsers/angular.md)
+- [HTML](docs/parsers/html.md)
 - [Plain JavaScript](docs/parsers/javascript.md)
 - [Plain TypeScript](docs/parsers/typescript.md)
 

@@ -29,6 +29,7 @@
     "quasis",
     "shadcn",
     "synckit",
-    "Tmpl"
+    "Tmpl",
+    "astro"
   ]
 }
