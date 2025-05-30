@@ -98,13 +98,22 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     const startsWithWhitespace = whitespaceChunks.length > 0 && whitespaceChunks[0] !== "";
 
+
     for(let classIndex = 0, literalIndex = 0; classIndex < classChunks.length; classIndex++){
 
       const className = classChunks[classIndex];
 
-      const classStart = literalIndex + (startsWithWhitespace ? whitespaceChunks[classIndex].length : 0);
+      if(startsWithWhitespace){
+        literalIndex += whitespaceChunks[classIndex].length;
+      }
 
-      literalIndex += classStart + classChunks[classIndex].length;
+      const classStart = literalIndex;
+
+      literalIndex += className.length;
+
+      if(!startsWithWhitespace){
+        literalIndex += whitespaceChunks[classIndex].length;
+      }
 
       for(
         let i = 0,
@@ -133,6 +142,8 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
             const fixedVariable = `[var(${balancedContent})]`;
 
             const [literalStart] = literal.range;
+
+            console.log({ end: literalStart + classStart + end + 1, start: literalStart + classStart + start + 1 });
 
             ctx.report({
               data: {
@@ -168,6 +179,8 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
             const incorrectSyntax = `[${balancedArbitraryContent}]`;
 
             const [literalStart] = literal.range;
+
+            console.log({ classStart, end: literalStart + classStart + end + 1, literalStart, start: literalStart + classStart + start + 1 });
 
             ctx.report({
               data: {
