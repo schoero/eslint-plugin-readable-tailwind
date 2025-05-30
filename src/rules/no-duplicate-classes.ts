@@ -155,7 +155,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         fix(fixer) {
           return fixer.replaceTextRange(literal.range, fixedClasses);
         },
-        loc: getExactClassLocation(literal, className, true),
+        loc: getExactClassLocation(literal, className, false, true),
         message: "Duplicate classname: \"{{ duplicateClassname }}\"."
       });
     }

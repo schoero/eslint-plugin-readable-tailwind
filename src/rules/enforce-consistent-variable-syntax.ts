@@ -179,7 +179,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
                   literalStart + classStart + end + 1
                 ], fixedVariable);
               },
-              loc: getExactClassLocation(literal, incorrectSyntax),
+              loc: getExactClassLocation(literal, incorrectSyntax, true),
               message: "Incorrect variable syntax: \"{{ incorrectSyntax }}\"."
             });
           }
