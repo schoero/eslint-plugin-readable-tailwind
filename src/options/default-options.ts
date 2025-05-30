@@ -66,6 +66,18 @@ export const DEFAULT_ATTRIBUTE_NAMES = [
         match: MatcherType.ObjectKey
       }
     ]
+  ],
+
+  // astro
+  [
+    "^class:list$", [
+      {
+        match: MatcherType.String
+      },
+      {
+        match: MatcherType.ObjectKey
+      }
+    ]
   ]
 ] satisfies Attributes;
 
