@@ -111,9 +111,13 @@ export function escapeForRegex(word: string) {
   return word.replace(/[$()*+.?[\\\]^{|}]/g, "\\$&");
 }
 
-export function getExactClassLocation(literal: Literal, className: string, lastIndex?: boolean) {
+export function getExactClassLocation(literal: Literal, className: string, partial: boolean = false, lastIndex: boolean = false) {
   const escapedClass = escapeForRegex(className);
-  const regex = new RegExp(`(?:^|\\s+)(${escapedClass})(?=\\s+|$)`, "g");
+
+  const regex = partial
+    ? new RegExp(`(${escapedClass})`, "g")
+    : new RegExp(`(?:^|\\s+)(${escapedClass})(?=\\s+|$)`, "g");
+
   const [...matches] = literal.content.matchAll(regex);
 
   const match = lastIndex ? matches.at(-1) : matches.at(0);

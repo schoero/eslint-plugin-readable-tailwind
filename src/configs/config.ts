@@ -1,3 +1,4 @@
+import { enforceConsistentVariableSyntax } from "better-tailwindcss:rules:enforce-consistent-variable-syntax.js";
 import { multiline } from "better-tailwindcss:rules:multiline.js";
 import { noConflictingClasses } from "better-tailwindcss:rules:no-conflicting-classes.js";
 import { noDuplicateClasses } from "better-tailwindcss:rules:no-duplicate-classes.js";
@@ -14,6 +15,7 @@ const plugin = {
     name: "better-tailwindcss"
   },
   rules: {
+    [enforceConsistentVariableSyntax.name]: enforceConsistentVariableSyntax.rule,
     [multiline.name]: multiline.rule,
     [noConflictingClasses.name]: noConflictingClasses.rule,
     [noDuplicateClasses.name]: noDuplicateClasses.rule,
