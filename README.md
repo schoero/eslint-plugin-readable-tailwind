@@ -12,48 +12,12 @@
 <br/>
 
 <div align="center">
-  <a alt="GitHub license" href="https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/LICENSE">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/license/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=32363B&color=ffffff">
-      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/license/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000">
-      <img alt="eslint-plugin-better-tailwindcss logo" src="https://img.shields.io/github/license/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000">
-    </picture>
-  </a>
-  <a alt="npm version" href="https://www.npmjs.com/package/eslint-plugin-better-tailwindcss?activeTab=versions">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/npm/v/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=32363B&color=ffffff">
-      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/npm/v/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000">
-      <img alt="eslint-plugin-better-tailwindcss logo" src="https://img.shields.io/npm/v/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000">
-    </picture>
-  </a>
-  <a alt="GitHub issues" href="https://github.com/schoero/eslint-plugin-better-tailwindcss/issues">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/issues/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=32363B&color=ffffff">
-      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/issues/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000">
-      <img alt="eslint-plugin-better-tailwindcss logo" src="https://img.shields.io/github/issues/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000">
-    </picture>
-  </a>
-  <a alt="npm total downloads" href="https://www.npmjs.com/package/eslint-plugin-better-tailwindcss?activeTab=readme">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/npm/dt/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=32363B&color=ffffff">
-      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/npm/dt/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000">
-      <img alt="eslint-plugin-better-tailwindcss logo" src="https://img.shields.io/npm/dt/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000">
-    </picture>
-  </a>
-  <a alt="GitHub repo stars" href="https://github.com/schoero/eslint-plugin-better-tailwindcss/stargazers">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/stars/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=32363B&color=ffffff">
-      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/stars/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000">
-      <img alt="eslint-plugin-better-tailwindcss logo" src="https://img.shields.io/github/stars/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000">
-    </picture>
-  </a>
-  <a alt="GitHub workflow status" href="https://github.com/schoero/eslint-plugin-better-tailwindcss/actions?query=workflow%3ACI">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/actions/workflow/status/schoero/eslint-plugin-better-tailwindcss/ci.yml?event=push&style=flat-square&labelColor=32363B&color=ffffff">
-      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/actions/workflow/status/schoero/eslint-plugin-better-tailwindcss/ci.yml?event=push&style=flat-square&labelColor=EBEEF2&color=000000">
-      <img alt="eslint-plugin-better-tailwindcss logo" src="https://img.shields.io/github/actions/workflow/status/schoero/eslint-plugin-better-tailwindcss/ci.yml?event=push&style=flat-square&labelColor=EBEEF2&color=000000">
-    </picture>
-  </a>
+  <a alt="GitHub license" href="https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/LICENSE"><picture><source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/license/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=32363B&color=ffffff" /><source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/license/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000" /><img alt="eslint-plugin-better-tailwindcss logo" src="https://img.shields.io/github/license/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000" /></picture></a>
+  <a alt="npm version" href="https://www.npmjs.com/package/eslint-plugin-better-tailwindcss?activeTab=versions"><picture><source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/npm/v/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=32363B&color=ffffff" /><source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/npm/v/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000" /><img alt="eslint-plugin-better-tailwindcss logo" src="https://img.shields.io/npm/v/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000" /></picture></a>
+  <a alt="GitHub issues" href="https://github.com/schoero/eslint-plugin-better-tailwindcss/issues"><picture><source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/issues/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=32363B&color=ffffff" /><source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/issues/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000" /><img alt="eslint-plugin-better-tailwindcss logo" src="https://img.shields.io/github/issues/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000" /></picture></a>
+  <a alt="npm total downloads" href="https://www.npmjs.com/package/eslint-plugin-better-tailwindcss?activeTab=readme"><picture><source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/npm/dt/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=32363B&color=ffffff" /><source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/npm/dt/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000" /><img alt="eslint-plugin-better-tailwindcss logo" src="https://img.shields.io/npm/dt/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000" /></picture></a>
+  <a alt="GitHub repo stars" href="https://github.com/schoero/eslint-plugin-better-tailwindcss/stargazers"><picture><source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/stars/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=32363B&color=ffffff" /><source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/stars/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000" /><img alt="eslint-plugin-better-tailwindcss logo" src="https://img.shields.io/github/stars/schoero/eslint-plugin-better-tailwindcss?style=flat-square&labelColor=EBEEF2&color=000000"/></picture></a>
+  <a alt="GitHub workflow status" href="https://github.com/schoero/eslint-plugin-better-tailwindcss/actions?query=workflow%3ACI"><picture><source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/actions/workflow/status/schoero/eslint-plugin-better-tailwindcss/ci.yml?event=push&style=flat-square&labelColor=32363B&color=ffffff" /><source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/actions/workflow/status/schoero/eslint-plugin-better-tailwindcss/ci.yml?event=push&style=flat-square&labelColor=EBEEF2&color=000000" /><img alt="eslint-plugin-better-tailwindcss logo" src="https://img.shields.io/github/actions/workflow/status/schoero/eslint-plugin-better-tailwindcss/ci.yml?event=push&style=flat-square&labelColor=EBEEF2&color=000000" /></picture></a>
 </div>
 
 <br/>
