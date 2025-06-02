@@ -77,6 +77,12 @@ To enable the [VSCode ESLint plugin](https://marketplace.visualstudio.com/items?
 
 ```jsonc
 {
-  "eslint.validate": [/* ...other formats */, "vue"]
+  // enable ESLint to validate Vue files
+  "eslint.validate": [/* ...other formats */, "vue"],
+
+  // enable ESLint to fix tailwind classes on save
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  }
 }
 ```

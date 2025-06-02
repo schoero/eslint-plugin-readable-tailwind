@@ -101,6 +101,12 @@ To enable the [VSCode ESLint plugin](https://marketplace.visualstudio.com/items?
 
 ```jsonc
 {
-  "eslint.validate": [/* ...other formats */, "html"]
+  // enable ESLint to validate HTML files
+  "eslint.validate": [/* ...other formats */, "html"],
+
+  // enable ESLint to fix tailwind classes on save
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  }
 }
 ```

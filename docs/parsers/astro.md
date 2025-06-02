@@ -80,6 +80,12 @@ To enable the [VSCode ESLint plugin](https://marketplace.visualstudio.com/items?
 
 ```jsonc
 {
-  "eslint.validate": [/* ...other formats */, "astro"]
+  // enable ESLint to validate Astro files
+  "eslint.validate": [/* ...other formats */, "astro"],
+
+  // enable ESLint to fix tailwind classes on save
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  }
 }
 ```
