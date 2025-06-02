@@ -186,8 +186,6 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
             const [literalStart] = literal.range;
 
-            console.log({ classStart, end: literalStart + classStart + end + 1, literalStart, start: literalStart + classStart + start + 1 });
-
             ctx.report({
               data: {
                 incorrectSyntax
