@@ -97,6 +97,84 @@ describe(enforceConsistentVariableSyntax.name, () => {
     );
   });
 
+  it("should work with variants", () => {
+    lint(
+      enforceConsistentVariableSyntax,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="hover:bg-(--brand)" />`,
+            angularOutput: `<img class="hover:bg-[var(--brand)]" />`,
+            errors: 1,
+            html: `<img class="hover:bg-(--brand)" />`,
+            htmlOutput: `<img class="hover:bg-[var(--brand)]" />`,
+            jsx: `() => <img class="hover:bg-(--brand)" />`,
+            jsxOutput: `() => <img class="hover:bg-[var(--brand)]" />`,
+            options: [{ syntax: "arbitrary" }],
+            svelte: `<img class="hover:bg-(--brand)" />`,
+            svelteOutput: `<img class="hover:bg-[var(--brand)]" />`,
+            vue: `<template><img class="hover:bg-(--brand)" /></template>`,
+            vueOutput: `<template><img class="hover:bg-[var(--brand)]" /></template>`
+          },
+          {
+            angular: `<img class="hover:bg-[var(--brand)]" />`,
+            angularOutput: `<img class="hover:bg-(--brand)" />`,
+            errors: 1,
+            html: `<img class="hover:bg-[var(--brand)]" />`,
+            htmlOutput: `<img class="hover:bg-(--brand)" />`,
+            jsx: `() => <img class="hover:bg-[var(--brand)]" />`,
+            jsxOutput: `() => <img class="hover:bg-(--brand)" />`,
+            options: [{ syntax: "parentheses" }],
+            svelte: `<img class="hover:bg-[var(--brand)]" />`,
+            svelteOutput: `<img class="hover:bg-(--brand)" />`,
+            vue: `<template><img class="hover:bg-[var(--brand)]" /></template>`,
+            vueOutput: `<template><img class="hover:bg-(--brand)" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it("should work with other classes", () => {
+    lint(
+      enforceConsistentVariableSyntax,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="text-red-500 bg-(--brand)" />`,
+            angularOutput: `<img class="text-red-500 bg-[var(--brand)]" />`,
+            errors: 1,
+            html: `<img class="text-red-500 bg-(--brand)" />`,
+            htmlOutput: `<img class="text-red-500 bg-[var(--brand)]" />`,
+            jsx: `() => <img class="text-red-500 bg-(--brand)" />`,
+            jsxOutput: `() => <img class="text-red-500 bg-[var(--brand)]" />`,
+            options: [{ syntax: "arbitrary" }],
+            svelte: `<img class="text-red-500 bg-(--brand)" />`,
+            svelteOutput: `<img class="text-red-500 bg-[var(--brand)]" />`,
+            vue: `<template><img class="text-red-500 bg-(--brand)" /></template>`,
+            vueOutput: `<template><img class="text-red-500 bg-[var(--brand)]" /></template>`
+          },
+          {
+            angular: `<img class="text-red-500 bg-[var(--brand)]" />`,
+            angularOutput: `<img class="text-red-500 bg-(--brand)" />`,
+            errors: 1,
+            html: `<img class="text-red-500 bg-[var(--brand)]" />`,
+            htmlOutput: `<img class="text-red-500 bg-(--brand)" />`,
+            jsx: `() => <img class="text-red-500 bg-[var(--brand)]" />`,
+            jsxOutput: `() => <img class="text-red-500 bg-(--brand)" />`,
+            options: [{ syntax: "parentheses" }],
+            svelte: `<img class="text-red-500 bg-[var(--brand)]" />`,
+            svelteOutput: `<img class="text-red-500 bg-(--brand)" />`,
+            vue: `<template><img class="text-red-500 bg-[var(--brand)]" /></template>`,
+            vueOutput: `<template><img class="text-red-500 bg-(--brand)" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
   it("should preserve fallback values", () => {
     lint(
       enforceConsistentVariableSyntax,

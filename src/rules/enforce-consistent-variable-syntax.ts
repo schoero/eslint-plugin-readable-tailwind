@@ -112,7 +112,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       literalIndex += className.length;
 
       if(!startsWithWhitespace){
-        literalIndex += whitespaceChunks[classIndex].length;
+        literalIndex += whitespaceChunks[classIndex + 1].length;
       }
 
       for(
@@ -129,7 +129,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           if(isInsideVar){
             continue;
           }
-
+          // text-red-500 bg-(--brand)
           if(isBeginningOfParenthesizedVariable(characters)){
             isInsideVar = true;
 
