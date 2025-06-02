@@ -175,6 +175,45 @@ describe(enforceConsistentVariableSyntax.name, () => {
     );
   });
 
+  it("should work with the important modifier", () => {
+    lint(
+      enforceConsistentVariableSyntax,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="bg-(--brand)!" />`,
+            angularOutput: `<img class="bg-[var(--brand)]!" />`,
+            errors: 1,
+            html: `<img class="bg-(--brand)!" />`,
+            htmlOutput: `<img class="bg-[var(--brand)]!" />`,
+            jsx: `() => <img class="bg-(--brand)!" />`,
+            jsxOutput: `() => <img class="bg-[var(--brand)]!" />`,
+            options: [{ syntax: "arbitrary" }],
+            svelte: `<img class="bg-(--brand)!" />`,
+            svelteOutput: `<img class="bg-[var(--brand)]!" />`,
+            vue: `<template><img class="bg-(--brand)!" /></template>`,
+            vueOutput: `<template><img class="bg-[var(--brand)]!" /></template>`
+          },
+          {
+            angular: `<img class="bg-[var(--brand)]!" />`,
+            angularOutput: `<img class="bg-(--brand)!" />`,
+            errors: 1,
+            html: `<img class="bg-[var(--brand)]!" />`,
+            htmlOutput: `<img class="bg-(--brand)!" />`,
+            jsx: `() => <img class="bg-[var(--brand)]!" />`,
+            jsxOutput: `() => <img class="bg-(--brand)!" />`,
+            options: [{ syntax: "parentheses" }],
+            svelte: `<img class="bg-[var(--brand)]!" />`,
+            svelteOutput: `<img class="bg-(--brand)!" />`,
+            vue: `<template><img class="bg-[var(--brand)]!" /></template>`,
+            vueOutput: `<template><img class="bg-(--brand)!" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
   it("should preserve fallback values", () => {
     lint(
       enforceConsistentVariableSyntax,
