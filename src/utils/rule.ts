@@ -65,10 +65,8 @@ export function createRuleListener(ctx: Rule.RuleContext, options: Options, lint
       for(const jsxAttribute of jsxAttributes){
 
         const attributeValue = jsxAttribute.value;
-        const attributeName = jsxAttribute.name.name;
 
         if(!attributeValue){ continue; }
-        if(typeof attributeName !== "string"){ continue; }
 
         const literals = getLiteralsByJSXAttribute(ctx, jsxAttribute, attributes);
         lintLiterals(ctx, literals);
