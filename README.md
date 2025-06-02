@@ -151,6 +151,7 @@ The table below lists all available rules, the Tailwind CSS versions they suppor
 | [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | ✔ | ✔ | ✔ | ✔ |
 | [sort-classes](docs/rules/sort-classes.md) | Enforce a consistent order for tailwind classes. | ✔ | ✔ | ✔ | ✔ |
 | [no-duplicate-classes](docs/rules/no-duplicate-classes.md) | Remove duplicate classes. | ✔ | ✔ | ✔ | ✔ |
+| [enforce-consistent-variable-syntax](docs/rules/enforce-consistent-variable-syntax.md) | Enforce consistent variable syntax. | ✔ | ✔ |  | ✔ |
 
 #### Correctness rules
 
