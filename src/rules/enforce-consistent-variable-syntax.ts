@@ -137,13 +137,15 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
             const [balancedContent] = extractBalanced(className.slice(start), "(", ")");
 
+            if(!balancedContent){
+              continue;
+            }
+
             const end = start + balancedContent.length + 2;
 
             const fixedVariable = `[var(${balancedContent})]`;
 
             const [literalStart] = literal.range;
-
-            console.log({ end: literalStart + classStart + end + 1, start: literalStart + classStart + start + 1 });
 
             ctx.report({
               data: {
@@ -171,6 +173,10 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
             const [balancedArbitraryContent] = extractBalanced(className.slice(start), "[", "]");
             const [balancedVariableContent] = extractBalanced(className.slice(start));
+
+            if(!balancedArbitraryContent || !balancedVariableContent){
+              continue;
+            }
 
             const end = start + balancedArbitraryContent.length + 2;
 
