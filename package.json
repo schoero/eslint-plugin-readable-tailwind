@@ -1,5 +1,5 @@
 {
-  "version": "3.1.0-astro.0",
+  "version": "3.1.0",
   "type": "module",
   "name": "eslint-plugin-better-tailwindcss",
   "description": "auto-wraps tailwind classes after a certain print width or class count into multiple lines to improve readability.",

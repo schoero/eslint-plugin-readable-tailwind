@@ -1,5 +1,18 @@
 # Changelog
 
+## v3.1.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.0.0...v3.1.0)
+
+### Features
+
+- Add support for astro syntactic sugar ([#103](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/103))
+- New rule `enforce consistent variable syntax` ([#101](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/101))
+
+### Fixes
+
+- Remove `name` property ([#105](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/105))
+
 ## v3.0.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v2.1.2...v3.0.0)
