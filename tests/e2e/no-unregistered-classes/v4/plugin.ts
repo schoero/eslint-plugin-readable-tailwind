@@ -5,7 +5,7 @@ import createPlugin from "tailwindcss/plugin";
 
 export default createPlugin(({ addUtilities }) => {
   addUtilities({
-    ".from-plugin": {
+    ".in-plugin": {
       color: "red"
     }
   });

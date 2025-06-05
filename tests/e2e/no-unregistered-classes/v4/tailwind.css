@@ -2,6 +2,6 @@
 @config "./tailwind.config.ts";
 @plugin "./plugin.ts";
 
-@utility from-utility {
+@utility in-utility {
   @apply text-red-500;
-} 
+}
