@@ -1,8 +1,8 @@
-import { isESNode } from "better-tailwindcss:parsers:es.js";
+import { isESNode } from "better-tailwindcss:parsers/es.js";
 
 import type { Rule } from "eslint";
 
-import type { RegexConfig } from "better-tailwindcss:types:rule.js";
+import type { RegexConfig } from "better-tailwindcss:types/rule.js";
 
 
 export function getLiteralsByNodeAndRegex<LiteralType = unknown>(

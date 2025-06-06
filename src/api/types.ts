@@ -1,1 +1,1 @@
-export * from "better-tailwindcss:types:rule.js";
+export * from "better-tailwindcss:types/rule.js";

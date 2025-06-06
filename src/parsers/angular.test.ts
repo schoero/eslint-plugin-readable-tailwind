@@ -1,8 +1,8 @@
 import { describe, it } from "vitest";
 
-import { sortClasses } from "better-tailwindcss:rules:sort-classes.js";
-import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
-import { MatcherType } from "better-tailwindcss:types:rule.js";
+import { sortClasses } from "better-tailwindcss:rules/sort-classes.js";
+import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
+import { MatcherType } from "better-tailwindcss:types/rule.js";
 
 
 describe("angular", () => {

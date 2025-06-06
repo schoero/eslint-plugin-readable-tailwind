@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { escapeForRegex, matchesName } from "better-tailwindcss:utils:utils.js";
+import { escapeForRegex, matchesName } from "better-tailwindcss:utils/utils.js";
 
 
 describe("matchesName", () => {

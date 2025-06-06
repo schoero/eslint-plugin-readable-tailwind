@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
-import { enforceConsistentVariableSyntax } from "better-tailwindcss:rules:enforce-consistent-variable-syntax.js";
-import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
+import { enforceConsistentVariableSyntax } from "better-tailwindcss:rules/enforce-consistent-variable-syntax.js";
+import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
 
 
 describe(enforceConsistentVariableSyntax.name, () => {

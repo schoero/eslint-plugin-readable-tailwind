@@ -1,8 +1,8 @@
 import { describe, it } from "vitest";
 
-import { CC_OBJECT_KEYS, CC_STRINGS } from "better-tailwindcss:options:callees/cc.js";
-import { noUnnecessaryWhitespace } from "better-tailwindcss:rules:no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
+import { CC_OBJECT_KEYS, CC_STRINGS } from "better-tailwindcss:options/callees/cc.js";
+import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
 
 
 describe("cc", () => {

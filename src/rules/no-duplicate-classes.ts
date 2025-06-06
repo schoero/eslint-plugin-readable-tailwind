@@ -3,32 +3,32 @@ import {
   DEFAULT_CALLEE_NAMES,
   DEFAULT_TAG_NAMES,
   DEFAULT_VARIABLE_NAMES
-} from "better-tailwindcss:options:default-options.js";
+} from "better-tailwindcss:options/default-options.js";
 import {
   ATTRIBUTE_SCHEMA,
   CALLEE_SCHEMA,
   TAG_SCHEMA,
   VARIABLE_SCHEMA
-} from "better-tailwindcss:options:descriptions.js";
-import { escapeNestedQuotes } from "better-tailwindcss:utils:quotes.js";
-import { createRuleListener } from "better-tailwindcss:utils:rule.js";
+} from "better-tailwindcss:options/descriptions.js";
+import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
+import { createRuleListener } from "better-tailwindcss:utils/rule.js";
 import {
   getCommonOptions,
   getExactClassLocation,
   splitClasses,
   splitWhitespaces
-} from "better-tailwindcss:utils:utils.js";
+} from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 
-import type { Literal } from "better-tailwindcss:types:ast.js";
+import type { Literal } from "better-tailwindcss:types/ast.js";
 import type {
   AttributeOption,
   CalleeOption,
   ESLintRule,
   TagOption,
   VariableOption
-} from "better-tailwindcss:types:rule.js";
+} from "better-tailwindcss:types/rule.js";
 
 
 export type Options = [

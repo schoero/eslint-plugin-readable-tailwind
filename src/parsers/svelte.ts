@@ -8,8 +8,8 @@ import {
   isESObjectKey,
   isESStringLike,
   isInsideObjectValue
-} from "better-tailwindcss:parsers:es.js";
-import { MatcherType } from "better-tailwindcss:types:rule.js";
+} from "better-tailwindcss:parsers/es.js";
+import { MatcherType } from "better-tailwindcss:types/rule.js";
 import {
   getLiteralNodesByMatchers,
   isAttributesMatchers,
@@ -18,7 +18,7 @@ import {
   isInsideConditionalExpressionTest,
   isInsideLogicalExpressionLeft,
   matchesPathPattern
-} from "better-tailwindcss:utils:matchers.js";
+} from "better-tailwindcss:utils/matchers.js";
 import {
   deduplicateLiterals,
   getContent,
@@ -26,7 +26,7 @@ import {
   getQuotes,
   getWhitespace,
   matchesName
-} from "better-tailwindcss:utils:utils.js";
+} from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
@@ -44,8 +44,8 @@ import type {
   SvelteStyleDirective
 } from "svelte-eslint-parser/lib/ast/index.js";
 
-import type { Literal, LiteralValueQuotes, MultilineMeta, StringLiteral } from "better-tailwindcss:types:ast.js";
-import type { Attributes, Matcher, MatcherFunctions } from "better-tailwindcss:types:rule.js";
+import type { Literal, LiteralValueQuotes, MultilineMeta, StringLiteral } from "better-tailwindcss:types/ast.js";
+import type { Attributes, Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
 
 
 export const SVELTE_CONTAINER_TYPES_TO_REPLACE_QUOTES = [

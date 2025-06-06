@@ -1,4 +1,4 @@
-import { MatcherType } from "better-tailwindcss:types:rule.js";
+import { MatcherType } from "better-tailwindcss:types/rule.js";
 import {
   findMatchingParentNodes,
   getLiteralNodesByMatchers,
@@ -14,8 +14,8 @@ import {
   isVariableName,
   isVariableRegex,
   matchesPathPattern
-} from "better-tailwindcss:utils:matchers.js";
-import { getLiteralsByNodeAndRegex } from "better-tailwindcss:utils:regex.js";
+} from "better-tailwindcss:utils/matchers.js";
+import { getLiteralsByNodeAndRegex } from "better-tailwindcss:utils/regex.js";
 import {
   deduplicateLiterals,
   getContent,
@@ -23,7 +23,7 @@ import {
   getQuotes,
   getWhitespace,
   matchesName
-} from "better-tailwindcss:utils:utils.js";
+} from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 import type {
@@ -47,7 +47,7 @@ import type {
   MultilineMeta,
   StringLiteral,
   TemplateLiteral
-} from "better-tailwindcss:types:ast.js";
+} from "better-tailwindcss:types/ast.js";
 import type {
   Callees,
   Matcher,
@@ -55,7 +55,7 @@ import type {
   RegexConfig,
   Tags,
   Variables
-} from "better-tailwindcss:types:rule.js";
+} from "better-tailwindcss:types/rule.js";
 
 
 export const ES_CONTAINER_TYPES_TO_REPLACE_QUOTES: string[] = [

@@ -1,4 +1,4 @@
-import { MatcherType } from "better-tailwindcss:types:rule.js";
+import { MatcherType } from "better-tailwindcss:types/rule.js";
 
 import type { Rule } from "eslint";
 

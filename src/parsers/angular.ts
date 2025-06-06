@@ -1,18 +1,18 @@
-import { MatcherType } from "better-tailwindcss:types:rule.js";
+import { MatcherType } from "better-tailwindcss:types/rule.js";
 import {
   getLiteralNodesByMatchers,
   isAttributesMatchers,
   isAttributesName,
   isAttributesRegex,
   matchesPathPattern
-} from "better-tailwindcss:utils:matchers.js";
+} from "better-tailwindcss:utils/matchers.js";
 import {
   deduplicateLiterals,
   getIndentation,
   getQuotes,
   getWhitespace,
   matchesName
-} from "better-tailwindcss:utils:utils.js";
+} from "better-tailwindcss:utils/utils.js";
 
 import type {
   AST,
@@ -36,8 +36,8 @@ import type {
 import type { Rule } from "eslint";
 import type { SourceLocation } from "estree";
 
-import type { BracesMeta, Literal, LiteralValueQuotes } from "better-tailwindcss:types:ast.js";
-import type { Attributes, Matcher, MatcherFunctions } from "better-tailwindcss:types:rule.js";
+import type { BracesMeta, Literal, LiteralValueQuotes } from "better-tailwindcss:types/ast.js";
+import type { Attributes, Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
 
 // https://angular.dev/api/common/NgClass
 // https://angular.dev/guide/templates/binding#css-class-and-style-property-bindings

@@ -1,8 +1,8 @@
 import { describe, it } from "vitest";
 
-import { DCNB_OBJECT_KEYS, DCNB_STRINGS } from "better-tailwindcss:options:callees/dcnb.js";
-import { noUnnecessaryWhitespace } from "better-tailwindcss:rules:no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
+import { DCNB_OBJECT_KEYS, DCNB_STRINGS } from "better-tailwindcss:options/callees/dcnb.js";
+import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
 
 
 describe("dcnb", () => {

@@ -1,10 +1,10 @@
-import { getUnregisteredClasses } from "better-tailwindcss:async:unregistered-classes.sync.js";
+import { getUnregisteredClasses } from "better-tailwindcss:async/unregistered-classes.sync.js";
 import {
   DEFAULT_ATTRIBUTE_NAMES,
   DEFAULT_CALLEE_NAMES,
   DEFAULT_TAG_NAMES,
   DEFAULT_VARIABLE_NAMES
-} from "better-tailwindcss:options:default-options.js";
+} from "better-tailwindcss:options/default-options.js";
 import {
   ATTRIBUTE_SCHEMA,
   CALLEE_SCHEMA,
@@ -12,26 +12,26 @@ import {
   TAG_SCHEMA,
   TAILWIND_CONFIG_SCHEMA,
   VARIABLE_SCHEMA
-} from "better-tailwindcss:options:descriptions.js";
-import { createRuleListener } from "better-tailwindcss:utils:rule.js";
+} from "better-tailwindcss:options/descriptions.js";
+import { createRuleListener } from "better-tailwindcss:utils/rule.js";
 import {
   augmentMessageWithWarnings,
   display,
   getCommonOptions,
   getExactClassLocation,
   splitClasses
-} from "better-tailwindcss:utils:utils.js";
+} from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 
-import type { Literal } from "better-tailwindcss:types:ast.js";
+import type { Literal } from "better-tailwindcss:types/ast.js";
 import type {
   AttributeOption,
   CalleeOption,
   ESLintRule,
   TagOption,
   VariableOption
-} from "better-tailwindcss:types:rule.js";
+} from "better-tailwindcss:types/rule.js";
 
 
 export type Options = [

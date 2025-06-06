@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
-import { noDuplicateClasses } from "better-tailwindcss:rules:no-duplicate-classes.js";
-import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
+import { noDuplicateClasses } from "better-tailwindcss:rules/no-duplicate-classes.js";
+import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
 
 
 describe(noDuplicateClasses.name, () => {

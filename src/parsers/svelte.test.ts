@@ -1,8 +1,8 @@
 import { describe, it } from "vitest";
 
-import { multiline } from "better-tailwindcss:rules:multiline.js";
-import { sortClasses } from "better-tailwindcss:rules:sort-classes.js";
-import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
+import { multiline } from "better-tailwindcss:rules/multiline.js";
+import { sortClasses } from "better-tailwindcss:rules/sort-classes.js";
+import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
 
 
 describe("svelte", () => {

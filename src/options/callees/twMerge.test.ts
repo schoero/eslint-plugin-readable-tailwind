@@ -1,8 +1,8 @@
 import { describe, it } from "vitest";
 
-import { TW_MERGE_STRINGS } from "better-tailwindcss:options:callees/twMerge.js";
-import { noUnnecessaryWhitespace } from "better-tailwindcss:rules:no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
+import { TW_MERGE_STRINGS } from "better-tailwindcss:options/callees/twMerge.js";
+import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
 
 
 describe("twMerge", () => {

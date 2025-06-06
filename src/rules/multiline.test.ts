@@ -1,8 +1,8 @@
 import { describe, it } from "vitest";
 
-import { multiline } from "better-tailwindcss:rules:multiline.js";
-import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
-import { MatcherType } from "better-tailwindcss:types:rule.js";
+import { multiline } from "better-tailwindcss:rules/multiline.js";
+import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
+import { MatcherType } from "better-tailwindcss:types/rule.js";
 
 
 describe(multiline.name, () => {

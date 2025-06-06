@@ -1,4 +1,4 @@
-import type { Warning } from "better-tailwindcss:utils:utils.js";
+import type { Warning } from "better-tailwindcss:utils/utils.js";
 
 
 export type ConfigWarning = Omit<Warning, "url"> & Partial<Pick<Warning, "url">>;

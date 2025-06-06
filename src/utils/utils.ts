@@ -3,12 +3,12 @@ import {
   DEFAULT_CALLEE_NAMES,
   DEFAULT_TAG_NAMES,
   DEFAULT_VARIABLE_NAMES
-} from "better-tailwindcss:options:default-options.js";
-import { isAttributesRegex, isCalleeRegex, isVariableRegex } from "better-tailwindcss:utils:matchers.js";
+} from "better-tailwindcss:options/default-options.js";
+import { isAttributesRegex, isCalleeRegex, isVariableRegex } from "better-tailwindcss:utils/matchers.js";
 
 import type { Rule } from "eslint";
 
-import type { BracesMeta, Literal, QuoteMeta } from "better-tailwindcss:types:ast.js";
+import type { BracesMeta, Literal, QuoteMeta } from "better-tailwindcss:types/ast.js";
 
 
 export function getCommonOptions(ctx: Rule.RuleContext) {

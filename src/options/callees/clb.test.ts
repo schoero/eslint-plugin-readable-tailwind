@@ -4,9 +4,9 @@ import {
   CLB_BASE_VALUES,
   CLB_COMPOUND_VARIANTS_CLASSES,
   CLB_VARIANT_VALUES
-} from "better-tailwindcss:options:callees/clb.js";
-import { noUnnecessaryWhitespace } from "better-tailwindcss:rules:no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
+} from "better-tailwindcss:options/callees/clb.js";
+import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
 
 
 describe("clb", () => {

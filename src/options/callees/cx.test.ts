@@ -1,8 +1,8 @@
 import { describe, it } from "vitest";
 
-import { CX_OBJECT_KEYS, CX_STRINGS } from "better-tailwindcss:options:callees/cx.js";
-import { noUnnecessaryWhitespace } from "better-tailwindcss:rules:no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
+import { CX_OBJECT_KEYS, CX_STRINGS } from "better-tailwindcss:options/callees/cx.js";
+import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
 
 
 describe("cx", () => {

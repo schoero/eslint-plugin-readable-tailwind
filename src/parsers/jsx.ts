@@ -9,17 +9,17 @@ import {
   isESNode,
   isESSimpleStringLiteral,
   isESTemplateLiteral
-} from "better-tailwindcss:parsers:es.js";
-import { isAttributesMatchers, isAttributesName, isAttributesRegex } from "better-tailwindcss:utils:matchers.js";
-import { deduplicateLiterals, matchesName } from "better-tailwindcss:utils:utils.js";
+} from "better-tailwindcss:parsers/es.js";
+import { isAttributesMatchers, isAttributesName, isAttributesRegex } from "better-tailwindcss:utils/matchers.js";
+import { deduplicateLiterals, matchesName } from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, TemplateLiteral as ESTemplateLiteral } from "estree";
 import type { JSXAttribute, BaseNode as JSXBaseNode, JSXExpressionContainer, JSXOpeningElement } from "estree-jsx";
 
-import type { ESSimpleStringLiteral } from "better-tailwindcss:parsers:es.js";
-import type { Literal, LiteralValueQuotes, MultilineMeta } from "better-tailwindcss:types:ast.js";
-import type { Attributes } from "better-tailwindcss:types:rule.js";
+import type { ESSimpleStringLiteral } from "better-tailwindcss:parsers/es.js";
+import type { Literal, LiteralValueQuotes, MultilineMeta } from "better-tailwindcss:types/ast.js";
+import type { Attributes } from "better-tailwindcss:types/rule.js";
 
 
 export const JSX_CONTAINER_TYPES_TO_REPLACE_QUOTES = [

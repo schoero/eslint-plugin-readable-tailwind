@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { DEFAULT_CALLEE_NAMES } from "better-tailwindcss:options:default-options.js";
-import { getFilesInDirectory } from "better-tailwindcss:tests:utils.js";
+import { DEFAULT_CALLEE_NAMES } from "better-tailwindcss:options/default-options.js";
+import { getFilesInDirectory } from "better-tailwindcss:tests/utils.js";
 
 
 describe("default options", () => {

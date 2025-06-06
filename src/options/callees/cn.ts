@@ -1,6 +1,6 @@
-import { MatcherType } from "better-tailwindcss:types:rule.js";
+import { MatcherType } from "better-tailwindcss:types/rule.js";
 
-import type { CalleeMatchers, Callees } from "better-tailwindcss:types:rule.js";
+import type { CalleeMatchers, Callees } from "better-tailwindcss:types/rule.js";
 
 
 export const CN_STRINGS = [

@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
-import { sortClasses } from "better-tailwindcss:rules:sort-classes.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests:utils.js";
+import { sortClasses } from "better-tailwindcss:rules/sort-classes.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
 
 
 describe(sortClasses.name, () => {
