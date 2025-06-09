@@ -13,6 +13,7 @@ import {
   TAILWIND_CONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
+import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
 import {
   augmentMessageWithWarnings,
@@ -20,7 +21,6 @@ import {
   getExactClassLocation,
   splitClasses
 } from "better-tailwindcss:utils/utils.js";
-import { getCommonOptions } from "better-tailwindcss:utils/options";
 
 import type { Rule } from "eslint";
 
