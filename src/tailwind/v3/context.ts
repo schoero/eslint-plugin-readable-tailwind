@@ -3,25 +3,19 @@ import * as setupContextUtils from "tailwindcss3/lib/lib/setupContextUtils.js";
 import loadConfig from "tailwindcss3/loadConfig.js";
 import resolveConfig from "tailwindcss3/resolveConfig.js";
 
+import { withCache } from "../utils/cache.js";
 
-export function loadTailwindConfig(path: string | undefined) {
-  const config = path ? loadConfig(path) : defaultConfig;
+
+export function loadTailwindConfig(path: string) {
+  const config = path === "default"
+    ? defaultConfig
+    : loadConfig(path);
+
   return resolveConfig(config);
 }
 
-const CACHE = new Map<string, ReturnType<typeof setupContextUtils.createContext>>();
-
-export function createTailwindContextFromConfigFile(path?: string, invalidate?: boolean) {
-  const cacheKey = path ?? "default";
-
-  if(CACHE.has(cacheKey) && !invalidate){
-    return CACHE.get(cacheKey);
-  }
-
+export const createTailwindContextFromConfigFile = async (path: string = "default") => withCache(path, async () => {
   const tailwindConfig = loadTailwindConfig(path);
-  const context = setupContextUtils.createContext?.(tailwindConfig) ?? setupContextUtils.default?.createContext?.(tailwindConfig);
 
-  CACHE.set(cacheKey, context);
-
-  return context;
-}
+  return setupContextUtils.createContext?.(tailwindConfig) ?? setupContextUtils.default?.createContext?.(tailwindConfig);
+});

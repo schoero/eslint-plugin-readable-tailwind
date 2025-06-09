@@ -29,7 +29,9 @@
   "explorer.fileNesting.expand": false,
   "explorer.fileNesting.patterns": {
     "*.ts": "$(capture).ts,$(capture).test.ts,$(capture).cts,$(capture).mts,$(capture).test.snap,$(capture).test-d.ts",
-    "*.js": "$(capture).test.js,$(capture).cjs,$(capture).mjs,$(capture).d.ts,$(capture).d.ts.map,$(capture).js.map"
+    "*.js": "$(capture).test.js,$(capture).cjs,$(capture).mjs,$(capture).d.ts,$(capture).d.ts.map,$(capture).js.map",
+
+    "*.sync.ts": "$(capture).async.ts"
   },
 
   // ES module import

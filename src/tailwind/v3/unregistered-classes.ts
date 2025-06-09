@@ -22,7 +22,7 @@ export async function getUnregisteredClasses({ classes, configPath, cwd }: GetUn
     });
   }
 
-  const context = createTailwindContextFromConfigFile(config?.path, config?.invalidate);
+  const context = await createTailwindContextFromConfigFile(config);
 
   const invalidClasses = classes
     .filter(className => {

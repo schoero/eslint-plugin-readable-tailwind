@@ -1,4 +1,4 @@
-import { findFileRecursive } from "../utils/config.js";
+import { findFileRecursive } from "../utils/fs.js";
 
 
 export function findTailwindConfig(cwd: string, configPath?: string) {

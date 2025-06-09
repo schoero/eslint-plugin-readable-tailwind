@@ -16,6 +16,7 @@ export async function getClassOrder({ classes, configPath, cwd }: GetClassOrderR
     });
   }
 
-  const context = createTailwindContextFromConfigFile(config?.path, config?.invalidate);
+  const context = await createTailwindContextFromConfigFile(config);
+
   return [context.getClassOrder(classes), warnings];
 }

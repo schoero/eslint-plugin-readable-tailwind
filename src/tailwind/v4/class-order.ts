@@ -1,4 +1,4 @@
-import { findDefaultConfig, findTailwindConfig } from "./config.js";
+import { findDefaultConfig, findTailwindConfigPath } from "./config.js";
 import { createTailwindContextFromEntryPoint } from "./context.js";
 
 import type { ConfigWarning, GetClassOrderRequest, GetClassOrderResponse } from "../api/interface.js";
@@ -7,7 +7,7 @@ import type { ConfigWarning, GetClassOrderRequest, GetClassOrderResponse } from 
 export async function getClassOrder({ classes, configPath, cwd }: GetClassOrderRequest): Promise<GetClassOrderResponse> {
   const warnings: ConfigWarning[] = [];
 
-  const config = findTailwindConfig(cwd, configPath);
+  const config = findTailwindConfigPath(cwd, configPath);
   const defaultConfig = findDefaultConfig(cwd);
 
   if(!config){
@@ -19,13 +19,13 @@ export async function getClassOrder({ classes, configPath, cwd }: GetClassOrderR
     });
   }
 
-  const path = config?.path ?? defaultConfig.path;
-  const invalidate = config?.invalidate ?? defaultConfig.invalidate;
+  const path = config ?? defaultConfig;
 
   if(!path){
     throw new Error("Could not find a valid Tailwind CSS configuration");
   }
 
-  const context = await createTailwindContextFromEntryPoint(path, invalidate);
+  const context = await createTailwindContextFromEntryPoint(path);
+
   return [context.getClassOrder(classes), warnings];
 }

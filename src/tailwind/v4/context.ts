@@ -6,6 +6,7 @@ import { createJiti } from "jiti";
 import postcss from "postcss";
 import postcssImport from "postcss-import";
 
+import { withCache } from "../utils/cache.js";
 import { isCommonJSModule } from "../utils/module.js";
 import { isWindows } from "../utils/platform.js";
 import { cjsResolver, cssResolver, esmResolver } from "../utils/resolvers.js";
@@ -62,12 +63,8 @@ function createLoader<T>({
   };
 }
 
-const CACHE = new Map<string, Awaited<ReturnType<typeof createTailwindContextFromEntryPoint>>>();
 
-export async function createTailwindContextFromEntryPoint(entryPoint: string, invalidate: boolean) {
-  if(CACHE.has(entryPoint) && !invalidate){
-    return CACHE.get(entryPoint);
-  }
+export const createTailwindContextFromEntryPoint = async (entryPoint: string) => withCache(entryPoint, async () => {
 
   // Create a Jiti instance that can be used to load plugins and config files
   const jiti = createJiti(getCurrentFilename(), {
@@ -141,10 +138,8 @@ export async function createTailwindContextFromEntryPoint(entryPoint: string, in
     }
   });
 
-  CACHE.set(entryPoint, design);
-
   return design;
-}
+});
 
 function getCurrentFilename() {
   // eslint-disable-next-line eslint-plugin-typescript/prefer-ts-expect-error

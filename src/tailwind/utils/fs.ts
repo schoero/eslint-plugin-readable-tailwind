@@ -2,14 +2,7 @@ import { existsSync, statSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 
 
-type CachedFile = {
-  invalidate: boolean;
-  path: string;
-};
-
-const CACHE = new Map<string, number>();
-
-export function findFileRecursive(cwd: string, paths: string[]): CachedFile | undefined {
+export function findFileRecursive(cwd: string, paths: string[]): string | undefined {
   const resolvedPaths = paths.map(p => resolve(cwd, p));
 
   for(let resolvedPath = resolvedPaths.shift(); resolvedPath !== undefined; resolvedPath = resolvedPaths.shift()){
@@ -18,22 +11,11 @@ export function findFileRecursive(cwd: string, paths: string[]): CachedFile | un
       const stat = statSync(resolvedPath);
 
       if(!stat.isFile()){
-        CACHE.delete(resolvedPath);
         continue;
       }
 
-      const invalidate = stat.mtimeMs > (CACHE.get(resolvedPath) ?? 0);
-
-      CACHE.set(resolvedPath, stat.mtimeMs);
-
-      return {
-        invalidate,
-        path: resolvedPath
-      };
-
+      return resolvedPath;
     }
-
-    CACHE.delete(resolvedPath);
 
     const fileName = basename(resolvedPath);
     const directory = dirname(resolvedPath);
@@ -46,5 +28,14 @@ export function findFileRecursive(cwd: string, paths: string[]): CachedFile | un
     }
 
     resolvedPaths.push(parentPath);
+  }
+}
+
+export function getModifiedDate(filePath: string): Date {
+  try {
+    const stats = statSync(filePath);
+    return stats.mtime;
+  } catch {
+    return new Date();
   }
 }

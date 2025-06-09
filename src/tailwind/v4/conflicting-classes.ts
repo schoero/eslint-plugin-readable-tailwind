@@ -1,4 +1,4 @@
-import { findDefaultConfig, findTailwindConfig } from "./config.js";
+import { findDefaultConfig, findTailwindConfigPath } from "./config.js";
 import { createTailwindContextFromEntryPoint } from "./context.js";
 
 import type {
@@ -12,7 +12,7 @@ import type {
 export async function getConflictingClasses({ classes, configPath, cwd }: GetConflictingClassesRequest): Promise<GetConflictingClassesResponse> {
   const warnings: ConfigWarning[] = [];
 
-  const config = findTailwindConfig(cwd, configPath);
+  const config = findTailwindConfigPath(cwd, configPath);
   const defaultConfig = findDefaultConfig(cwd);
 
   if(!config){
@@ -24,14 +24,13 @@ export async function getConflictingClasses({ classes, configPath, cwd }: GetCon
     });
   }
 
-  const path = config?.path ?? defaultConfig.path;
-  const invalidate = config?.invalidate ?? defaultConfig.invalidate;
+  const path = config ?? defaultConfig;
 
   if(!path){
     throw new Error("Could not find a valid Tailwind CSS configuration");
   }
 
-  const context = await createTailwindContextFromEntryPoint(path, invalidate);
+  const context = await createTailwindContextFromEntryPoint(path);
 
   const conflicts: ConflictingClasses = {};
 
