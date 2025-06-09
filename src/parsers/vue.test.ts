@@ -122,7 +122,7 @@ describe("vue", () => {
   });
 
   // #95
-  it.only("should change the quotes in expressions to backticks", () => {
+  it("should change the quotes in expressions to backticks", () => {
     const singleLine = "a b c d e f";
     const multiLine = dedent`
       a b c
