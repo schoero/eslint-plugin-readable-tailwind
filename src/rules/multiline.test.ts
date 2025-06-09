@@ -1,7 +1,8 @@
 import { describe, it } from "vitest";
 
 import { multiline } from "better-tailwindcss:rules/multiline.js";
-import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { dedent } from "better-tailwindcss:tests/utils/template.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 
 
@@ -83,9 +84,7 @@ describe(multiline.name, () => {
 
   it("should collapse unnecessarily wrapped short lines", () => {
 
-    const trim = createTrimTag(4);
-
-    const dirty = trim`
+    const dirty = dedent`
       a b
     `;
 
@@ -99,16 +98,17 @@ describe(multiline.name, () => {
           {
             angular: `<img class="${dirty}" />`,
             angularOutput: `<img class="${clean}" />`,
-            errors: 1,
             html: `<img class="${dirty}" />`,
             htmlOutput: `<img class="${clean}" />`,
             jsx: `() => <img class={\`${dirty}\`} />`,
             jsxOutput: `() => <img class={\`${clean}\`} />`,
-            options: [{ printWidth: 60 }],
             svelte: `<img class="${dirty}" />`,
             svelteOutput: `<img class="${clean}" />`,
             vue: `<template><img class="${dirty}" /></template>`,
-            vueOutput: `<template><img class="${clean}" /></template>`
+            vueOutput: `<template><img class="${clean}" /></template>`,
+
+            errors: 1,
+            options: [{ printWidth: 60 }]
           }
         ]
       }
@@ -125,9 +125,10 @@ describe(multiline.name, () => {
             angular: `<img class="  a  b  c  " />`,
             html: `<img class="  a  b  c  " />`,
             jsx: `() => <img class="  a  b  c  " />`,
-            options: [{ printWidth: 60 }],
             svelte: `<img class="  a  b  c  " />`,
-            vue: `<template><img class="  a  b  c  " /></template>`
+            vue: `<template><img class="  a  b  c  " /></template>`,
+
+            options: [{ printWidth: 60 }]
           }
         ]
       }
@@ -136,15 +137,13 @@ describe(multiline.name, () => {
 
   it("should wrap and not collapse short lines containing expressions", () => {
 
-    const trim = createTrimTag(4);
-
     const expression = "${true ? 'true' : 'false'}";
 
-    const incorrect = trim`
+    const incorrect = dedent`
       a ${expression}
     `;
 
-    const correct = trim`
+    const correct = dedent`
       a
       ${expression}
     `;
@@ -157,12 +156,13 @@ describe(multiline.name, () => {
           {
             angular: `<img class="{{\`${incorrect}\`}}" />`,
             angularOutput: `<img class="{{\`${correct}\`}}" />`,
-            errors: 1,
             jsx: `() => <img class={\`${incorrect}\`} />`,
             jsxOutput: `() => <img class={\`${correct}\`} />`,
-            options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<img class={\`${incorrect}\`} />`,
-            svelteOutput: `<img class={\`${correct}\`} />`
+            svelteOutput: `<img class={\`${correct}\`} />`,
+
+            errors: 1,
+            options: [{ classesPerLine: 3, indent: 2 }]
           }
         ]
       }
@@ -172,10 +172,8 @@ describe(multiline.name, () => {
 
   it("should include previous characters to decide if lines should be wrapped", () => {
 
-    const trim = createTrimTag(4);
-
     const dirty = "this string literal is exactly 54 characters in length";
-    const clean = trim`
+    const clean = dedent`
       this string literal is exactly 54 characters in length
     `;
 
@@ -187,16 +185,17 @@ describe(multiline.name, () => {
           {
             angular: `<img class="${dirty}" />`,
             angularOutput: `<img class="${clean}" />`,
-            errors: 1,
             html: `<img class="${dirty}" />`,
             htmlOutput: `<img class="${clean}" />`,
             jsx: `() => <img class="${dirty}" />`,
             jsxOutput: `() => <img class={\`${clean}\`} />`,
-            options: [{ printWidth: 60 }],
             svelte: `<img class="${dirty}" />`,
             svelteOutput: `<img class="${clean}" />`,
             vue: `<template><img class="${dirty}" /></template>`,
-            vueOutput: `<template><img class="${clean}" /></template>`
+            vueOutput: `<template><img class="${clean}" /></template>`,
+
+            errors: 1,
+            options: [{ printWidth: 60 }]
           }
         ]
       }
@@ -205,10 +204,8 @@ describe(multiline.name, () => {
 
   it("should not insert an empty line if the first class is already too long", () => {
 
-    const trim = createTrimTag(4);
-
     const dirty = "this-string-literal-is-exactly-54-characters-in-length";
-    const clean = trim`
+    const clean = dedent`
       this-string-literal-is-exactly-54-characters-in-length
     `;
 
@@ -220,16 +217,17 @@ describe(multiline.name, () => {
           {
             angular: `<img class="${dirty}" />`,
             angularOutput: `<img class="${clean}" />`,
-            errors: 1,
             html: `<img class="${dirty}" />`,
             htmlOutput: `<img class="${clean}" />`,
             jsx: `() => <img class="${dirty}" />`,
             jsxOutput: `() => <img class={\`${clean}\`} />`,
-            options: [{ printWidth: 50 }],
             svelte: `<img class="${dirty}" />`,
             svelteOutput: `<img class="${clean}" />`,
             vue: `<template><img class="${dirty}" /></template>`,
-            vueOutput: `<template><img class="${clean}" /></template>`
+            vueOutput: `<template><img class="${clean}" /></template>`,
+
+            errors: 1,
+            options: [{ printWidth: 50 }]
           }
         ]
       }
@@ -246,9 +244,10 @@ describe(multiline.name, () => {
             angular: `<img class="this string literal is longer than 80 characters and would be wrapped using the default printWidth" />`,
             html: `<img class="this string literal is longer than 80 characters and would be wrapped using the default printWidth" />`,
             jsx: `() => <img class="this string literal is longer than 80 characters and would be wrapped using the default printWidth" />`,
-            options: [{ printWidth: 0 }],
             svelte: `<img class="this string literal is longer than 80 characters and would be wrapped using the default printWidth" />`,
-            vue: `<template><img class="this string literal is longer than 80 characters and would be wrapped using the default printWidth" /></template>`
+            vue: `<template><img class="this string literal is longer than 80 characters and would be wrapped using the default printWidth" /></template>`,
+
+            options: [{ printWidth: 0 }]
           }
         ]
       }
@@ -257,11 +256,9 @@ describe(multiline.name, () => {
 
   it("should change the quotes in defined call signatures to backticks", () => {
 
-    const trim = createTrimTag(4);
-
     const dirtyDefined = "defined('a b c d e f g h')";
 
-    const cleanDefined = trim`defined(\`
+    const cleanDefined = dedent`defined(\`
       a b c
       d e f
       g h
@@ -275,19 +272,21 @@ describe(multiline.name, () => {
       {
         invalid: [
           {
-            errors: 1,
             jsx: `() => <img class={${dirtyDefined}} />`,
             jsxOutput: `() => <img class={${cleanDefined}} />`,
-            options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }],
             svelte: `<img class={${dirtyDefined}} />`,
-            svelteOutput: `<img class={${cleanDefined}} />`
+            svelteOutput: `<img class={${cleanDefined}} />`,
+
+            errors: 1,
+            options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }]
           }
         ],
         valid: [
           {
             jsx: `() => <img class={${dirtyUndefined}} />`,
-            options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }],
-            svelte: `<img class={${dirtyUndefined}} />`
+            svelte: `<img class={${dirtyUndefined}} />`,
+
+            options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }]
           }
         ]
       }
@@ -299,19 +298,21 @@ describe(multiline.name, () => {
       {
         invalid: [
           {
-            errors: 1,
             jsx: `() => <img class={${dirtyDefined}} />`,
             jsxOutput: `() => <img class={${cleanDefined}} />`,
-            options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }],
             svelte: `<img class={${dirtyDefined}} />`,
-            svelteOutput: `<img class={${cleanDefined}} />`
+            svelteOutput: `<img class={${cleanDefined}} />`,
+
+            errors: 1,
+            options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }]
           }
         ],
         valid: [
           {
             jsx: `() => <img class={${dirtyUndefined}} />`,
-            options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }],
-            svelte: `<img class={${dirtyUndefined}} />`
+            svelte: `<img class={${dirtyUndefined}} />`,
+
+            options: [{ callees: ["defined"], classesPerLine: 3, indent: 2 }]
           }
         ]
       }
@@ -321,11 +322,9 @@ describe(multiline.name, () => {
 
   it("should change the quotes in defined variables to backticks", () => {
 
-    const trim = createTrimTag(4);
-
     const dirtyDefined = `const defined = "a b c d e f g h"`;
 
-    const cleanDefined = trim`const defined = \`
+    const cleanDefined = dedent`const defined = \`
       a b c
       d e f
       g h
@@ -339,19 +338,21 @@ describe(multiline.name, () => {
       {
         invalid: [
           {
-            errors: 1,
             jsx: dirtyDefined,
             jsxOutput: cleanDefined,
-            options: [{ classesPerLine: 3, indent: 2, variables: ["defined"] }],
             svelte: `<script>${dirtyDefined}</script>`,
-            svelteOutput: `<script>${cleanDefined}</script>`
+            svelteOutput: `<script>${cleanDefined}</script>`,
+
+            errors: 1,
+            options: [{ classesPerLine: 3, indent: 2, variables: ["defined"] }]
           }
         ],
         valid: [
           {
             jsx: dirtyUndefined,
-            options: [{ classesPerLine: 3, indent: 2, variables: ["defined"] }],
-            svelte: `<script>${dirtyUndefined}</script>`
+            svelte: `<script>${dirtyUndefined}</script>`,
+
+            options: [{ classesPerLine: 3, indent: 2, variables: ["defined"] }]
           }
         ]
       }
@@ -370,12 +371,13 @@ describe(multiline.name, () => {
       {
         invalid: [
           {
-            errors: 2,
             jsx: `() => <img class={${dirtyConditionalExpression}} />`,
             jsxOutput: `() => <img class={${cleanConditionalExpression}} />`,
-            options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<img class={${dirtyConditionalExpression}} />`,
-            svelteOutput: `<img class={${cleanConditionalExpression}} />`
+            svelteOutput: `<img class={${cleanConditionalExpression}} />`,
+
+            errors: 2,
+            options: [{ classesPerLine: 3, indent: 2 }]
           }
         ]
       }
@@ -394,12 +396,13 @@ describe(multiline.name, () => {
       {
         invalid: [
           {
-            errors: 1,
             jsx: `() => <img class={${dirtyLogicalExpression}} />`,
             jsxOutput: `() => <img class={${cleanLogicalExpression}} />`,
-            options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<img class={${dirtyLogicalExpression}} />`,
-            svelteOutput: `<img class={${cleanLogicalExpression}} />`
+            svelteOutput: `<img class={${cleanLogicalExpression}} />`,
+
+            errors: 1,
+            options: [{ classesPerLine: 3, indent: 2 }]
           }
         ]
       }
@@ -418,12 +421,13 @@ describe(multiline.name, () => {
       {
         invalid: [
           {
-            errors: 2,
             jsx: `() => <img class={${dirtyArray}} />`,
             jsxOutput: `() => <img class={${cleanArray}} />`,
-            options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<img class={${dirtyArray}} />`,
-            svelteOutput: `<img class={${cleanArray}} />`
+            svelteOutput: `<img class={${cleanArray}} />`,
+
+            errors: 2,
+            options: [{ classesPerLine: 3, indent: 2 }]
           }
         ]
       }
@@ -493,9 +497,14 @@ describe(multiline.name, () => {
       {
         invalid: [
           {
-            errors: 4,
             jsx: dirtyDefined,
             jsxOutput: cleanDefined,
+            svelte: `<script>${dirtyDefined}</script>`,
+            svelteOutput: `<script>${cleanDefined}</script>`,
+            vue: `<script>${dirtyDefined}</script>`,
+            vueOutput: `<script>${cleanDefined}</script>`,
+
+            errors: 4,
             options: [{
               callees: [
                 [
@@ -509,11 +518,7 @@ describe(multiline.name, () => {
               ],
               classesPerLine: 3,
               indent: 2
-            }],
-            svelte: `<script>${dirtyDefined}</script>`,
-            svelteOutput: `<script>${cleanDefined}</script>`,
-            vue: `<script>${dirtyDefined}</script>`,
-            vueOutput: `<script>${cleanDefined}</script>`
+            }]
           }
         ]
       }
@@ -523,10 +528,8 @@ describe(multiline.name, () => {
 
   it("should change to a jsx expression correctly", () => {
 
-    const trim = createTrimTag(4);
-
     const singleLine = " a b c d e f g h ";
-    const multipleLines = trim`
+    const multipleLines = dedent`
       a b c
       d e f
       g h
@@ -538,51 +541,58 @@ describe(multiline.name, () => {
       {
         invalid: [
           {
-            errors: 1,
             jsx: `() => <img class="${singleLine}" />`,
             jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
+
+            errors: 1,
             options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
-            errors: 1,
             jsx: `() => <img class='${singleLine}' />`,
             jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
+
+            errors: 1,
             options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
-            errors: 1,
             jsx: `() => <img class={"${singleLine}"} />`,
             jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
-            options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<img class={"${singleLine}"} />`,
-            svelteOutput: `<img class={\`${multipleLines}\`} />`
+            svelteOutput: `<img class={\`${multipleLines}\`} />`,
+
+            errors: 1,
+            options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
-            errors: 1,
             jsx: `() => <img class={'${singleLine}'} />`,
             jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
-            options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<img class={'${singleLine}'} />`,
-            svelteOutput: `<img class={\`${multipleLines}\`} />`
+            svelteOutput: `<img class={\`${multipleLines}\`} />`,
+
+            errors: 1,
+            options: [{ classesPerLine: 3, indent: 2 }]
           }
         ],
         valid: [
           {
             jsx: `() => <img class={\`${multipleLines}\`} />`,
-            options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<img class={\`${multipleLines}\`} />`
+            svelte: `<img class={\`${multipleLines}\`} />`,
+
+            options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
             angular: `<img class="${multipleLines}" />`,
             html: `<img class="${multipleLines}" />`,
-            options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<img class="${multipleLines}" />`
+            svelte: `<img class="${multipleLines}" />`,
+
+            options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
             angular: `<img class='${multipleLines}' />`,
             html: `<img class='${multipleLines}' />`,
-            options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<img class='${multipleLines}' />`
+            svelte: `<img class='${multipleLines}' />`,
+
+            options: [{ classesPerLine: 3, indent: 2 }]
           }
         ]
       }
@@ -591,10 +601,8 @@ describe(multiline.name, () => {
 
   it("should wrap long lines on to multiple lines", () => {
 
-    const trim = createTrimTag(4);
-
     const singleLine = " a b c d e f g h ";
-    const multipleLines = trim`
+    const multipleLines = dedent`
       a b c
       d e f
       g h
@@ -605,54 +613,59 @@ describe(multiline.name, () => {
         {
           angular: `<img class="${singleLine}" />`,
           angularOutput: `<img class="${multipleLines}" />`,
-          errors: 1,
           html: `<img class="${singleLine}" />`,
           htmlOutput: `<img class="${multipleLines}" />`,
           jsx: `() => <img class="${singleLine}" />`,
           jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
-          options: [{ classesPerLine: 3, indent: 2 }],
           svelte: `<img class="${singleLine}" />`,
           svelteOutput: `<img class="${multipleLines}" />`,
           vue: `<template><img class="${singleLine}" /></template>`,
-          vueOutput: `<template><img class="${multipleLines}" /></template>`
+          vueOutput: `<template><img class="${multipleLines}" /></template>`,
+
+          errors: 1,
+          options: [{ classesPerLine: 3, indent: 2 }]
         },
         {
           angular: `<img class='${singleLine}' />`,
           angularOutput: `<img class='${multipleLines}' />`,
-          errors: 1,
           html: `<img class='${singleLine}' />`,
           htmlOutput: `<img class='${multipleLines}' />`,
           jsx: `() => <img class='${singleLine}' />`,
           jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
-          options: [{ classesPerLine: 3, indent: 2 }],
           svelte: `<img class='${singleLine}' />`,
           svelteOutput: `<img class='${multipleLines}' />`,
           vue: `<template><img class='${singleLine}' /></template>`,
-          vueOutput: `<template><img class='${multipleLines}' /></template>`
+          vueOutput: `<template><img class='${multipleLines}' /></template>`,
+
+          errors: 1,
+          options: [{ classesPerLine: 3, indent: 2 }]
         },
         {
-          errors: 1,
           jsx: `() => <img class={\`${singleLine}\`} />`,
           jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
-          options: [{ classesPerLine: 3, indent: 2 }],
           svelte: `<img class={\`${singleLine}\`} />`,
-          svelteOutput: `<img class={\`${multipleLines}\`} />`
+          svelteOutput: `<img class={\`${multipleLines}\`} />`,
+
+          errors: 1,
+          options: [{ classesPerLine: 3, indent: 2 }]
         },
         {
-          errors: 1,
           jsx: `() => <img class={"${singleLine}"} />`,
           jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
-          options: [{ classesPerLine: 3, indent: 2 }],
           svelte: `<img class={"${singleLine}"} />`,
-          svelteOutput: `<img class={\`${multipleLines}\`} />`
+          svelteOutput: `<img class={\`${multipleLines}\`} />`,
+
+          errors: 1,
+          options: [{ classesPerLine: 3, indent: 2 }]
         },
         {
-          errors: 1,
           jsx: `() => <img class={'${singleLine}'} />`,
           jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
-          options: [{ classesPerLine: 3, indent: 2 }],
           svelte: `<img class={'${singleLine}'} />`,
-          svelteOutput: `<img class={\`${multipleLines}\`} />`
+          svelteOutput: `<img class={\`${multipleLines}\`} />`,
+
+          errors: 1,
+          options: [{ classesPerLine: 3, indent: 2 }]
         }
       ]
     });
@@ -660,11 +673,10 @@ describe(multiline.name, () => {
 
   it("should wrap expressions correctly", () => {
 
-    const trim = createTrimTag(4);
     const expression = "${true ? 'true' : 'false'}";
 
     const singleLineWithExpressionAtBeginning = `${expression} a b c d e f g h `;
-    const multilineWithExpressionAtBeginning = trim`
+    const multilineWithExpressionAtBeginning = dedent`
       ${expression}
       a b c
       d e f
@@ -672,7 +684,7 @@ describe(multiline.name, () => {
     `;
 
     const singleLineWithExpressionInCenter = `a b c ${expression} d e f g h `;
-    const multilineWithExpressionInCenter = trim`
+    const multilineWithExpressionInCenter = dedent`
       a b c
       ${expression}
       d e f
@@ -680,7 +692,7 @@ describe(multiline.name, () => {
     `;
 
     const singleLineWithExpressionAtEnd = `a b c d e f g h ${expression}`;
-    const multilineWithExpressionAtEnd = trim`
+    const multilineWithExpressionAtEnd = dedent`
       a b c
       d e f
       g h
@@ -688,7 +700,7 @@ describe(multiline.name, () => {
     `;
 
     const singleLineWithClassesAroundExpression = `a b ${expression} c d e f g h `;
-    const multilineWithClassesAroundExpression = trim`
+    const multilineWithClassesAroundExpression = dedent`
       a b
       ${expression}
       c d e f
@@ -701,36 +713,40 @@ describe(multiline.name, () => {
       {
         invalid: [
           {
-            errors: 2,
             jsx: `() => <img class={\`${singleLineWithExpressionAtBeginning}\`} />`,
             jsxOutput: `() => <img class={\`${multilineWithExpressionAtBeginning}\`} />`,
-            options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<img class={\`${singleLineWithExpressionAtBeginning}\`} />`,
-            svelteOutput: `<img class={\`${multilineWithExpressionAtBeginning}\`} />`
+            svelteOutput: `<img class={\`${multilineWithExpressionAtBeginning}\`} />`,
+
+            errors: 2,
+            options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
-            errors: 2,
             jsx: `() => <img class={\`${singleLineWithExpressionInCenter}\`} />`,
             jsxOutput: `() => <img class={\`${multilineWithExpressionInCenter}\`} />`,
-            options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<img class={\`${singleLineWithExpressionInCenter}\`} />`,
-            svelteOutput: `<img class={\`${multilineWithExpressionInCenter}\`} />`
+            svelteOutput: `<img class={\`${multilineWithExpressionInCenter}\`} />`,
+
+            errors: 2,
+            options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
-            errors: 2,
             jsx: `() => <img class={\`${singleLineWithExpressionAtEnd}\`} />`,
             jsxOutput: `() => <img class={\`${multilineWithExpressionAtEnd}\`} />`,
-            options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<img class={\`${singleLineWithExpressionAtEnd}\`} />`,
-            svelteOutput: `<img class={\`${multilineWithExpressionAtEnd}\`} />`
+            svelteOutput: `<img class={\`${multilineWithExpressionAtEnd}\`} />`,
+
+            errors: 2,
+            options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
-            errors: 2,
             jsx: `() => <img class={\`${singleLineWithClassesAroundExpression}\`} />`,
             jsxOutput: `() => <img class={\`${multilineWithClassesAroundExpression}\`} />`,
-            options: [{ classesPerLine: 4, indent: 2 }],
             svelte: `<img class={\`${singleLineWithClassesAroundExpression}\`} />`,
-            svelteOutput: `<img class={\`${multilineWithClassesAroundExpression}\`} />`
+            svelteOutput: `<img class={\`${multilineWithClassesAroundExpression}\`} />`,
+
+            errors: 2,
+            options: [{ classesPerLine: 4, indent: 2 }]
           }
         ]
       }
@@ -740,11 +756,10 @@ describe(multiline.name, () => {
 
   it("should not place expressions on a new line when the expression is not surrounded by a space", () => {
 
-    const trim = createTrimTag(4);
     const expression = "${true ? 'true' : 'false'}";
 
     const singleLineWithExpressionAtBeginningWithStickyClassAtEnd = `${expression}a b c d e f g h `;
-    const multilineWithExpressionAtBeginningWithStickyClassAtEnd = trim`
+    const multilineWithExpressionAtBeginningWithStickyClassAtEnd = dedent`
       ${expression}a
       b c d
       e f g
@@ -752,7 +767,7 @@ describe(multiline.name, () => {
     `;
 
     const singleLineWithExpressionInCenterWithStickyClassAtBeginning = `a b c${expression} d e f g h `;
-    const multilineWithExpressionInCenterWithStickyClassAtBeginning = trim`
+    const multilineWithExpressionInCenterWithStickyClassAtBeginning = dedent`
       a b
       c${expression}
       d e f
@@ -760,7 +775,7 @@ describe(multiline.name, () => {
     `;
 
     const singleLineWithExpressionInCenterWithStickyClassAtEnd = `a b c ${expression}d e f g h `;
-    const multilineWithExpressionInCenterWithStickyClassAtEnd = trim`
+    const multilineWithExpressionInCenterWithStickyClassAtEnd = dedent`
       a b c
       ${expression}d
       e f g
@@ -768,7 +783,7 @@ describe(multiline.name, () => {
     `;
 
     const singleLineWithExpressionAtEndWithStickyClassAtBeginning = `a b c d e f g h${expression}`;
-    const multilineWithExpressionAtEndWithStickyClassAtBeginning = trim`
+    const multilineWithExpressionAtEndWithStickyClassAtBeginning = dedent`
       a b c
       d e f
       g
@@ -781,36 +796,40 @@ describe(multiline.name, () => {
       {
         invalid: [
           {
-            errors: 2,
             jsx: `() => <img class={\`${singleLineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`,
             jsxOutput: `() => <img class={\`${multilineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`,
-            options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<img class={\`${singleLineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`,
-            svelteOutput: `<img class={\`${multilineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`
+            svelteOutput: `<img class={\`${multilineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`,
+
+            errors: 2,
+            options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
-            errors: 2,
             jsx: `() => <img class={\`${singleLineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`,
             jsxOutput: `() => <img class={\`${multilineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`,
-            options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<img class={\`${singleLineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`,
-            svelteOutput: `<img class={\`${multilineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`
+            svelteOutput: `<img class={\`${multilineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`,
+
+            errors: 2,
+            options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
-            errors: 2,
             jsx: `() => <img class={\`${singleLineWithExpressionInCenterWithStickyClassAtEnd}\`} />`,
             jsxOutput: `() => <img class={\`${multilineWithExpressionInCenterWithStickyClassAtEnd}\`} />`,
-            options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<img class={\`${singleLineWithExpressionInCenterWithStickyClassAtEnd}\`} />`,
-            svelteOutput: `<img class={\`${multilineWithExpressionInCenterWithStickyClassAtEnd}\`} />`
+            svelteOutput: `<img class={\`${multilineWithExpressionInCenterWithStickyClassAtEnd}\`} />`,
+
+            errors: 2,
+            options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
-            errors: 2,
             jsx: `() => <img class={\`${singleLineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`,
             jsxOutput: `() => <img class={\`${multilineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`,
-            options: [{ classesPerLine: 3, indent: 2 }],
             svelte: `<img class={\`${singleLineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`,
-            svelteOutput: `<img class={\`${multilineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`
+            svelteOutput: `<img class={\`${multilineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`,
+
+            errors: 2,
+            options: [{ classesPerLine: 3, indent: 2 }]
           }
         ]
       }
@@ -820,10 +839,9 @@ describe(multiline.name, () => {
 
   it("should not add an unnecessary new line after a sticky class", () => {
 
-    const trim = createTrimTag(4);
     const expression = "${true ? 'true' : 'false'}";
 
-    const multilineWithWithStickyClassAtEnd = trim`
+    const multilineWithWithStickyClassAtEnd = dedent`
       ${expression}a
     `;
 
@@ -834,8 +852,9 @@ describe(multiline.name, () => {
         valid: [
           {
             jsx: `() => <img class={\`${multilineWithWithStickyClassAtEnd}\`} />`,
-            options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<img class={\`${multilineWithWithStickyClassAtEnd}\`} />`
+            svelte: `<img class={\`${multilineWithWithStickyClassAtEnd}\`} />`,
+
+            options: [{ classesPerLine: 3, indent: 2 }]
           }
         ]
       }
@@ -845,11 +864,9 @@ describe(multiline.name, () => {
 
   it("should wrap string literals in variable declarations", () => {
 
-    const trim = createTrimTag(4);
-
     const dirtyDefined = "const defined = 'a b c d e f g h';";
     const dirtyUndefined = "const notDefined = 'a b c d e f g h';";
-    const cleanDefined = trim`const defined = \`
+    const cleanDefined = dedent`const defined = \`
       a b c
       d e f
       g h
@@ -861,21 +878,23 @@ describe(multiline.name, () => {
       {
         invalid: [
           {
-            errors: 1,
             jsx: dirtyDefined,
             jsxOutput: cleanDefined,
-            options: [{ classesPerLine: 3, indent: 2, variables: ["defined"] }],
             svelte: `<script>${dirtyDefined}</script>`,
             svelteOutput: `<script>${cleanDefined}</script>`,
             vue: `<script>${dirtyDefined}</script>`,
-            vueOutput: `<script>${cleanDefined}</script>`
+            vueOutput: `<script>${cleanDefined}</script>`,
+
+            errors: 1,
+            options: [{ classesPerLine: 3, indent: 2, variables: ["defined"] }]
           }
         ],
         valid: [
           {
             jsx: dirtyUndefined,
-            options: [{ classesPerLine: 3, indent: 2, variables: ["defined"] }],
-            svelte: `<script>${dirtyUndefined}</script>`
+            svelte: `<script>${dirtyUndefined}</script>`,
+
+            options: [{ classesPerLine: 3, indent: 2, variables: ["defined"] }]
           }
         ]
       }
@@ -885,17 +904,15 @@ describe(multiline.name, () => {
 
   it("should wrap string literals in variable declarations matched by a regex", () => {
 
-    const trim = createTrimTag(4);
-
     const dirtyDefined = "const defined = 'a b c d e f g h';";
     const dirtyUndefined = "const notDefined = 'a b c d e f g h';";
-    const cleanDefined = trim`const defined = \`
+    const cleanDefined = dedent`const defined = \`
       a b c
       d e f
       g h
     \`;`;
 
-    const dirtyObject = trim`const defined = {
+    const dirtyObject = dedent`const defined = {
       "matched": " a b c d e f g h ",
       "unmatched": " a b c d e f g h ",
       "nested": {
@@ -904,7 +921,7 @@ describe(multiline.name, () => {
       }
     };`;
 
-    const cleanObject = trim`const defined = {
+    const cleanObject = dedent`const defined = {
       "matched": \`
         a b c
         d e f
@@ -927,9 +944,14 @@ describe(multiline.name, () => {
       {
         invalid: [
           {
-            errors: 1,
             jsx: dirtyDefined,
             jsxOutput: cleanDefined,
+            svelte: `<script>${dirtyDefined}</script>`,
+            svelteOutput: `<script>${cleanDefined}</script>`,
+            vue: `<script>${dirtyDefined}</script>`,
+            vueOutput: `<script>${cleanDefined}</script>`,
+
+            errors: 1,
             options: [{
               classesPerLine: 3,
               indent: 2,
@@ -939,16 +961,17 @@ describe(multiline.name, () => {
                   "^\\s*[\"'`]([^\"'`]+)[\"'`]"
                 ]
               ]
-            }],
-            svelte: `<script>${dirtyDefined}</script>`,
-            svelteOutput: `<script>${cleanDefined}</script>`,
-            vue: `<script>${dirtyDefined}</script>`,
-            vueOutput: `<script>${cleanDefined}</script>`
+            }]
           },
           {
-            errors: 2,
             jsx: dirtyObject,
             jsxOutput: cleanObject,
+            svelte: `<script>${dirtyObject}</script>`,
+            svelteOutput: `<script>${cleanObject}</script>`,
+            vue: `<script>${dirtyObject}</script>`,
+            vueOutput: `<script>${cleanObject}</script>`,
+
+            errors: 2,
             options: [{
               classesPerLine: 3,
               indent: 2,
@@ -958,18 +981,15 @@ describe(multiline.name, () => {
                   "\"matched\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
                 ]
               ]
-            }],
-            svelte: `<script>${dirtyObject}</script>`,
-            svelteOutput: `<script>${cleanObject}</script>`,
-            vue: `<script>${dirtyObject}</script>`,
-            vueOutput: `<script>${cleanObject}</script>`
+            }]
           }
         ],
         valid: [
           {
             jsx: dirtyUndefined,
-            options: [{ classesPerLine: 3, indent: 2 }],
-            svelte: `<script>${dirtyUndefined}</script>`
+            svelte: `<script>${dirtyUndefined}</script>`,
+
+            options: [{ classesPerLine: 3, indent: 2 }]
           }
         ]
       }
@@ -979,12 +999,10 @@ describe(multiline.name, () => {
 
   it("should never wrap in an object key", () => {
 
-    const trim = createTrimTag(4);
-
-    const dirtyObject = trim`const obj = {
+    const dirtyObject = dedent`const obj = {
       "a b c d e f g h": "a b c d e f g h"
     };`;
-    const cleanObject = trim`const obj = {
+    const cleanObject = dedent`const obj = {
       "a b c d e f g h": \`
         a b c
         d e f
@@ -998,20 +1016,21 @@ describe(multiline.name, () => {
       {
         invalid: [
           {
-            errors: 1,
             jsx: dirtyObject,
             jsxOutput: cleanObject,
+            svelte: `<script>${dirtyObject}</script>`,
+            svelteOutput: `<script>${cleanObject}</script>`,
+            vue: `<script>${dirtyObject}</script>`,
+            vueOutput: `<script>${cleanObject}</script>`,
+
+            errors: 1,
             options: [{
               classesPerLine: 3,
               indent: 2,
               variables: [
                 ["obj", [{ match: MatcherType.ObjectKey }, { match: MatcherType.ObjectValue }]]
               ]
-            }],
-            svelte: `<script>${dirtyObject}</script>`,
-            svelteOutput: `<script>${cleanObject}</script>`,
-            vue: `<script>${dirtyObject}</script>`,
-            vueOutput: `<script>${cleanObject}</script>`
+            }]
           }
         ]
       }
@@ -1032,16 +1051,17 @@ describe(multiline.name, () => {
           {
             angular: `<img class="${dirty}" />`,
             angularOutput: `<img class="${clean}" />`,
-            errors: 1,
             html: `<img class="${dirty}" />`,
             htmlOutput: `<img class="${clean}" />`,
             jsx: `() => <img class="${dirty}" />`,
             jsxOutput: `() => <img class={\`${clean}\`} />`,
-            options: [{ classesPerLine: 3, indent: 2, lineBreakStyle: "windows" }],
             svelte: `<img class="${dirty}" />`,
             svelteOutput: `<img class="${clean}" />`,
             vue: `<template><img class="${dirty}" /></template>`,
-            vueOutput: `<template><img class="${clean}" /></template>`
+            vueOutput: `<template><img class="${clean}" /></template>`,
+
+            errors: 1,
+            options: [{ classesPerLine: 3, indent: 2, lineBreakStyle: "windows" }]
           }
         ]
       }
@@ -1062,16 +1082,17 @@ describe(multiline.name, () => {
           {
             angular: `<img class="${dirty}" />`,
             angularOutput: `<img class="${clean}" />`,
-            errors: 1,
             html: `<img class="${dirty}" />`,
             htmlOutput: `<img class="${clean}" />`,
             jsx: `() => <img class="${dirty}" />;`,
             jsxOutput: `() => <img class={\`${clean}\`} />;`,
-            options: [{ classesPerLine: 3, indent: "tab" }],
             svelte: `<img class="${dirty}" />`,
             svelteOutput: `<img class="${clean}" />`,
             vue: `<template><img class="${dirty}" /></template>`,
-            vueOutput: `<template><img class="${clean}" /></template>`
+            vueOutput: `<template><img class="${clean}" /></template>`,
+
+            errors: 1,
+            options: [{ classesPerLine: 3, indent: "tab" }]
           }
         ]
       }
@@ -1081,11 +1102,9 @@ describe(multiline.name, () => {
   // #52
   it("should wrap expressions even if `group` is set to `never`", () => {
 
-    const trim = createTrimTag(4);
-
     const expression = "${true ? 'b' : 'c'}";
 
-    const correct = trim`
+    const correct = dedent`
       a
       ${expression}
       d
@@ -1098,8 +1117,9 @@ describe(multiline.name, () => {
         valid: [
           {
             jsx: `() => <img class={\`${correct}\`} />`,
-            options: [{ group: "never", indent: 2 }],
-            svelte: `<img class={\`${correct}\`} />`
+            svelte: `<img class={\`${correct}\`} />`,
+
+            options: [{ group: "never", indent: 2 }]
           }
         ]
       }
@@ -1116,16 +1136,17 @@ describe(multiline.name, () => {
           {
             angular: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             angularOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
-            errors: 1,
             html: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             htmlOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
             jsx: `() => <img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             jsxOutput: `() => <img class={\`\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n\`} />`,
-            options: [{ group: "emptyLine", indent: 2 }],
             svelte: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             svelteOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
             vue: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`,
-            vueOutput: `<template><img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" /></template>`
+            vueOutput: `<template><img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" /></template>`,
+
+            errors: 1,
+            options: [{ group: "emptyLine", indent: 2 }]
           }
         ]
       }
@@ -1141,16 +1162,17 @@ describe(multiline.name, () => {
           {
             angular: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             angularOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
-            errors: 1,
             html: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             htmlOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
             jsx: `() => <img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             jsxOutput: `() => <img class={\`\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n\`} />`,
-            options: [{ group: "emptyLine", indent: 2 }],
             svelte: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             svelteOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
             vue: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`,
-            vueOutput: `<template><img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" /></template>`
+            vueOutput: `<template><img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" /></template>`,
+
+            errors: 1,
+            options: [{ group: "emptyLine", indent: 2 }]
           }
         ]
       }
@@ -1166,30 +1188,32 @@ describe(multiline.name, () => {
           {
             angular: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
             angularOutput: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
-            errors: 1,
             html: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
             htmlOutput: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             jsx: `() => <img class={\`\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n\`} />`,
             jsxOutput: `() => <img class={\`a b c g-1:a g-1:b g-2:a g-2:b\`} />`,
-            options: [{ indent: 2, preferSingleLine: true }],
             svelte: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
             svelteOutput: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             vue: `<template><img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" /></template>`,
-            vueOutput: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`
+            vueOutput: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`,
+
+            errors: 1,
+            options: [{ indent: 2, preferSingleLine: true }]
           },
           {
             angular: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             angularOutput: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
-            errors: 1,
             html: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             htmlOutput: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
             jsx: `() => <img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             jsxOutput: `() => <img class={\`\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n\`} />`,
-            options: [{ classesPerLine: 6, indent: 2, preferSingleLine: true, printWidth: 0 }],
             svelte: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             svelteOutput: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
             vue: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`,
-            vueOutput: `<template><img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" /></template>`
+            vueOutput: `<template><img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" /></template>`,
+
+            errors: 1,
+            options: [{ classesPerLine: 6, indent: 2, preferSingleLine: true, printWidth: 0 }]
           }
         ],
         valid: [
@@ -1197,9 +1221,10 @@ describe(multiline.name, () => {
             angular: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             html: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             jsx: `() => <img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
-            options: [{ indent: 2, preferSingleLine: true }],
             svelte: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
-            vue: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`
+            vue: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`,
+
+            options: [{ indent: 2, preferSingleLine: true }]
           }
         ]
       }
@@ -1214,30 +1239,32 @@ describe(multiline.name, () => {
       {
         invalid: [
           {
-            errors: 1,
             jsx: "defined` a b c d e f g h `",
             jsxOutput: "defined`\n  a b c\n  d e f\n  g h\n`",
+            svelte: "<script>defined` a b c d e f g h `</script>",
+            svelteOutput: "<script>defined`\n  a b c\n  d e f\n  g h\n`</script>",
+            vue: "<script>defined` a b c d e f g h `</script>",
+            vueOutput: "<script>defined`\n  a b c\n  d e f\n  g h\n`</script>",
+
+            errors: 1,
             options: [{
               classesPerLine: 3,
               indent: 2,
               tags: ["defined"]
-            }],
-            svelte: "<script>defined` a b c d e f g h `</script>",
-            svelteOutput: "<script>defined`\n  a b c\n  d e f\n  g h\n`</script>",
-            vue: "<script>defined` a b c d e f g h `</script>",
-            vueOutput: "<script>defined`\n  a b c\n  d e f\n  g h\n`</script>"
+            }]
           }
         ],
         valid: [
           {
             jsx: "notDefined` a b c d e f g h `",
+            svelte: "<script>notDefined` a b c d e f g h `</script>",
+            vue: "notDefined` a b c d e f g h `",
+
             options: [{
               classesPerLine: 3,
               indent: 2,
               tags: ["defined"]
-            }],
-            svelte: "<script>notDefined` a b c d e f g h `</script>",
-            vue: "notDefined` a b c d e f g h `"
+            }]
           }
         ]
       }

@@ -1,7 +1,8 @@
 import { describe, it } from "vitest";
 
 import { noDuplicateClasses } from "better-tailwindcss:rules/no-duplicate-classes.js";
-import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { dedent } from "better-tailwindcss:tests/utils/template.js";
 
 
 describe(noDuplicateClasses.name, () => {
@@ -12,7 +13,6 @@ describe(noDuplicateClasses.name, () => {
         {
           angular: `<img class="  b  a  c  a  " />`,
           angularOutput: `<img class="  b  a  c    " />`,
-          errors: 1,
           html: `<img class="  b  a  c  a  " />`,
           htmlOutput: `<img class="  b  a  c    " />`,
           jsx: `() => <img class="  b  a  c  a  " />`,
@@ -20,7 +20,9 @@ describe(noDuplicateClasses.name, () => {
           svelte: `<img class="  b  a  c  a  " />`,
           svelteOutput: `<img class="  b  a  c    " />`,
           vue: `<template><img class="  b  a  c  a  " /></template>`,
-          vueOutput: `<template><img class="  b  a  c    " /></template>`
+          vueOutput: `<template><img class="  b  a  c    " /></template>`,
+
+          errors: 1
         }
       ]
     });
@@ -32,7 +34,6 @@ describe(noDuplicateClasses.name, () => {
         {
           angular: `<img class="  b  a  b  " />`,
           angularOutput: `<img class="  b  a    " />`,
-          errors: 1,
           html: `<img class="  b  a  b  " />`,
           htmlOutput: `<img class="  b  a    " />`,
           jsx: `() => <img class="  b  a  b  " />`,
@@ -40,12 +41,13 @@ describe(noDuplicateClasses.name, () => {
           svelte: `<img class="  b  a  b  " />`,
           svelteOutput: `<img class="  b  a    " />`,
           vue: `<template><img class="  b  a  b  " /></template>`,
-          vueOutput: `<template><img class="  b  a    " /></template>`
+          vueOutput: `<template><img class="  b  a    " /></template>`,
+
+          errors: 1
         },
         {
           angular: `<img class='  b  a  b  ' />`,
           angularOutput: `<img class='  b  a    ' />`,
-          errors: 1,
           html: `<img class='  b  a  b  ' />`,
           htmlOutput: `<img class='  b  a    ' />`,
           jsx: `() => <img class='  b  a  b  ' />`,
@@ -53,28 +55,33 @@ describe(noDuplicateClasses.name, () => {
           svelte: `<img class='  b  a  b  ' />`,
           svelteOutput: `<img class='  b  a    ' />`,
           vue: `<template><img class='  b  a  b  ' /></template>`,
-          vueOutput: `<template><img class='  b  a    ' /></template>`
+          vueOutput: `<template><img class='  b  a    ' /></template>`,
+
+          errors: 1
         },
         {
-          errors: 1,
           jsx: `() => <img class={\`  b  a  b  \`} />`,
           jsxOutput: `() => <img class={\`  b  a    \`} />`,
           svelte: `<img class={\`  b  a  b  \`} />`,
-          svelteOutput: `<img class={\`  b  a    \`} />`
+          svelteOutput: `<img class={\`  b  a    \`} />`,
+
+          errors: 1
         },
         {
-          errors: 1,
           jsx: `() => <img class={"  b  a  b  "} />`,
           jsxOutput: `() => <img class={"  b  a    "} />`,
           svelte: `<img class={"  b  a  b  "} />`,
-          svelteOutput: `<img class={"  b  a    "} />`
+          svelteOutput: `<img class={"  b  a    "} />`,
+
+          errors: 1
         },
         {
-          errors: 1,
           jsx: `() => <img class={'  b  a  b  '} />`,
           jsxOutput: `() => <img class={'  b  a    '} />`,
           svelte: `<img class={'  b  a  b  '} />`,
-          svelteOutput: `<img class={'  b  a    '} />`
+          svelteOutput: `<img class={'  b  a    '} />`,
+
+          errors: 1
         }
       ]
     });
@@ -82,15 +89,13 @@ describe(noDuplicateClasses.name, () => {
 
   it("should remove duplicate classes in multiline strings", () => {
 
-    const trim = createTrimTag(4);
-
-    const dirty = trim`
+    const dirty = dedent`
       b
       a
       b
     `;
 
-    const clean = trim`
+    const clean = dedent`
       b
       a
       
@@ -101,7 +106,6 @@ describe(noDuplicateClasses.name, () => {
         {
           angular: `<img class="${dirty}" />`,
           angularOutput: `<img class="${clean}" />`,
-          errors: 1,
           html: `<img class="${dirty}" />`,
           htmlOutput: `<img class="${clean}" />`,
           jsx: `() => <img class={\`${dirty}\`} />`,
@@ -109,7 +113,9 @@ describe(noDuplicateClasses.name, () => {
           svelte: `<img class={\`${dirty}\`} />`,
           svelteOutput: `<img class={\`${clean}\`} />`,
           vue: `<template><img class="${dirty}" /></template>`,
-          vueOutput: `<template><img class="${clean}" /></template>`
+          vueOutput: `<template><img class="${clean}" /></template>`,
+
+          errors: 1
         }
       ]
     });
@@ -118,19 +124,17 @@ describe(noDuplicateClasses.name, () => {
 
   it("should remove duplicate classes around expressions in template literals", () => {
 
-    const trim = createTrimTag(4);
-
     const dirtyExpression = "${true ? 'true' : 'false'}";
     const cleanExpression = "${true ? 'true' : 'false'}";
 
-    const dirtyWithExpressions = trim`
+    const dirtyWithExpressions = dedent`
       a
       b
       ${dirtyExpression}
       a
       c
     `;
-    const cleanWithExpressions = trim`
+    const cleanWithExpressions = dedent`
       a
       b
       ${cleanExpression}
@@ -142,11 +146,12 @@ describe(noDuplicateClasses.name, () => {
     lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           jsx: `() => <img class={\`${dirtyWithExpressions}\`} />`,
           jsxOutput: `() => <img class={\`${cleanWithExpressions}\`} />`,
           svelte: `<img class={\`${dirtyWithExpressions}\`} />`,
-          svelteOutput: `<img class={\`${cleanWithExpressions}\`} />`
+          svelteOutput: `<img class={\`${cleanWithExpressions}\`} />`,
+
+          errors: 1
         }
       ]
     });
@@ -155,25 +160,23 @@ describe(noDuplicateClasses.name, () => {
 
   it("should remove duplicate classes around template literal elements", () => {
 
-    const trim = createTrimTag(4);
-
     const dirtyExpression = "${true ? 'true' : 'false'}";
     const cleanExpression = "${true ? 'true' : 'false'}";
 
-    const dirtyExpressionAtStart = trim`
+    const dirtyExpressionAtStart = dedent`
       a
       b
       a
       ${dirtyExpression}
     `;
-    const cleanExpressionAtStart = trim`
+    const cleanExpressionAtStart = dedent`
       a
       b
       
       ${cleanExpression}
     `;
 
-    const dirtyExpressionBetween = trim`
+    const dirtyExpressionBetween = dedent`
       a
       b
       a
@@ -182,7 +185,7 @@ describe(noDuplicateClasses.name, () => {
       b
       c
     `;
-    const cleanExpressionBetween = trim`
+    const cleanExpressionBetween = dedent`
       a
       b
       
@@ -192,13 +195,13 @@ describe(noDuplicateClasses.name, () => {
       
     `;
 
-    const dirtyExpressionAtEnd = trim`
+    const dirtyExpressionAtEnd = dedent`
       ${dirtyExpression}
       a
       b
       a
     `;
-    const cleanExpressionAtEnd = trim`
+    const cleanExpressionAtEnd = dedent`
       ${cleanExpression}
       a
       b
@@ -208,11 +211,12 @@ describe(noDuplicateClasses.name, () => {
     lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           jsx: `() => <img class={\`${dirtyExpressionAtStart}\`} />`,
           jsxOutput: `() => <img class={\`${cleanExpressionAtStart}\`} />`,
           svelte: `<img class={\`${dirtyExpressionAtStart}\`} />`,
-          svelteOutput: `<img class={\`${cleanExpressionAtStart}\`} />`
+          svelteOutput: `<img class={\`${cleanExpressionAtStart}\`} />`,
+
+          errors: 1
         }
       ]
     });
@@ -220,11 +224,12 @@ describe(noDuplicateClasses.name, () => {
     lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 3,
           jsx: `() => <img class={\`${dirtyExpressionBetween}\`} />`,
           jsxOutput: `() => <img class={\`${cleanExpressionBetween}\`} />`,
           svelte: `<img class={\`${dirtyExpressionBetween}\`} />`,
-          svelteOutput: `<img class={\`${cleanExpressionBetween}\`} />`
+          svelteOutput: `<img class={\`${cleanExpressionBetween}\`} />`,
+
+          errors: 3
         }
       ]
     });
@@ -232,11 +237,12 @@ describe(noDuplicateClasses.name, () => {
     lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           jsx: `() => <img class={\`${dirtyExpressionAtEnd}\`} />`,
           jsxOutput: `() => <img class={\`${cleanExpressionAtEnd}\`} />`,
           svelte: `<img class={\`${dirtyExpressionAtEnd}\`} />`,
-          svelteOutput: `<img class={\`${cleanExpressionAtEnd}\`} />`
+          svelteOutput: `<img class={\`${cleanExpressionAtEnd}\`} />`,
+
+          errors: 1
         }
       ]
     });
@@ -260,11 +266,12 @@ describe(noDuplicateClasses.name, () => {
     lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 4,
           jsx: `() => <img class={\`${dirtyStickyExpressionAtStart}\`} />`,
           jsxOutput: `() => <img class={\`${cleanStickyExpressionAtStart}\`} />`,
           svelte: `<img class={\`${dirtyStickyExpressionAtStart}\`} />`,
-          svelteOutput: `<img class={\`${cleanStickyExpressionAtStart}\`} />`
+          svelteOutput: `<img class={\`${cleanStickyExpressionAtStart}\`} />`,
+
+          errors: 4
         }
       ]
     });
@@ -272,11 +279,12 @@ describe(noDuplicateClasses.name, () => {
     lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 4,
           jsx: `() => <img class={\`${dirtyStickyExpressionBetween}\`} />`,
           jsxOutput: `() => <img class={\`${cleanStickyExpressionBetween}\`} />`,
           svelte: `<img class={\`${dirtyStickyExpressionBetween}\`} />`,
-          svelteOutput: `<img class={\`${cleanStickyExpressionBetween}\`} />`
+          svelteOutput: `<img class={\`${cleanStickyExpressionBetween}\`} />`,
+
+          errors: 4
         }
 
       ]
@@ -285,11 +293,12 @@ describe(noDuplicateClasses.name, () => {
     lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 4,
           jsx: `() => <img class={\`${dirtyStickyExpressionAtEnd}\`} />`,
           jsxOutput: `() => <img class={\`${cleanStickyExpressionAtEnd}\`} />`,
           svelte: `<img class={\`${dirtyStickyExpressionAtEnd}\`} />`,
-          svelteOutput: `<img class={\`${cleanStickyExpressionAtEnd}\`} />`
+          svelteOutput: `<img class={\`${cleanStickyExpressionAtEnd}\`} />`,
+
+          errors: 4
         }
       ]
     });
@@ -313,11 +322,12 @@ describe(noDuplicateClasses.name, () => {
     lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 4,
           jsx: `() => <img class={\`${dirtyStickyExpressionAtStart}\`} />`,
           jsxOutput: `() => <img class={\`${cleanStickyExpressionAtStart}\`} />`,
           svelte: `<img class={\`${dirtyStickyExpressionAtStart}\`} />`,
-          svelteOutput: `<img class={\`${cleanStickyExpressionAtStart}\`} />`
+          svelteOutput: `<img class={\`${cleanStickyExpressionAtStart}\`} />`,
+
+          errors: 4
         }
       ]
     });
@@ -325,11 +335,12 @@ describe(noDuplicateClasses.name, () => {
     lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 4,
           jsx: `() => <img class={\`${dirtyStickyExpressionBetween}\`} />`,
           jsxOutput: `() => <img class={\`${cleanStickyExpressionBetween}\`} />`,
           svelte: `<img class={\`${dirtyStickyExpressionBetween}\`} />`,
-          svelteOutput: `<img class={\`${cleanStickyExpressionBetween}\`} />`
+          svelteOutput: `<img class={\`${cleanStickyExpressionBetween}\`} />`,
+
+          errors: 4
         }
 
       ]
@@ -338,11 +349,12 @@ describe(noDuplicateClasses.name, () => {
     lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 4,
           jsx: `() => <img class={\`${dirtyStickyExpressionAtEnd}\`} />`,
           jsxOutput: `() => <img class={\`${cleanStickyExpressionAtEnd}\`} />`,
           svelte: `<img class={\`${dirtyStickyExpressionAtEnd}\`} />`,
-          svelteOutput: `<img class={\`${cleanStickyExpressionAtEnd}\`} />`
+          svelteOutput: `<img class={\`${cleanStickyExpressionAtEnd}\`} />`,
+
+          errors: 4
         }
       ]
     });
@@ -366,11 +378,12 @@ describe(noDuplicateClasses.name, () => {
     lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           jsx: `() => <img class={\`${dirtyStickyExpressionAtStart}\`} />`,
           jsxOutput: `() => <img class={\`${cleanStickyExpressionAtStart}\`} />`,
           svelte: `<img class={\`${dirtyStickyExpressionAtStart}\`} />`,
-          svelteOutput: `<img class={\`${cleanStickyExpressionAtStart}\`} />`
+          svelteOutput: `<img class={\`${cleanStickyExpressionAtStart}\`} />`,
+
+          errors: 1
         }
       ]
     });
@@ -378,11 +391,12 @@ describe(noDuplicateClasses.name, () => {
     lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 2,
           jsx: `() => <img class={\`${dirtyStickyExpressionBetween}\`} />`,
           jsxOutput: `() => <img class={\`${cleanStickyExpressionBetween}\`} />`,
           svelte: `<img class={\`${dirtyStickyExpressionBetween}\`} />`,
-          svelteOutput: `<img class={\`${cleanStickyExpressionBetween}\`} />`
+          svelteOutput: `<img class={\`${cleanStickyExpressionBetween}\`} />`,
+
+          errors: 2
         }
 
       ]
@@ -391,11 +405,12 @@ describe(noDuplicateClasses.name, () => {
     lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           jsx: `() => <img class={\`${dirtyStickyExpressionAtEnd}\`} />`,
           jsxOutput: `() => <img class={\`${cleanStickyExpressionAtEnd}\`} />`,
           svelte: `<img class={\`${dirtyStickyExpressionAtEnd}\`} />`,
-          svelteOutput: `<img class={\`${cleanStickyExpressionAtEnd}\`} />`
+          svelteOutput: `<img class={\`${cleanStickyExpressionAtEnd}\`} />`,
+
+          errors: 1
         }
       ]
     });
@@ -411,22 +426,24 @@ describe(noDuplicateClasses.name, () => {
     lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           jsx: dirtyDefined,
           jsxOutput: cleanDefined,
-          options: [{ callees: ["defined"] }],
           svelte: `<script>${dirtyDefined}</script>`,
           svelteOutput: `<script>${cleanDefined}</script>`,
           vue: `<script>${dirtyDefined}</script>`,
-          vueOutput: `<script>${cleanDefined}</script>`
+          vueOutput: `<script>${cleanDefined}</script>`,
+
+          errors: 1,
+          options: [{ callees: ["defined"] }]
         }
       ],
       valid: [
         {
           jsx: dirtyUndefined,
-          options: [{ callees: ["defined"] }],
           svelte: `<script>${dirtyUndefined}</script>`,
-          vue: `<script>${dirtyUndefined}</script>`
+          vue: `<script>${dirtyUndefined}</script>`,
+
+          options: [{ callees: ["defined"] }]
         }
       ]
     });
@@ -434,22 +451,24 @@ describe(noDuplicateClasses.name, () => {
     lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           jsx: dirtyDefined,
           jsxOutput: cleanDefined,
-          options: [{ callees: ["defined"] }],
           svelte: `<script>${dirtyDefined}</script>`,
           svelteOutput: `<script>${cleanDefined}</script>`,
           vue: `<script>${dirtyDefined}</script>`,
-          vueOutput: `<script>${cleanDefined}</script>`
+          vueOutput: `<script>${cleanDefined}</script>`,
+
+          errors: 1,
+          options: [{ callees: ["defined"] }]
         }
       ],
       valid: [
         {
           jsx: dirtyUndefined,
-          options: [{ callees: ["defined"] }],
           svelte: `<script>${dirtyUndefined}</script>`,
-          vue: `<script>${dirtyUndefined}</script>`
+          vue: `<script>${dirtyUndefined}</script>`,
+
+          options: [{ callees: ["defined"] }]
         }
       ]
     });
@@ -506,9 +525,14 @@ describe(noDuplicateClasses.name, () => {
       {
         invalid: [
           {
-            errors: 4,
             jsx: dirtyDefined,
             jsxOutput: cleanDefined,
+            svelte: `<script>${dirtyDefined}</script>`,
+            svelteOutput: `<script>${cleanDefined}</script>`,
+            vue: `<script>${dirtyDefined}</script>`,
+            vueOutput: `<script>${cleanDefined}</script>`,
+
+            errors: 4,
             options: [{
               callees: [
                 [
@@ -520,11 +544,7 @@ describe(noDuplicateClasses.name, () => {
                   "^\\s*[\"'`]([^\"'`]+)[\"'`](?!:)"
                 ]
               ]
-            }],
-            svelte: `<script>${dirtyDefined}</script>`,
-            svelteOutput: `<script>${cleanDefined}</script>`,
-            vue: `<script>${dirtyDefined}</script>`,
-            vueOutput: `<script>${cleanDefined}</script>`
+            }]
           }
         ]
       }
@@ -551,24 +571,26 @@ describe(noDuplicateClasses.name, () => {
     lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           jsx: dirtyDefined,
           jsxOutput: cleanDefined,
-          options: [{ variables: ["defined"] }],
           svelte: `<script>${dirtyDefined}</script>`,
           svelteOutput: `<script>${cleanDefined}</script>`,
           vue: `<script>${dirtyDefined}</script>`,
-          vueOutput: `<script>${cleanDefined}</script>`
+          vueOutput: `<script>${cleanDefined}</script>`,
+
+          errors: 1,
+          options: [{ variables: ["defined"] }]
         },
         {
-          errors: 1,
           jsx: dirtyMultiline,
           jsxOutput: cleanMultiline,
-          options: [{ variables: ["defined"] }],
           svelte: `<script>${dirtyMultiline}</script>`,
           svelteOutput: `<script>${cleanMultiline}</script>`,
           vue: `<script>${dirtyMultiline}</script>`,
-          vueOutput: `<script>${cleanMultiline}</script>`
+          vueOutput: `<script>${cleanMultiline}</script>`,
+
+          errors: 1,
+          options: [{ variables: ["defined"] }]
         }
       ],
       valid: [
@@ -589,22 +611,24 @@ describe(noDuplicateClasses.name, () => {
       {
         invalid: [
           {
-            errors: 1,
             jsx: "defined` a b a `",
             jsxOutput: "defined` a b  `",
-            options: [{ tags: ["defined"] }],
             svelte: "<script>defined` a b a `</script>",
             svelteOutput: "<script>defined` a b  `</script>",
             vue: "defined` a b a `",
-            vueOutput: "defined` a b  `"
+            vueOutput: "defined` a b  `",
+
+            errors: 1,
+            options: [{ tags: ["defined"] }]
           }
         ],
         valid: [
           {
             jsx: "notDefined` a b a `",
-            options: [{ tags: ["defined"] }],
             svelte: "<script>notDefined` a b a `</script>",
-            vue: "notDefined` a b a `"
+            vue: "notDefined` a b a `",
+
+            options: [{ tags: ["defined"] }]
           }
         ]
       }
@@ -642,7 +666,6 @@ describe(noDuplicateClasses.name, () => {
     lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           html: `<img class="  b  a \r\n c  \r\n a d  " />`,
           htmlOutput: `<img class="  b  a \r\n c  \r\n  d  " />`,
           jsx: `() => <img class="  b  a \r\n c  \r\n a d  " />`,
@@ -650,14 +673,15 @@ describe(noDuplicateClasses.name, () => {
           svelte: `<img class="  b  a \r\n c  \r\n a d  " />`,
           svelteOutput: `<img class="  b  a \r\n c  \r\n  d  " />`,
           vue: `<template><img class="  b  a \r\n c  \r\n a d  " /></template>`,
-          vueOutput: `<template><img class="  b  a \r\n c  \r\n  d  " /></template>`
+          vueOutput: `<template><img class="  b  a \r\n c  \r\n  d  " /></template>`,
+
+          errors: 1
         }
       ]
     });
     lint(noDuplicateClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           html: `<img class="  b  a \n c  \n a d  " />`,
           htmlOutput: `<img class="  b  a \n c  \n  d  " />`,
           jsx: `() => <img class="  b  a \n c  \n a d  " />`,
@@ -665,7 +689,9 @@ describe(noDuplicateClasses.name, () => {
           svelte: `<img class="  b  a \n c  \n a d  " />`,
           svelteOutput: `<img class="  b  a \n c  \n  d  " />`,
           vue: `<template><img class="  b  a \n c  \n a d  " /></template>`,
-          vueOutput: `<template><img class="  b  a \n c  \n  d  " /></template>`
+          vueOutput: `<template><img class="  b  a \n c  \n  d  " /></template>`,
+
+          errors: 1
         }
       ]
     });

@@ -2,7 +2,7 @@ import { getTailwindcssVersion, TailwindcssVersion } from "src/tailwind/utils/ve
 import { describe, it } from "vitest";
 
 import { noConflictingClasses } from "better-tailwindcss:rules/no-conflicting-classes.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe.skipIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)(noConflictingClasses.name, () => {
@@ -33,11 +33,12 @@ describe.skipIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)(noConfli
         invalid: [
           {
             angular: `<div class="flex block"></div>`,
-            errors: 2,
             html: `<div class="flex block"></div>`,
             jsx: `() => <div class="flex block"></div>`,
             svelte: `<div class="flex block"></div>`,
-            vue: `<template><div class="flex block"></div></template>`
+            vue: `<template><div class="flex block"></div></template>`,
+
+            errors: 2
           }
         ]
       }
@@ -88,11 +89,12 @@ describe.skipIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)(noConfli
         invalid: [
           {
             angular: `<div class="md:hover:flex md:hover:block"></div>`,
-            errors: 2,
             html: `<div class="hover:flex hover:block"></div>`,
             jsx: `() => <div class="hover:flex hover:block"></div>`,
             svelte: `<div class="hover:flex hover:block"></div>`,
-            vue: `<template><div class="hover:flex hover:block"></div></template>`
+            vue: `<template><div class="hover:flex hover:block"></div></template>`,
+
+            errors: 2
           }
         ]
       }

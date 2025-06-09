@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
 import { sortClasses } from "better-tailwindcss:rules/sort-classes.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe(sortClasses.name, () => {
@@ -15,44 +15,47 @@ describe(sortClasses.name, () => {
           {
             angular: `<img class="b a" />`,
             angularOutput: `<img class="a b" />`,
-            errors: 1,
             html: `<img class="b a" />`,
             htmlOutput: `<img class="a b" />`,
             jsx: `() => <img class="b a" />`,
             jsxOutput: `() => <img class="a b" />`,
-            options: [{ order: "asc" }],
             svelte: `<img class="b a" />`,
             svelteOutput: `<img class="a b" />`,
             vue: `<template><img class="b a" /></template>`,
-            vueOutput: `<template><img class="a b" /></template>`
+            vueOutput: `<template><img class="a b" /></template>`,
+
+            errors: 1,
+            options: [{ order: "asc" }]
           },
           {
             angular: `<img class="a b" />`,
             angularOutput: `<img class="b a" />`,
-            errors: 1,
             html: `<img class="a b" />`,
             htmlOutput: `<img class="b a" />`,
             jsx: `() => <img class="a b" />`,
             jsxOutput: `() => <img class="b a" />`,
-            options: [{ order: "desc" }],
             svelte: `<img class="a b" />`,
             svelteOutput: `<img class="b a" />`,
             vue: `<template><img class="a b" /></template>`,
-            vueOutput: `<template><img class="b a" /></template>`
+            vueOutput: `<template><img class="b a" /></template>`,
+
+            errors: 1,
+            options: [{ order: "desc" }]
           },
           {
             angular: `<img class="w-full absolute" />`,
             angularOutput: `<img class="absolute w-full" />`,
-            errors: 1,
             html: `<img class="w-full absolute" />`,
             htmlOutput: `<img class="absolute w-full" />`,
             jsx: `() => <img class="w-full absolute" />`,
             jsxOutput: `() => <img class="absolute w-full" />`,
-            options: [{ order: "official" }],
             svelte: `<img class="w-full absolute" />`,
             svelteOutput: `<img class="absolute w-full" />`,
             vue: `<template><img class="w-full absolute" /></template>`,
-            vueOutput: `<template><img class="absolute w-full" /></template>`
+            vueOutput: `<template><img class="absolute w-full" /></template>`,
+
+            errors: 1,
+            options: [{ order: "official" }]
           }
         ],
         valid: [
@@ -60,25 +63,28 @@ describe(sortClasses.name, () => {
             angular: `<img class="a b" />`,
             html: `<img class="a b" />`,
             jsx: `() => <img class="a b" />`,
-            options: [{ order: "asc" }],
             svelte: `<img class="a b" />`,
-            vue: `<template><img class="a b" /></template>`
+            vue: `<template><img class="a b" /></template>`,
+
+            options: [{ order: "asc" }]
           },
           {
             angular: `<img class="b a" />`,
             html: `img class="b a" />`,
             jsx: `() => <img class="b a" />`,
-            options: [{ order: "desc" }],
             svelte: `img class="b a" />`,
-            vue: `<template><img class="b a" /></template>`
+            vue: `<template><img class="b a" /></template>`,
+
+            options: [{ order: "desc" }]
           },
           {
             angular: `<img class="absolute w-full" />`,
             html: `<img class="absolute w-full" />`,
             jsx: `() => <img class="absolute w-full" />`,
-            options: [{ order: "official" }],
             svelte: `<img class="absolute w-full" />`,
-            vue: `<template><img class="absolute w-full" /></template>`
+            vue: `<template><img class="absolute w-full" /></template>`,
+
+            options: [{ order: "official" }]
           }
         ]
       }
@@ -91,16 +97,17 @@ describe(sortClasses.name, () => {
         {
           angular: `<img class="hover:text-black focus:text-black dark:text-black focus:text-white hover:text-white dark:text-white" />`,
           angularOutput: `<img class="hover:text-black hover:text-white focus:text-black focus:text-white dark:text-black dark:text-white" />`,
-          errors: 1,
           html: `<img class="hover:text-black focus:text-black dark:text-black focus:text-white hover:text-white dark:text-white" />`,
           htmlOutput: `<img class="hover:text-black hover:text-white focus:text-black focus:text-white dark:text-black dark:text-white" />`,
           jsx: `() => <img class="hover:text-black focus:text-black dark:text-black focus:text-white hover:text-white dark:text-white" />`,
           jsxOutput: `() => <img class="hover:text-black hover:text-white focus:text-black focus:text-white dark:text-black dark:text-white" />`,
-          options: [{ order: "official" }],
           svelte: `<img class="hover:text-black focus:text-black dark:text-black focus:text-white hover:text-white dark:text-white" />`,
           svelteOutput: `<img class="hover:text-black hover:text-white focus:text-black focus:text-white dark:text-black dark:text-white" />`,
           vue: `<template><img class="hover:text-black focus:text-black dark:text-black focus:text-white hover:text-white dark:text-white" /></template>`,
-          vueOutput: `<template><img class="hover:text-black hover:text-white focus:text-black focus:text-white dark:text-black dark:text-white" /></template>`
+          vueOutput: `<template><img class="hover:text-black hover:text-white focus:text-black focus:text-white dark:text-black dark:text-white" /></template>`,
+
+          errors: 1,
+          options: [{ order: "official" }]
         }
       ]
     });
@@ -115,49 +122,54 @@ describe(sortClasses.name, () => {
           {
             angular: `<img class="b a" />`,
             angularOutput: `<img class="a b" />`,
-            errors: 1,
             html: `<img class="b a" />`,
             htmlOutput: `<img class="a b" />`,
             jsx: `() => <img class="b a" />`,
             jsxOutput: `() => <img class="a b" />`,
-            options: [{ order: "asc" }],
             svelte: `<img class="b a" />`,
             svelteOutput: `<img class="a b" />`,
             vue: `<template><img class="b a" /></template>`,
-            vueOutput: `<template><img class="a b" /></template>`
+            vueOutput: `<template><img class="a b" /></template>`,
+
+            errors: 1,
+            options: [{ order: "asc" }]
           },
           {
             angular: `<img class='b a' />`,
             angularOutput: `<img class='a b' />`,
-            errors: 1,
             html: `<img class='b a' />`,
             htmlOutput: `<img class='a b' />`,
             jsx: `() => <img class='b a' />`,
             jsxOutput: `() => <img class='a b' />`,
-            options: [{ order: "asc" }],
             svelte: `<img class='b a' />`,
             svelteOutput: `<img class='a b' />`,
             vue: `<template><img class='b a' /></template>`,
-            vueOutput: `<template><img class='a b' /></template>`
-          },
-          {
+            vueOutput: `<template><img class='a b' /></template>`,
+
             errors: 1,
-            jsx: `() => <img class={\`b a\`} />`,
-            jsxOutput: `() => <img class={\`a b\`} />`,
-            options: [{ order: "asc" }],
-            svelte: `<img class={\`b a\`} />`,
-            svelteOutput: `<img class={\`a b\`} />`
-          },
-          {
-            errors: 1,
-            jsx: `() => <img class={"b a"} />`,
-            jsxOutput: `() => <img class={"a b"} />`,
             options: [{ order: "asc" }]
           },
           {
+            jsx: `() => <img class={\`b a\`} />`,
+            jsxOutput: `() => <img class={\`a b\`} />`,
+            svelte: `<img class={\`b a\`} />`,
+            svelteOutput: `<img class={\`a b\`} />`,
+
             errors: 1,
+            options: [{ order: "asc" }]
+          },
+          {
+            jsx: `() => <img class={"b a"} />`,
+            jsxOutput: `() => <img class={"a b"} />`,
+
+            errors: 1,
+            options: [{ order: "asc" }]
+          },
+          {
             jsx: `() => <img class={'b a'} />`,
             jsxOutput: `() => <img class={'a b'} />`,
+
+            errors: 1,
             options: [{ order: "asc" }]
           }
         ]
@@ -180,12 +192,13 @@ describe(sortClasses.name, () => {
     lint(sortClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 2,
           jsx: `() => <img class={\`c a \${true ? "e" : "f"} d b \`} />`,
           jsxOutput: `() => <img class={\`a c \${true ? "e" : "f"} b d \`} />`,
-          options: [{ order: "asc" }],
           svelte: `<img class={\`c a \${true ? "e" : "f"} d b \`} />`,
-          svelteOutput: `<img class={\`a c \${true ? "e" : "f"} b d \`} />`
+          svelteOutput: `<img class={\`a c \${true ? "e" : "f"} b d \`} />`,
+
+          errors: 2,
+          options: [{ order: "asc" }]
         }
       ],
       valid: [
@@ -207,12 +220,13 @@ describe(sortClasses.name, () => {
     lint(sortClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 2,
           jsx: `() => <img class={\`${dirty}\`} />`,
           jsxOutput: `() => <img class={\`${clean}\`} />`,
-          options: [{ order: "asc" }],
           svelte: `<img class={\`${dirty}\`} />`,
-          svelteOutput: `<img class={\`${clean}\`} />`
+          svelteOutput: `<img class={\`${clean}\`} />`,
+
+          errors: 2,
+          options: [{ order: "asc" }]
         }
       ]
     });
@@ -237,55 +251,61 @@ describe(sortClasses.name, () => {
           {
             angular: `<img class="${unsortedMultilineString}" />`,
             angularOutput: `<img class="${sortedMultilineString}" />`,
-            errors: 1,
             html: `<img class="${unsortedMultilineString}" />`,
             htmlOutput: `<img class="${sortedMultilineString}" />`,
-            options: [{ order: "asc" }],
             svelte: `<img class="${unsortedMultilineString}" />`,
             svelteOutput: `<img class="${sortedMultilineString}" />`,
             vue: `<template><img class="${unsortedMultilineString}" /></template>`,
-            vueOutput: `<template><img class="${sortedMultilineString}" /></template>`
+            vueOutput: `<template><img class="${sortedMultilineString}" /></template>`,
+
+            errors: 1,
+            options: [{ order: "asc" }]
           },
           {
             angular: `<img class='${unsortedMultilineString}' />`,
             angularOutput: `<img class='${sortedMultilineString}' />`,
-            errors: 1,
             html: `<img class='${unsortedMultilineString}' />`,
             htmlOutput: `<img class='${sortedMultilineString}' />`,
-            options: [{ order: "asc" }],
             svelte: `<img class='${unsortedMultilineString}' />`,
             svelteOutput: `<img class='${sortedMultilineString}' />`,
             vue: `<template><img class='${unsortedMultilineString}' /></template>`,
-            vueOutput: `<template><img class='${sortedMultilineString}' /></template>`
+            vueOutput: `<template><img class='${sortedMultilineString}' /></template>`,
+
+            errors: 1,
+            options: [{ order: "asc" }]
           },
           {
-            errors: 1,
             jsx: `() => <img class={\`${unsortedMultilineString}\`} />`,
             jsxOutput: `() => <img class={\`${sortedMultilineString}\`} />`,
-            options: [{ order: "asc" }],
             svelte: `<img class={\`${unsortedMultilineString}\`} />`,
-            svelteOutput: `<img class={\`${sortedMultilineString}\`} />`
+            svelteOutput: `<img class={\`${sortedMultilineString}\`} />`,
+
+            errors: 1,
+            options: [{ order: "asc" }]
           }
         ],
         valid: [
           {
             angular: `<img class="${sortedMultilineString}" />`,
             html: `<img class="${sortedMultilineString}" />`,
-            options: [{ order: "asc" }],
             svelte: `<img class="${sortedMultilineString}" />`,
-            vue: `<template><img class="${sortedMultilineString}" /></template>`
+            vue: `<template><img class="${sortedMultilineString}" /></template>`,
+
+            options: [{ order: "asc" }]
           },
           {
             angular: `<img class='${sortedMultilineString}' />`,
             html: `<img class='${sortedMultilineString}' />`,
-            options: [{ order: "asc" }],
             svelte: `<img class='${sortedMultilineString}' />`,
-            vue: `<template><img class='${sortedMultilineString}' /></template>`
+            vue: `<template><img class='${sortedMultilineString}' /></template>`,
+
+            options: [{ order: "asc" }]
           },
           {
             jsx: `() => <img class={\`${sortedMultilineString}\`} />`,
-            options: [{ order: "asc" }],
-            svelte: `<img class={\`${sortedMultilineString}\`} />`
+            svelte: `<img class={\`${sortedMultilineString}\`} />`,
+
+            options: [{ order: "asc" }]
           }
         ]
       }
@@ -304,22 +324,24 @@ describe(sortClasses.name, () => {
       {
         invalid: [
           {
-            errors: 1,
             jsx: dirtyDefined,
             jsxOutput: cleanDefined,
-            options: [{ callees: ["defined"], order: "asc" }],
             svelte: `<script>${dirtyDefined}</script>`,
             svelteOutput: `<script>${cleanDefined}</script>`,
             vue: `<script>${dirtyDefined}</script>`,
-            vueOutput: `<script>${cleanDefined}</script>`
+            vueOutput: `<script>${cleanDefined}</script>`,
+
+            errors: 1,
+            options: [{ callees: ["defined"], order: "asc" }]
           }
         ],
         valid: [
           {
             jsx: dirtyUndefined,
-            options: [{ callees: ["defined"], order: "asc" }],
             svelte: `<script>${dirtyUndefined}</script>`,
-            vue: `<script>${dirtyUndefined}</script>`
+            vue: `<script>${dirtyUndefined}</script>`,
+
+            options: [{ callees: ["defined"], order: "asc" }]
           }
         ]
       }
@@ -331,22 +353,24 @@ describe(sortClasses.name, () => {
       {
         invalid: [
           {
-            errors: 1,
             jsx: dirtyDefined,
             jsxOutput: cleanDefined,
-            options: [{ callees: ["defined"], order: "asc" }],
             svelte: `<script>${dirtyDefined}</script>`,
             svelteOutput: `<script>${cleanDefined}</script>`,
             vue: `<script>${dirtyDefined}</script>`,
-            vueOutput: `<script>${cleanDefined}</script>`
+            vueOutput: `<script>${cleanDefined}</script>`,
+
+            errors: 1,
+            options: [{ callees: ["defined"], order: "asc" }]
           }
         ],
         valid: [
           {
             jsx: dirtyUndefined,
-            options: [{ callees: ["defined"], order: "asc" }],
             svelte: `<script>${dirtyUndefined}</script>`,
-            vue: `<script>${dirtyUndefined}</script>`
+            vue: `<script>${dirtyUndefined}</script>`,
+
+            options: [{ callees: ["defined"], order: "asc" }]
           }
         ]
       }
@@ -403,9 +427,14 @@ describe(sortClasses.name, () => {
       {
         invalid: [
           {
-            errors: 4,
             jsx: dirtyDefined,
             jsxOutput: cleanDefined,
+            svelte: `<script>${dirtyDefined}</script>`,
+            svelteOutput: `<script>${cleanDefined}</script>`,
+            vue: `<script>${dirtyDefined}</script>`,
+            vueOutput: `<script>${cleanDefined}</script>`,
+
+            errors: 4,
             options: [{
               callees: [
                 [
@@ -418,11 +447,7 @@ describe(sortClasses.name, () => {
                 ]
               ],
               order: "asc"
-            }],
-            svelte: `<script>${dirtyDefined}</script>`,
-            svelteOutput: `<script>${cleanDefined}</script>`,
-            vue: `<script>${dirtyDefined}</script>`,
-            vueOutput: `<script>${cleanDefined}</script>`
+            }]
           }
         ]
       }
@@ -463,20 +488,22 @@ describe(sortClasses.name, () => {
       {
         invalid: [
           {
-            errors: 3,
             jsx: `() => <img class={\`${dirtyDefinedMultiline}\`} />`,
             jsxOutput: `() => <img class={\`${cleanDefinedMultiline}\`} />`,
-            options: [{ callees: ["defined"], order: "asc" }],
             svelte: `<img class={\`${dirtyDefinedMultiline}\`} />`,
-            svelteOutput: `<img class={\`${cleanDefinedMultiline}\`} />`
+            svelteOutput: `<img class={\`${cleanDefinedMultiline}\`} />`,
+
+            errors: 3,
+            options: [{ callees: ["defined"], order: "asc" }]
           },
           {
-            errors: 2,
             jsx: `() => <img class={\`${dirtyUndefinedMultiline}\`} />`,
             jsxOutput: `() => <img class={\`${cleanUndefinedMultiline}\`} />`,
-            options: [{ callees: ["defined"], order: "asc" }],
             svelte: `<img class={\`${dirtyUndefinedMultiline}\`} />`,
-            svelteOutput: `<img class={\`${cleanUndefinedMultiline}\`} />`
+            svelteOutput: `<img class={\`${cleanUndefinedMultiline}\`} />`,
+
+            errors: 2,
+            options: [{ callees: ["defined"], order: "asc" }]
           }
         ]
       }
@@ -506,32 +533,35 @@ describe(sortClasses.name, () => {
       {
         invalid: [
           {
-            errors: 1,
             jsx: dirtyDefined,
             jsxOutput: cleanDefined,
-            options: [{ order: "asc", variables: ["defined"] }],
             svelte: `<script>${dirtyDefined}</script>`,
             svelteOutput: `<script>${cleanDefined}</script>`,
             vue: `<script>${dirtyDefined}</script>`,
-            vueOutput: `<script>${cleanDefined}</script>`
+            vueOutput: `<script>${cleanDefined}</script>`,
+
+            errors: 1,
+            options: [{ order: "asc", variables: ["defined"] }]
           },
           {
-            errors: 1,
             jsx: dirtyMultiline,
             jsxOutput: cleanMultiline,
-            options: [{ order: "asc", variables: ["defined"] }],
             svelte: `<script>${dirtyMultiline}</script>`,
             svelteOutput: `<script>${cleanMultiline}</script>`,
             vue: `<script>${dirtyMultiline}</script>`,
-            vueOutput: `<script>${cleanMultiline}</script>`
+            vueOutput: `<script>${cleanMultiline}</script>`,
+
+            errors: 1,
+            options: [{ order: "asc", variables: ["defined"] }]
           }
         ],
         valid: [
           {
             jsx: dirtyUndefined,
-            options: [{ order: "asc" }],
             svelte: `<script>${dirtyUndefined}</script>`,
-            vue: `<script>${dirtyUndefined}</script>`
+            vue: `<script>${dirtyUndefined}</script>`,
+
+            options: [{ order: "asc" }]
           }
         ]
       }
@@ -579,9 +609,14 @@ describe(sortClasses.name, () => {
       {
         invalid: [
           {
-            errors: 1,
             jsx: dirtyDefined,
             jsxOutput: cleanDefined,
+            svelte: `<script>${dirtyDefined}</script>`,
+            svelteOutput: `<script>${cleanDefined}</script>`,
+            vue: `<script>${dirtyDefined}</script>`,
+            vueOutput: `<script>${cleanDefined}</script>`,
+
+            errors: 1,
             options: [{
               order: "asc",
               variables: [
@@ -590,16 +625,17 @@ describe(sortClasses.name, () => {
                   "^\\s*[\"'`]([^\"'`]+)[\"'`]"
                 ]
               ]
-            }],
-            svelte: `<script>${dirtyDefined}</script>`,
-            svelteOutput: `<script>${cleanDefined}</script>`,
-            vue: `<script>${dirtyDefined}</script>`,
-            vueOutput: `<script>${cleanDefined}</script>`
+            }]
           },
           {
-            errors: 2,
             jsx: dirtyObject,
             jsxOutput: cleanObject,
+            svelte: `<script>${dirtyObject}</script>`,
+            svelteOutput: `<script>${cleanObject}</script>`,
+            vue: `<script>${dirtyObject}</script>`,
+            vueOutput: `<script>${cleanObject}</script>`,
+
+            errors: 2,
             options: [{
               order: "asc",
               variables: [
@@ -608,16 +644,17 @@ describe(sortClasses.name, () => {
                   "\"matched\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
                 ]
               ]
-            }],
-            svelte: `<script>${dirtyObject}</script>`,
-            svelteOutput: `<script>${cleanObject}</script>`,
-            vue: `<script>${dirtyObject}</script>`,
-            vueOutput: `<script>${cleanObject}</script>`
+            }]
           },
           {
-            errors: 1,
             jsx: dirtyMultiline,
             jsxOutput: cleanMultiline,
+            svelte: `<script>${dirtyMultiline}</script>`,
+            svelteOutput: `<script>${cleanMultiline}</script>`,
+            vue: `<script>${dirtyMultiline}</script>`,
+            vueOutput: `<script>${cleanMultiline}</script>`,
+
+            errors: 1,
             options: [{
               order: "asc",
               variables: [
@@ -626,19 +663,16 @@ describe(sortClasses.name, () => {
                   "^\\s*['`\"]([^'`]+)['`\"]"
                 ]
               ]
-            }],
-            svelte: `<script>${dirtyMultiline}</script>`,
-            svelteOutput: `<script>${cleanMultiline}</script>`,
-            vue: `<script>${dirtyMultiline}</script>`,
-            vueOutput: `<script>${cleanMultiline}</script>`
+            }]
           }
         ],
         valid: [
           {
             jsx: dirtyUndefined,
-            options: [{ order: "asc" }],
             svelte: `<script>${dirtyUndefined}</script>`,
-            vue: `<script>${dirtyUndefined}</script>`
+            vue: `<script>${dirtyUndefined}</script>`,
+
+            options: [{ order: "asc" }]
           }
         ]
       }
@@ -653,22 +687,24 @@ describe(sortClasses.name, () => {
       {
         invalid: [
           {
-            errors: 1,
             jsx: "defined`b a`",
             jsxOutput: "defined`a b`",
-            options: [{ order: "asc", tags: ["defined"] }],
             svelte: "<script>defined`b a`</script>",
             svelteOutput: "<script>defined`a b`</script>",
             vue: "defined`b a`",
-            vueOutput: "defined`a b`"
+            vueOutput: "defined`a b`",
+
+            errors: 1,
+            options: [{ order: "asc", tags: ["defined"] }]
           }
         ],
         valid: [
           {
             jsx: "defined`a b`",
-            options: [{ order: "asc", tags: ["defined"] }],
             svelte: "<script>defined`a b`</script>",
-            vue: "defined`a b`"
+            vue: "defined`a b`",
+
+            options: [{ order: "asc", tags: ["defined"] }]
           }
         ]
       }

@@ -2,7 +2,7 @@ import { describe, it } from "vitest";
 
 import { TW_MERGE_STRINGS } from "better-tailwindcss:options/callees/twMerge.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe("twMerge", () => {
@@ -15,14 +15,15 @@ describe("twMerge", () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 3,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [TW_MERGE_STRINGS] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
-          vueOutput: `<script>${clean}</script>`
+          vueOutput: `<script>${clean}</script>`,
+
+          errors: 3,
+          options: [{ callees: [TW_MERGE_STRINGS] }]
         }
       ]
     });

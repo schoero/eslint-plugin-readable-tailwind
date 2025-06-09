@@ -6,7 +6,7 @@ import {
   CVA_VARIANT_VALUES
 } from "better-tailwindcss:options/callees/cva.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe("cva", () => {
@@ -19,14 +19,15 @@ describe("cva", () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 3,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [CVA_STRINGS] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
-          vueOutput: `<script>${clean}</script>`
+          vueOutput: `<script>${clean}</script>`,
+
+          errors: 3,
+          options: [{ callees: [CVA_STRINGS] }]
         }
       ]
     });
@@ -53,14 +54,15 @@ describe("cva", () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [CVA_VARIANT_VALUES] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
-          vueOutput: `<script>${clean}</script>`
+          vueOutput: `<script>${clean}</script>`,
+
+          errors: 1,
+          options: [{ callees: [CVA_VARIANT_VALUES] }]
         }
       ]
     });
@@ -94,14 +96,15 @@ describe("cva", () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 2,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [CVA_COMPOUND_VARIANTS_CLASS] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
-          vueOutput: `<script>${clean}</script>`
+          vueOutput: `<script>${clean}</script>`,
+
+          errors: 2,
+          options: [{ callees: [CVA_COMPOUND_VARIANTS_CLASS] }]
         }
       ]
     });
@@ -158,13 +161,14 @@ describe("cva", () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 7,
           jsx: dirty,
           jsxOutput: clean,
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
-          vueOutput: `<script>${clean}</script>`
+          vueOutput: `<script>${clean}</script>`,
+
+          errors: 7
         }
       ]
     });

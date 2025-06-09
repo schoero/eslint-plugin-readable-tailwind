@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe("regex", () => {
@@ -52,9 +52,14 @@ describe("regex", () => {
         {
           invalid: [
             {
-              errors: 3,
               jsx: dirtyDefined,
               jsxOutput: cleanDefined,
+              svelte: `<script>${dirtyDefined}</script>`,
+              svelteOutput: `<script>${cleanDefined}</script>`,
+              vue: `<script>${dirtyDefined}</script>`,
+              vueOutput: `<script>${cleanDefined}</script>`,
+
+              errors: 3,
               options: [{
                 callees: [
                   [
@@ -62,11 +67,7 @@ describe("regex", () => {
                     "\"matched\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
                   ]
                 ]
-              }],
-              svelte: `<script>${dirtyDefined}</script>`,
-              svelteOutput: `<script>${cleanDefined}</script>`,
-              vue: `<script>${dirtyDefined}</script>`,
-              vueOutput: `<script>${cleanDefined}</script>`
+              }]
             }
           ]
         }
@@ -122,9 +123,14 @@ describe("regex", () => {
         {
           invalid: [
             {
-              errors: 3,
               jsx: dirtyDefined,
               jsxOutput: cleanDefined,
+              svelte: `<script>${dirtyDefined}</script>`,
+              svelteOutput: `<script>${cleanDefined}</script>`,
+              vue: `<script>${dirtyDefined}</script>`,
+              vueOutput: `<script>${cleanDefined}</script>`,
+
+              errors: 3,
               options: [{
                 variables: [
                   [
@@ -132,11 +138,7 @@ describe("regex", () => {
                     "\"matched\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
                   ]
                 ]
-              }],
-              svelte: `<script>${dirtyDefined}</script>`,
-              svelteOutput: `<script>${cleanDefined}</script>`,
-              vue: `<script>${dirtyDefined}</script>`,
-              vueOutput: `<script>${cleanDefined}</script>`
+              }]
             }
           ]
         }
@@ -192,9 +194,12 @@ describe("regex", () => {
         {
           invalid: [
             {
-              errors: 3,
               jsx: `<img defined={${dirtyDefined}} />`,
               jsxOutput: `<img defined={${cleanDefined}} />`,
+              svelte: `<img defined={${dirtyDefined}} />`,
+              svelteOutput: `<img defined={${cleanDefined}} />`,
+
+              errors: 3,
               options: [{
                 attributes: [
                   [
@@ -202,9 +207,7 @@ describe("regex", () => {
                     "\"matched\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
                   ]
                 ]
-              }],
-              svelte: `<img defined={${dirtyDefined}} />`,
-              svelteOutput: `<img defined={${cleanDefined}} />`
+              }]
             }
           ]
         }
@@ -223,9 +226,14 @@ describe("regex", () => {
         {
           invalid: [
             {
-              errors: 1,
               jsx: "defined`  a  b  `",
               jsxOutput: "defined`a b`",
+              svelte: `<script>defined\`  a  b  \`</script>`,
+              svelteOutput: `<script>defined\`a b\`</script>`,
+              vue: `defined\`  a  b  \``,
+              vueOutput: `defined\`a b\``,
+
+              errors: 1,
               options: [{
                 tags: [
                   [
@@ -233,16 +241,15 @@ describe("regex", () => {
                     `(.*)`
                   ]
                 ]
-              }],
-              svelte: `<script>defined\`  a  b  \`</script>`,
-              svelteOutput: `<script>defined\`a b\`</script>`,
-              vue: `defined\`  a  b  \``,
-              vueOutput: `defined\`a b\``
+              }]
             }
           ],
           valid: [
             {
               jsx: "notDefined`  a  b  `",
+              svelte: `<script>notDefined\`  a  b  \`</script>`,
+              vue: `notDefined\`  a  b  \``,
+
               options: [{
                 tags: [
                   [
@@ -250,9 +257,7 @@ describe("regex", () => {
                     `(.*)`
                   ]
                 ]
-              }],
-              svelte: `<script>notDefined\`  a  b  \`</script>`,
-              vue: `notDefined\`  a  b  \``
+              }]
             }
           ]
         }

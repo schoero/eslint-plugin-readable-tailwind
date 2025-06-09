@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
 import { sortClasses } from "better-tailwindcss:rules/sort-classes.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe("html", () => {
@@ -10,9 +10,10 @@ describe("html", () => {
     lint(sortClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           html: `<img customAttribute="b a" />`,
           htmlOutput: `<img customAttribute="a b" />`,
+
+          errors: 1,
           options: [{ attributes: [".*Attribute"], order: "asc" }]
         }
       ]

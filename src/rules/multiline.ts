@@ -15,9 +15,9 @@ import { createRuleListener } from "better-tailwindcss:utils/rule.js";
 import {
   augmentMessageWithWarnings,
   display,
-  getCommonOptions,
   splitClasses
 } from "better-tailwindcss:utils/utils.js";
+import { getCommonOptions } from "better-tailwindcss:utils/options";
 
 import type { Rule } from "eslint";
 

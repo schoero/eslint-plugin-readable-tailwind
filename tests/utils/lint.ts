@@ -1,11 +1,10 @@
-import { readdirSync } from "node:fs";
-import { normalize } from "node:path";
+import { readdirSync, writeFileSync } from "node:fs";
+import { normalize, resolve } from "node:path";
 
 import eslintParserAngular from "@angular-eslint/template-parser";
 import eslintParserHTML from "@html-eslint/parser";
 import eslintParserAstro from "astro-eslint-parser";
 import { RuleTester } from "eslint";
-import { createTag } from "proper-tags";
 import eslintParserSvelte from "svelte-eslint-parser";
 import eslintParserVue from "vue-eslint-parser";
 
@@ -48,6 +47,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
       } & {
         errors: number;
       } & {
+        files?: Record<string, string>;
         options?: Rule["options"];
         settings?: Rule["settings"];
       }
@@ -56,6 +56,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
       {
         [Key in keyof Syntaxes]?: string;
       } & {
+        files?: Record<string, string>;
         options?: Rule["options"];
         settings?: Rule["settings"];
       }
@@ -64,6 +65,14 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
 ) {
 
   for(const invalid of tests.invalid ?? []){
+
+    for(const file in invalid.files ?? {}){
+      invalid.settings ??= { "better-tailwindcss": {} };
+
+      const filePath = resolve("tmp", file);
+      writeFileSync(filePath, invalid.files![file]);
+    }
+
     for(const syntax of Object.keys(syntaxes)){
 
       const ruleTester = new RuleTester(syntaxes[syntax]);
@@ -86,6 +95,15 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
   }
 
   for(const valid of tests.valid ?? []){
+
+    for(const file in valid.files ?? {}){
+      valid.settings ??= { "better-tailwindcss": {} };
+
+      const filePath = resolve("tmp", file);
+      writeFileSync(filePath, valid.files![file]);
+    }
+
+
     for(const syntax of Object.keys(syntaxes)){
 
       const ruleTester = new RuleTester(syntaxes[syntax]);
@@ -149,18 +167,6 @@ export function withParentNodeExtension(node: ESNode, parent: ESNode = node) {
     }
   }
   return node;
-}
-
-export function createTrimTag(count: number) {
-  return createTag(customIndentStripTransformer(count));
-}
-
-function customIndentStripTransformer(count: number) {
-  return {
-    onEndResult(endResult: string) {
-      return endResult.replace(new RegExp(`^ {${count}}`, "gm"), "");
-    }
-  };
 }
 
 export function getFilesInDirectory(importURL: string) {

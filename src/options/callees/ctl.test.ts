@@ -2,7 +2,7 @@ import { describe, it } from "vitest";
 
 import { CTL_STRINGS } from "better-tailwindcss:options/callees/ctl.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe("ctl", () => {
@@ -15,14 +15,15 @@ describe("ctl", () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [CTL_STRINGS] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
-          vueOutput: `<script>${clean}</script>`
+          vueOutput: `<script>${clean}</script>`,
+
+          errors: 1,
+          options: [{ callees: [CTL_STRINGS] }]
         }
       ]
     });

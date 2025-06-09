@@ -2,7 +2,7 @@ import { describe, it } from "vitest";
 
 import { CLSX_OBJECT_KEYS, CLSX_STRINGS } from "better-tailwindcss:options/callees/clsx.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe("clsx", () => {
@@ -15,14 +15,15 @@ describe("clsx", () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 3,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [CLSX_STRINGS] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
-          vueOutput: `<script>${clean}</script>`
+          vueOutput: `<script>${clean}</script>`,
+
+          errors: 3,
+          options: [{ callees: [CLSX_STRINGS] }]
         }
       ]
     });
@@ -47,14 +48,15 @@ describe("clsx", () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 2,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [CLSX_OBJECT_KEYS] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
-          vueOutput: `<script>${clean}</script>`
+          vueOutput: `<script>${clean}</script>`,
+
+          errors: 2,
+          options: [{ callees: [CLSX_OBJECT_KEYS] }]
         }
       ]
     });

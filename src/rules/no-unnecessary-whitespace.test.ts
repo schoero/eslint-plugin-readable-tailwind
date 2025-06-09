@@ -1,7 +1,8 @@
 import { describe, it } from "vitest";
 
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { dedent } from "better-tailwindcss:tests/utils/template.js";
 
 
 describe(noUnnecessaryWhitespace.name, () => {
@@ -12,7 +13,6 @@ describe(noUnnecessaryWhitespace.name, () => {
         {
           angular: `<img class="  b  a  " />`,
           angularOutput: `<img class="b a" />`,
-          errors: 1,
           html: `<img class="  b  a  " />`,
           htmlOutput: `<img class="b a" />`,
           jsx: `() => <img class="  b  a  " />`,
@@ -20,7 +20,9 @@ describe(noUnnecessaryWhitespace.name, () => {
           svelte: `<img class="  b  a  " />`,
           svelteOutput: `<img class="b a" />`,
           vue: `<template><img class="  b  a  " /></template>`,
-          vueOutput: `<template><img class="b a" /></template>`
+          vueOutput: `<template><img class="b a" /></template>`,
+
+          errors: 1
         }
       ]
     });
@@ -37,7 +39,6 @@ describe(noUnnecessaryWhitespace.name, () => {
         {
           angular: `<img class="${dirtyEmptyMultilineString}" />`,
           angularOutput: `<img class="${cleanEmptyMultilineString}" />`,
-          errors: 1,
           html: `<img class="${dirtyEmptyMultilineString}" />`,
           htmlOutput: `<img class="${cleanEmptyMultilineString}" />`,
           jsx: `() => <img class="${dirtyEmptyMultilineString}" />`,
@@ -45,7 +46,9 @@ describe(noUnnecessaryWhitespace.name, () => {
           svelte: `<img class="${dirtyEmptyMultilineString}" />`,
           svelteOutput: `<img class="${cleanEmptyMultilineString}" />`,
           vue: `<template><img class="${dirtyEmptyMultilineString}" /></template>`,
-          vueOutput: `<template><img class="${cleanEmptyMultilineString}" /></template>`
+          vueOutput: `<template><img class="${cleanEmptyMultilineString}" /></template>`,
+
+          errors: 1
         }
       ]
     });
@@ -57,7 +60,6 @@ describe(noUnnecessaryWhitespace.name, () => {
         {
           angular: `<img class="  b  a  " />`,
           angularOutput: `<img class="b a" />`,
-          errors: 1,
           html: `<img class="  b  a  " />`,
           htmlOutput: `<img class="b a" />`,
           jsx: `() => <img class="  b  a  " />`,
@@ -65,12 +67,13 @@ describe(noUnnecessaryWhitespace.name, () => {
           svelte: `<img class="  b  a  " />`,
           svelteOutput: `<img class="b a" />`,
           vue: `<template><img class="  b  a  " /></template>`,
-          vueOutput: `<template><img class="b a" /></template>`
+          vueOutput: `<template><img class="b a" /></template>`,
+
+          errors: 1
         },
         {
           angular: `<img class='  b  a  ' />`,
           angularOutput: `<img class='b a' />`,
-          errors: 1,
           html: `<img class='  b  a  ' />`,
           htmlOutput: `<img class='b a' />`,
           jsx: `() => <img class='  b  a  ' />`,
@@ -78,28 +81,33 @@ describe(noUnnecessaryWhitespace.name, () => {
           svelte: `<img class='  b  a  ' />`,
           svelteOutput: `<img class='b a' />`,
           vue: `<template><img class='  b  a  ' /></template>`,
-          vueOutput: `<template><img class='b a' /></template>`
+          vueOutput: `<template><img class='b a' /></template>`,
+
+          errors: 1
         },
         {
-          errors: 1,
           jsx: `() => <img class={\`  b  a  \`} />`,
           jsxOutput: `() => <img class={\`b a\`} />`,
           svelte: `<img class={\`  b  a  \`} />`,
-          svelteOutput: `<img class={\`b a\`} />`
+          svelteOutput: `<img class={\`b a\`} />`,
+
+          errors: 1
         },
         {
-          errors: 1,
           jsx: `() => <img class={"  b  a  "} />`,
           jsxOutput: `() => <img class={"b a"} />`,
           svelte: `<img class={"  b  a  "} />`,
-          svelteOutput: `<img class={"b a"} />`
+          svelteOutput: `<img class={"b a"} />`,
+
+          errors: 1
         },
         {
-          errors: 1,
           jsx: `() => <img class={'  b  a  '} />`,
           jsxOutput: `() => <img class={'b a'} />`,
           svelte: `<img class={'  b  a  '} />`,
-          svelteOutput: `<img class={'b a'} />`
+          svelteOutput: `<img class={'b a'} />`,
+
+          errors: 1
         }
       ]
     });
@@ -111,19 +119,21 @@ describe(noUnnecessaryWhitespace.name, () => {
         // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
         // 1st pass: fix template literal.
         {
-          errors: 3,
           jsx: `() => <img class={\`  b  a  \${"  c  "}  d  \`} />`,
           jsxOutput: `() => <img class={\`b a \${"  c  "} d\`} />`,
           svelte: `<img class={\`  b  a  \${"  c  "}  d  \`} />`,
-          svelteOutput: `<img class={\`b a \${"  c  "} d\`} />`
+          svelteOutput: `<img class={\`b a \${"  c  "} d\`} />`,
+
+          errors: 3
         },
         // 2nd pass: fix inner template element.
         {
-          errors: 1,
           jsx: `() => <img class={\`b a \${"  c  "} d\`} />`,
           jsxOutput: `() => <img class={\`b a \${"c"} d\`} />`,
           svelte: `<img class={\`b a \${"  c  "} d\`} />`,
-          svelteOutput: `<img class={\`b a \${"c"} d\`} />`
+          svelteOutput: `<img class={\`b a \${"c"} d\`} />`,
+
+          errors: 1
         }
       ]
     });
@@ -131,15 +141,13 @@ describe(noUnnecessaryWhitespace.name, () => {
 
   it("should keep no whitespace at the end of the line in multiline strings", () => {
 
-    const trim = createTrimTag(4);
-
-    const dirty = trim`
+    const dirty = dedent`
       a      
       b  
       c    
     `;
 
-    const clean = trim`
+    const clean = dedent`
       a
       b
       c
@@ -150,7 +158,6 @@ describe(noUnnecessaryWhitespace.name, () => {
         {
           angular: `<img class="${dirty}" />`,
           angularOutput: `<img class="${clean}" />`,
-          errors: 1,
           html: `<img class="${dirty}" />`,
           htmlOutput: `<img class="${clean}" />`,
           jsx: `() => <img class={\`${dirty}\`} />`,
@@ -158,7 +165,9 @@ describe(noUnnecessaryWhitespace.name, () => {
           svelte: `<img class={\`${dirty}\`} />`,
           svelteOutput: `<img class={\`${clean}\`} />`,
           vue: `<template><img class="${dirty}" /></template>`,
-          vueOutput: `<template><img class="${clean}" /></template>`
+          vueOutput: `<template><img class="${clean}" /></template>`,
+
+          errors: 1
         }
       ]
     });
@@ -167,49 +176,47 @@ describe(noUnnecessaryWhitespace.name, () => {
 
   it("should remove unnecessary whitespace inside and around multiline template literal elements", () => {
 
-    const trim = createTrimTag(4);
-
     const dirtyExpression = "${true ? '  true  ' : '  false  '}";
     const cleanExpression = "${true ? 'true' : 'false'}";
 
-    const dirtyExpressionAtStart = trim`
+    const dirtyExpressionAtStart = dedent`
       ${dirtyExpression}  
       a  
     `;
-    const cleanExpressionAtStartPass1 = trim`
+    const cleanExpressionAtStartPass1 = dedent`
       ${cleanExpression}  
       a  
     `;
-    const cleanExpressionAtStartPass2 = trim`
+    const cleanExpressionAtStartPass2 = dedent`
       ${cleanExpression}
       a
     `;
 
-    const dirtyExpressionBetween = trim`
+    const dirtyExpressionBetween = dedent`
       a  
       ${dirtyExpression}  
       b  
     `;
-    const cleanExpressionBetweenPass1 = trim`
+    const cleanExpressionBetweenPass1 = dedent`
       a
       ${cleanExpression}  
       b  
     `;
-    const cleanExpressionBetweenPass2 = trim`
+    const cleanExpressionBetweenPass2 = dedent`
       a
       ${cleanExpression}
       b
     `;
 
-    const dirtyExpressionAtEnd = trim`
+    const dirtyExpressionAtEnd = dedent`
       a  
       ${dirtyExpression}  
     `;
-    const cleanExpressionAtEndPass1 = trim`
+    const cleanExpressionAtEndPass1 = dedent`
       a
       ${cleanExpression}  
     `;
-    const cleanExpressionAtEndPass2 = trim`
+    const cleanExpressionAtEndPass2 = dedent`
       a
       ${cleanExpression}
     `;
@@ -219,19 +226,21 @@ describe(noUnnecessaryWhitespace.name, () => {
         // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
         // 1st pass: fix template literal.
         {
-          errors: 3,
           jsx: `() => <img class={\`${dirtyExpressionAtStart}\`} />`,
           jsxOutput: `() => <img class={\`${cleanExpressionAtStartPass1}\`} />`,
           svelte: `<img class={\`${dirtyExpressionAtStart}\`} />`,
-          svelteOutput: `<img class={\`${cleanExpressionAtStartPass1}\`} />`
+          svelteOutput: `<img class={\`${cleanExpressionAtStartPass1}\`} />`,
+
+          errors: 3
         },
         // 2nd pass: fix expression.
         {
-          errors: 1,
           jsx: `() => <img class={\`${cleanExpressionAtStartPass1}\`} />`,
           jsxOutput: `() => <img class={\`${cleanExpressionAtStartPass2}\`} />`,
           svelte: `<img class={\`${cleanExpressionAtStartPass1}\`} />`,
-          svelteOutput: `<img class={\`${cleanExpressionAtStartPass2}\`} />`
+          svelteOutput: `<img class={\`${cleanExpressionAtStartPass2}\`} />`,
+
+          errors: 1
         }
       ]
     });
@@ -241,19 +250,21 @@ describe(noUnnecessaryWhitespace.name, () => {
         // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
         // 1st pass: fix leading template element and expression.
         {
-          errors: 4,
           jsx: `() => <img class={\`${dirtyExpressionBetween}\`} />`,
           jsxOutput: `() => <img class={\`${cleanExpressionBetweenPass1}\`} />`,
           svelte: `<img class={\`${dirtyExpressionBetween}\`} />`,
-          svelteOutput: `<img class={\`${cleanExpressionBetweenPass1}\`} />`
+          svelteOutput: `<img class={\`${cleanExpressionBetweenPass1}\`} />`,
+
+          errors: 4
         },
         // 2nd pass: fix trailing template element.
         {
-          errors: 1,
           jsx: `() => <img class={\`${cleanExpressionBetweenPass1}\`} />`,
           jsxOutput: `() => <img class={\`${cleanExpressionBetweenPass2}\`} />`,
           svelte: `<img class={\`${cleanExpressionBetweenPass1}\`} />`,
-          svelteOutput: `<img class={\`${cleanExpressionBetweenPass2}\`} />`
+          svelteOutput: `<img class={\`${cleanExpressionBetweenPass2}\`} />`,
+
+          errors: 1
         }
       ]
     });
@@ -263,19 +274,21 @@ describe(noUnnecessaryWhitespace.name, () => {
         // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
         // 1st pass: fix leading template element and expression.
         {
-          errors: 4,
           jsx: `() => <img class={\`${dirtyExpressionAtEnd}\`} />`,
           jsxOutput: `() => <img class={\`${cleanExpressionAtEndPass1}\`} />`,
           svelte: `<img class={\`${dirtyExpressionAtEnd}\`} />`,
-          svelteOutput: `<img class={\`${cleanExpressionAtEndPass1}\`} />`
+          svelteOutput: `<img class={\`${cleanExpressionAtEndPass1}\`} />`,
+
+          errors: 4
         },
         // 2nd pass: fix trailing template element.
         {
-          errors: 1,
           jsx: `() => <img class={\`${cleanExpressionAtEndPass1}\`} />`,
           jsxOutput: `() => <img class={\`${cleanExpressionAtEndPass2}\`} />`,
           svelte: `<img class={\`${cleanExpressionAtEndPass1}\`} />`,
-          svelteOutput: `<img class={\`${cleanExpressionAtEndPass2}\`} />`
+          svelteOutput: `<img class={\`${cleanExpressionAtEndPass2}\`} />`,
+
+          errors: 1
         }
       ]
     });
@@ -304,19 +317,21 @@ describe(noUnnecessaryWhitespace.name, () => {
         // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
         // 1st pass: fix leading template element and expression.
         {
-          errors: 4,
           jsx: `() => <img class={\`${dirtyExpressionAtStartAtStart}\`} />`,
           jsxOutput: `() => <img class={\`${cleanExpressionAtStartPass1}\`} />`,
           svelte: `<img class={\`${dirtyExpressionAtStartAtStart}\`} />`,
-          svelteOutput: `<img class={\`${cleanExpressionAtStartPass1}\`} />`
+          svelteOutput: `<img class={\`${cleanExpressionAtStartPass1}\`} />`,
+
+          errors: 4
         },
         // 2nd pass: fix trailing template element.
         {
-          errors: 1,
           jsx: `() => <img class={\`${cleanExpressionAtStartPass1}\`} />`,
           jsxOutput: `() => <img class={\`${cleanExpressionAtStartPass2}\`} />`,
           svelte: `<img class={\`${cleanExpressionAtStartPass1}\`} />`,
-          svelteOutput: `<img class={\`${cleanExpressionAtStartPass2}\`} />`
+          svelteOutput: `<img class={\`${cleanExpressionAtStartPass2}\`} />`,
+
+          errors: 1
         }
       ]
     });
@@ -326,19 +341,21 @@ describe(noUnnecessaryWhitespace.name, () => {
         // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
         // 1st pass: fix leading template element and expression.
         {
-          errors: 4,
           jsx: `() => <img class={\`${dirtyExpressionBetween}\`} />`,
           jsxOutput: `() => <img class={\`${cleanExpressionBetweenPass1}\`} />`,
           svelte: `<img class={\`${dirtyExpressionBetween}\`} />`,
-          svelteOutput: `<img class={\`${cleanExpressionBetweenPass1}\`} />`
+          svelteOutput: `<img class={\`${cleanExpressionBetweenPass1}\`} />`,
+
+          errors: 4
         },
         // 2nd pass: fix trailing template element.
         {
-          errors: 1,
           jsx: `() => <img class={\`${cleanExpressionBetweenPass1}\`} />`,
           jsxOutput: `() => <img class={\`${cleanExpressionBetweenPass2}\`} />`,
           svelte: `<img class={\`${cleanExpressionBetweenPass1}\`} />`,
-          svelteOutput: `<img class={\`${cleanExpressionBetweenPass2}\`} />`
+          svelteOutput: `<img class={\`${cleanExpressionBetweenPass2}\`} />`,
+
+          errors: 1
         }
       ]
     });
@@ -348,19 +365,21 @@ describe(noUnnecessaryWhitespace.name, () => {
         // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
         // 1st pass: fix leading template element and expression.
         {
-          errors: 4,
           jsx: `() => <img class={\`${dirtyExpressionAtEnd}\`} />`,
           jsxOutput: `() => <img class={\`${cleanExpressionAtEndPass1}\`} />`,
           svelte: `<img class={\`${dirtyExpressionAtEnd}\`} />`,
-          svelteOutput: `<img class={\`${cleanExpressionAtEndPass1}\`} />`
+          svelteOutput: `<img class={\`${cleanExpressionAtEndPass1}\`} />`,
+
+          errors: 4
         },
         // 2nd pass: fix trailing template element.
         {
-          errors: 1,
           jsx: `() => <img class={\`${cleanExpressionAtEndPass1}\`} />`,
           jsxOutput: `() => <img class={\`${cleanExpressionAtEndPass2}\`} />`,
           svelte: `<img class={\`${cleanExpressionAtEndPass1}\`} />`,
-          svelteOutput: `<img class={\`${cleanExpressionAtEndPass2}\`} />`
+          svelteOutput: `<img class={\`${cleanExpressionAtEndPass2}\`} />`,
+
+          errors: 1
         }
       ]
     });
@@ -389,19 +408,21 @@ describe(noUnnecessaryWhitespace.name, () => {
         // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
         // 1st pass: fix leading template element and expression.
         {
-          errors: 4,
           jsx: `() => <img class={\`${dirtyStickyExpressionAtStart}\`} />`,
           jsxOutput: `() => <img class={\`${cleanStickyExpressionAtStartPass1}\`} />`,
           svelte: `<img class={\`${dirtyStickyExpressionAtStart}\`} />`,
-          svelteOutput: `<img class={\`${cleanStickyExpressionAtStartPass1}\`} />`
+          svelteOutput: `<img class={\`${cleanStickyExpressionAtStartPass1}\`} />`,
+
+          errors: 4
         },
         // 2nd pass: fix trailing template element.
         {
-          errors: 1,
           jsx: `() => <img class={\`${cleanStickyExpressionAtStartPass1}\`} />`,
           jsxOutput: `() => <img class={\`${cleanStickyExpressionAtStartPass2}\`} />`,
           svelte: `<img class={\`${cleanStickyExpressionAtStartPass1}\`} />`,
-          svelteOutput: `<img class={\`${cleanStickyExpressionAtStartPass2}\`} />`
+          svelteOutput: `<img class={\`${cleanStickyExpressionAtStartPass2}\`} />`,
+
+          errors: 1
         }
       ]
     });
@@ -411,19 +432,21 @@ describe(noUnnecessaryWhitespace.name, () => {
         // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
         // 1st pass: fix leading template element and expression.
         {
-          errors: 4,
           jsx: `() => <img class={\`${dirtyStickyExpressionBetween}\`} />`,
           jsxOutput: `() => <img class={\`${cleanStickyExpressionBetweenPass1}\`} />`,
           svelte: `<img class={\`${dirtyStickyExpressionBetween}\`} />`,
-          svelteOutput: `<img class={\`${cleanStickyExpressionBetweenPass1}\`} />`
+          svelteOutput: `<img class={\`${cleanStickyExpressionBetweenPass1}\`} />`,
+
+          errors: 4
         },
         // 2nd pass: fix trailing template element.
         {
-          errors: 1,
           jsx: `() => <img class={\`${cleanStickyExpressionBetweenPass1}\`} />`,
           jsxOutput: `() => <img class={\`${cleanStickyExpressionBetweenPass2}\`} />`,
           svelte: `<img class={\`${cleanStickyExpressionBetweenPass1}\`} />`,
-          svelteOutput: `<img class={\`${cleanStickyExpressionBetweenPass2}\`} />`
+          svelteOutput: `<img class={\`${cleanStickyExpressionBetweenPass2}\`} />`,
+
+          errors: 1
         }
       ]
     });
@@ -433,19 +456,21 @@ describe(noUnnecessaryWhitespace.name, () => {
         // eslint doesn't support multi-pass fixes: https://github.com/eslint/eslint/issues/18007
         // 1st pass: fix leading template element and expression.
         {
-          errors: 4,
           jsx: `() => <img class={\`${dirtyStickyExpressionAtEnd}\`} />`,
           jsxOutput: `() => <img class={\`${cleanStickyExpressionAtEndPass1}\`} />`,
           svelte: `<img class={\`${dirtyStickyExpressionAtEnd}\`} />`,
-          svelteOutput: `<img class={\`${cleanStickyExpressionAtEndPass1}\`} />`
+          svelteOutput: `<img class={\`${cleanStickyExpressionAtEndPass1}\`} />`,
+
+          errors: 4
         },
         // 2nd pass: fix trailing template element.
         {
-          errors: 1,
           jsx: `() => <img class={\`${cleanStickyExpressionAtEndPass1}\`} />`,
           jsxOutput: `() => <img class={\`${cleanStickyExpressionAtEndPass2}\`} />`,
           svelte: `<img class={\`${cleanStickyExpressionAtEndPass1}\`} />`,
-          svelteOutput: `<img class={\`${cleanStickyExpressionAtEndPass2}\`} />`
+          svelteOutput: `<img class={\`${cleanStickyExpressionAtEndPass2}\`} />`,
+
+          errors: 1
         }
       ]
     });
@@ -470,45 +495,49 @@ describe(noUnnecessaryWhitespace.name, () => {
         {
           angular: `<img class="${uncleanedMultilineString}" />`,
           angularOutput: `<img class="${cleanedMultilineString}" />`,
-          errors: 1,
           html: `<img class="${uncleanedMultilineString}" />`,
           htmlOutput: `<img class="${cleanedMultilineString}" />`,
           svelte: `<img class="${uncleanedMultilineString}" />`,
           svelteOutput: `<img class="${cleanedMultilineString}" />`,
           vue: `<template><img class="${uncleanedMultilineString}" /></template>`,
-          vueOutput: `<template><img class="${cleanedMultilineString}" /></template>`
+          vueOutput: `<template><img class="${cleanedMultilineString}" /></template>`,
+
+          errors: 1
         },
         {
           angular: `<img class='${uncleanedMultilineString}' />`,
           angularOutput: `<img class='${cleanedMultilineString}' />`,
-          errors: 1,
           html: `<img class='${uncleanedMultilineString}' />`,
           htmlOutput: `<img class='${cleanedMultilineString}' />`,
           svelte: `<img class='${uncleanedMultilineString}' />`,
           svelteOutput: `<img class='${cleanedMultilineString}' />`,
           vue: `<template><img class='${uncleanedMultilineString}' /></template>`,
-          vueOutput: `<template><img class='${cleanedMultilineString}' /></template>`
+          vueOutput: `<template><img class='${cleanedMultilineString}' /></template>`,
+
+          errors: 1
         },
         {
-          errors: 1,
           jsx: `() => <img class={\`${uncleanedMultilineString}\`} />`,
           jsxOutput: `() => <img class={\`${cleanedMultilineString}\`} />`,
           svelte: `<img class={\`${uncleanedMultilineString}\`} />`,
-          svelteOutput: `<img class={\`${cleanedMultilineString}\`} />`
+          svelteOutput: `<img class={\`${cleanedMultilineString}\`} />`,
+
+          errors: 1
         },
         {
           angular: `<img class='${uncleanedMultilineString}' />`,
           angularOutput: `<img class='${cleanedSinglelineString}' />`,
-          errors: 1,
           html: `<img class='${uncleanedMultilineString}' />`,
           htmlOutput: `<img class='${cleanedSinglelineString}' />`,
           jsx: `() => <img class={\`${uncleanedMultilineString}\`} />`,
           jsxOutput: `() => <img class={\`${cleanedSinglelineString}\`} />`,
-          options: [{ allowMultiline: false }],
           svelte: `<img class={\`${uncleanedMultilineString}\`} />`,
           svelteOutput: `<img class={\`${cleanedSinglelineString}\`} />`,
           vue: `<template><img class='${uncleanedMultilineString}' /></template>`,
-          vueOutput: `<template><img class='${cleanedSinglelineString}' /></template>`
+          vueOutput: `<template><img class='${cleanedSinglelineString}' /></template>`,
+
+          errors: 1,
+          options: [{ allowMultiline: false }]
         }
       ],
       valid: [
@@ -539,22 +568,24 @@ describe(noUnnecessaryWhitespace.name, () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           jsx: dirtyDefined,
           jsxOutput: cleanDefined,
-          options: [{ callees: ["defined"] }],
           svelte: `<script>${dirtyDefined}</script>`,
           svelteOutput: `<script>${cleanDefined}</script>`,
           vue: `<script>${dirtyDefined}</script>`,
-          vueOutput: `<script>${cleanDefined}</script>`
+          vueOutput: `<script>${cleanDefined}</script>`,
+
+          errors: 1,
+          options: [{ callees: ["defined"] }]
         }
       ],
       valid: [
         {
           jsx: dirtyUndefined,
-          options: [{ callees: ["defined"] }],
           svelte: `<script>${dirtyUndefined}</script>`,
-          vue: `<script>${dirtyUndefined}</script>`
+          vue: `<script>${dirtyUndefined}</script>`,
+
+          options: [{ callees: ["defined"] }]
         }
       ]
     });
@@ -562,22 +593,24 @@ describe(noUnnecessaryWhitespace.name, () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           jsx: dirtyDefined,
           jsxOutput: cleanDefined,
-          options: [{ callees: ["defined"] }],
           svelte: `<script>${dirtyDefined}</script>`,
           svelteOutput: `<script>${cleanDefined}</script>`,
           vue: `<script>${dirtyDefined}</script>`,
-          vueOutput: `<script>${cleanDefined}</script>`
+          vueOutput: `<script>${cleanDefined}</script>`,
+
+          errors: 1,
+          options: [{ callees: ["defined"] }]
         }
       ],
       valid: [
         {
           jsx: dirtyUndefined,
-          options: [{ callees: ["defined"] }],
           svelte: `<script>${dirtyUndefined}</script>`,
-          vue: `<script>${dirtyUndefined}</script>`
+          vue: `<script>${dirtyUndefined}</script>`,
+
+          options: [{ callees: ["defined"] }]
         }
       ]
     });
@@ -634,9 +667,14 @@ describe(noUnnecessaryWhitespace.name, () => {
       {
         invalid: [
           {
-            errors: 4,
             jsx: dirtyDefined,
             jsxOutput: cleanDefined,
+            svelte: `<script>${dirtyDefined}</script>`,
+            svelteOutput: `<script>${cleanDefined}</script>`,
+            vue: `<script>${dirtyDefined}</script>`,
+            vueOutput: `<script>${cleanDefined}</script>`,
+
+            errors: 4,
             options: [{
               callees: [
                 [
@@ -648,11 +686,7 @@ describe(noUnnecessaryWhitespace.name, () => {
                   "^\\s*[\"'`]([^\"'`]+)[\"'`](?!:)"
                 ]
               ]
-            }],
-            svelte: `<script>${dirtyDefined}</script>`,
-            svelteOutput: `<script>${cleanDefined}</script>`,
-            vue: `<script>${dirtyDefined}</script>`,
-            vueOutput: `<script>${cleanDefined}</script>`
+            }]
           }
         ]
       }
@@ -687,12 +721,13 @@ describe(noUnnecessaryWhitespace.name, () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           jsx: `() => <img class={\`${dirtyDefinedMultiline}\`} />`,
           jsxOutput: `() => <img class={\`${cleanDefinedMultiline}\`} />`,
-          options: [{ callees: ["defined"] }],
           svelte: `<img class={\`${dirtyDefinedMultiline}\`} />`,
-          svelteOutput: `<img class={\`${cleanDefinedMultiline}\`} />`
+          svelteOutput: `<img class={\`${cleanDefinedMultiline}\`} />`,
+
+          errors: 1,
+          options: [{ callees: ["defined"] }]
         }
       ],
       valid: [
@@ -724,24 +759,26 @@ describe(noUnnecessaryWhitespace.name, () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           jsx: dirtyDefined,
           jsxOutput: cleanDefined,
-          options: [{ variables: ["defined"] }],
           svelte: `<script>${dirtyDefined}</script>`,
           svelteOutput: `<script>${cleanDefined}</script>`,
           vue: `<script>${dirtyDefined}</script>`,
-          vueOutput: `<script>${cleanDefined}</script>`
+          vueOutput: `<script>${cleanDefined}</script>`,
+
+          errors: 1,
+          options: [{ variables: ["defined"] }]
         },
         {
-          errors: 1,
           jsx: dirtyMultiline,
           jsxOutput: cleanMultiline,
-          options: [{ variables: ["defined"] }],
           svelte: `<script>${dirtyMultiline}</script>`,
           svelteOutput: `<script>${cleanMultiline}</script>`,
           vue: `<script>${dirtyMultiline}</script>`,
-          vueOutput: `<script>${cleanMultiline}</script>`
+          vueOutput: `<script>${cleanMultiline}</script>`,
+
+          errors: 1,
+          options: [{ variables: ["defined"] }]
         }
       ],
       valid: [
@@ -792,9 +829,14 @@ describe(noUnnecessaryWhitespace.name, () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           jsx: dirtyDefined,
           jsxOutput: cleanDefined,
+          svelte: `<script>${dirtyDefined}</script>`,
+          svelteOutput: `<script>${cleanDefined}</script>`,
+          vue: `<script>${dirtyDefined}</script>`,
+          vueOutput: `<script>${cleanDefined}</script>`,
+
+          errors: 1,
           options: [{
             variables: [
               [
@@ -802,16 +844,17 @@ describe(noUnnecessaryWhitespace.name, () => {
                 "^\\s*[\"'`]([^\"'`]+)[\"'`]"
               ]
             ]
-          }],
-          svelte: `<script>${dirtyDefined}</script>`,
-          svelteOutput: `<script>${cleanDefined}</script>`,
-          vue: `<script>${dirtyDefined}</script>`,
-          vueOutput: `<script>${cleanDefined}</script>`
+          }]
         },
         {
-          errors: 2,
           jsx: dirtyObject,
           jsxOutput: cleanObject,
+          svelte: `<script>${dirtyObject}</script>`,
+          svelteOutput: `<script>${cleanObject}</script>`,
+          vue: `<script>${dirtyObject}</script>`,
+          vueOutput: `<script>${cleanObject}</script>`,
+
+          errors: 2,
           options: [{
             variables: [
               [
@@ -819,16 +862,17 @@ describe(noUnnecessaryWhitespace.name, () => {
                 "\"matched\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
               ]
             ]
-          }],
-          svelte: `<script>${dirtyObject}</script>`,
-          svelteOutput: `<script>${cleanObject}</script>`,
-          vue: `<script>${dirtyObject}</script>`,
-          vueOutput: `<script>${cleanObject}</script>`
+          }]
         },
         {
-          errors: 1,
           jsx: dirtyMultiline,
           jsxOutput: cleanMultiline,
+          svelte: `<script>${dirtyMultiline}</script>`,
+          svelteOutput: `<script>${cleanMultiline}</script>`,
+          vue: `<script>${dirtyMultiline}</script>`,
+          vueOutput: `<script>${cleanMultiline}</script>`,
+
+          errors: 1,
           options: [{
             variables: [
               [
@@ -836,11 +880,7 @@ describe(noUnnecessaryWhitespace.name, () => {
                 "^\\s*[\"'`]([^\"'`]+)[\"'`]"
               ]
             ]
-          }],
-          svelte: `<script>${dirtyMultiline}</script>`,
-          svelteOutput: `<script>${cleanMultiline}</script>`,
-          vue: `<script>${dirtyMultiline}</script>`,
-          vueOutput: `<script>${cleanMultiline}</script>`
+          }]
         }
       ],
       valid: [
@@ -861,22 +901,24 @@ describe(noUnnecessaryWhitespace.name, () => {
       {
         invalid: [
           {
-            errors: 1,
             jsx: "defined`  b   a  `",
             jsxOutput: "defined`b a`",
-            options: [{ tags: ["defined"] }],
             svelte: "<script>defined`  b   a  `</script>",
             svelteOutput: "<script>defined`b a`</script>",
             vue: "defined`  b   a  `",
-            vueOutput: "defined`b a`"
+            vueOutput: "defined`b a`",
+
+            errors: 1,
+            options: [{ tags: ["defined"] }]
           }
         ],
         valid: [
           {
             jsx: "notDefined`  b   a  `",
-            options: [{ tags: ["defined"] }],
             svelte: "<script>notDefined`  b   a  `</script>",
-            vue: "notDefined`  b   a  `"
+            vue: "notDefined`  b   a  `",
+
+            options: [{ tags: ["defined"] }]
           }
         ]
       }

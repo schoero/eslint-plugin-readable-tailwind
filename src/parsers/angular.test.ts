@@ -1,7 +1,8 @@
 import { describe, it } from "vitest";
 
 import { sortClasses } from "better-tailwindcss:rules/sort-classes.js";
-import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { dedent } from "better-tailwindcss:tests/utils/template.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 
 
@@ -14,18 +15,21 @@ describe("angular", () => {
           {
             angular: `<img class="b a" />`,
             angularOutput: `<img class="a b" />`,
+
             errors: 1,
             options: [{ order: "asc" }]
           },
           {
             angular: `<img [class]="'b a'" />`,
             angularOutput: `<img [class]="'a b'" />`,
+
             errors: 1,
             options: [{ order: "asc" }]
           },
           {
             angular: `<img [ngClass]="'b a'" />`,
             angularOutput: `<img [ngClass]="'a b'" />`,
+
             errors: 1,
             options: [{ order: "asc" }]
           }
@@ -39,12 +43,14 @@ describe("angular", () => {
           {
             angular: `<img [class]="['b a', 'd c']" />`,
             angularOutput: `<img [class]="['a b', 'c d']" />`,
+
             errors: 2,
             options: [{ order: "asc" }]
           },
           {
             angular: `<img [ngClass]="['b a', 'd c']" />`,
             angularOutput: `<img [ngClass]="['a b', 'c d']" />`,
+
             errors: 2,
             options: [{ order: "asc" }]
           }
@@ -58,12 +64,14 @@ describe("angular", () => {
           {
             angular: `<img [class]="['b a', expression ? 'd c' : 'f e']" />`,
             angularOutput: `<img [class]="['a b', expression ? 'c d' : 'e f']" />`,
+
             errors: 3,
             options: [{ order: "asc" }]
           },
           {
             angular: `<img [ngClass]="['b a', expression ? 'd c' : 'f e']" />`,
             angularOutput: `<img [ngClass]="['a b', expression ? 'c d' : 'e f']" />`,
+
             errors: 3,
             options: [{ order: "asc" }]
           }
@@ -77,12 +85,14 @@ describe("angular", () => {
           {
             angular: `<img [class]="{ 'b a': true, 'd c': false }" />`,
             angularOutput: `<img [class]="{ 'a b': true, 'c d': false }" />`,
+
             errors: 2,
             options: [{ order: "asc" }]
           },
           {
             angular: `<img [ngClass]="{ 'b a': true, 'd c': false }" />`,
             angularOutput: `<img [ngClass]="{ 'a b': true, 'c d': false }" />`,
+
             errors: 2,
             options: [{ order: "asc" }]
           }
@@ -98,24 +108,28 @@ describe("angular", () => {
           {
             angular: `<img customAttribute="b a" />`,
             angularOutput: `<img customAttribute="a b" />`,
+
             errors: 1,
             options: [{ attributes: [".*Attribute"], order: "asc" }]
           },
           {
             angular: `<img class="b a" />`,
             angularOutput: `<img class="a b" />`,
+
             errors: 1,
             options: [{ attributes: ["class"], order: "asc" }]
           },
           {
             angular: `<img [class]="'b a'" />`,
             angularOutput: `<img [class]="'a b'" />`,
+
             errors: 1,
             options: [{ attributes: ["\\[class\\]"], order: "asc" }]
           },
           {
             angular: `<img [ngClass]="'b a'" />`,
             angularOutput: `<img [ngClass]="'a b'" />`,
+
             errors: 1,
             options: [{ attributes: ["\\[ngClass\\]"], order: "asc" }]
           }
@@ -133,18 +147,21 @@ describe("angular", () => {
             {
               angular: `<img class="b a" />`,
               angularOutput: `<img class="a b" />`,
+
               errors: 1,
               options: [{ attributes: [["class", [{ match: MatcherType.String }]]], order: "asc" }]
             },
             {
               angular: `<img [class]="'b a'" />`,
               angularOutput: `<img [class]="'a b'" />`,
+
               errors: 1,
               options: [{ attributes: [["\\[class\\]", [{ match: MatcherType.String }]]], order: "asc" }]
             },
             {
               angular: `<img [ngClass]="'b a'" />`,
               angularOutput: `<img [ngClass]="'a b'" />`,
+
               errors: 1,
               options: [{ attributes: [["\\[ngClass\\]", [{ match: MatcherType.String }]]], order: "asc" }]
             }
@@ -160,6 +177,7 @@ describe("angular", () => {
             {
               angular: `<img [class]="{ 'b a': true, 'd c': false }" />`,
               angularOutput: `<img [class]="{ 'a b': true, 'c d': false }" />`,
+
               errors: 2,
               options: [{
                 attributes: [
@@ -177,6 +195,7 @@ describe("angular", () => {
             {
               angular: `<img [ngClass]="{ 'b a': true, 'd c': false }" />`,
               angularOutput: `<img [ngClass]="{ 'a b': true, 'c d': false }" />`,
+
               errors: 2,
               options: [{
                 attributes: [
@@ -201,6 +220,7 @@ describe("angular", () => {
             {
               angular: `<img [class]="{ 'b a': 'd c', 'd c': 'b a' }" />`,
               angularOutput: `<img [class]="{ 'a b': 'd c', 'c d': 'b a' }" />`,
+
               errors: 2,
               options: [{
                 attributes: [
@@ -218,6 +238,7 @@ describe("angular", () => {
             {
               angular: `<img [ngClass]="{ 'b a': 'd c', 'd c': 'b a' }" />`,
               angularOutput: `<img [ngClass]="{ 'a b': 'd c', 'c d': 'b a' }" />`,
+
               errors: 2,
               options: [{
                 attributes: [
@@ -245,6 +266,7 @@ describe("angular", () => {
             {
               angular: `<img [ngClass]="{ '0': 'b a', '1': 'd c' }" />`,
               angularOutput: `<img [ngClass]="{ '0': 'a b', '1': 'c d' }" />`,
+
               errors: 2,
               options: [{
                 attributes: [["\\[ngClass\\]", [
@@ -267,12 +289,14 @@ describe("angular", () => {
             {
               angular: `<img [class]="['b a', 'd c']" />`,
               angularOutput: `<img [class]="['a b', 'c d']" />`,
+
               errors: 2,
               options: [{ attributes: [["\\[class\\]", [{ match: MatcherType.String }]]], order: "asc" }]
             },
             {
               angular: `<img [ngClass]="['b a', 'd c']" />`,
               angularOutput: `<img [ngClass]="['a b', 'c d']" />`,
+
               errors: 2,
               options: [{ attributes: [["\\[ngClass\\]", [{ match: MatcherType.String }]]], order: "asc" }]
             }
@@ -286,12 +310,14 @@ describe("angular", () => {
             {
               angular: `<img [class]="['b a', expression ? 'd c' : 'f e']" />`,
               angularOutput: `<img [class]="['a b', expression ? 'c d' : 'e f']" />`,
+
               errors: 3,
               options: [{ attributes: [["\\[class\\]", [{ match: MatcherType.String }]]], order: "asc" }]
             },
             {
               angular: `<img [ngClass]="['b a', expression ? 'd c' : 'f e']" />`,
               angularOutput: `<img [ngClass]="['a b', expression ? 'c d' : 'e f']" />`,
+
               errors: 3,
               options: [{ attributes: [["\\[ngClass\\]", [{ match: MatcherType.String }]]], order: "asc" }]
             }
@@ -307,18 +333,21 @@ describe("angular", () => {
             {
               angular: `<img class="{{ true === 'b a' ? 'b a' : 'd c' }}" />`,
               angularOutput: `<img class="{{ true === 'b a' ? 'a b' : 'c d' }}" />`,
+
               errors: 2,
               options: [{ attributes: [["class", [{ match: MatcherType.String }]]], order: "asc" }]
             },
             {
               angular: `<img [class]="true === 'b a' ? 'b a' : 'd c'" />`,
               angularOutput: `<img [class]="true === 'b a' ? 'a b' : 'c d'" />`,
+
               errors: 2,
               options: [{ attributes: [["\\[class\\]", [{ match: MatcherType.String }]]], order: "asc" }]
             },
             {
               angular: `<img [ngClass]="true === 'b a' ? 'b a' : 'd c'" />`,
               angularOutput: `<img [ngClass]="true === 'b a' ? 'a b' : 'c d'" />`,
+
               errors: 2,
               options: [{ attributes: [["\\[ngClass\\]", [{ match: MatcherType.String }]]], order: "asc" }]
             }
@@ -335,6 +364,7 @@ describe("angular", () => {
             {
               angular: "<img class=\"{{`b a ${true && 'd c'} f e`}}\" />",
               angularOutput: "<img class=\"{{`a b ${true && 'c d'} f e`}}\" />",
+
               errors: 3,
               options: [{ order: "asc" }]
             },
@@ -343,6 +373,7 @@ describe("angular", () => {
             {
               angular: "<img class=\"{{`a b ${true && 'c d'} f e`}}\" />",
               angularOutput: "<img class=\"{{`a b ${true && 'c d'} e f`}}\" />",
+
               errors: 1,
               options: [{ order: "asc" }]
             }
@@ -356,12 +387,14 @@ describe("angular", () => {
             {
               angular: "<img [class]=\"`${'b a' && 'd c'}`\" />",
               angularOutput: "<img [class]=\"`${'b a' && 'c d'}`\" />",
+
               errors: 1,
               options: [{ attributes: [["\\[class\\]", [{ match: MatcherType.String }]]], order: "asc" }]
             },
             {
               angular: "<img [ngClass]=\"`${'b a' && 'd c'}`\" />",
               angularOutput: "<img [ngClass]=\"`${'b a' && 'c d'}`\" />",
+
               errors: 1,
               options: [{ attributes: [["\\[ngClass\\]", [{ match: MatcherType.String }]]], order: "asc" }]
             }
@@ -376,6 +409,7 @@ describe("angular", () => {
             {
               angular: "<img [class]=\"`b a ${'d c'} f e`\" />",
               angularOutput: "<img [class]=\"`a b ${'d c'} e f`\" />",
+
               errors: 3,
               options: [{ attributes: [["\\[class\\]", [{ match: MatcherType.String }]]], order: "asc" }]
             },
@@ -383,6 +417,7 @@ describe("angular", () => {
             {
               angular: "<img [class]=\"`a b ${'d c'} e f`\" />",
               angularOutput: "<img [class]=\"`a b ${'c d'} e f`\" />",
+
               errors: 1,
               options: [{ attributes: [["\\[class\\]", [{ match: MatcherType.String }]]], order: "asc" }]
             },
@@ -391,6 +426,7 @@ describe("angular", () => {
             {
               angular: "<img [ngClass]=\"`b a ${'d c'} f e`\" />",
               angularOutput: "<img [ngClass]=\"`a b ${'d c'} e f`\" />",
+
               errors: 3,
               options: [{ attributes: [["\\[ngClass\\]", [{ match: MatcherType.String }]]], order: "asc" }]
             },
@@ -398,6 +434,7 @@ describe("angular", () => {
             {
               angular: "<img [ngClass]=\"`a b ${'d c'} e f`\" />",
               angularOutput: "<img [ngClass]=\"`a b ${'c d'} e f`\" />",
+
               errors: 1,
               options: [{ attributes: [["\\[ngClass\\]", [{ match: MatcherType.String }]]], order: "asc" }]
             }
@@ -407,29 +444,29 @@ describe("angular", () => {
 
       it("should support multiline template literal types", () => {
 
-        const trim = createTrimTag(8);
-
-        const dirty = trim(`
+        const dirty = dedent`
           b a
           d c
-        `);
+        `;
 
-        const clean = trim(`
+        const clean = dedent`
           a b
           c d
-        `);
+        `;
 
         lint(sortClasses, TEST_SYNTAXES, {
           invalid: [
             {
               angular: `<img [class]="\`${dirty}\`" />`,
               angularOutput: `<img [class]="\`${clean}\`" />`,
+
               errors: 1,
               options: [{ order: "asc" }]
             },
             {
               angular: `<img [ngClass]="\`${dirty}\`" />`,
               angularOutput: `<img [ngClass]="\`${clean}\`" />`,
+
               errors: 1,
               options: [{ order: "asc" }]
             }

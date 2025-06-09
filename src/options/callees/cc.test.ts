@@ -2,7 +2,7 @@ import { describe, it } from "vitest";
 
 import { CC_OBJECT_KEYS, CC_STRINGS } from "better-tailwindcss:options/callees/cc.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe("cc", () => {
@@ -15,14 +15,15 @@ describe("cc", () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 3,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [CC_STRINGS] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
-          vueOutput: `<script>${clean}</script>`
+          vueOutput: `<script>${clean}</script>`,
+
+          errors: 3,
+          options: [{ callees: [CC_STRINGS] }]
         }
       ]
     });
@@ -47,14 +48,15 @@ describe("cc", () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 2,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [CC_OBJECT_KEYS] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
-          vueOutput: `<script>${clean}</script>`
+          vueOutput: `<script>${clean}</script>`,
+
+          errors: 2,
+          options: [{ callees: [CC_OBJECT_KEYS] }]
         }
       ]
     });

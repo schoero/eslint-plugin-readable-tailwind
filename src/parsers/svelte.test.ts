@@ -2,7 +2,8 @@ import { describe, it } from "vitest";
 
 import { multiline } from "better-tailwindcss:rules/multiline.js";
 import { sortClasses } from "better-tailwindcss:rules/sort-classes.js";
-import { createTrimTag, lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { dedent } from "better-tailwindcss:tests/utils/template.js";
 
 
 describe("svelte", () => {
@@ -11,10 +12,11 @@ describe("svelte", () => {
     lint(sortClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
-          options: [{ attributes: [".*Attribute"], order: "asc" }],
           svelte: `<img customAttribute="b a" />`,
-          svelteOutput: `<img customAttribute="a b" />`
+          svelteOutput: `<img customAttribute="a b" />`,
+
+          errors: 1,
+          options: [{ attributes: [".*Attribute"], order: "asc" }]
         }
       ]
     });
@@ -25,20 +27,19 @@ describe("svelte", () => {
     lint(sortClasses, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
-          options: [{ order: "asc" }],
           svelte: `<script>let disabled = true;</script><img class="c b a" {disabled} />`,
-          svelteOutput: `<script>let disabled = true;</script><img class="a b c" {disabled} />`
+          svelteOutput: `<script>let disabled = true;</script><img class="a b c" {disabled} />`,
+
+          errors: 1,
+          options: [{ order: "asc" }]
         }
       ]
     });
   });
 
   it("should change the quotes in expressions to backticks", () => {
-    const trim = createTrimTag(4);
-
     const singleLine = "a b c d e f";
-    const multiLine = trim`
+    const multiLine = dedent`
       a b c
       d e f
     `;
@@ -46,10 +47,11 @@ describe("svelte", () => {
     lint(multiline, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 2,
-          options: [{ classesPerLine: 3 }],
           svelte: `<img class={true ? '${singleLine}' : '${singleLine}'} />`,
-          svelteOutput: `<img class={true ? \`${multiLine}\` : \`${multiLine}\`} />`
+          svelteOutput: `<img class={true ? \`${multiLine}\` : \`${multiLine}\`} />`,
+
+          errors: 2,
+          options: [{ classesPerLine: 3 }]
         }
       ]
     });

@@ -2,7 +2,7 @@ import { describe, it } from "vitest";
 
 import { TV_COMPOUND_VARIANTS_CLASS, TV_STRINGS, TV_VARIANT_VALUES } from "better-tailwindcss:options/callees/tv.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe("tv", () => {
@@ -15,14 +15,15 @@ describe("tv", () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 3,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [TV_STRINGS] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
-          vueOutput: `<script>${clean}</script>`
+          vueOutput: `<script>${clean}</script>`,
+
+          errors: 3,
+          options: [{ callees: [TV_STRINGS] }]
         }
       ]
     });
@@ -49,14 +50,15 @@ describe("tv", () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [TV_VARIANT_VALUES] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
-          vueOutput: `<script>${clean}</script>`
+          vueOutput: `<script>${clean}</script>`,
+
+          errors: 1,
+          options: [{ callees: [TV_VARIANT_VALUES] }]
         }
       ]
     });
@@ -90,14 +92,15 @@ describe("tv", () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 2,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [TV_COMPOUND_VARIANTS_CLASS] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
-          vueOutput: `<script>${clean}</script>`
+          vueOutput: `<script>${clean}</script>`,
+
+          errors: 2,
+          options: [{ callees: [TV_COMPOUND_VARIANTS_CLASS] }]
         }
       ]
     });
@@ -154,13 +157,14 @@ describe("tv", () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 7,
           jsx: dirty,
           jsxOutput: clean,
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
-          vueOutput: `<script>${clean}</script>`
+          vueOutput: `<script>${clean}</script>`,
+
+          errors: 7
         }
       ]
     });

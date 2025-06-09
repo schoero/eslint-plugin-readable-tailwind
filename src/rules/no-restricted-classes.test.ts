@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
 import { noRestrictedClasses } from "better-tailwindcss:rules/no-restricted-classes.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe(noRestrictedClasses.name, () => {
@@ -25,12 +25,13 @@ describe(noRestrictedClasses.name, () => {
       invalid: [
         {
           angular: `<img class="font-bold container text-lg" />`,
-          errors: 1,
           html: `<img class="font-bold container text-lg" />`,
           jsx: `() => <img class="font-bold container text-lg" />`,
-          options: [{ restrict: ["container"] }],
           svelte: `<img class="font-bold container text-lg" />`,
-          vue: `<template><img class="font-bold container text-lg" /></template>`
+          vue: `<template><img class="font-bold container text-lg" /></template>`,
+
+          errors: 1,
+          options: [{ restrict: ["container"] }]
         }
       ]
     });
@@ -41,12 +42,13 @@ describe(noRestrictedClasses.name, () => {
       invalid: [
         {
           angular: `<img class="font-bold container text-lg" />`,
-          errors: 1,
           html: `<img class="font-bold container text-lg" />`,
           jsx: `() => <img class="font-bold container text-lg" />`,
-          options: [{ restrict: ["^container$"] }],
           svelte: `<img class="font-bold container text-lg" />`,
-          vue: `<template><img class="font-bold container text-lg" /></template>`
+          vue: `<template><img class="font-bold container text-lg" /></template>`,
+
+          errors: 1,
+          options: [{ restrict: ["^container$"] }]
         }
       ]
     });
@@ -57,12 +59,13 @@ describe(noRestrictedClasses.name, () => {
       invalid: [
         {
           angular: `<img class="font-bold lg:container lg:text-lg" />`,
-          errors: 2,
           html: `<img class="font-bold lg:container lg:text-lg" />`,
           jsx: `() => <img class="font-bold lg:container lg:text-lg" />`,
-          options: [{ restrict: ["^lg:.*"] }],
           svelte: `<img class="font-bold lg:container lg:text-lg" />`,
-          vue: `<template><img class="font-bold lg:container lg:text-lg" /></template>`
+          vue: `<template><img class="font-bold lg:container lg:text-lg" /></template>`,
+
+          errors: 2,
+          options: [{ restrict: ["^lg:.*"] }]
         }
       ]
     });
@@ -73,12 +76,13 @@ describe(noRestrictedClasses.name, () => {
       invalid: [
         {
           angular: `<img class="font-bold *:container **:text-lg" />`,
-          errors: 2,
           html: `<img class="font-bold *:container **:text-lg" />`,
           jsx: `() => <img class="font-bold *:container **:text-lg" />`,
-          options: [{ restrict: ["^\\*+:.*"] }],
           svelte: `<img class="font-bold *:container **:text-lg" />`,
-          vue: `<template><img class="font-bold *:container **:text-lg" /></template>`
+          vue: `<template><img class="font-bold *:container **:text-lg" /></template>`,
+
+          errors: 2,
+          options: [{ restrict: ["^\\*+:.*"] }]
         }
       ]
     });
@@ -89,12 +93,13 @@ describe(noRestrictedClasses.name, () => {
       invalid: [
         {
           angular: `<img class="font-bold text-lg!" />`,
-          errors: 1,
           html: `<img class="font-bold text-lg!" />`,
           jsx: `() => <img class="font-bold text-lg!" />`,
-          options: [{ restrict: ["^.*!$"] }],
           svelte: `<img class="font-bold text-lg!" />`,
-          vue: `<template><img class="font-bold text-lg!" /></template>`
+          vue: `<template><img class="font-bold text-lg!" /></template>`,
+
+          errors: 1,
+          options: [{ restrict: ["^.*!$"] }]
         }
       ]
     });

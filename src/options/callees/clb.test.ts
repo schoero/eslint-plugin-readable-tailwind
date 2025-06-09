@@ -6,7 +6,7 @@ import {
   CLB_VARIANT_VALUES
 } from "better-tailwindcss:options/callees/clb.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe("clb", () => {
@@ -31,14 +31,15 @@ describe("clb", () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [CLB_BASE_VALUES] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
-          vueOutput: `<script>${clean}</script>`
+          vueOutput: `<script>${clean}</script>`,
+
+          errors: 1,
+          options: [{ callees: [CLB_BASE_VALUES] }]
         }
       ]
     });
@@ -65,14 +66,15 @@ describe("clb", () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [CLB_VARIANT_VALUES] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
-          vueOutput: `<script>${clean}</script>`
+          vueOutput: `<script>${clean}</script>`,
+
+          errors: 1,
+          options: [{ callees: [CLB_VARIANT_VALUES] }]
         }
       ]
     });
@@ -105,14 +107,15 @@ describe("clb", () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 1,
           jsx: dirty,
           jsxOutput: clean,
-          options: [{ callees: [CLB_COMPOUND_VARIANTS_CLASSES] }],
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
-          vueOutput: `<script>${clean}</script>`
+          vueOutput: `<script>${clean}</script>`,
+
+          errors: 1,
+          options: [{ callees: [CLB_COMPOUND_VARIANTS_CLASSES] }]
         }
       ]
     });
@@ -171,13 +174,14 @@ describe("clb", () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
-          errors: 5,
           jsx: dirty,
           jsxOutput: clean,
           svelte: `<script>${dirty}</script>`,
           svelteOutput: `<script>${clean}</script>`,
           vue: `<script>${dirty}</script>`,
-          vueOutput: `<script>${clean}</script>`
+          vueOutput: `<script>${clean}</script>`,
+
+          errors: 5
         }
       ]
     });
