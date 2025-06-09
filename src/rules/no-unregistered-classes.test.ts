@@ -240,7 +240,7 @@ describe(noUnregisteredClasses.name, () => {
                   };
                 }
               `,
-              "tailwind.config.js": ts`
+              "tailwind.config.ts": ts`
                 import { plugin } from "./plugin.js";
 
                 export default {
@@ -266,7 +266,7 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.skipIf(getTailwindcssVersion().major < TailwindcssVersion.V4)("should not report on registered utility classes in tailwind >= 4", () => {
+  it.skipIf(getTailwindcssVersion().major <= TailwindcssVersion.V4)("should not report on registered utility classes in tailwind >= 4", () => {
     lint(
       noUnregisteredClasses,
       TEST_SYNTAXES,

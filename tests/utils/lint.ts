@@ -1,5 +1,6 @@
 import { mkdirSync, readdirSync, writeFileSync } from "node:fs";
-import { dirname, normalize, resolve } from "node:path";
+import { dirname, normalize } from "node:path";
+import { chdir } from "node:process";
 
 import eslintParserAngular from "@angular-eslint/template-parser";
 import eslintParserHTML from "@html-eslint/parser";
@@ -64,15 +65,16 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
   }
 ) {
 
+  mkdirSync("tmp", { recursive: true });
+  chdir("tmp");
+
   for(const invalid of tests.invalid ?? []){
 
     for(const file in invalid.files ?? {}){
       invalid.settings ??= { "better-tailwindcss": {} };
 
-      const filePath = resolve("tmp", file);
-
-      mkdirSync(dirname(filePath), { recursive: true });
-      writeFileSync(filePath, invalid.files![file]);
+      mkdirSync(dirname(file), { recursive: true });
+      writeFileSync(file, invalid.files![file]);
     }
 
     for(const syntax of Object.keys(syntaxes)){
@@ -100,11 +102,9 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
 
     for(const file in valid.files ?? {}){
       valid.settings ??= { "better-tailwindcss": {} };
-
-      const filePath = resolve("tmp", file);
-      writeFileSync(filePath, valid.files![file]);
+      mkdirSync(dirname(file), { recursive: true });
+      writeFileSync(file, valid.files![file]);
     }
-
 
     for(const syntax of Object.keys(syntaxes)){
 
