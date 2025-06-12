@@ -1,3 +1,5 @@
+import type { TailwindcssVersion } from "src/tailwind/utils/version.js";
+
 import type { Warning } from "better-tailwindcss:utils/utils.js";
 
 
@@ -18,6 +20,20 @@ export interface GetUnregisteredClassesRequest {
   configPath?: string;
 }
 export type GetUnregisteredClassesResponse = [unregisteredClasses: string[], warnings: ConfigWarning[]];
+
+
+export interface GetVersionRequest {
+  cwd: string;
+  configPath?: string;
+}
+export type GetVersionResponse = [version: TailwindcssVersion];
+
+
+export interface GetPrefixRequest {
+  cwd: string;
+  configPath?: string;
+}
+export type GetPrefixResponse = [prefix: string, warnings: ConfigWarning[]];
 
 
 export interface GetConflictingClassesRequest {

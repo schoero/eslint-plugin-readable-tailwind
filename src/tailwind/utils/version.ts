@@ -1,5 +1,7 @@
 import { readFileSync } from "node:fs";
 
+import { withCache } from "src/tailwind/utils/cache.js";
+
 import { jsonResolver } from "../utils/resolvers.js";
 
 
@@ -24,13 +26,20 @@ export function isTailwindcssVersion4(version: number): version is TailwindcssVe
 
 export function getTailwindcssVersion() {
   const packageJsonPath = jsonResolver.resolveSync({}, process.cwd(), "tailwindcss/package.json");
-  const packageJson = packageJsonPath && JSON.parse(readFileSync(packageJsonPath, "utf-8"));
 
-  if(!packageJson){
+  if(!packageJsonPath){
     throw new Error("Could not find a Tailwind CSS package.json");
   }
 
-  return parseSemanticVersion(packageJson.version);
+  return withCache(packageJsonPath, () => {
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
+
+    if(!packageJson){
+      throw new Error("Error reading Tailwind CSS package.json");
+    }
+
+    return parseSemanticVersion(packageJson.version);
+  });
 }
 
 function parseSemanticVersion(version: string): { major: number; minor: number; patch: number; identifier?: string; } {

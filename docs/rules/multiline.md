@@ -26,7 +26,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 ### `group`
 
-  Defines how different groups of classes should be separated. A group is a set of classes that share the same modifier/variant.
+  Defines how different groups of classes should be separated. A group is a set of classes that share the same variant.
 
   **Type**: `"emptyLine" | "never" | "newLine"`  
   **Default**: `"newLine"`  
@@ -35,7 +35,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 ### `preferSingleLine`
 
-  Prefer a single line for different modifiers/variants. When set to `true`, the rule will keep all modifiers/variants on a single line until the line exceeds the `printWidth` or `classesPerLine` limit.
+  Prefer a single line for different variants. When set to `true`, the rule will keep all variants on a single line until the line exceeds the `printWidth` or `classesPerLine` limit.
 
   **Type**: `boolean`  
   **Default**: `false`  
@@ -99,9 +99,31 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 <br/>
 
+### `entryPoint`
+
+  The path to the entry file of the css based tailwind config (eg: `src/global.css`). This can also be set globally via the [`settings` object](../settings/settings.md#entrypoint).  
+  If not specified, the plugin will fall back to the default configuration.  
+
+  **Type**: `string`  
+  **Default**: `undefined`
+
+<br/>
+
+### `tailwindConfig`
+
+  The path to the `tailwind.config.js` file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.  
+  This can also be set globally via the [`settings` object](../settings/settings.md#tailwindConfig).  
+
+  For tailwindcss v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
+
+  **Type**: `string`  
+  **Default**: `undefined`
+
+<br/>
+
 ## Examples
 
-With the default options, a class name will be broken up into multiple lines and grouped by their modifiers. Groups are separated by an empty line.  
+With the default options, a class name will be broken up into multiple lines and grouped by their variants. Groups are separated by an empty line.  
 
 The following examples show how the rule behaves with different options:
 

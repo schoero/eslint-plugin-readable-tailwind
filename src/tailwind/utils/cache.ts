@@ -3,7 +3,9 @@ import { getModifiedDate } from "../utils/fs.js";
 
 const CACHE = new Map<string, { date: Date; value: any; }>();
 
-export async function withCache<T>(key: string, callback: () => Promise<T>): Promise<T> {
+export function withCache<Result>(key: string, callback: () => Result): Result;
+export function withCache<Result>(key: string, callback: () => Promise<Result>): Promise<Result>;
+export function withCache<Result>(key: string, callback: () => Promise<Result> | Result): Promise<Result> | Result {
   const modified = getModifiedDate(key);
   const cached = CACHE.get(key);
 
@@ -11,8 +13,15 @@ export async function withCache<T>(key: string, callback: () => Promise<T>): Pro
     return cached.value;
   }
 
-  const value = await callback();
-  CACHE.set(key, { date: new Date(), value });
+  const value = callback();
 
-  return value;
+  if(value instanceof Promise){
+    return value.then(resolvedValue => {
+      CACHE.set(key, { date: new Date(), value: resolvedValue });
+      return resolvedValue;
+    });
+  } else {
+    CACHE.set(key, { date: new Date(), value });
+    return value;
+  }
 }
