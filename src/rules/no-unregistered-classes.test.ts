@@ -221,11 +221,11 @@ describe(noUnregisteredClasses.name, () => {
       {
         invalid: [
           {
-            angular: `<img class="unregistered from-plugin from-config hover:before:from-plugin hover:before:from-config" />`,
-            html: `<img class="unregistered from-plugin from-config hover:before:from-plugin hover:before:from-config" />`,
-            jsx: `() => <img class="unregistered from-plugin from-config hover:before:from-plugin hover:before:from-config" />`,
-            svelte: `<img class="unregistered from-plugin from-config hover:before:from-plugin hover:before:from-config" />`,
-            vue: `<template><img class="unregistered from-plugin from-config hover:before:from-plugin hover:before:from-config" /></template>`,
+            angular: `<img class="unregistered in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
+            html: `<img class="unregistered in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
+            jsx: `() => <img class="unregistered in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
+            svelte: `<img class="unregistered in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
+            vue: `<template><img class="unregistered in-plugin text-config hover:before:in-plugin hover:before:text-config" /></template>`,
 
             errors: 1,
             files: {
@@ -233,14 +233,14 @@ describe(noUnregisteredClasses.name, () => {
                 export function plugin() {
                   return function({ addUtilities }) {
                     addUtilities({
-                      ".from-plugin": {
+                      ".in-plugin": {
                         color: "red"
                       }
                     });
                   };
                 }
               `,
-              "tailwind.config.ts": ts`
+              "tailwind.config.js": ts`
                 import { plugin } from "./plugin.js";
 
                 export default {
@@ -258,7 +258,7 @@ describe(noUnregisteredClasses.name, () => {
               `
             },
             options: [{
-              tailwindConfig: "./tailwind.config.ts"
+              tailwindConfig: "./tailwind.config.js"
             }]
           }
         ]
@@ -273,13 +273,13 @@ describe(noUnregisteredClasses.name, () => {
       {
         invalid: [
           {
-            angular: `<img class="in-utility unregistered in-plugin text-in-config hover:before:in-plugin hover:before:text-in-config" />`,
-            html: `<img class="in-utility unregistered in-plugin text-in-config hover:before:in-plugin hover:before:text-in-config" />`,
-            jsx: `() => <img class="in-utility unregistered in-plugin text-in-config hover:before:in-plugin hover:before:text-in-config" />`,
-            svelte: `<img class="in-utility unregistered in-plugin text-in-config hover:before:in-plugin hover:before:text-in-config" />`,
-            vue: `<template><img class="in-utility unregistered in-plugin text-in-config hover:before:in-plugin hover:before:text-in-config" /></template>`,
+            angular: `<img class="in-utility unregistered in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
+            html: `<img class="in-utility unregistered in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
+            jsx: `() => <img class="in-utility unregistered in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
+            svelte: `<img class="in-utility unregistered in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
+            vue: `<template><img class="in-utility unregistered in-plugin text-config hover:before:in-plugin hover:before:text-config" /></template>`,
 
-            errors: 6,
+            errors: 1,
             files: {
               "plugin.js": ts`
                 import createPlugin from "tailwindcss/plugin";
@@ -293,12 +293,7 @@ describe(noUnregisteredClasses.name, () => {
                 });
               `,
               "tailwind.config.js": ts`
-                import { plugin } from "./plugin.js";
-
                 export default {
-                  plugins: [
-                    plugin()
-                  ],
                   theme: {
                     extend: {
                       colors: {
@@ -311,8 +306,8 @@ describe(noUnregisteredClasses.name, () => {
               "tailwind.css": css`
                 @import "tailwindcss";
 
-                @config "./tailwind.config.ts";
-                @plugin "./plugin.ts";
+                @config "./tailwind.config.js";
+                @plugin "./plugin.js";
 
                 @utility in-utility {
                   @apply text-red-500;

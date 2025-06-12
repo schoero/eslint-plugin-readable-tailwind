@@ -1,6 +1,6 @@
-import { mkdirSync, readdirSync, writeFileSync } from "node:fs";
-import { dirname, normalize } from "node:path";
-import { chdir } from "node:process";
+import { existsSync, mkdirSync, readdirSync, rmdirSync, writeFileSync } from "node:fs";
+import { basename, dirname, normalize } from "node:path";
+import { chdir, cwd } from "node:process";
 
 import eslintParserAngular from "@angular-eslint/template-parser";
 import eslintParserHTML from "@html-eslint/parser";
@@ -65,6 +65,12 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
   }
 ) {
 
+  if(basename(cwd()) === "tmp"){
+    chdir("..");
+  }
+  if(existsSync("tmp")){
+    rmdirSync("tmp", { recursive: true });
+  }
   mkdirSync("tmp", { recursive: true });
   chdir("tmp");
 
