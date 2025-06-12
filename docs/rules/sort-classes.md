@@ -22,31 +22,6 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
 <br/>
 
-### `entryPoint`
-
-  The path to the entry file of the css based tailwind config (eg: `src/global.css`). This can also be set globally via the [`settings` object](../settings/settings.md#entrypoint).  
-  If not specified, the plugin will fall back to the default configuration.  
-  The tailwind config is used to determine the sorting order.
-
-  **Type**: `string`  
-  **Default**: `undefined`
-
-<br/>
-
-### `tailwindConfig`
-
-  The path to the `tailwind.config.js` file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.  
-  This can also be set globally via the [`settings` object](../settings/settings.md#tailwindConfig).  
-  
-  The tailwind config is used to determine the sorting order.
-
-  For tailwindcss v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
-
-  **Type**: `string`  
-  **Default**: `undefined`
-
-<br/>
-
 ### `attributes`
 
   The name of the attribute that contains the tailwind classes. This can also be set globally via the [`settings` object](../settings/settings.md#attributes).  
@@ -82,6 +57,28 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
   **Default**: None
 
   Note: When using the `tags` option, it is recommended to use the [strings Matcher](../configuration/advanced.md#types-of-matchers) for your tag names. This will ensure that nested expressions get linted correctly.
+
+<br/>
+
+### `entryPoint`
+
+  The path to the entry file of the css based tailwind config (eg: `src/global.css`). This can also be set globally via the [`settings` object](../settings/settings.md#entrypoint).  
+  If not specified, the plugin will fall back to the default configuration.  
+
+  **Type**: `string`  
+  **Default**: `undefined`
+
+<br/>
+
+### `tailwindConfig`
+
+  The path to the `tailwind.config.js` file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.  
+  This can also be set globally via the [`settings` object](../settings/settings.md#tailwindConfig).  
+
+  For tailwindcss v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
+
+  **Type**: `string`  
+  **Default**: `undefined`
 
 <br/>
 
