@@ -180,7 +180,7 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.only("should not report on tailwind utility classes that don't produce a css output", () => {
+  it("should not report on tailwind utility classes that don't produce a css output", () => {
     lint(
       noUnregisteredClasses,
       TEST_SYNTAXES,
