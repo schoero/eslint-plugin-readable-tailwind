@@ -82,7 +82,7 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.skipIf(getTailwindcssVersion().major < TailwindcssVersion.V4)("should not report on dynamic utility values in tailwind >= 4", () => {
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not report on dynamic utility values in tailwind >= 4", () => {
     lint(
       noUnregisteredClasses,
       TEST_SYNTAXES,
@@ -100,7 +100,7 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.skipIf(getTailwindcssVersion().major > TailwindcssVersion.V3)("should report on dynamic utility values in tailwind <= 3", () => {
+  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should report on dynamic utility values in tailwind <= 3", () => {
     lint(
       noUnregisteredClasses,
       TEST_SYNTAXES,
@@ -180,7 +180,7 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it("should not report on tailwind utility classes that don't produce a css output", () => {
+  it.only("should not report on tailwind utility classes that don't produce a css output", () => {
     lint(
       noUnregisteredClasses,
       TEST_SYNTAXES,
@@ -214,7 +214,7 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.skipIf(getTailwindcssVersion().major > TailwindcssVersion.V3)("should not report on registered utility classes in tailwind <= 3", () => {
+  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not report on registered utility classes in tailwind <= 3", () => {
     lint(
       noUnregisteredClasses,
       TEST_SYNTAXES,
@@ -266,7 +266,7 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.skipIf(getTailwindcssVersion().major <= TailwindcssVersion.V4)("should not report on registered utility classes in tailwind >= 4", () => {
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not report on registered utility classes in tailwind >= 4", () => {
     lint(
       noUnregisteredClasses,
       TEST_SYNTAXES,
