@@ -15,11 +15,7 @@ import type {
 } from "../api/interface.js";
 
 
-const { findAll, generate } = fork(tailwind4);
-
-
-const { parse } = fork(tailwind4);
-
+const { findAll, generate, parse } = fork(tailwind4);
 
 export async function getCustomComponentClasses({ configPath, cwd }: GetCustomComponentClassesRequest): Promise<GetCustomComponentClassesResponse> {
   const warnings: ConfigWarning[] = [];
