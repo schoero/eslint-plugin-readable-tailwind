@@ -1,7 +1,6 @@
 import { readFileSync } from "node:fs";
 
-import { withCache } from "src/tailwind/utils/cache.js";
-
+import { withCache } from "../utils/cache.js";
 import { jsonResolver } from "../utils/resolvers.js";
 
 
@@ -24,7 +23,7 @@ export function isTailwindcssVersion4(version: number): version is TailwindcssVe
   return version === TailwindcssVersion.V4;
 }
 
-export function getTailwindcssVersion() {
+export async function getTailwindcssVersion() {
   const packageJsonPath = jsonResolver.resolveSync({}, process.cwd(), "tailwindcss/package.json");
 
   if(!packageJsonPath){
