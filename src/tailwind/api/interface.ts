@@ -1,5 +1,4 @@
-import type { TailwindcssVersion } from "src/tailwind/utils/version.js";
-
+import type { TailwindcssVersion } from "better-tailwindcss:tailwind/utils/version.js";
 import type { Warning } from "better-tailwindcss:utils/utils.js";
 
 
