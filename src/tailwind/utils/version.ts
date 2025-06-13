@@ -23,7 +23,7 @@ export function isTailwindcssVersion4(version: number): version is TailwindcssVe
   return version === TailwindcssVersion.V4;
 }
 
-export async function getTailwindcssVersion() {
+export function getTailwindcssVersion() {
   const packageJsonPath = jsonResolver.resolveSync({}, process.cwd(), "tailwindcss/package.json");
 
   if(!packageJsonPath){
