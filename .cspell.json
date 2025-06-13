@@ -8,6 +8,8 @@
     "@schoero/configs/cspell"
   ],
   "words": [
+    "astro",
+    "Atrule",
     "autofix",
     "callees",
     "classcat",
@@ -24,12 +26,13 @@
     "jiti",
     "linebreak",
     "linebreakstyle",
+    "memfs",
     "objstr",
     "OBJSTR",
     "quasis",
     "shadcn",
     "synckit",
     "Tmpl",
-    "astro"
+    "csstree"
   ]
 }

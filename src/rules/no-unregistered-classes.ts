@@ -1,3 +1,4 @@
+import { getCustomComponentClasses } from "better-tailwindcss:async/custom-component-classes.sync.js";
 import { getUnregisteredClasses } from "better-tailwindcss:async/unregistered-classes.sync.js";
 import {
   DEFAULT_ATTRIBUTE_NAMES,
@@ -101,10 +102,11 @@ export const noUnregisteredClasses: ESLintRule<Options> = {
 };
 
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
+  const { ignore, tailwindConfig } = getOptions(ctx);
+
+  const [customComponentClasses] = getCustomComponentClasses({ configPath: tailwindConfig, cwd: ctx.cwd });
 
   for(const literal of literals){
-
-    const { ignore, tailwindConfig } = getOptions(ctx);
 
     const classes = splitClasses(literal.content);
 
@@ -117,7 +119,10 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     }
 
     for(const unregisteredClass of unregisteredClasses){
-      if(ignore.some(ignoredClass => unregisteredClass.match(ignoredClass))){
+      if(
+        ignore.some(ignoredClass => unregisteredClass.match(ignoredClass)) ||
+        customComponentClasses.includes(unregisteredClass)
+      ){
         continue;
       }
 

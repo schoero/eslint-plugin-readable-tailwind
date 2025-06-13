@@ -12,6 +12,12 @@ export interface GetClassOrderRequest {
 export type GetClassOrderResponse = [classOrder: [className: string, order: bigint | null][], warnings: ConfigWarning[]];
 
 
+export interface GetCustomComponentClassesRequest {
+  cwd: string;
+  configPath?: string;
+}
+export type GetCustomComponentClassesResponse = [customComponentClasses: string[], warnings: ConfigWarning[]];
+
 export interface GetUnregisteredClassesRequest {
   classes: string[];
   cwd: string;
