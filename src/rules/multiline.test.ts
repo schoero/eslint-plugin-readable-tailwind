@@ -1,8 +1,9 @@
 import { describe, it } from "vitest";
 
 import { multiline } from "better-tailwindcss:rules/multiline.js";
+import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:tailwind/utils/version.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
-import { dedent } from "better-tailwindcss:tests/utils/template.js";
+import { css, dedent, ts } from "better-tailwindcss:tests/utils/template.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 
 
@@ -1270,6 +1271,74 @@ describe(multiline.name, () => {
       }
     );
 
+  });
+
+  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should ignore prefixed variants in tailwind <= 3", () => {
+    lint(
+      multiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="tw-a tw-b hover:tw-c focus:tw-d" />`,
+            angularOutput: `<img class="\n  tw-a tw-b\n  hover:tw-c\n  focus:tw-d\n" />`,
+            html: `<img class="tw-a tw-b hover:tw-c focus:tw-d" />`,
+            htmlOutput: `<img class="\n  tw-a tw-b\n  hover:tw-c\n  focus:tw-d\n" />`,
+            jsx: `() => <img class="tw-a tw-b hover:tw-c focus:tw-d" />`,
+            jsxOutput: `() => <img class={\`\n  tw-a tw-b\n  hover:tw-c\n  focus:tw-d\n\`} />`,
+            svelte: `<img class="tw-a tw-b hover:tw-c focus:tw-d" />`,
+            svelteOutput: `<img class="\n  tw-a tw-b\n  hover:tw-c\n  focus:tw-d\n" />`,
+            vue: `<template><img class="tw-a tw-b hover:tw-c focus:tw-d" /></template>`,
+            vueOutput: `<template><img class="\n  tw-a tw-b\n  hover:tw-c\n  focus:tw-d\n" /></template>`,
+
+            errors: 1,
+            files: {
+              "tailwind.config.js": ts`
+                export default {
+                  prefix: 'tw-',
+                };
+              `
+            },
+            options: [{
+              tailwindConfig: "./tailwind.config.js"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should ignore prefixed variants in tailwind >= 4", () => {
+    lint(
+      multiline,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="tw:a tw:b tw:hover:c tw:focus:d" />`,
+            angularOutput: `<img class="\n  tw:a tw:b\n  tw:hover:c\n  tw:focus:d\n" />`,
+            html: `<img class="tw:a tw:b tw:hover:c tw:focus:d" />`,
+            htmlOutput: `<img class="\n  tw:a tw:b\n  tw:hover:c\n  tw:focus:d\n" />`,
+            jsx: `() => <img class="tw:a tw:b tw:hover:c tw:focus:d" />`,
+            jsxOutput: `() => <img class={\`\n  tw:a tw:b\n  tw:hover:c\n  tw:focus:d\n\`} />`,
+            svelte: `<img class="tw:a tw:b tw:hover:c tw:focus:d" />`,
+            svelteOutput: `<img class="\n  tw:a tw:b\n  tw:hover:c\n  tw:focus:d\n" />`,
+            vue: `<template><img class="tw:a tw:b tw:hover:c tw:focus:d" /></template>`,
+            vueOutput: `<template><img class="\n  tw:a tw:b\n  tw:hover:c\n  tw:focus:d\n" /></template>`,
+
+            errors: 1,
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss" prefix(tw);
+              `
+            },
+            options: [{
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
   });
 
 });
