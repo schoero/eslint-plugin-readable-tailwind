@@ -1,3 +1,4 @@
+import { getCustomComponentClasses } from "better-tailwindcss:async/custom-component-classes.sync.js";
 import { getUnregisteredClasses } from "better-tailwindcss:async/unregistered-classes.sync.js";
 import {
   DEFAULT_ATTRIBUTE_NAMES,
@@ -41,6 +42,7 @@ export type Options = [
     TagOption &
     VariableOption &
     {
+      detectComponentClasses?: boolean;
       entryPoint?: string;
       ignore?: string[];
       tailwindConfig?: string;
@@ -56,6 +58,7 @@ export const DEFAULT_IGNORED_UNREGISTERED_CLASSES = [
 const defaultOptions = {
   attributes: DEFAULT_ATTRIBUTE_NAMES,
   callees: DEFAULT_CALLEE_NAMES,
+  detectComponentClasses: false,
   ignore: DEFAULT_IGNORED_UNREGISTERED_CLASSES,
   tags: DEFAULT_TAG_NAMES,
   variables: DEFAULT_VARIABLE_NAMES
@@ -84,6 +87,11 @@ export const noUnregisteredClasses: ESLintRule<Options> = {
             ...TAG_SCHEMA,
             ...ENTRYPOINT_SCHEMA,
             ...TAILWIND_CONFIG_SCHEMA,
+            detectComponentClasses: {
+              default: defaultOptions.detectComponentClasses,
+              description: "Whether to automatically detect custom component classes from the tailwindcss config.",
+              type: "boolean"
+            },
             ignore: {
               description: "A list of classes that should be ignored by the rule.",
               items: {
@@ -101,10 +109,13 @@ export const noUnregisteredClasses: ESLintRule<Options> = {
 };
 
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
+  const { detectComponentClasses, ignore, tailwindConfig } = getOptions(ctx);
+
+  const customComponentClasses = detectComponentClasses
+    ? getCustomComponentClasses({ configPath: tailwindConfig, cwd: ctx.cwd })[0]
+    : [];
 
   for(const literal of literals){
-
-    const { ignore, tailwindConfig } = getOptions(ctx);
 
     const classes = splitClasses(literal.content);
 
@@ -117,7 +128,10 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     }
 
     for(const unregisteredClass of unregisteredClasses){
-      if(ignore.some(ignoredClass => unregisteredClass.match(ignoredClass))){
+      if(
+        ignore.some(ignoredClass => unregisteredClass.match(ignoredClass)) ||
+        customComponentClasses.includes(unregisteredClass)
+      ){
         continue;
       }
 
@@ -140,9 +154,11 @@ export function getOptions(ctx: Rule.RuleContext) {
   const common = getCommonOptions(ctx);
 
   const ignore = options.ignore ?? defaultOptions.ignore;
+  const detectComponentClasses = options.detectComponentClasses ?? defaultOptions.detectComponentClasses;
 
   return {
     ...common,
+    detectComponentClasses,
     ignore
   };
 

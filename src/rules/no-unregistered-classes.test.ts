@@ -323,4 +323,65 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should ignore custom classes defined in the component layer in tailwind >= 4", () => {
+    lint(
+      noUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="custom-component unregistered" />`,
+            html: `<img class="custom-component unregistered" />`,
+            jsx: `() => <img class="custom-component unregistered" />`,
+            svelte: `<img class="custom-component unregistered" />`,
+            vue: `<template><img class="custom-component unregistered" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss";
+
+                @layer components {
+                  .custom-component {
+                    @apply font-bold;
+                  }
+                }
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ],
+        valid: [
+          {
+            angular: `<img class="custom-component" />`,
+            html: `<img class="custom-component" />`,
+            jsx: `() => <img class="custom-component" />`,
+            svelte: `<img class="custom-component" />`,
+            vue: `<template><img class="custom-component" /></template>`,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss";
+
+                @layer components {
+                  .custom-component {
+                    @apply font-bold;
+                  }
+                }
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
 });
