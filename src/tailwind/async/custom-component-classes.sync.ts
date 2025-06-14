@@ -1,10 +1,10 @@
 // runner.js
 import { resolve } from "node:path";
-import { env } from "node:process";
 
-import { createSyncFn, TsRunner } from "synckit";
+import { createSyncFn } from "synckit";
 
 import { getTailwindcssVersion, isSupportedVersion } from "../utils/version.js";
+import { getWorkerOptions } from "../utils/worker.js";
 
 import type { GetCustomComponentClassesRequest, GetCustomComponentClassesResponse } from "../api/interface.js";
 import type { SupportedTailwindVersion } from "../utils/version.js";
@@ -28,12 +28,6 @@ export function getCustomComponentClasses(request: GetCustomComponentClassesRequ
 
 function getWorkerPath() {
   return resolve(getCurrentDirectory(), "./custom-component-classes.async.js");
-}
-
-function getWorkerOptions() {
-  if(env.NODE_ENV === "test"){
-    return { execArgv: ["--import", TsRunner.TSX] };
-  }
 }
 
 function getCurrentDirectory() {
