@@ -1,10 +1,10 @@
 // runner.js
 import { resolve } from "node:path";
-import { env } from "node:process";
 
-import { createSyncFn, TsRunner } from "synckit";
+import { createSyncFn } from "synckit";
 
 import { getTailwindcssVersion, isTailwindcssVersion4 } from "../utils/version.js";
+import { getWorkerOptions } from "../utils/worker.js";
 
 import type { GetConflictingClassesRequest, GetConflictingClassesResponse } from "../api/interface.js";
 import type { TailwindcssVersion } from "../utils/version.js";
@@ -29,11 +29,6 @@ function getWorkerPath() {
   return resolve(getCurrentDirectory(), "./conflicting-classes.async.js");
 }
 
-function getWorkerOptions() {
-  if(env.NODE_ENV === "test"){
-    return { execArgv: ["--import", TsRunner.TSX] };
-  }
-}
 
 function getCurrentDirectory() {
   // eslint-disable-next-line eslint-plugin-typescript/prefer-ts-expect-error
