@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, rmdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { basename, dirname, normalize } from "node:path";
 import { chdir, cwd } from "node:process";
 
@@ -134,7 +134,7 @@ function resetTestingDirectory(testingDirectory: string = "tmp") {
     chdir("..");
   }
   if(existsSync(testingDirectory)){
-    rmdirSync(testingDirectory, { recursive: true });
+    rmSync(testingDirectory, { recursive: true });
   }
   mkdirSync(testingDirectory, { recursive: true });
   chdir(testingDirectory);
