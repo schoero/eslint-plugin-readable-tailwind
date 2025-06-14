@@ -7,7 +7,7 @@ import postcss from "postcss";
 import postcssImport from "postcss-import";
 
 import { withCache } from "../utils/cache.js";
-import { isCommonJSModule } from "../utils/module.js";
+import { isESModule } from "../utils/module.js";
 import { isWindows } from "../utils/platform.js";
 import { cjsResolver, cssResolver, esmResolver } from "../utils/resolvers.js";
 
@@ -74,15 +74,17 @@ export const createTailwindContextFromEntryPoint = async (entryPoint: string) =>
 
   const importBasePath = dirname(entryPoint);
 
-  const tailwindPath = isCommonJSModule()
-    ? cjsResolver.resolveSync({}, importBasePath, "tailwindcss")
-    : esmResolver.resolveSync({}, importBasePath, "tailwindcss");
+  const tailwindPath = (
+    isESModule()
+      ? esmResolver
+      : cjsResolver
+  ).resolveSync({}, importBasePath, "tailwindcss");
 
   if(!tailwindPath){
     throw new Error("Could not find Tailwind CSS");
   }
 
-  const tailwindUrl = isWindows() ? pathToFileURL(tailwindPath).toString() : tailwindPath;
+  const tailwindUrl = isWindows() && isESModule() ? pathToFileURL(tailwindPath).toString() : tailwindPath;
 
   // eslint-disable-next-line eslint-plugin-typescript/naming-convention
   const { __unstable__loadDesignSystem } = await import(tailwindUrl);
