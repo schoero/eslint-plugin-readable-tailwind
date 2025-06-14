@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, rmdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { basename, dirname, normalize } from "node:path";
 import { chdir, cwd } from "node:process";
 
@@ -65,14 +65,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
   }
 ) {
 
-  if(basename(cwd()) === "tmp"){
-    chdir("..");
-  }
-  if(existsSync("tmp")){
-    rmdirSync("tmp", { recursive: true });
-  }
-  mkdirSync("tmp", { recursive: true });
-  chdir("tmp");
+  resetTestingDirectory();
 
   for(const invalid of tests.invalid ?? []){
 
@@ -104,6 +97,8 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
     }
   }
 
+  resetTestingDirectory();
+
   for(const valid of tests.valid ?? []){
 
     for(const file in valid.files ?? {}){
@@ -132,6 +127,17 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
     }
   }
 
+}
+
+function resetTestingDirectory(testingDirectory: string = "tmp") {
+  if(basename(cwd()) === testingDirectory){
+    chdir("..");
+  }
+  if(existsSync(testingDirectory)){
+    rmSync(testingDirectory, { recursive: true });
+  }
+  mkdirSync(testingDirectory, { recursive: true });
+  chdir(testingDirectory);
 }
 
 type GuardedType<Type> = Type extends (value: any) => value is infer ResultType ? ResultType : never;
