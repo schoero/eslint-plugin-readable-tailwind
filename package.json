@@ -106,7 +106,6 @@
     "tailwindcss4": "npm:tailwindcss@^4.0.0",
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.16",
-    "tsx": "^4.20.3",
     "typescript": "^5.8.3",
     "vite-node": "^3.2.3",
     "vitest": "^3.2.3",
