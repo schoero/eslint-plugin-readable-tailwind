@@ -3,6 +3,7 @@ import fs from "node:fs";
 import enhancedResolve from "enhanced-resolve";
 
 
+// @ts-expect-error - type mismatch
 const fileSystem = new enhancedResolve.CachedInputFileSystem(fs, 30_000);
 
 export const esmResolver = enhancedResolve.ResolverFactory.createResolver({
