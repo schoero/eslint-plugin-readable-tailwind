@@ -350,6 +350,7 @@ describe(noUnregisteredClasses.name, () => {
               `
             },
             options: [{
+              detectComponentClasses: true,
               entryPoint: "./tailwind.css"
             }]
           }
@@ -374,6 +375,7 @@ describe(noUnregisteredClasses.name, () => {
               `
             },
             options: [{
+              detectComponentClasses: true,
               entryPoint: "./tailwind.css"
             }]
           }
