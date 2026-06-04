@@ -58,6 +58,17 @@ The rule reports physical classes and auto-fixes them to their logical equivalen
 
 <br/>
 
+### `ignore`
+
+List of regex patterns for classes that should not report logical property suggestions.
+
+This can be useful for classes that intentionally use physical directions.
+
+**Type**: `string[]`
+**Default**: `[]`
+
+<br/>
+
 <details>
   <summary>Common options</summary>
 

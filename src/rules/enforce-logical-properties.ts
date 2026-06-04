@@ -1,8 +1,11 @@
+import { array, description, optional, pipe, strictObject, string } from "valibot";
+
 import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { createGetUnknownClasses, getUnknownClasses } from "better-tailwindcss:tailwindcss/unknown-classes.js";
 import { buildClass } from "better-tailwindcss:utils/class.js";
 import { async } from "better-tailwindcss:utils/context.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
+import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { replacePlaceholders, splitClasses } from "better-tailwindcss:utils/utils.js";
 
@@ -17,6 +20,18 @@ export const enforceLogicalProperties = createRule({
   docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/enforce-logical-properties.md",
   name: "enforce-logical-properties",
   recommended: false,
+
+  schema: strictObject({
+    ignore: optional(
+      pipe(
+        array(
+          string()
+        ),
+        description("A list of regular expression patterns for classes that should be ignored by the rule.")
+      ),
+      []
+    )
+  }),
 
   messages: {
     multiple: "Physical class detected. Replace \"{{ className }}\" with logical classes \"{{fix}}\".",
@@ -96,6 +111,9 @@ const mappings = [
 
 
 function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: Literal[]) {
+  const { ignore } = ctx.options;
+  const ignoredClassRegexes = ignore.map(ignoredClass => getCachedRegex(ignoredClass));
+
   for(const literal of literals){
     const classes = splitClasses(literal.content);
 
@@ -114,6 +132,10 @@ function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: L
     const { unknownClasses } = getUnknownClasses(async(ctx), possibleFixes);
 
     lintClasses(ctx, literal, className => {
+      if(ignoredClassRegexes.some(ignoredClassRegex => ignoredClassRegex.test(className))){
+        return;
+      }
+
       const dissectedClass = dissectedClasses[className];
 
       if(!dissectedClass){

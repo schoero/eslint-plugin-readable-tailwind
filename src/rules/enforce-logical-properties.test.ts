@@ -244,6 +244,47 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceLogicalProperties.name
     );
   });
 
+  it("should ignore configured classes", () => {
+    lint(
+      enforceLogicalProperties,
+      {
+        invalid: [
+          {
+            angular: `<img class="pl-4 pr-4" />`,
+            angularOutput: `<img class="ps-4 pr-4" />`,
+            html: `<img class="pl-4 pr-4" />`,
+            htmlOutput: `<img class="ps-4 pr-4" />`,
+            jsx: `() => <img class="pl-4 pr-4" />`,
+            jsxOutput: `() => <img class="ps-4 pr-4" />`,
+            svelte: `<img class="pl-4 pr-4" />`,
+            svelteOutput: `<img class="ps-4 pr-4" />`,
+            vue: `<template><img class="pl-4 pr-4" /></template>`,
+            vueOutput: `<template><img class="ps-4 pr-4" /></template>`,
+
+            errors: 1,
+
+            options: [{
+              ignore: ["^pr-"]
+            }]
+          }
+        ],
+        valid: [
+          {
+            angular: `<img class="pl-4 pr-4" />`,
+            html: `<img class="pl-4 pr-4" />`,
+            jsx: `() => <img class="pl-4 pr-4" />`,
+            svelte: `<img class="pl-4 pr-4" />`,
+            vue: `<template><img class="pl-4 pr-4" /></template>`,
+
+            options: [{
+              ignore: ["^pl-", "^pr-"]
+            }]
+          }
+        ]
+      }
+    );
+  });
+
   it.each(testCases)(`should report "%s"`, (input, output) => {
     lint(
       enforceLogicalProperties,
