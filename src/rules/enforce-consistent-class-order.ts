@@ -294,30 +294,12 @@ function getStrictOrder(variantMap: VariantMap): string[] {
 
   for(let v = 0; v < orderedVariants.length; v++){
     const variant = orderedVariants[v];
-    const nextVariant = orderedVariants[v + 1];
-
-    const variantIsArbitrary = isArbitrary(variant);
-    const nextVariantIsArbitrary = isArbitrary(nextVariant);
 
     const { dissectedClasses, nested } = variantMap[variant];
 
     orderedClasses.push(...dissectedClasses.map(dissectedClass => dissectedClass.className));
 
-    if(dissectedClasses.length > 0 || !variantIsArbitrary && nextVariantIsArbitrary){
-      orderedClasses.push(...getStrictOrder(nested));
-    }
-  }
-
-  for(let v = 0; v < orderedVariants.length; v++){
-    const variant = orderedVariants[v];
-    const nextVariant = orderedVariants[v + 1];
-
-    const variantIsArbitrary = isArbitrary(variant);
-    const nextVariantIsArbitrary = isArbitrary(nextVariant);
-
-    const { dissectedClasses, nested } = variantMap[variant];
-
-    if(!(dissectedClasses.length > 0 || !variantIsArbitrary && nextVariantIsArbitrary)){
+    if(Object.keys(nested).length > 0){
       orderedClasses.push(...getStrictOrder(nested));
     }
   }
