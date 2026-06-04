@@ -87,6 +87,77 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
     });
   });
 
+  it("should not suggest a canonical class when it matches the enclosing utility name", () => {
+    lint(enforceCanonicalClasses, {
+      valid: [
+        {
+          css: css`
+            @utility default-transition {
+              @apply transition-all duration-800;
+            }
+          `,
+
+          files: {
+            "styles.css": css`
+              @import "tailwindcss";
+
+              @utility default-transition {
+                @apply transition-all duration-800;
+              }
+            `
+          },
+          options: [{
+            entryPoint: "styles.css"
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should still suggest canonical classes inside utility blocks when output differs", () => {
+    lint(enforceCanonicalClasses, {
+      invalid: [
+        {
+          css: css`
+            @utility not-size {
+              @apply w-10 h-10;
+            }
+          `,
+          cssOutput: css`
+            @utility not-size {
+              @apply size-10 ;
+            }
+          `,
+
+          errors: [
+            {
+              message: values(enforceCanonicalClasses.messages!.multiple, {
+                canonicalClass: "size-10",
+                classNames: "w-10, h-10"
+              })
+            },
+            {
+              message: values(enforceCanonicalClasses.messages!.multiple, {
+                canonicalClass: "size-10",
+                classNames: "w-10, h-10"
+              })
+            }
+          ],
+
+          files: {
+            "styles.css": css`
+              @import "tailwindcss";
+            `
+          },
+          options: [{
+            collapse: true,
+            entryPoint: "styles.css"
+          }]
+        }
+      ]
+    });
+  });
+
   it("should collapse multiple utilities into a single utility", () => {
     lint(enforceCanonicalClasses, {
       invalid: [

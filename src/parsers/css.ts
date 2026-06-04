@@ -50,6 +50,7 @@ function getLiteralsByAtrule(ctx: Rule.RuleContext, node: Atrule): CSSClassListL
   const indentation = getIndentation(line);
   const whitespaces = getWhitespace(content);
   const type = "CSSClassListLiteral";
+  const utility = getEnclosingUtilityName(ctx, node);
 
   return {
     ...whitespaces,
@@ -62,9 +63,42 @@ function getLiteralsByAtrule(ctx: Rule.RuleContext, node: Atrule): CSSClassListL
     raw: content,
     supportsMultiline: true,
     trailingSemicolon,
-    type
+    type,
+    utility
   };
 
+}
+
+function getEnclosingUtilityName(ctx: Rule.RuleContext, node: Atrule): string | undefined {
+  if(isUtilityAtRule(node)){
+    return getUtilityName(ctx, node);
+  }
+
+  // @ts-expect-error - CSS Tree types are different
+  const ancestors = ctx.sourceCode.getAncestors(node);
+
+  for(const ancestor of ancestors){
+    if(isAtRule(ancestor) && isUtilityAtRule(ancestor)){
+      return getUtilityName(ctx, ancestor);
+    }
+  }
+}
+
+function getUtilityName(ctx: Rule.RuleContext, node: Atrule): string | undefined {
+  if(isUtilityAtRule(node)){
+    return node.prelude?.type === "AtrulePrelude" || node.prelude?.type === "Raw"
+      // @ts-expect-error - CSS Tree types are different
+      ? ctx.sourceCode.getText(node.prelude)
+      : undefined;
+  }
+}
+
+function isUtilityAtRule(node: Atrule): boolean {
+  return node.name === "utility";
+}
+
+function isAtRule(node: any): node is Atrule {
+  return node.type === "Atrule";
 }
 
 function getLoc(ctx: Rule.RuleContext, node: Atrule, startOffset: number, endOffset: number): Loc["loc"] | undefined {

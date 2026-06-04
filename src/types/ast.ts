@@ -71,6 +71,7 @@ export interface StringLiteral extends LiteralBase {
 
 export interface CSSClassListLiteral extends LiteralBase {
   type: "CSSClassListLiteral";
+  utility?: string | undefined;
 }
 
 export type Literal = CSSClassListLiteral | StringLiteral | TemplateLiteral;

@@ -93,6 +93,13 @@ function lintLiterals(ctx: Context<typeof enforceCanonicalClasses>, literals: Li
         return;
       }
 
+      if(
+        literal.utility &&
+        canonicalClass.output === literal.utility
+      ){
+        return;
+      }
+
       if(canonicalClass.input.length > 1){
         return {
           data: {
