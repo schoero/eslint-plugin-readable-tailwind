@@ -26,6 +26,29 @@ Disallow unknown classes in Tailwind CSS class strings. Unknown classes are clas
 
 <br/>
 
+### `detectSvelteStyleClasses`
+
+  Treat class selectors declared in a Svelte component's `<style>` block as known classes for that component.
+
+  The option only has an effect in `.svelte` files. If the `<style>` block cannot be parsed, or it uses a style language that `svelte-eslint-parser` cannot parse, no classes are detected from it.
+
+  **Type**: `boolean`  
+  **Default**: `false`
+
+  This is useful when a `.svelte` file mixes Tailwind classes with local component classes:
+
+  ```svelte
+  <style>
+    .card {
+      border-radius: 0.5rem;
+    }
+  </style>
+
+  <div class="card flex" />
+  ```
+
+<br/>
+
 <details>
   <summary>Common options</summary>
 

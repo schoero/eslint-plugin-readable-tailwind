@@ -185,6 +185,7 @@ export function createRule<
           docs,
           installation,
           options,
+          parserServices: ctx.sourceCode.parserServices,
           report: ({ fix, range, warnings, ...rest }) => {
             const loc = getLocByRange(ctx, range);
 

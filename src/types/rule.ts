@@ -1,4 +1,4 @@
-import type { JSRuleDefinition } from "eslint";
+import type { JSRuleDefinition, Rule } from "eslint";
 import type { BaseIssue, BaseSchema, Default, InferOutput, OptionalSchema, StrictObjectSchema } from "valibot";
 
 import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
@@ -193,6 +193,8 @@ export interface RuleContext<
   /** The installation path of Tailwind CSS. */
   installation: string;
   options: Options;
+  /** Parser-specific services for the file currently being linted. */
+  parserServices: Rule.RuleContext["sourceCode"]["parserServices"];
   report: <
     const MsgId extends MessageId<Messages>
   >(info:

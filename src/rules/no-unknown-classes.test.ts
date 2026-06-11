@@ -133,6 +133,202 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
+  it("should still report classes declared in Svelte style blocks by default", () => {
+    lint(
+      noUnknownClasses,
+      {
+        invalid: [
+          {
+            svelte: `<style>.local-card { color: red; }</style><div class="local-card" />`,
+
+            errors: 1
+          }
+        ]
+      }
+    );
+  });
+
+  it("should ignore classes declared in Svelte style blocks when configured", () => {
+    lint(
+      noUnknownClasses,
+      {
+        valid: [
+          {
+            svelte: `<style>.local-card { color: red; }:global(.global-card) { color: blue; }</style><div class="local-card global-card flex" />`,
+
+            options: [{ detectSvelteStyleClasses: true }]
+          },
+          {
+            svelte: `<style>.foo\\:bar { color: red; }</style><div class="foo:bar" />`,
+
+            options: [{ detectSvelteStyleClasses: true }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should ignore Svelte class directives declared in style blocks when configured", () => {
+    lint(
+      noUnknownClasses,
+      {
+        invalid: [
+          {
+            svelte: `<style>.local-card { color: red; }</style><div class:local-card={true} />`,
+
+            errors: 1
+          }
+        ],
+        valid: [
+          {
+            svelte: `<style>.local-card { color: red; }</style><div class:local-card={true} />`,
+
+            options: [{ detectSvelteStyleClasses: true }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should ignore all class selectors declared in Svelte style blocks when configured", () => {
+    lint(
+      noUnknownClasses,
+      {
+        valid: [
+          {
+            svelte: `<style>.card .title, .button.primary { color: red; }</style><div class="card title button primary" />`,
+
+            options: [{ detectSvelteStyleClasses: true }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should still report unknown classes when the Svelte file has no style block", () => {
+    lint(
+      noUnknownClasses,
+      {
+        invalid: [
+          {
+            svelte: `<div class="local-card" />`,
+
+            errors: 1,
+            options: [{ detectSvelteStyleClasses: true }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should not detect Svelte style classes when the style block cannot be parsed", () => {
+    lint(
+      noUnknownClasses,
+      {
+        invalid: [
+          {
+            svelte: `<style lang="less">.local-card { color: red; }</style><div class="local-card" />`,
+
+            errors: 1,
+            options: [{ detectSvelteStyleClasses: true }]
+          },
+          {
+            svelte: `<style>.local-card {</style><div class="local-card" />`,
+
+            errors: 1,
+            options: [{ detectSvelteStyleClasses: true }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should ignore Svelte style rules with selectors that cannot be parsed", () => {
+    lint(
+      noUnknownClasses,
+      {
+        invalid: [
+          {
+            svelte: `<style>.local-card: { color: red; }.known-card { color: blue; }</style><div class="local-card known-card" />`,
+
+            errors: 1,
+            options: [{ detectSvelteStyleClasses: true }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should only ignore exact classes declared in Svelte style blocks", () => {
+    lint(
+      noUnknownClasses,
+      {
+        invalid: [
+          {
+            svelte: `<style>.local-card { color: red; }</style><div class="hover:local-card" />`,
+
+            errors: 1,
+            options: [{ detectSvelteStyleClasses: true }]
+          },
+          {
+            svelte: `<style>.local-card { color: red; }</style><div class="local-card typo-card" />`,
+
+            errors: 1,
+            options: [{ detectSvelteStyleClasses: true }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should compose Svelte style classes with ignored classes", () => {
+    lint(
+      noUnknownClasses,
+      {
+        valid: [
+          {
+            svelte: `<style>.local-card { color: red; }</style><div class="local-card ignored-card" />`,
+
+            options: [{
+              detectSvelteStyleClasses: true,
+              ignore: ["^ignored-card$"]
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should compose Svelte style classes with custom component classes in tailwind >= 4", () => {
+    lint(
+      noUnknownClasses,
+      {
+        valid: [
+          {
+            svelte: `<style>.local-card { color: red; }</style><div class="local-card custom-component" />`,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss";
+
+                @layer components {
+                  .custom-component {
+                    @apply font-bold;
+                  }
+                }
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              detectSvelteStyleClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
   it("should be possible to whitelist classes in options", () => {
     lint(
       noUnknownClasses,

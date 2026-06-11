@@ -18,6 +18,9 @@ import {
 
 import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
+import type { Rule as PostCSSRule } from "postcss";
+import type { Node as PostCSSSelectorNode } from "postcss-selector-parser";
+import type { parseForESLint } from "svelte-eslint-parser";
 import type {
   SvelteAttachTag,
   SvelteAttribute,
@@ -43,6 +46,9 @@ import type {
 import type { AttributeSelector, MatcherFunctions, SelectorMatcher } from "better-tailwindcss:types/rule.js";
 
 
+type SvelteParserServices = ReturnType<typeof parseForESLint>["services"];
+type ParserServices = Rule.RuleContext["sourceCode"]["parserServices"];
+
 export const SVELTE_CONTAINER_TYPES_TO_REPLACE_QUOTES = [
   ...ES_CONTAINER_TYPES_TO_REPLACE_QUOTES,
   "SvelteMustacheTag"
@@ -50,6 +56,18 @@ export const SVELTE_CONTAINER_TYPES_TO_REPLACE_QUOTES = [
 
 export const SVELTE_CONTAINER_TYPES_TO_INSERT_BRACES: string[] = [
 ];
+
+const SVELTE_STYLE_CLASS_CACHE = new WeakMap<object, Set<string>>();
+
+export type GetSvelteStyleClasses = () => Set<string>;
+
+export let getSvelteStyleClasses: GetSvelteStyleClasses = () => { throw new Error("getSvelteStyleClasses() called before being initialized"); };
+
+export function createGetSvelteStyleClasses(parserServices: ParserServices): GetSvelteStyleClasses {
+  getSvelteStyleClasses = () => collectSvelteStyleClasses(parserServices);
+
+  return getSvelteStyleClasses;
+}
 
 
 export function getAttributesBySvelteTag(ctx: Rule.RuleContext, node: SvelteStartTag): SvelteAttribute[] {
@@ -68,6 +86,46 @@ export function getDirectivesBySvelteTag(ctx: Rule.RuleContext, node: SvelteStar
     }
     return acc;
   }, []);
+}
+
+function collectSvelteStyleClasses(parserServices: ParserServices): Set<string> {
+  if(!isSvelteParserServices(parserServices)){
+    return new Set();
+  }
+
+  const cachedClassNames = SVELTE_STYLE_CLASS_CACHE.get(parserServices);
+
+  if(cachedClassNames){
+    return cachedClassNames;
+  }
+
+  const styleContext = parserServices.getStyleContext();
+
+  if(styleContext.status !== "success"){
+    const result = new Set<string>();
+
+    SVELTE_STYLE_CLASS_CACHE.set(parserServices, result);
+
+    return result;
+  }
+
+  const classNames = new Set<string>();
+
+  styleContext.sourceAst.walkRules((rule: PostCSSRule) => {
+    try {
+      const selectorAst = parserServices.getStyleSelectorAST(rule);
+
+      selectorAst.walk((selectorNode: PostCSSSelectorNode) => {
+        if(selectorNode.type === "class"){
+          classNames.add(selectorNode.value);
+        }
+      });
+    } catch {}
+  });
+
+  SVELTE_STYLE_CLASS_CACHE.set(parserServices, classNames);
+
+  return classNames;
 }
 
 export function getLiteralsBySvelteAttribute(ctx: Rule.RuleContext, attribute: SvelteAttribute, selectors: AttributeSelector[]): Literal[] {
@@ -298,6 +356,10 @@ function isSvelteName(node: ESBaseNode): node is SvelteName {
 function isSvelteMustacheTag(node: ESBaseNode): node is SvelteMustacheTagText {
   return node.type === "SvelteMustacheTag" &&
     "kind" in node && node.kind === "text";
+}
+
+function isSvelteParserServices(parserServices: ParserServices): parserServices is SvelteParserServices {
+  return typeof parserServices?.getStyleContext === "function";
 }
 
 function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions {

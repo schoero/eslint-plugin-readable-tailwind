@@ -1,5 +1,14 @@
-import { array, description, optional, pipe, strictObject, string } from "valibot";
+import {
+  array,
+  boolean,
+  description,
+  optional,
+  pipe,
+  strictObject,
+  string
+} from "valibot";
 
+import { createGetSvelteStyleClasses, getSvelteStyleClasses } from "better-tailwindcss:parsers/svelte.js";
 import {
   createGetCustomComponentClasses,
   getCustomComponentClasses
@@ -30,6 +39,13 @@ export const noUnknownClasses = createRule({
   },
 
   schema: strictObject({
+    detectSvelteStyleClasses: optional(
+      pipe(
+        boolean(),
+        description("Whether to treat class selectors declared in Svelte style blocks as known classes for that component.")
+      ),
+      false
+    ),
     ignore: optional(
       pipe(
         array(
@@ -42,13 +58,17 @@ export const noUnknownClasses = createRule({
   }),
 
   initialize: ctx => {
-    const { detectComponentClasses } = ctx.options;
+    const { detectComponentClasses, detectSvelteStyleClasses } = ctx.options;
 
     createGetPrefix(ctx);
     createGetUnknownClasses(ctx);
 
     if(detectComponentClasses){
       createGetCustomComponentClasses(ctx);
+    }
+
+    if(detectSvelteStyleClasses){
+      createGetSvelteStyleClasses(ctx.parserServices);
     }
   },
 
@@ -66,6 +86,7 @@ function lintLiterals(ctx: Context<typeof noUnknownClasses>, literals: Literal[]
   const ignoredPeers = getCachedRegex(`^${escapeForRegex(`${prefix}${suffix}`)}peer(?:\\/(\\S*))?$`);
 
   const customComponentClassRegexes = getCustomComponentClassRegexes(ctx);
+  const svelteStyleClassNames = getSvelteStyleClassNames(ctx);
 
   for(const literal of literals){
 
@@ -86,6 +107,7 @@ function lintLiterals(ctx: Context<typeof noUnknownClasses>, literals: Literal[]
       if(
         ignore.some(ignoredClass => getCachedRegex(ignoredClass).test(className)) ||
         customComponentClassRegexes?.some(customComponentClassesRegex => customComponentClassesRegex.test(className)) ||
+        svelteStyleClassNames?.has(className) ||
         ignoredGroups.test(className) ||
         ignoredPeers.test(className)
       ){
@@ -115,4 +137,14 @@ function getCustomComponentClassRegexes(ctx: Context<typeof noUnknownClasses>): 
   const { prefix, suffix } = getPrefix(async(ctx));
 
   return customComponentClasses.map(className => getCachedRegex(`^${escapeForRegex(`${prefix}${suffix}`)}(?:.*:)?${escapeForRegex(className)}$`));
+}
+
+function getSvelteStyleClassNames(ctx: Context<typeof noUnknownClasses>): Set<string> | undefined {
+  const { detectSvelteStyleClasses } = ctx.options;
+
+  if(!detectSvelteStyleClasses){
+    return;
+  }
+
+  return getSvelteStyleClasses();
 }
