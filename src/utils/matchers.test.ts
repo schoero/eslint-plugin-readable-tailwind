@@ -299,6 +299,22 @@ describe("matchers", () => {
       });
     });
 
+    it("should not lint strings passed to nested function calls", () => {
+      lint(noUnnecessaryWhitespace, {
+        invalid: [
+          {
+            jsx: `defined(helper("  ignore  "), " lint ");`,
+            jsxOutput: `defined(helper("  ignore  "), "lint");`,
+
+            errors: 2,
+            options: [{
+              callees: [["defined", [{ match: MatcherType.String }]]]
+            }]
+          }
+        ]
+      });
+    });
+
   });
 
   describe("variables", () => {

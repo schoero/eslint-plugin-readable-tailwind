@@ -18,8 +18,6 @@ import type { GenericNodeWithParent } from "better-tailwindcss:utils/utils.js";
 export function getLiteralNodesByMatchers<Node>(ctx: Rule.RuleContext, node: unknown, matcherFunctions: MatcherFunctions): Node[] {
   if(!isGenericNodeWithParent(node)){ return []; }
 
-  const nestedLiterals = findMatchingNestedNodes<Node>(node, matcherFunctions);
-
   const self = matcherFunctions.reduce<Node[]>((self, matcherFunction) => {
     const result = matcherFunction(node);
 
@@ -27,18 +25,37 @@ export function getLiteralNodesByMatchers<Node>(ctx: Rule.RuleContext, node: unk
       return self;
     } else if(result === MATCHER_RESULT.MATCH){
       return [node as Node, ...self];
-    } else if(result === MATCHER_RESULT.UNCROSSABLE_BOUNDARY){
-      return self;
-    } else if(Array.isArray(result)){
-      self.push(...findMatchingNestedNodes<Node>(node, result));
     }
+
     return self;
   }, []);
+
+  const nestedMatcherFunctions = matcherFunctions.reduce<MatcherFunctions>((nestedMatcherFunctions, matcherFunction) => {
+    const result = matcherFunction(node);
+
+    if(result === MATCHER_RESULT.NO_MATCH || result === MATCHER_RESULT.MATCH){
+      nestedMatcherFunctions.push(matcherFunction);
+      return nestedMatcherFunctions;
+    }
+
+    if(result === MATCHER_RESULT.UNCROSSABLE_BOUNDARY){
+      return nestedMatcherFunctions;
+    }
+
+    nestedMatcherFunctions.push(...result);
+    return nestedMatcherFunctions;
+  }, []);
+
+  const nestedLiterals = findMatchingNestedNodes<Node>(node, nestedMatcherFunctions);
 
   return [...nestedLiterals, ...self];
 }
 
 function findMatchingNestedNodes<Node>(node: GenericNodeWithParent, matcherFunctions: MatcherFunctions) {
+  if(matcherFunctions.length === 0){
+    return [];
+  }
+
   return Object.entries(node).reduce<Node[]>((matchedNodes, [key, value]) => {
     if(!value || typeof value !== "object" || key === "parent"){
       return matchedNodes;
