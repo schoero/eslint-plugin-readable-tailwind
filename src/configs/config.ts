@@ -6,6 +6,7 @@ import { enforceConsistentVariableSyntax } from "better-tailwindcss:rules/enforc
 import { enforceConsistentVariantOrder } from "better-tailwindcss:rules/enforce-consistent-variant-order.js";
 import { enforceLogicalProperties } from "better-tailwindcss:rules/enforce-logical-properties.js";
 import { enforceShorthandClasses } from "better-tailwindcss:rules/enforce-shorthand-classes.js";
+import { noConcatenatedClasses } from "better-tailwindcss:rules/no-concatenated-classes.js";
 import { noConflictingClasses } from "better-tailwindcss:rules/no-conflicting-classes.js";
 import { noDeprecatedClasses } from "better-tailwindcss:rules/no-deprecated-classes.js";
 import { noDuplicateClasses } from "better-tailwindcss:rules/no-duplicate-classes.js";
@@ -42,6 +43,7 @@ const rules = [
   enforceConsistentVariableSyntax,
   enforceLogicalProperties,
   enforceShorthandClasses,
+  noConcatenatedClasses,
   noConflictingClasses,
   noDeprecatedClasses,
   noDuplicateClasses,
