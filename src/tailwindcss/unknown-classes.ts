@@ -1,8 +1,4 @@
-import { resolve } from "node:path";
-
-import { createSyncFn } from "synckit";
-
-import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
+import { createTailwindWorkerRunner } from "better-tailwindcss:utils/worker.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
@@ -19,15 +15,9 @@ export type GetUnknownClasses = (ctx: AsyncContext, classes: string[]) => {
 export let getUnknownClasses: GetUnknownClasses = () => { throw new Error("getUnknownClasses() called before being initialized"); };
 
 export function createGetUnknownClasses(ctx: Context): GetUnknownClasses {
-  const workerPath = getWorkerPath(ctx);
-  const workerOptions = getWorkerOptions();
-  const runWorker = createSyncFn(workerPath, workerOptions);
+  const runWorker = createTailwindWorkerRunner(ctx);
 
   getUnknownClasses = (ctx, classes) => runWorker("getUnknownClasses", ctx, classes);
 
   return getUnknownClasses;
-}
-
-function getWorkerPath(ctx: Context) {
-  return resolve(import.meta.dirname, `./tailwind.async.worker.v${ctx.version.major}.js`);
 }
