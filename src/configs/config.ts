@@ -55,6 +55,7 @@ const plugin = {
   meta: {
     name: "better-tailwindcss"
   },
+  // eslint-disable-next-line eslint-plugin-typescript/no-unnecessary-type-assertion
   rules: rules.reduce(
     (acc, { name, rule }) => {
       acc[name] = rule;

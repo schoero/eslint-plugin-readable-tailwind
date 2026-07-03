@@ -523,7 +523,7 @@ function findMatchingParentNodes<Node>(node: Partial<GenericNodeWithParent>, mat
   if(!isGenericNodeWithParent(node)){ return; }
 
   if(matchesNode(node.parent)){
-    return node.parent as Node;
+    return node.parent;
   }
 
   return findMatchingParentNodes(node.parent, matchesNode);
@@ -615,7 +615,7 @@ function getESCalleeName(node: ESBaseNode, type: "name" | "path"): string | unde
       return;
     }
 
-    const object = getESCalleeName(memberNode.object as ESBaseNode, type);
+    const object = getESCalleeName(memberNode.object, type);
     const property = getESMemberExpressionPropertyName(memberNode);
 
     if(!property){
@@ -650,7 +650,7 @@ function getTaggedTemplateName(node: ESBaseNode & Partial<Rule.NodeParentExtensi
     return getESCalleeName(node, type);
   }
   if(node.type === "CallExpression"){
-    return getESCalleeName((node as ESCallExpression).callee as ESBaseNode, type);
+    return getESCalleeName((node as ESCallExpression).callee, type);
   }
   if(node.type === "ChainExpression" && "expression" in node){
     return getTaggedTemplateName(node.expression as ESBaseNode, type);

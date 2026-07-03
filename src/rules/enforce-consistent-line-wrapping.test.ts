@@ -929,7 +929,7 @@ describe(enforceConsistentLineWrapping.name, () => {
     {
 
       const linter = new ESLint({
-        overrideConfig: [{
+        baseConfig: [{
           languageOptions: {
             parser: eslintParserHTML
           },
@@ -943,7 +943,8 @@ describe(enforceConsistentLineWrapping.name, () => {
               lineBreakStyle: "unix"
             }]
           }
-        }]
+        }],
+        overrideConfigFile: true
       });
 
       const [result] = await linter.lintText("<img class=\"\r\n  a b c d\r\n\" />");
@@ -955,7 +956,7 @@ describe(enforceConsistentLineWrapping.name, () => {
     }
     {
       const linter = new ESLint({
-        overrideConfig: [{
+        baseConfig: [{
           languageOptions: {
             parser: eslintParserHTML
           },
@@ -969,7 +970,8 @@ describe(enforceConsistentLineWrapping.name, () => {
               lineBreakStyle: "windows"
             }]
           }
-        }]
+        }],
+        overrideConfigFile: true
       });
 
       const [result] = await linter.lintText("<img class=\"\n  a b c d\n\" />");
@@ -983,7 +985,7 @@ describe(enforceConsistentLineWrapping.name, () => {
 
   it("should warn if `indent` is likely misconfigured", async () => {
     const linter = new ESLint({
-      overrideConfig: [{
+      baseConfig: [{
         languageOptions: {
           parser: eslintParserHTML
         },
@@ -996,7 +998,8 @@ describe(enforceConsistentLineWrapping.name, () => {
             indent: 2
           }]
         }
-      }]
+      }],
+      overrideConfigFile: true
     });
 
     const [result] = await linter.lintText("<img class=\"\n\ta b c d\n\" />");
@@ -1009,7 +1012,7 @@ describe(enforceConsistentLineWrapping.name, () => {
 
   it("should not warn for double spaces between classes", async () => {
     const linter = new ESLint({
-      overrideConfig: [{
+      baseConfig: [{
         languageOptions: {
           parser: eslintParserHTML
         },
@@ -1022,7 +1025,8 @@ describe(enforceConsistentLineWrapping.name, () => {
             indent: "tab"
           }]
         }
-      }]
+      }],
+      overrideConfigFile: true
     });
 
     const [result] = await linter.lintText("<img class=\"a  b c d\" />");
@@ -1034,7 +1038,7 @@ describe(enforceConsistentLineWrapping.name, () => {
 
   it("should not warn for leading spaces in single-line class strings", async () => {
     const linter = new ESLint({
-      overrideConfig: [{
+      baseConfig: [{
         languageOptions: {
           parser: eslintParserHTML
         },
@@ -1047,7 +1051,8 @@ describe(enforceConsistentLineWrapping.name, () => {
             indent: "tab"
           }]
         }
-      }]
+      }],
+      overrideConfigFile: true
     });
 
     const [result] = await linter.lintText("<img class=\" a b c d\" />");

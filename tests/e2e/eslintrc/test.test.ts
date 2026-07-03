@@ -1,4 +1,4 @@
-import { loadESLint } from "eslint";
+import { loadESLint } from "eslint9";
 import { describe, expect, it } from "vitest";
 
 

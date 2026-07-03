@@ -153,17 +153,17 @@ export interface CreateRuleOptions<
   description: string;
   /** The URL to the rule documentation. */
   docs: string;
-  /** Lint the literals in the given context. */
-  lintLiterals: (ctx: RuleContext<Messages, Options>, literals: Literal[]) => void;
   /** The name of the rule. */
   name: Name;
   /** Whether the rule is enabled in the recommended configs. */
   recommended: Recommended;
-  initialize?: (ctx: RuleContext<Messages, Options>) => void;
+  /** Lint the literals in the given context. */
+  lintLiterals: (ctx: RuleContext<Messages, Options>, literals: Literal[]) => void;
   /** The messages for the rule. */
   messages?: Messages;
   /** The schema for the rule options. */
   schema?: OptionsSchema;
+  initialize?: (ctx: RuleContext<Messages, Options>) => void;
 }
 
 export interface ESLintRule<
@@ -176,12 +176,12 @@ export interface ESLintRule<
   category: Category;
   messages: Messages | undefined;
   name: Name;
-  get options(): Options;
   recommended: Recommended;
   rule: JSRuleDefinition<{
     MessageIds: keyof Messages & string;
     RuleOptions: [Required<Options>];
   }>;
+  get options(): Options;
 }
 
 export interface RuleContext<
@@ -193,6 +193,8 @@ export interface RuleContext<
   /** The installation path of Tailwind CSS. */
   installation: string;
   options: Options;
+  /** The Tailwind CSS Version. */
+  version: Version;
   report: <
     const MsgId extends MessageId<Messages>
   >(info:
@@ -225,8 +227,6 @@ export interface RuleContext<
     }
 
   ) => void;
-  /** The Tailwind CSS Version. */
-  version: Version;
 }
 
 export type Context<Rule extends ESLintRule = ESLintRule> = RuleContext<Rule["messages"], Rule["options"]>;

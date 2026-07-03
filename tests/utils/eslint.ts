@@ -8,8 +8,9 @@ export async function eslint(
   config: Linter.Config[]
 ): Promise<string> {
   const eslint = new ESLint({
+    baseConfig: config,
     fix: true,
-    overrideConfig: config
+    overrideConfigFile: true
   });
 
   const [result] = await eslint.lintText(content);

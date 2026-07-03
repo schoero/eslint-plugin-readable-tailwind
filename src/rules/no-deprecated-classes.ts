@@ -104,7 +104,7 @@ function lintLiterals(ctx: Context<typeof noDeprecatedClasses>, literals: Litera
             return {
               data: {
                 className
-              } as Record<string, string>,
+              },
               id: "irreplaceable",
               warnings
             } as const;

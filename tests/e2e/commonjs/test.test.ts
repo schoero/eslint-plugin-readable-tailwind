@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 describe("e2e/commonjs", async () => {
   it("should report all errors", async () => {
-    const ESLint = await loadESLint({ useFlatConfig: true });
+    const ESLint = await loadESLint();
 
     const eslint = new ESLint({
       cwd: import.meta.dirname,

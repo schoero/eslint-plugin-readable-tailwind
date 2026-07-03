@@ -3,19 +3,20 @@
   "compilerOptions": {
 
     // paths
-    "baseUrl": ".",
     "lib": ["ESNext"],
     "module": "Preserve",
     "paths": {
-      "better-tailwindcss:build/*": ["build/*"],
-      "better-tailwindcss:options/*": ["src/options/*"],
-      "better-tailwindcss:configs/*": ["src/configs/*"],
-      "better-tailwindcss:parsers/*": ["src/parsers/*"],
-      "better-tailwindcss:rules/*": ["src/rules/*"],
-      "better-tailwindcss:tests/*": ["tests/*"],
-      "better-tailwindcss:types/*": ["src/types/*"],
-      "better-tailwindcss:utils/*": ["src/utils/*","src/async-utils/*"],
-      "better-tailwindcss:tailwindcss/*": ["src/tailwindcss/*"]
+      "*": ["./*"],
+
+      "better-tailwindcss:build/*": ["./build/*"],
+      "better-tailwindcss:options/*": ["./src/options/*"],
+      "better-tailwindcss:configs/*": ["./src/configs/*"],
+      "better-tailwindcss:parsers/*": ["./src/parsers/*"],
+      "better-tailwindcss:rules/*": ["./src/rules/*"],
+      "better-tailwindcss:tests/*": ["./tests/*"],
+      "better-tailwindcss:types/*": ["./src/types/*"],
+      "better-tailwindcss:utils/*": ["./src/utils/*","./src/async-utils/*"],
+      "better-tailwindcss:tailwindcss/*": ["./src/tailwindcss/*"]
     },
 
     // general

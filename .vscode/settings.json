@@ -35,10 +35,10 @@
   },
 
   // ES module import
-  "typescript.preferences.importModuleSpecifier": "non-relative",
-  "typescript.preferences.importModuleSpecifierEnding": "js",
-  "typescript.preferences.useAliasesForRenames": true,
-  "typescript.preferences.autoImportFileExcludePatterns": [
+  "js/ts.preferences.importModuleSpecifier": "non-relative",
+  "js/ts.preferences.importModuleSpecifierEnding": "js",
+  "js/ts.preferences.useAliasesForRenames": true,
+  "js/ts.preferences.autoImportFileExcludePatterns": [
     "@types/node/test.d.ts"
   ],
   
@@ -56,9 +56,9 @@
   "editor.rulers": [
     119
   ],
-  "typescript.preferences.autoImportSpecifierExcludeRegexes": ["lib"],
+  "js/ts.preferences.autoImportSpecifierExcludeRegexes": ["lib"],
   "search.exclude": {
     "lib": true
   },
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "js/ts.tsdk.path": "node_modules/typescript/lib"
 }

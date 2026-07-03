@@ -34,7 +34,7 @@ describe("monorepo cwd resolution", async () => {
     fs.cleanUp();
   });
 
-  const ESLint = await loadESLint({ useFlatConfig: true });
+  const ESLint = await loadESLint();
 
   it("should resolve tailwindcss from the explicitly configured cwd", async () => {
     const linter = new ESLint({

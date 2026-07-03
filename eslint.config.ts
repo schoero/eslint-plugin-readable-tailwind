@@ -5,6 +5,11 @@ import { defineConfig } from "eslint/config";
 export default defineConfig([
   ...config,
   {
+    ignores: [
+      "tests/e2e/**"
+    ]
+  },
+  {
     files: ["**/*.test.{js,jsx,cjs,mjs,ts,tsx}", "**/*.test-d.{ts,tsx}"],
     rules: {
       "eslint-plugin-stylistic/quotes": ["warn", "double", { allowTemplateLiterals: "always", avoidEscape: true }],
@@ -26,7 +31,7 @@ export default defineConfig([
               selector: "property"
             }
           ],
-          groups: ["markup", { newlinesBetween: "always" }, "unknown"],
+          groups: ["markup", { newlinesBetween: 1 }, "unknown"],
           ignoreCase: true,
           partitionByComment: false,
           type: "alphabetical"

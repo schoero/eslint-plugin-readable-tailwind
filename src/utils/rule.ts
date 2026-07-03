@@ -32,7 +32,7 @@ import { removeDefaults } from "better-tailwindcss:utils/valibot.js";
 import { parseSemanticVersion } from "better-tailwindcss:utils/version.js";
 import { warnOnce } from "better-tailwindcss:utils/warn.js";
 
-import type { TmplAstElement } from "@angular-eslint/bundled-angular-compiler";
+import type { TmplAstElement } from "@angular/compiler";
 import type { Atrule } from "@eslint/css-tree";
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
@@ -156,7 +156,7 @@ export function createRule<
     get options() { return getOptions(); },
     recommended,
     rule: {
-      create: ctx => {
+      create: (ctx: Rule.RuleContext) => {
 
         eslintContext = ctx;
 

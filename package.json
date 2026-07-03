@@ -56,7 +56,9 @@
     "test:e2e": "vitest -c ./vite.config.ts tests/e2e --run",
     "test:v3": "npm run test -- --run",
     "test:v4": "npm run test -- --run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "update": "ncu",
+    "validate": "npm run typecheck && npm run lint:ci && npm run spellcheck:ci && npm run test:all"
   },
   "engines": {
     "node": "^20.19.0 || ^22.12.0 || >=23.0.0"
@@ -78,44 +80,49 @@
     }
   },
   "dependencies": {
-    "@eslint/css-tree": "^4.0.1",
-    "@valibot/to-json-schema": "^1.6.0",
-    "enhanced-resolve": "^5.20.1",
-    "jiti": "^2.6.1",
-    "synckit": "^0.11.12",
-    "tailwind-csstree": "^0.3.2",
+    "@eslint/css-tree": "^4.0.4",
+    "@valibot/to-json-schema": "^1.7.1",
+    "enhanced-resolve": "^5.24.1",
+    "jiti": "^2.7.0",
+    "synckit": "^0.11.13",
+    "tailwind-csstree": "^0.3.3",
     "tsconfig-paths-webpack-plugin": "^4.2.0",
-    "valibot": "^1.3.1"
+    "valibot": "^1.4.2"
   },
   "devDependencies": {
-    "@angular/compiler": "^21.2.6",
-    "@angular-eslint/template-parser": "^21.3.1",
-    "@eslint/css": "^1.1.0",
-    "@html-eslint/parser": "0.58.1",
-    "@oxc-node/core": "^0.0.35",
-    "@schoero/configs": "^1.5.32",
+    "@angular/compiler": "^22.0.5",
+    "@angular-eslint/template-parser": "^22.0.0",
+    "@eslint/css": "^1.4.0",
+    "@html-eslint/parser": "0.62.0",
+    "@oxc-node/core": "^0.1.0",
+    "@schoero/configs": "^1.5.39",
+    "@types/estree": "^1.0.9",
     "@types/estree-jsx": "^1.0.5",
-    "@types/node": "^25.5.0",
-    "@typescript-eslint/parser": "^8.58.0",
-    "astro-eslint-parser": "^1.4.0",
+    "@types/node": "25.5.0",
+    "@typescript-eslint/parser": "^8.62.1",
+    "astro-eslint-parser": "^2.1.0",
     "changelogen": "^0.6.2",
-    "cspell": "^10.0.0",
-    "daisyui": "^5.5.19",
+    "cspell": "^10.0.1",
+    "daisyui": "^5.6.7",
     "es-html-parser": "^0.3.1",
-    "eslint": "^9.39.4",
+    "eslint": "^10.6.0",
     "eslint-plugin-better-tailwindcss": "file:./",
+    "eslint9": "npm:eslint@^9.39.4",
+    "espree": "^11.2.0",
     "json-schema": "^0.4.0",
-    "markdownlint": "^0.40.0",
-    "oxlint": "^1.58.0",
-    "prettier": "^3.8.1",
-    "svelte": "^5.55.1",
-    "svelte-eslint-parser": "^1.6.0",
-    "tailwindcss": "^4.2.2",
-    "tsc-alias": "^1.8.16",
-    "typescript": "^5.9.3",
+    "markdownlint": "^0.41.0",
+    "markdownlint-cli2": "^0.23.0",
+    "npm-check-updates": "^22.2.9",
+    "oxlint": "^1.72.0",
+    "prettier": "^3.9.4",
+    "svelte": "^5.56.4",
+    "svelte-eslint-parser": "^1.8.0",
+    "tailwindcss": "^4.3.2",
+    "tsc-alias": "^1.8.17",
+    "typescript": "^6.0.3",
     "vite-node": "^6.0.0",
-    "vitest": "^4.1.2",
-    "vue-eslint-parser": "^10.4.0"
+    "vitest": "^4.1.9",
+    "vue-eslint-parser": "^10.4.1"
   },
   "keywords": [
     "eslint",
@@ -149,8 +156,5 @@
     "tailwindcss",
     "tailwind-css",
     "tailwind-classes"
-  ],
-  "volta": {
-    "node": "25.2.1"
-  }
+  ]
 }

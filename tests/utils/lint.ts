@@ -4,7 +4,7 @@ import { normalize } from "node:path";
 import eslintParserAngular from "@angular-eslint/template-parser";
 import css from "@eslint/css";
 import eslintParserHTML from "@html-eslint/parser";
-import eslintParserAstro from "astro-eslint-parser";
+import * as eslintParserAstro from "astro-eslint-parser";
 import { RuleTester as ESLintRuleTester } from "eslint";
 import { RuleTester as OxlintRuleTester } from "oxlint/plugins-dev";
 import eslintParserSvelte from "svelte-eslint-parser";
