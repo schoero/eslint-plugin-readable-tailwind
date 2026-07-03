@@ -1,9 +1,21 @@
 import { describe, it } from "vitest";
 
+import { DEFAULT_SELECTORS } from "better-tailwindcss:options/default-options.js";
 import { noUnknownClasses } from "better-tailwindcss:rules/no-unknown-classes.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { css, ts } from "better-tailwindcss:tests/utils/template.js";
 import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version";
+import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
+
+import type { Selectors } from "better-tailwindcss:options/schemas/selectors.js";
+
+
+const SVELTE_STYLE_SELECTOR: Selectors[number] = { element: "style", kind: SelectorKind.Style };
+const QWIK_STYLE_SELECTOR: Selectors[number] = {
+  kind: SelectorKind.Style,
+  match: [{ type: MatcherType.String }],
+  path: "useStylesScoped\\$"
+};
 
 
 describe(noUnknownClasses.name, () => {
@@ -1509,6 +1521,172 @@ describe(noUnknownClasses.name, () => {
               entryPoint: "./tailwind.css",
               tsconfig: "./tsconfig-custom.json"
             }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should still report classes declared in style blocks by default", () => {
+    lint(
+      noUnknownClasses,
+      {
+        invalid: [
+          {
+            svelte: `<style>.local-card { color: red; }</style><div class="local-card" />`,
+
+            errors: 1
+          }
+        ]
+      }
+    );
+  });
+
+  it("should treat Svelte style block class selectors as known when configured", () => {
+    lint(
+      noUnknownClasses,
+      {
+        valid: [
+          {
+            svelte: `<style>.local-card { color: red; }:global(.global-card) { color: blue; }</style><div class="local-card global-card flex" />`,
+
+            options: [{ selectors: [...DEFAULT_SELECTORS, SVELTE_STYLE_SELECTOR] }]
+          },
+          {
+            svelte: `<style>.foo\\:bar { color: red; }</style><div class="foo:bar" />`,
+
+            options: [{ selectors: [...DEFAULT_SELECTORS, SVELTE_STYLE_SELECTOR] }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should treat all class selectors declared in a Svelte style block as known when configured", () => {
+    lint(
+      noUnknownClasses,
+      {
+        valid: [
+          {
+            svelte: `<style>.card .title, .button.primary { color: red; }</style><div class="card title button primary" />`,
+
+            options: [{ selectors: [...DEFAULT_SELECTORS, SVELTE_STYLE_SELECTOR] }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should detect classes declared via a Qwik useStylesScoped$ callee when configured", () => {
+    lint(
+      noUnknownClasses,
+      {
+        invalid: [
+          {
+            jsx: `() => { useStylesScoped$(\`.local-card { color: red; }\`); return <div class="local-card" />; }`,
+
+            errors: 1
+          }
+        ],
+        valid: [
+          {
+            jsx: `() => { useStylesScoped$(\`.local-card { color: red; }\`); return <div class="local-card flex" />; }`,
+
+            options: [{ selectors: [...DEFAULT_SELECTORS, QWIK_STYLE_SELECTOR] }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should only treat exact class selectors declared in a style block as known", () => {
+    lint(
+      noUnknownClasses,
+      {
+        invalid: [
+          {
+            svelte: `<style>.local-card { color: red; }</style><div class="hover:local-card" />`,
+
+            errors: 1,
+            options: [{ selectors: [...DEFAULT_SELECTORS, SVELTE_STYLE_SELECTOR] }]
+          },
+          {
+            svelte: `<style>.local-card { color: red; }</style><div class="local-card typo-card" />`,
+
+            errors: 1,
+            options: [{ selectors: [...DEFAULT_SELECTORS, SVELTE_STYLE_SELECTOR] }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should not detect classes from Svelte style blocks that use an unsupported language", () => {
+    lint(
+      noUnknownClasses,
+      {
+        invalid: [
+          {
+            svelte: `<style lang="scss">.local-card { color: red; }</style><div class="local-card" />`,
+
+            errors: 1,
+            options: [{ selectors: [...DEFAULT_SELECTORS, SVELTE_STYLE_SELECTOR] }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should still report unknown classes when the file has no style block", () => {
+    lint(
+      noUnknownClasses,
+      {
+        invalid: [
+          {
+            svelte: `<div class="local-card" />`,
+
+            errors: 1,
+            options: [{ selectors: [...DEFAULT_SELECTORS, SVELTE_STYLE_SELECTOR] }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should compose style block classes with ignored classes", () => {
+    lint(
+      noUnknownClasses,
+      {
+        valid: [
+          {
+            svelte: `<style>.local-card { color: red; }</style><div class="local-card ignored-card" />`,
+
+            options: [{
+              ignore: ["^ignored-card$"],
+              selectors: [...DEFAULT_SELECTORS, SVELTE_STYLE_SELECTOR]
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should lint the contents of style blocks via @apply", () => {
+    lint(
+      noUnknownClasses,
+      {
+        invalid: [
+          {
+            svelte: `<style>.card { @apply unknown-class; }</style>`,
+
+            errors: 1,
+            options: [{ selectors: [...DEFAULT_SELECTORS, SVELTE_STYLE_SELECTOR] }]
+          },
+          {
+            jsx: `() => { useStylesScoped$(\`.card { @apply unknown-class; }\`); return null; }`,
+
+            errors: 1,
+            options: [{ selectors: [...DEFAULT_SELECTORS, QWIK_STYLE_SELECTOR] }]
           }
         ]
       }

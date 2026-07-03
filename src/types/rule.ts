@@ -20,6 +20,7 @@ export enum MatcherType {
 export enum SelectorKind {
   Attribute = "attribute",
   Callee = "callee",
+  Style = "style",
   Tag = "tag",
   Variable = "variable"
 }
@@ -112,7 +113,25 @@ export type TagSelector = {
 
 export type VariableSelector = BaseSelector<SelectorKind.Variable>;
 
-export type Selector = AttributeSelector | CalleeSelector | TagSelector | VariableSelector;
+/** Targets a markup `<style>` element whose content is a stylesheet (e.g. Svelte `<style>`). */
+export type StyleElementSelector = {
+  element: Regex;
+  kind: SelectorKind.Style;
+};
+
+/** Targets a callee whose string/template argument is a stylesheet (e.g. Qwik `useStylesScoped$`). */
+export type StyleCalleeSelector = {
+  kind: SelectorKind.Style;
+  match?: SelectorMatcher[] | undefined;
+  name?: Regex | undefined;
+  path?: Regex | undefined;
+  targetArgument?: ArgumentTarget | undefined;
+  targetCall?: CallTarget | undefined;
+};
+
+export type StyleSelector = StyleCalleeSelector | StyleElementSelector;
+
+export type Selector = AttributeSelector | CalleeSelector | StyleSelector | TagSelector | VariableSelector;
 export type Selectors = Selector[];
 
 export type SelectorByKind<Kind extends SelectorKind> = Extract<Selector, { kind: Kind; }>;

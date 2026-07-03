@@ -23,7 +23,7 @@ You can find the default selectors in the [defaults documentation](../api/defaul
 
 Each selector targets one kind of source location and tells the plugin how to extract class strings from it.
 
-The plugin supports four selector types: `attribute`, `callee`, `variable`, and `tag`.
+The plugin supports five selector types: `attribute`, `callee`, `style`, `variable`, and `tag`.
 Every selector can then match different types of string literals based on the provided `match` option.
 
 ### Type
@@ -73,6 +73,64 @@ type CalleeSelector = {
   targetArgument?: "all" | "first" | "last" | number;
   targetCall?: "all" | "first" | "last" | number;
 };
+```
+
+<br/>
+
+### `style`
+
+Targets sources whose content is a CSS stylesheet instead of a class string, such as a Svelte `<style>` block or a Qwik [`useStylesScoped$`](https://qwik.dev/docs/components/styles/#usestylesscoped) call.
+
+For every matched source the plugin:
+
+- treats the class selectors declared in the stylesheet as known classes, so [`no-unknown-classes`](../rules/no-unknown-classes.md) no longer reports them.
+- lints the Tailwind classes used inside `@apply` directives in the stylesheet with all rules.
+
+A style selector comes in two variants.
+
+#### Markup element
+
+- **kind**: `"style"`.  
+- **element**: regular expression for the markup element name (e.g. `"style"`).  
+
+```ts
+type StyleElementSelector = {
+  element: string;
+  kind: "style";
+};
+```
+
+#### Callee
+
+- **kind**: `"style"`.  
+- **name** `optional`: regular expression for callee names (e.g. `"useStylesScoped\\$"`).  
+- **path** `optional`: regular expression for callee member paths.  
+  When `path` is provided, `name` is not required.  
+- **targetCall** `optional`: curried call target, see [`callee`](#callee).  
+- **targetArgument** `optional`: target specific call arguments, see [`callee`](#callee).  
+- **match** `optional`: [selector matcher](#selector-matcher-types) list.  
+  When omitted, only direct string literals are collected.  
+
+```ts
+type StyleCalleeSelector = {
+  kind: "style";
+  match?: SelectorMatcher[];
+  name?: string;
+  path?: string;
+  targetArgument?: "all" | "first" | "last" | number;
+  targetCall?: "all" | "first" | "last" | number;
+};
+```
+
+```jsonc
+{
+  "selectors": [
+    // Svelte `<style>` blocks
+    { "kind": "style", "element": "^style$" },
+    // Qwik `useStylesScoped$("...")`
+    { "kind": "style", "path": "^useStylesScoped\\$$", "match": [{ "type": "strings" }] }
+  ]
+}
 ```
 
 <br/>

@@ -114,3 +114,40 @@ Disallow unknown classes in Tailwind CSS class strings. Unknown classes are clas
 // ✅ GOOD: only valid tailwindcss classes
 <div class="font-bold hover:underline" />;
 ```
+
+<br/>
+
+### Local classes defined in style blocks
+
+Classes that are declared in a co-located stylesheet, such as a Svelte `<style>` block or a Qwik [`useStylesScoped$`](https://qwik.dev/docs/components/styles/#usestylesscoped) call, are reported as unknown by default.
+
+Add a [`style` selector](../configuration/advanced.md#style) to tell the rule about those sources. The class selectors declared in the stylesheet are then treated as known classes, and the Tailwind classes used inside `@apply` are linted as well.
+
+```jsonc
+{
+  "rules": {
+    "better-tailwindcss/no-unknown-classes": ["error", {
+      "selectors": [
+        // keep the default selectors
+        // ...
+        // Svelte `<style>` blocks
+        { "kind": "style", "element": "^style$" },
+        // Qwik `useStylesScoped$("...")`
+        { "kind": "style", "path": "^useStylesScoped\\$$", "match": [{ "type": "strings" }] }
+      ]
+    }]
+  }
+}
+```
+
+```svelte
+<style>
+  .local-card { color: red; }
+</style>
+
+<!-- ✅ GOOD: `local-card` is declared in the style block -->
+<div class="local-card" />
+```
+
+> [!NOTE]
+> Only exact class selectors are treated as known. A variant like `hover:local-card` is still reported.

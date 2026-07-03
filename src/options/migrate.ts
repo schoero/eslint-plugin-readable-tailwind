@@ -113,7 +113,7 @@ function toLegacyMatcher(matcher: SelectorMatcher): Matcher | undefined {
   };
 }
 
-function migrateLegacySelector(selector: LegacySelector, kind: SelectorKind) {
+function migrateLegacySelector(selector: LegacySelector, kind: SelectorKind): Selector {
   const name = typeof selector === "string" ? selector : selector[0];
   const path = kind === SelectorKind.Callee || kind === SelectorKind.Tag ? name : undefined;
   const matchers = typeof selector === "string" ? undefined : selector[1].map(toSelectorMatcher);
@@ -123,7 +123,7 @@ function migrateLegacySelector(selector: LegacySelector, kind: SelectorKind) {
       kind,
       name,
       ...path ? { path } : {}
-    };
+    } as Selector;
   }
 
   return {
@@ -131,10 +131,14 @@ function migrateLegacySelector(selector: LegacySelector, kind: SelectorKind) {
     match: matchers,
     name,
     ...path ? { path } : {}
-  };
+  } as Selector;
 }
 
 function migrateFlatSelector(selector: Selector): LegacySelector | undefined {
+  if(selector.kind === SelectorKind.Style){
+    return;
+  }
+
   if(selector.kind === SelectorKind.Callee || selector.kind === SelectorKind.Tag){
     if(selector.match === undefined){
       return selector.name ?? selector.path!;

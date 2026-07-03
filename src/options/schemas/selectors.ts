@@ -187,9 +187,52 @@ const VARIABLE_SELECTOR_SCHEMA = strictObject({
   name: SELECTOR_NAME_SCHEMA
 });
 
+const STYLE_SELECTOR_ELEMENT_SCHEMA = pipe(
+  string(),
+  description("Regular expression for markup `<style>` element names whose content should be treated as a stylesheet.")
+);
+
+const STYLE_SELECTOR_PATH_SCHEMA = pipe(
+  string(),
+  description("Regular expression for callee paths whose string argument should be treated as a stylesheet.")
+);
+
+const STYLE_SELECTOR_SCHEMA = union([
+  strictObject({
+    element: STYLE_SELECTOR_ELEMENT_SCHEMA,
+    kind: pipe(
+      literal(SelectorKind.Style),
+      description("Selector kind that determines where matching is applied.")
+    )
+  }),
+  strictObject({
+    kind: pipe(
+      literal(SelectorKind.Style),
+      description("Selector kind that determines where matching is applied.")
+    ),
+    match: SELECTOR_MATCH_SCHEMA,
+    name: SELECTOR_NAME_SCHEMA,
+    path: optional(STYLE_SELECTOR_PATH_SCHEMA),
+    targetArgument: CALLEE_SELECTOR_TARGET_ARGUMENT_SCHEMA,
+    targetCall: CALLEE_SELECTOR_TARGET_CALL_SCHEMA
+  }),
+  strictObject({
+    kind: pipe(
+      literal(SelectorKind.Style),
+      description("Selector kind that determines where matching is applied.")
+    ),
+    match: SELECTOR_MATCH_SCHEMA,
+    name: optional(SELECTOR_NAME_SCHEMA),
+    path: STYLE_SELECTOR_PATH_SCHEMA,
+    targetArgument: CALLEE_SELECTOR_TARGET_ARGUMENT_SCHEMA,
+    targetCall: CALLEE_SELECTOR_TARGET_CALL_SCHEMA
+  })
+]);
+
 export const SELECTOR_SCHEMA = union([
   ATTRIBUTE_SELECTOR_SCHEMA,
   CALLEE_SELECTOR_SCHEMA,
+  STYLE_SELECTOR_SCHEMA,
   TAG_SELECTOR_SCHEMA,
   VARIABLE_SELECTOR_SCHEMA
 ]);

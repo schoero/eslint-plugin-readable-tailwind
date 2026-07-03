@@ -102,6 +102,39 @@ export default defineConfig({
 
 <br/>
 
+### Qwik scoped styles
+
+Qwik components can declare scoped classes with [`useStylesScoped$`](https://qwik.dev/docs/components/styles/#usestylesscoped). Add a [`style` selector](../configuration/advanced.md#style) so the plugin knows about those sources. The class selectors declared in the stylesheet are then treated as known by [`no-unknown-classes`](../rules/no-unknown-classes.md), and the Tailwind classes used inside `@apply` are linted as well.
+
+```js
+// eslint.config.js
+
+import { getDefaultSelectors } from "eslint-plugin-better-tailwindcss/defaults";
+
+export default {
+  rules: {
+    "better-tailwindcss/no-unknown-classes": ["error", {
+      selectors: [
+        ...getDefaultSelectors(),
+        { kind: "style", match: [{ type: "strings" }], path: "^useStylesScoped\\$$" }
+      ]
+    }]
+  }
+};
+```
+
+```tsx
+import { component$, useStylesScoped$ } from "@builder.io/qwik";
+
+export default component$(() => {
+  // `@apply` is linted, `.local-card` becomes a known class
+  useStylesScoped$(".local-card { @apply font-bold; }");
+  return <div class="local-card" />;
+});
+```
+
+<br/>
+
 ## Oxlint
 
 More info about the Oxlint configuration format can be found in the [Oxlint documentation](https://oxc.rs/docs/guide/usage/linter/config.html).

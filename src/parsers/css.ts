@@ -23,11 +23,13 @@ export function getLiteralsByCSSAtRule(ctx: Rule.RuleContext, node: Atrule): Lit
 
 }
 
-function getLiteralsByAtrule(ctx: Rule.RuleContext, node: Atrule): CSSClassListLiteral | undefined {
-
-  // @ts-expect-error - CSS Tree types are different
-  const raw = ctx.sourceCode.getText(node);
-
+/**
+ * Splits the raw text of an `@apply` directive into its leading keyword, class list content and trailing semicolon.
+ *
+ * @param raw
+ * @returns
+ */
+export function matchCSSApplyDirective(raw: string): undefined | { content: string; leadingApply: string; trailingSemicolon: string; } {
   const match = raw.match(/^(?<leadingApply>@apply[\t ](?!\r?\n)|@apply(?=\s))(?<content>.+?)(?<trailingSemicolon>;?\s*)$/s);
 
   if(!match?.groups?.leadingApply || !match.groups.content || match.groups.trailingSemicolon === undefined){
@@ -35,6 +37,22 @@ function getLiteralsByAtrule(ctx: Rule.RuleContext, node: Atrule): CSSClassListL
   }
 
   const { content, leadingApply, trailingSemicolon } = match.groups;
+
+  return { content, leadingApply, trailingSemicolon };
+}
+
+function getLiteralsByAtrule(ctx: Rule.RuleContext, node: Atrule): CSSClassListLiteral | undefined {
+
+  // @ts-expect-error - CSS Tree types are different
+  const raw = ctx.sourceCode.getText(node);
+
+  const match = matchCSSApplyDirective(raw);
+
+  if(!match){
+    return;
+  }
+
+  const { content, leadingApply, trailingSemicolon } = match;
 
   const startOffset = leadingApply.length;
   const endOffset = trailingSemicolon.length;

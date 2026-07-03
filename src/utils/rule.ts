@@ -17,6 +17,7 @@ import {
 } from "better-tailwindcss:parsers/es.js";
 import { getAttributesByHTMLTag, getLiteralsByHTMLAttribute } from "better-tailwindcss:parsers/html.js";
 import { getAttributesByJSXElement, getLiteralsByJSXAttribute } from "better-tailwindcss:parsers/jsx.js";
+import { createGetStyleSources, getLiteralsByStyleSource, getStyleSources } from "better-tailwindcss:parsers/style.js";
 import {
   getAttributesBySvelteTag,
   getDirectivesBySvelteTag,
@@ -61,6 +62,7 @@ import type {
   RuleContext,
   Schema,
   Selectors,
+  StyleSelector,
   TagSelector,
   VariableSelector
 } from "better-tailwindcss:types/rule.js";
@@ -244,6 +246,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
 
   const attributes: AttributeSelector[] = [];
   const callees: CalleeSelector[] = [];
+  const styles: StyleSelector[] = [];
   const tags: TagSelector[] = [];
   const variables: VariableSelector[] = [];
 
@@ -255,6 +258,9 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
       case SelectorKind.Callee:
         callees.push(selector);
         break;
+      case SelectorKind.Style:
+        styles.push(selector);
+        break;
       case SelectorKind.Tag:
         tags.push(selector);
         break;
@@ -263,6 +269,20 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
         break;
     }
   }
+
+  createGetStyleSources(ctx, styles);
+
+  const style = {
+    Program() {
+      for(const source of getStyleSources()){
+        const literals = getLiteralsByStyleSource(ctx, source);
+
+        if(literals.length > 0){
+          lintLiterals(context, literals);
+        }
+      }
+    }
+  };
 
   const callExpression = {
     CallExpression(node: Node) {
@@ -438,6 +458,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
       ...bareTemplateLiteral,
       ...exportDefaultDeclarations,
       ...taggedTemplateExpression,
+      ...style,
 
       // bound classes
       ...ctx.sourceCode.parserServices.defineTemplateBodyVisitor({
@@ -458,6 +479,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
     ...vue,
     ...html,
     ...angular,
-    ...css
+    ...css,
+    ...style
   };
 }
