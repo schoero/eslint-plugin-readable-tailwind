@@ -1,4 +1,5 @@
 import { createRule } from "better-tailwindcss:utils/rule.js";
+import { isConcatenatedLiteral } from "better-tailwindcss:utils/utils.js";
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
@@ -31,16 +32,4 @@ function lintLiterals(ctx: Context<typeof noConcatenatedClasses>, literals: Lite
       range: literal.range
     });
   }
-}
-
-function isConcatenatedLiteral(literal: Literal) {
-  const isTemplateInterpolation =
-    literal.isInterpolated === true &&
-    literal.openingBraces !== undefined;
-
-  const isStringConcatenation =
-    literal.isConcatenatedLeft === true ||
-    literal.isConcatenatedRight === true;
-
-  return isTemplateInterpolation || isStringConcatenation;
 }

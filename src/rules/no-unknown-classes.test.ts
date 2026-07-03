@@ -133,6 +133,40 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
+  it("should ignore classes concatenated with plus operator", () => {
+    lint(
+      noUnknownClasses,
+      {
+        valid: [
+          {
+            angular: `<img [class]="'bg-' + color" />`,
+            astro: `<img class={"bg-" + color} />`,
+            jsx: `() => <img className={"bg-" + color} />`,
+            svelte: `<img class={"bg-" + color} />`,
+            vue: `<template><img :class="'bg-' + color" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it("should ignore interpolated class strings", () => {
+    lint(
+      noUnknownClasses,
+      {
+        valid: [
+          {
+            angular: `<img [class]="\`bg-\${color}\`" />`,
+            astro: `<img class={\`bg-\${color}\`} />`,
+            jsx: `() => <img className={\`bg-\${color}\`} />`,
+            svelte: `<img class={\`bg-\${color}\`} />`,
+            vue: `<template><img :class="\`bg-\${color}\`" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
   it("should be possible to whitelist classes in options", () => {
     lint(
       noUnknownClasses,

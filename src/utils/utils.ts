@@ -120,6 +120,18 @@ export function isClassSticky(literal: Literal, classIndex: number): boolean {
   );
 }
 
+export function isConcatenatedLiteral(literal: Literal) {
+  const isTemplateInterpolation =
+    literal.isInterpolated === true &&
+    literal.openingBraces !== undefined;
+
+  const isStringConcatenation =
+    literal.isConcatenatedLeft === true ||
+    literal.isConcatenatedRight === true;
+
+  return isTemplateInterpolation || isStringConcatenation;
+}
+
 export function getExactClassLocation(literal: Literal, startIndex: number, endIndex: number) {
   const linesUpToStartIndex = literal.content.slice(0, startIndex).split(/\r?\n/);
   const isOnFirstLine = linesUpToStartIndex.length === 1;
