@@ -1,5 +1,6 @@
+import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
-import { isConcatenatedLiteral } from "better-tailwindcss:utils/utils.js";
+import { isConcatenatedClass, isConcatenatedLiteral } from "better-tailwindcss:utils/utils.js";
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
@@ -14,7 +15,7 @@ export const noConcatenatedClasses = createRule({
   recommended: true,
 
   messages: {
-    concatenated: "Concatenated classes may be purged by Tailwind CSS. Avoid dynamic class construction: https://tailwindcss.com/docs/detecting-classes-in-source-files"
+    concatenated: "Concatenated classes may be purged by Tailwind CSS. Avoid dynamic class construction."
   },
 
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
@@ -27,9 +28,14 @@ function lintLiterals(ctx: Context<typeof noConcatenatedClasses>, literals: Lite
       continue;
     }
 
-    ctx.report({
-      id: "concatenated",
-      range: literal.range
+    lintClasses(ctx, literal, (_, index) => {
+      if(!isConcatenatedClass(literal, index)){
+        return;
+      }
+
+      return {
+        id: "concatenated"
+      } as const;
     });
   }
 }

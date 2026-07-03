@@ -167,6 +167,25 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
+  it("should only ignore unknown classes that are actually concatenated", () => {
+    lint(
+      noUnknownClasses,
+      {
+        invalid: [
+          {
+            angular: `<img [class]="'bg-' + color + ' unknown'" />`,
+            astro: `<img class={"bg-" + color + " unknown"} />`,
+            jsx: `() => <img className={"bg-" + color + " unknown"} />`,
+            svelte: `<img class={"bg-" + color + " unknown"} />`,
+            vue: `<template><img :class="'bg-' + color + ' unknown'" /></template>`,
+
+            errors: 1
+          }
+        ]
+      }
+    );
+  });
+
   it("should be possible to whitelist classes in options", () => {
     lint(
       noUnknownClasses,

@@ -38,6 +38,22 @@ describe(noConcatenatedClasses.name, () => {
     });
   });
 
+  it("should only report the edge classes that are actually concatenated", () => {
+    lint(noConcatenatedClasses, {
+      invalid: [
+        {
+          angular: `<img [class]="'static bg-' + color + ' text-white trailing'" />`,
+          astro: `<img class={"static bg-" + color + " text-white trailing"} />`,
+          jsx: `() => <img className={"static bg-" + color + " text-white trailing"} />`,
+          svelte: `<img class={"static bg-" + color + " text-white trailing"} />`,
+          vue: `<template><img :class="'static bg-' + color + ' text-white trailing'" /></template>`,
+
+          errors: 1
+        }
+      ]
+    });
+  });
+
   it("should not report static class strings", () => {
     lint(noConcatenatedClasses, {
       valid: [
