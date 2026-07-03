@@ -305,6 +305,10 @@ describe("matchers", () => {
           {
             jsx: `defined(helper("  ignore  "), " lint ");`,
             jsxOutput: `defined(helper("  ignore  "), "lint");`,
+            svelte: `<script>defined(helper("  ignore  "), " lint ");</script>`,
+            svelteOutput: `<script>defined(helper("  ignore  "), "lint");</script>`,
+            vue: `<script>defined(helper("  ignore  "), " lint ");</script>`,
+            vueOutput: `<script>defined(helper("  ignore  "), "lint");</script>`,
 
             errors: 2,
             options: [{
