@@ -1,5 +1,13 @@
 # Changelog
 
+## v4.6.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.6.0...v4.6.1)
+
+### Fixes
+
+- Nested function calls ([#387](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/387))
+
 ## v4.6.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.5.0...v4.6.0)
