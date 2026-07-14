@@ -111,6 +111,13 @@ export const enforceConsistentLineWrapping = createRule({
         description("The visual width of a tab character when evaluating printWidth.")
       ),
       1
+    ),
+    vueConvertToBinding: optional(
+      pipe(
+        boolean(),
+        description("Convert static class attributes to bound attributes with template literals when wrapping lines. Currently only supported by the vue parser and useful to avoid conflicts with prettier.")
+      ),
+      false
     )
   }),
 
@@ -497,16 +504,21 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
       continue;
     }
 
+    // convert a static attribute to a bound attribute with a template literal, or wrap in place
+    const fix = literal.binding
+      ? `${literal.binding.opening}${fixedClasses}${literal.binding.closing}`
+      : literal.surroundingBraces
+        ? `{${fixedClasses}}`
+        : fixedClasses;
+
     ctx.report({
       data: {
         notReadable: display(messageStyle, literal.raw),
-        readable: display(messageStyle, fixedClasses)
+        readable: display(messageStyle, fix)
       },
-      fix: literal.surroundingBraces
-        ? `{${fixedClasses}}`
-        : fixedClasses,
+      fix,
       id: "missing",
-      range: literal.range,
+      range: literal.binding?.range ?? literal.range,
       warnings
     });
 

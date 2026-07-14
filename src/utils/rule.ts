@@ -377,7 +377,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
       const vueAttributes = getAttributesByVueStartTag(ctx, vueNode);
 
       for(const attribute of vueAttributes){
-        const literals = getLiteralsByVueAttribute(ctx, attribute, attributes);
+        const literals = getLiteralsByVueAttribute(ctx, attribute, attributes, context.options);
 
         if(literals.length > 0){
           lintLiterals(context, literals);

@@ -37,6 +37,14 @@ export interface BracesMeta {
   openingBraces?: string | undefined;
 }
 
+export interface BindingMeta {
+  binding?: undefined | {
+    closing: string;
+    opening: string;
+    range: [number, number];
+  };
+}
+
 export interface CSSMeta {
   leadingApply?: string | undefined;
   trailingSemicolon?: string | undefined;
@@ -51,7 +59,7 @@ interface NodeBase extends Range, Loc {
   type: string;
 }
 
-interface LiteralBase extends NodeBase, MultilineMeta, QuoteMeta, BracesMeta, WhitespaceMeta, CSSMeta, Indentation, Range, Loc {
+interface LiteralBase extends NodeBase, MultilineMeta, QuoteMeta, BracesMeta, BindingMeta, WhitespaceMeta, CSSMeta, Indentation, Range, Loc {
   content: string;
   raw: string;
   attribute?: string | undefined;

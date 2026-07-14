@@ -21,7 +21,14 @@ import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
 import type { AST } from "vue-eslint-parser";
 
-import type { Literal, LiteralValueQuotes, MultilineMeta, StringLiteral } from "better-tailwindcss:types/ast.js";
+import type {
+  BindingMeta,
+  Literal,
+  LiteralValueQuotes,
+  MultilineMeta,
+  QuoteMeta,
+  StringLiteral
+} from "better-tailwindcss:types/ast.js";
 import type { AttributeSelector, MatcherFunctions, SelectorMatcher } from "better-tailwindcss:types/rule.js";
 
 
@@ -38,7 +45,7 @@ export function getAttributesByVueStartTag(ctx: Rule.RuleContext, node: AST.VSta
   return node.attributes;
 }
 
-export function getLiteralsByVueAttribute(ctx: Rule.RuleContext, attribute: AST.VAttribute | AST.VDirective, selectors: AttributeSelector[]): Literal[] {
+export function getLiteralsByVueAttribute(ctx: Rule.RuleContext, attribute: AST.VAttribute | AST.VDirective, selectors: AttributeSelector[], options?: { vueConvertToBinding?: boolean; }): Literal[] {
 
   if(attribute.value === null){
     return [];
@@ -47,15 +54,17 @@ export function getLiteralsByVueAttribute(ctx: Rule.RuleContext, attribute: AST.
   const name = getVueAttributeName(attribute);
   const value = attribute.value;
 
+  const convertToBinding = options?.vueConvertToBinding === true;
+
   const literals = selectors.reduce<Literal[]>((literals, selector) => {
     if(!matchesName(getVueBoundName(selector.name).toLowerCase(), name?.toLowerCase())){ return literals; }
 
     if(!selector.match){
-      literals.push(...getLiteralsByVueLiteralNode(ctx, value));
+      literals.push(...getLiteralsByVueLiteralNode(ctx, value, convertToBinding));
       return literals;
     }
 
-    literals.push(...getLiteralsByVueMatchers(ctx, value, selector.match));
+    literals.push(...getLiteralsByVueMatchers(ctx, value, selector.match, convertToBinding));
 
     return literals;
   }, []);
@@ -66,12 +75,12 @@ export function getLiteralsByVueAttribute(ctx: Rule.RuleContext, attribute: AST.
 
 }
 
-function getLiteralsByVueLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): Literal[] {
+function getLiteralsByVueLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode, convertToBinding: boolean = false): Literal[] {
 
   if(!hasESNodeParentExtension(node)){ return []; }
 
   if(isVueLiteralNode(node)){
-    const literal = getStringLiteralByVueStringLiteral(ctx, node);
+    const literal = getStringLiteralByVueStringLiteral(ctx, node, convertToBinding);
     return [literal];
   }
 
@@ -83,11 +92,11 @@ function getLiteralsByVueLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): L
 }
 
 
-function getLiteralsByVueMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: SelectorMatcher[]): Literal[] {
+function getLiteralsByVueMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: SelectorMatcher[], convertToBinding: boolean = false): Literal[] {
   const matcherFunctions = getVueMatcherFunctions(matchers);
 
   const literalNodes = getLiteralNodesByMatchers<ESBaseNode>(ctx, node, matcherFunctions);
-  const literals = literalNodes.flatMap(literalNode => getLiteralsByVueLiteralNode(ctx, literalNode));
+  const literals = literalNodes.flatMap(literalNode => getLiteralsByVueLiteralNode(ctx, literalNode, convertToBinding));
 
   return literals.filter(deduplicateLiterals);
 }
@@ -105,7 +114,7 @@ function getLiteralsByVueESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode &
   });
 }
 
-function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLiteral): StringLiteral {
+function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLiteral, convertToBinding: boolean = false): StringLiteral {
 
   const raw = ctx.sourceCode.getText(node as unknown as ESNode);
   const line = ctx.sourceCode.lines[node.loc.start.line - 1];
@@ -115,11 +124,13 @@ function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLi
   const whitespaces = getWhitespace(content);
   const indentation = getIndentation(line);
   const multilineQuotes = getMultilineQuotes(node);
+  const binding = convertToBinding ? getBinding(node, quotes, content) : undefined;
 
   return {
     ...whitespaces,
     ...quotes,
     ...multilineQuotes,
+    ...binding && { binding, multilineQuotes: ["`"] as LiteralValueQuotes[] },
     content,
     indentation,
     loc: node.loc,
@@ -130,6 +141,43 @@ function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLi
     type: "StringLiteral"
   };
 
+}
+
+function getBinding(node: AST.VLiteral, quotes: QuoteMeta, content: string): BindingMeta["binding"] {
+  const attribute = node.parent;
+
+  // nothing to convert for empty or whitespace-only attributes
+  if(content.trim() === ""){
+    return undefined;
+  }
+
+  // only static attributes (`class="…"`) can be converted to a binding
+  if(attribute.type !== "VAttribute" || attribute.directive || attribute.key.type !== "VIdentifier"){
+    return undefined;
+  }
+
+  // skip if the element already has a binding with the same name (`:class` or `v-bind:class`) to not create a duplicate attribute
+  const hasExistingBinding = attribute.parent.attributes.some(sibling => {
+    return sibling.directive &&
+      sibling.key.name.name === "bind" &&
+      sibling.key.argument?.type === "VIdentifier" &&
+      sibling.key.argument.name.toLowerCase() === attribute.key.name.toLowerCase();
+  });
+
+  if(hasExistingBinding){
+    return undefined;
+  }
+
+  // use the raw name to preserve the original casing (the parsed key name is lowercased)
+  const name = attribute.key.rawName;
+  const openingQuote = quotes.openingQuote ?? "\"";
+  const closingQuote = quotes.closingQuote ?? "\"";
+
+  return {
+    closing: closingQuote,
+    opening: `:${name}=${openingQuote}`,
+    range: [...attribute.range]
+  };
 }
 
 function getMultilineQuotes(node: ESBaseNode & Rule.NodeParentExtension | AST.VLiteral): MultilineMeta {

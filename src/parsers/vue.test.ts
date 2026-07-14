@@ -143,6 +143,207 @@ describe("vue", () => {
     });
   });
 
+  it("should convert static classes to bound classes with template literals when vueConvertToBinding is enabled", () => {
+    const singleLine = " a b c d e f g h ";
+    const bound = "`\n  a b c\n  d e f\n  g h\n`";
+
+    lint(enforceConsistentLineWrapping, {
+      invalid: [
+        {
+          vue: `<template><img class="${singleLine}" /></template>`,
+          vueOutput: `<template><img :class="${bound}" /></template>`,
+
+          errors: 1,
+          options: [{ classesPerLine: 3, indent: 2, vueConvertToBinding: true }]
+        },
+        {
+          vue: `<template><img class='${singleLine}' /></template>`,
+          vueOutput: `<template><img :class='${bound}' /></template>`,
+
+          errors: 1,
+          options: [{ classesPerLine: 3, indent: 2, vueConvertToBinding: true }]
+        }
+      ],
+      valid: [
+        {
+          vue: `<template><img class="a b" /></template>`,
+
+          options: [{ classesPerLine: 3, indent: 2, vueConvertToBinding: true }]
+        },
+        {
+          vue: `<template><img :class="{ 'a b': condition }" /></template>`,
+
+          options: [{ classesPerLine: 3, indent: 2, vueConvertToBinding: true }]
+        }
+      ]
+    });
+  });
+
+  it("should not convert static classes when vueConvertToBinding is disabled", () => {
+    const singleLine = " a b c d e f g h ";
+    const multipleLines = dedent`
+      a b c
+      d e f
+      g h
+    `;
+
+    lint(enforceConsistentLineWrapping, {
+      invalid: [
+        {
+          vue: `<template><img class="${singleLine}" /></template>`,
+          vueOutput: `<template><img class="${multipleLines}" /></template>`,
+
+          errors: 1,
+          options: [{ classesPerLine: 3, indent: 2 }]
+        }
+      ]
+    });
+  });
+
+  it("should not report an already converted binding", () => {
+    const bound = "`\n  a b c\n  d e f\n  g h\n`";
+
+    lint(enforceConsistentLineWrapping, {
+      valid: [
+        {
+          vue: `<template><img :class="${bound}" /></template>`,
+
+          options: [{ classesPerLine: 3, indent: 2, vueConvertToBinding: true }]
+        }
+      ]
+    });
+  });
+
+  it("should wrap an existing template literal binding without adding a binding prefix", () => {
+    const singleLineBound = "`a b c d e f g h`";
+    const bound = "`\n  a b c\n  d e f\n  g h\n`";
+
+    lint(enforceConsistentLineWrapping, {
+      invalid: [
+        {
+          vue: `<template><img :class="${singleLineBound}" /></template>`,
+          vueOutput: `<template><img :class="${bound}" /></template>`,
+
+          errors: 1,
+          options: [{ classesPerLine: 3, indent: 2, vueConvertToBinding: true }]
+        }
+      ]
+    });
+  });
+
+  it("should convert static classes to bound classes when wrapping is triggered by printWidth", () => {
+    const singleLine = "absolute top-0 mr-0 mb-0 h-64 bg-secondary pt-0 pr-0 opacity-30 blur-sm invert flex items-center justify-center";
+    const bound = "`\n  absolute top-0 mr-0 mb-0 h-64 bg-secondary pt-0 pr-0 opacity-30 blur-sm invert\n  flex items-center justify-center\n`";
+
+    lint(enforceConsistentLineWrapping, {
+      invalid: [
+        {
+          vue: `<template><img class="${singleLine}" /></template>`,
+          vueOutput: `<template><img :class="${bound}" /></template>`,
+
+          errors: 1,
+          options: [{ indent: 2, printWidth: 80, vueConvertToBinding: true }]
+        }
+      ]
+    });
+  });
+
+  it("should not affect sibling attributes when converting", () => {
+    const singleLine = " a b c d e f g h ";
+    const bound = "`\n  a b c\n  d e f\n  g h\n`";
+
+    lint(enforceConsistentLineWrapping, {
+      invalid: [
+        {
+          vue: `<template><img class="${singleLine}" src="./image.svg" /></template>`,
+          vueOutput: `<template><img :class="${bound}" src="./image.svg" /></template>`,
+
+          errors: 1,
+          options: [{ classesPerLine: 3, indent: 2, vueConvertToBinding: true }]
+        }
+      ]
+    });
+  });
+
+  it("should not convert when the element already has a binding with the same name", () => {
+    const singleLine = " a b c d e f g h ";
+    const multipleLines = dedent`
+      a b c
+      d e f
+      g h
+    `;
+
+    lint(enforceConsistentLineWrapping, {
+      invalid: [
+        {
+          vue: `<template><img class="${singleLine}" :class="{ active: condition }" /></template>`,
+          vueOutput: `<template><img class="${multipleLines}" :class="{ active: condition }" /></template>`,
+
+          errors: 1,
+          options: [{ classesPerLine: 3, indent: 2, vueConvertToBinding: true }]
+        },
+        {
+          vue: `<template><img class="${singleLine}" v-bind:class="{ active: condition }" /></template>`,
+          vueOutput: `<template><img class="${multipleLines}" v-bind:class="{ active: condition }" /></template>`,
+
+          errors: 1,
+          options: [{ classesPerLine: 3, indent: 2, vueConvertToBinding: true }]
+        }
+      ]
+    });
+  });
+
+  it("should convert custom matched attributes to their bound name", () => {
+    const singleLine = " a b c d e f g h ";
+    const bound = "`\n  a b c\n  d e f\n  g h\n`";
+
+    lint(enforceConsistentLineWrapping, {
+      invalid: [
+        {
+          vue: `<template><img myClass="${singleLine}" /></template>`,
+          vueOutput: `<template><img :myClass="${bound}" /></template>`,
+
+          errors: 1,
+          options: [{ attributes: ["myClass"], classesPerLine: 3, indent: 2, vueConvertToBinding: true }]
+        }
+      ]
+    });
+  });
+
+  it("should convert static classes matched by matcher based selectors", () => {
+    const singleLine = " a b c d e f g h ";
+    const bound = "`\n  a b c\n  d e f\n  g h\n`";
+
+    lint(enforceConsistentLineWrapping, {
+      invalid: [
+        {
+          vue: `<template><img myClass="${singleLine}" /></template>`,
+          vueOutput: `<template><img :myClass="${bound}" /></template>`,
+
+          errors: 1,
+          options: [{ attributes: [["myClass", [{ match: MatcherType.String }]]], classesPerLine: 3, indent: 2, vueConvertToBinding: true }]
+        }
+      ]
+    });
+  });
+
+  it("should not convert empty or whitespace only attributes", () => {
+    lint(enforceConsistentLineWrapping, {
+      valid: [
+        {
+          vue: `<template><img class="" /></template>`,
+
+          options: [{ classesPerLine: 3, indent: 2, vueConvertToBinding: true }]
+        },
+        {
+          vue: `<template><img class="   " /></template>`,
+
+          options: [{ classesPerLine: 3, indent: 2, vueConvertToBinding: true }]
+        }
+      ]
+    });
+  });
+
   // #119
   it("should not report inside member expressions", () => {
     lint(noUnnecessaryWhitespace, {
