@@ -5,6 +5,7 @@ import { enforceConsistentLineWrapping } from "better-tailwindcss:rules/enforce-
 import { enforceConsistentVariableSyntax } from "better-tailwindcss:rules/enforce-consistent-variable-syntax.js";
 import { enforceConsistentVariantOrder } from "better-tailwindcss:rules/enforce-consistent-variant-order.js";
 import { enforceLogicalProperties } from "better-tailwindcss:rules/enforce-logical-properties.js";
+import { enforceMotionSafeVariant } from "better-tailwindcss:rules/enforce-motion-safe-variant.js";
 import { enforceShorthandClasses } from "better-tailwindcss:rules/enforce-shorthand-classes.js";
 import { noConcatenatedClasses } from "better-tailwindcss:rules/no-concatenated-classes.js";
 import { noConflictingClasses } from "better-tailwindcss:rules/no-conflicting-classes.js";
@@ -42,6 +43,7 @@ const rules = [
   enforceConsistentVariantOrder,
   enforceConsistentVariableSyntax,
   enforceLogicalProperties,
+  enforceMotionSafeVariant,
   enforceShorthandClasses,
   noConcatenatedClasses,
   noConflictingClasses,
