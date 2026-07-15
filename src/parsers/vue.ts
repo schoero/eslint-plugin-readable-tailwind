@@ -175,7 +175,7 @@ function getBinding(node: AST.VLiteral, quotes: QuoteMeta, content: string): Bin
     closing: closingQuote,
     multilineQuotes: ["`"] as LiteralValueQuotes[],
     opening: `:${name}=${openingQuote}`,
-    range: [...attribute.range]
+    range: [attribute.range[0], attribute.range[1]]
   };
 }
 
