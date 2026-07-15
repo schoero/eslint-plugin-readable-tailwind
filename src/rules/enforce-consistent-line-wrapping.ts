@@ -130,13 +130,17 @@ export const enforceConsistentLineWrapping = createRule({
 
 
 function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, literals: Literal[]) {
-  const { classesPerLine, group: groupSeparator, messageStyle, preferSingleLine, printWidth, strictness } = ctx.options;
+  const { classesPerLine, group: groupSeparator, messageStyle, preferSingleLine, printWidth, strictness, vueConvertToBinding } = ctx.options;
 
   for(const literal of literals){
 
     if(!literal.supportsMultiline){
       continue;
     }
+
+    // convert a static attribute to a bound attribute if the option is enabled and the parser provided a binding
+    const binding = vueConvertToBinding ? literal.binding : undefined;
+    const multilineQuotes = binding?.multilineQuotes ?? literal.multilineQuotes;
 
     const lineStartPosition = literal.indentation + getIndentation(ctx);
     const literalStartPosition = literal.loc.start.column;
@@ -171,7 +175,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
     const groupedClasses = groupClasses(classes, dissectedClasses);
 
     if(literal.openingQuote){
-      if(literal.multilineQuotes?.includes("`")){
+      if(multilineQuotes?.includes("`")){
         multilineClasses.line.addMeta({ openingQuote: "`" });
       } else {
         multilineClasses.line.addMeta({ openingQuote: literal.openingQuote });
@@ -366,7 +370,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
       multilineClasses.addLine();
       multilineClasses.line.indent(lineStartPosition - getIndentation(ctx));
 
-      if(literal.multilineQuotes?.includes("`")){
+      if(multilineQuotes?.includes("`")){
         multilineClasses.line.addMeta({ closingQuote: "`" });
       } else {
         multilineClasses.line.addMeta({ closingQuote: literal.closingQuote });
@@ -505,8 +509,8 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
     }
 
     // convert a static attribute to a bound attribute with a template literal, or wrap in place
-    const fix = literal.binding
-      ? `${literal.binding.opening}${fixedClasses}${literal.binding.closing}`
+    const fix = binding
+      ? `${binding.opening}${fixedClasses}${binding.closing}`
       : literal.surroundingBraces
         ? `{${fixedClasses}}`
         : fixedClasses;
@@ -518,7 +522,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
       },
       fix,
       id: "missing",
-      range: literal.binding?.range ?? literal.range,
+      range: binding?.range ?? literal.range,
       warnings
     });
 

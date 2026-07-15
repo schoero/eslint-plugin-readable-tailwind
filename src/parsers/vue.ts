@@ -45,7 +45,7 @@ export function getAttributesByVueStartTag(ctx: Rule.RuleContext, node: AST.VSta
   return node.attributes;
 }
 
-export function getLiteralsByVueAttribute(ctx: Rule.RuleContext, attribute: AST.VAttribute | AST.VDirective, selectors: AttributeSelector[], options?: { vueConvertToBinding?: boolean; }): Literal[] {
+export function getLiteralsByVueAttribute(ctx: Rule.RuleContext, attribute: AST.VAttribute | AST.VDirective, selectors: AttributeSelector[]): Literal[] {
 
   if(attribute.value === null){
     return [];
@@ -54,17 +54,15 @@ export function getLiteralsByVueAttribute(ctx: Rule.RuleContext, attribute: AST.
   const name = getVueAttributeName(attribute);
   const value = attribute.value;
 
-  const convertToBinding = options?.vueConvertToBinding === true;
-
   const literals = selectors.reduce<Literal[]>((literals, selector) => {
     if(!matchesName(getVueBoundName(selector.name).toLowerCase(), name?.toLowerCase())){ return literals; }
 
     if(!selector.match){
-      literals.push(...getLiteralsByVueLiteralNode(ctx, value, convertToBinding));
+      literals.push(...getLiteralsByVueLiteralNode(ctx, value));
       return literals;
     }
 
-    literals.push(...getLiteralsByVueMatchers(ctx, value, selector.match, convertToBinding));
+    literals.push(...getLiteralsByVueMatchers(ctx, value, selector.match));
 
     return literals;
   }, []);
@@ -75,12 +73,12 @@ export function getLiteralsByVueAttribute(ctx: Rule.RuleContext, attribute: AST.
 
 }
 
-function getLiteralsByVueLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode, convertToBinding: boolean = false): Literal[] {
+function getLiteralsByVueLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): Literal[] {
 
   if(!hasESNodeParentExtension(node)){ return []; }
 
   if(isVueLiteralNode(node)){
-    const literal = getStringLiteralByVueStringLiteral(ctx, node, convertToBinding);
+    const literal = getStringLiteralByVueStringLiteral(ctx, node);
     return [literal];
   }
 
@@ -92,11 +90,11 @@ function getLiteralsByVueLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode, co
 }
 
 
-function getLiteralsByVueMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: SelectorMatcher[], convertToBinding: boolean = false): Literal[] {
+function getLiteralsByVueMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: SelectorMatcher[]): Literal[] {
   const matcherFunctions = getVueMatcherFunctions(matchers);
 
   const literalNodes = getLiteralNodesByMatchers<ESBaseNode>(ctx, node, matcherFunctions);
-  const literals = literalNodes.flatMap(literalNode => getLiteralsByVueLiteralNode(ctx, literalNode, convertToBinding));
+  const literals = literalNodes.flatMap(literalNode => getLiteralsByVueLiteralNode(ctx, literalNode));
 
   return literals.filter(deduplicateLiterals);
 }
@@ -114,7 +112,7 @@ function getLiteralsByVueESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode &
   });
 }
 
-function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLiteral, convertToBinding: boolean = false): StringLiteral {
+function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLiteral): StringLiteral {
 
   const raw = ctx.sourceCode.getText(node as unknown as ESNode);
   const line = ctx.sourceCode.lines[node.loc.start.line - 1];
@@ -124,13 +122,13 @@ function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLi
   const whitespaces = getWhitespace(content);
   const indentation = getIndentation(line);
   const multilineQuotes = getMultilineQuotes(node);
-  const binding = convertToBinding ? getBinding(node, quotes, content) : undefined;
+  const binding = getBinding(node, quotes, content);
 
   return {
     ...whitespaces,
     ...quotes,
     ...multilineQuotes,
-    ...binding && { binding, multilineQuotes: ["`"] as LiteralValueQuotes[] },
+    ...binding && { binding },
     content,
     indentation,
     loc: node.loc,
@@ -175,6 +173,7 @@ function getBinding(node: AST.VLiteral, quotes: QuoteMeta, content: string): Bin
 
   return {
     closing: closingQuote,
+    multilineQuotes: ["`"] as LiteralValueQuotes[],
     opening: `:${name}=${openingQuote}`,
     range: [...attribute.range]
   };

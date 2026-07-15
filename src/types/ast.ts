@@ -40,6 +40,7 @@ export interface BracesMeta {
 export interface BindingMeta {
   binding?: undefined | {
     closing: string;
+    multilineQuotes: LiteralValueQuotes[];
     opening: string;
     range: [number, number];
   };
