@@ -296,11 +296,11 @@ describe(enforceMotionSafeVariant.name, () => {
       ],
       valid: [
         {
-          angular: `<img class="tw-motion-safe:tw-transition-colors" />`,
-          html: `<img class="tw-motion-safe:tw-transition-colors" />`,
-          jsx: `() => <img class="tw-motion-safe:tw-transition-colors" />`,
-          svelte: `<img class="tw-motion-safe:tw-transition-colors" />`,
-          vue: `<template><img class="tw-motion-safe:tw-transition-colors" /></template>`,
+          angular: `<img class="motion-safe:tw-transition-colors" />`,
+          html: `<img class="motion-safe:tw-transition-colors" />`,
+          jsx: `() => <img class="motion-safe:tw-transition-colors" />`,
+          svelte: `<img class="motion-safe:tw-transition-colors" />`,
+          vue: `<template><img class="motion-safe:tw-transition-colors" /></template>`,
 
           files: {
             "tailwind.config.prefix.js": ts`
