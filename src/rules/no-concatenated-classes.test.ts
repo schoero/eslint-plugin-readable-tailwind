@@ -17,6 +17,24 @@ describe(noConcatenatedClasses.name, () => {
           vue: `<template><img :class="'bg-' + color" /></template>`,
 
           errors: 1
+        },
+        {
+          angular: `<img [class]="color + '-500'" />`,
+          astro: `<img class={color + "-500"} />`,
+          jsx: `() => <img className={color + "-500"} />`,
+          svelte: `<img class={color + "-500"} />`,
+          vue: `<template><img :class="color + '-500'" /></template>`,
+
+          errors: 1
+        },
+        {
+          angular: `<img [class]="'bg-' + color + '-500'" />`,
+          astro: `<img class={"bg-" + color + "-500"} />`,
+          jsx: `() => <img className={"bg-" + color + "-500"} />`,
+          svelte: `<img class={"bg-" + color + "-500"} />`,
+          vue: `<template><img :class="'bg-' + color + '-500'" /></template>`,
+
+          errors: 2
         }
       ]
     });
@@ -33,6 +51,24 @@ describe(noConcatenatedClasses.name, () => {
           vue: `<template><img :class="\`bg-\${color}\`" /></template>`,
 
           errors: 1
+        },
+        {
+          angular: `<img [class]="\`\${color}-500\`" />`,
+          astro: `<img class={\`\${color}-500\`} />`,
+          jsx: `() => <img className={\`\${color}-500\`} />`,
+          svelte: `<img class={\`\${color}-500\`} />`,
+          vue: `<template><img :class="\`\${color}-500\`" /></template>`,
+
+          errors: 1
+        },
+        {
+          angular: `<img [class]="\`bg-\${color}-500\`" />`,
+          astro: `<img class={\`bg-\${color}-500\`} />`,
+          jsx: `() => <img className={\`bg-\${color}-500\`} />`,
+          svelte: `<img class={\`bg-\${color}-500\`} />`,
+          vue: `<template><img :class="\`bg-\${color}-500\`" /></template>`,
+
+          errors: 2
         }
       ]
     });

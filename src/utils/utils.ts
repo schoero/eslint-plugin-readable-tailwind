@@ -153,7 +153,10 @@ export function isConcatenatedClass(literal: Literal, classIndex: number): boole
 export function isConcatenatedLiteral(literal: Literal) {
   const isTemplateInterpolation =
     literal.isInterpolated === true &&
-    literal.openingBraces !== undefined;
+    (
+      literal.openingBraces !== undefined ||
+      literal.closingBraces !== undefined
+    );
 
   const isStringConcatenation =
     literal.isConcatenatedLeft === true ||
