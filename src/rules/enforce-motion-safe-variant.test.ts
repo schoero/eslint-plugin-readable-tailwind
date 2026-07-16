@@ -369,4 +369,192 @@ describe(enforceMotionSafeVariant.name, () => {
     });
   });
 
+  it("should still report when motion-reduce exists but allowMotionReduce is disabled", () => {
+    lint(enforceMotionSafeVariant, {
+      invalid: [
+        {
+          angular: `<img class="motion-reduce:transition-none transition-all" />`,
+          html: `<img class="motion-reduce:transition-none transition-all" />`,
+          jsx: `() => <img class="motion-reduce:transition-none transition-all" />`,
+          svelte: `<img class="motion-reduce:transition-none transition-all" />`,
+          vue: `<template><img class="motion-reduce:transition-none transition-all" /></template>`,
+
+          errors: 1,
+
+          options: [{ allowMotionReduce: false }]
+        }
+      ]
+    });
+  });
+
+  it("should never report classes that already use the motion-reduce variant", () => {
+    lint(enforceMotionSafeVariant, {
+      valid: [
+        {
+          angular: `<img class="motion-reduce:transition-none" />`,
+          html: `<img class="motion-reduce:transition-none" />`,
+          jsx: `() => <img class="motion-reduce:transition-none" />`,
+          svelte: `<img class="motion-reduce:transition-none" />`,
+          vue: `<template><img class="motion-reduce:transition-none" /></template>`
+        },
+        {
+          angular: `<img class="motion-reduce:animate-none" />`,
+          html: `<img class="motion-reduce:animate-none" />`,
+          jsx: `() => <img class="motion-reduce:animate-none" />`,
+          svelte: `<img class="motion-reduce:animate-none" />`,
+          vue: `<template><img class="motion-reduce:animate-none" /></template>`
+        }
+      ]
+    });
+  });
+
+  it("should suppress regardless of class order when allowMotionReduce is enabled", () => {
+    lint(enforceMotionSafeVariant, {
+      valid: [
+        {
+          angular: `<img class="transition-all motion-reduce:transition-none" />`,
+          html: `<img class="transition-all motion-reduce:transition-none" />`,
+          jsx: `() => <img class="transition-all motion-reduce:transition-none" />`,
+          svelte: `<img class="transition-all motion-reduce:transition-none" />`,
+          vue: `<template><img class="transition-all motion-reduce:transition-none" /></template>`,
+
+          options: [{ allowMotionReduce: true }]
+        }
+      ]
+    });
+  });
+
+  it("should report motion classes from priorLiterals when allowMotionReduce is disabled", () => {
+    const expression = "${true ? 'foo' : 'bar'}";
+
+    lint(enforceMotionSafeVariant, {
+      invalid: [
+        {
+          jsx: `() => <img class={\`motion-reduce:transition-none ${expression} transition-all\`} />`,
+          svelte: `<img class={\`motion-reduce:transition-none ${expression} transition-all\`} />`,
+
+          errors: 1,
+
+          options: [{ allowMotionReduce: false }]
+        }
+      ]
+    });
+  });
+
+  it("should report arbitrary value transition and animate classes without motion-safe", () => {
+    lint(enforceMotionSafeVariant, {
+      invalid: [
+        {
+          angular: `<img class="transition-[opacity]" />`,
+          html: `<img class="transition-[opacity]" />`,
+          jsx: `() => <img class="transition-[opacity]" />`,
+          svelte: `<img class="transition-[opacity]" />`,
+          vue: `<template><img class="transition-[opacity]" /></template>`,
+
+          errors: 1
+        },
+        {
+          angular: `<img class="animate-[spin_1s_linear_infinite]" />`,
+          html: `<img class="animate-[spin_1s_linear_infinite]" />`,
+          jsx: `() => <img class="animate-[spin_1s_linear_infinite]" />`,
+          svelte: `<img class="animate-[spin_1s_linear_infinite]" />`,
+          vue: `<template><img class="animate-[spin_1s_linear_infinite]" /></template>`,
+
+          errors: 1
+        }
+      ],
+      valid: [
+        {
+          angular: `<img class="motion-safe:transition-[opacity]" />`,
+          html: `<img class="motion-safe:transition-[opacity]" />`,
+          jsx: `() => <img class="motion-safe:transition-[opacity]" />`,
+          svelte: `<img class="motion-safe:transition-[opacity]" />`,
+          vue: `<template><img class="motion-safe:transition-[opacity]" /></template>`
+        },
+        {
+          angular: `<img class="motion-safe:animate-[spin_1s_linear_infinite]" />`,
+          html: `<img class="motion-safe:animate-[spin_1s_linear_infinite]" />`,
+          jsx: `() => <img class="motion-safe:animate-[spin_1s_linear_infinite]" />`,
+          svelte: `<img class="motion-safe:animate-[spin_1s_linear_infinite]" />`,
+          vue: `<template><img class="motion-safe:animate-[spin_1s_linear_infinite]" /></template>`
+        }
+      ]
+    });
+  });
+
+  it("should report important motion classes without motion-safe", () => {
+    lint(enforceMotionSafeVariant, {
+      invalid: [
+        {
+          angular: `<img class="!transition-all" />`,
+          html: `<img class="!transition-all" />`,
+          jsx: `() => <img class="!transition-all" />`,
+          svelte: `<img class="!transition-all" />`,
+          vue: `<template><img class="!transition-all" /></template>`,
+
+          errors: 1
+        },
+        {
+          angular: `<img class="transition-all!" />`,
+          html: `<img class="transition-all!" />`,
+          jsx: `() => <img class="transition-all!" />`,
+          svelte: `<img class="transition-all!" />`,
+          vue: `<template><img class="transition-all!" /></template>`,
+
+          errors: 1
+        },
+        {
+          angular: `<img class="!animate-spin" />`,
+          html: `<img class="!animate-spin" />`,
+          jsx: `() => <img class="!animate-spin" />`,
+          svelte: `<img class="!animate-spin" />`,
+          vue: `<template><img class="!animate-spin" /></template>`,
+
+          errors: 1
+        },
+        {
+          angular: `<img class="animate-spin!" />`,
+          html: `<img class="animate-spin!" />`,
+          jsx: `() => <img class="animate-spin!" />`,
+          svelte: `<img class="animate-spin!" />`,
+          vue: `<template><img class="animate-spin!" /></template>`,
+
+          errors: 1
+        }
+      ],
+      valid: [
+        {
+          angular: `<img class="motion-safe:!transition-all" />`,
+          html: `<img class="motion-safe:!transition-all" />`,
+          jsx: `() => <img class="motion-safe:!transition-all" />`,
+          svelte: `<img class="motion-safe:!transition-all" />`,
+          vue: `<template><img class="motion-safe:!transition-all" /></template>`
+        },
+        {
+          angular: `<img class="motion-safe:transition-all!" />`,
+          html: `<img class="motion-safe:transition-all!" />`,
+          jsx: `() => <img class="motion-safe:transition-all!" />`,
+          svelte: `<img class="motion-safe:transition-all!" />`,
+          vue: `<template><img class="motion-safe:transition-all!" /></template>`
+        }
+      ]
+    });
+  });
+
+  it("should report duplicate offending classes deterministically", () => {
+    lint(enforceMotionSafeVariant, {
+      invalid: [
+        {
+          angular: `<img class="transition-all transition-all" />`,
+          html: `<img class="transition-all transition-all" />`,
+          jsx: `() => <img class="transition-all transition-all" />`,
+          svelte: `<img class="transition-all transition-all" />`,
+          vue: `<template><img class="transition-all transition-all" /></template>`,
+
+          errors: 2
+        }
+      ]
+    });
+  });
+
 });
