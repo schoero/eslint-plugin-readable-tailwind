@@ -84,13 +84,13 @@ A list of regular expression patterns for classes that require the `motion-safe`
 
 ### Missing motion-safe variant
 
-```tsx
+```html
 // ❌ BAD
 <div class="transition-colors"></div>
 <div class="animate-spin"></div>
 ```
 
-```tsx
+```html
 // ✅ GOOD
 <div class="motion-safe:transition-colors"></div>
 <div class="motion-safe:animate-spin"></div>
@@ -98,13 +98,13 @@ A list of regular expression patterns for classes that require the `motion-safe`
 
 ### With other variants
 
-```tsx
+```html
 // ❌ BAD: motion-safe is missing
 <div class="hover:transition-colors"></div>
 <div class="dark:animate-spin"></div>
 ```
 
-```tsx
+```html
 // ✅ GOOD: motion-safe can be combined with other variants
 <div class="dark:motion-safe:transition-colors"></div>
 <div class="motion-safe:hover:animate-spin"></div>
@@ -113,7 +113,7 @@ A list of regular expression patterns for classes that require the `motion-safe`
 
 ### Using motion-reduce alternative
 
-```tsx
+```html
 // ✅ GOOD: with option { "allowMotionReduce": true }
 <div class="motion-reduce:transition-none transition-all"></div>
 <div class="motion-reduce:animate-none animate-spin"></div>
