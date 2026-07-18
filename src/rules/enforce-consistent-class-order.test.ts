@@ -556,7 +556,6 @@ describe(enforceConsistentClassOrder.name, () => {
     );
   });
 
-
   it("should group variants together in the `strict` sorting order", () => {
     lint(enforceConsistentClassOrder, {
       invalid: [
@@ -605,6 +604,23 @@ describe(enforceConsistentClassOrder.name, () => {
         }
       ]
     });
+  });
+
+  it("should sort based on the official order in `strict` sorting order", () => {
+    lint(
+      enforceConsistentClassOrder,
+      {
+        invalid: [
+          {
+            jsx: `<img class="data-[attr=a]:*:text-black text-white px-4 block mix-blend-difference py-2 data-[attr=a]:text-black" />`,
+            jsxOutput: `<img class="block px-4 py-2 text-white mix-blend-difference data-[attr=a]:text-black data-[attr=a]:*:text-black" />`,
+
+            errors: 1,
+            options: [{ order: "strict" }]
+          }
+        ]
+      }
+    );
   });
 
   it("should sort unknown classes to the start by default", () => {

@@ -234,7 +234,7 @@ function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, classe
     return [officiallySortedClasses, warnings];
   }
 
-  const { dissectedClasses } = getDissectedClasses(async(ctx), classes);
+  const { dissectedClasses } = getDissectedClasses(async(ctx), officiallySortedClasses);
 
   const variantMap: VariantMap = {};
 
