@@ -1,5 +1,5 @@
 {
-  "version": "4.6.1",
+  "version": "4.7.0",
   "type": "module",
   "name": "eslint-plugin-better-tailwindcss",
   "description": "auto-wraps tailwind classes after a certain print width or class count into multiple lines to improve readability.",

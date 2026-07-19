@@ -1,5 +1,26 @@
 # Changelog
 
+## v4.7.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.6.1...v4.7.0)
+
+### Features
+
+- No concatenated classes ([#389](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/389))
+- **enforce-consistent-line-wrapping:** Add `vueConvertToBinding` option ([#388](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/388))
+
+### Fixes
+
+- Strict sorting order should be based on official sorting order ([#391](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/391))
+
+### Documentation
+
+- Add AGENTS.md ([1fdd988](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/1fdd988))
+
+### ❤️ Contributors
+
+- Peter Chuang ([@peterchuang1111101](https://github.com/peterchuang1111101))
+
 ## v4.6.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.6.0...v4.6.1)
