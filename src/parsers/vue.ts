@@ -21,7 +21,14 @@ import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
 import type { AST } from "vue-eslint-parser";
 
-import type { Literal, LiteralValueQuotes, MultilineMeta, StringLiteral } from "better-tailwindcss:types/ast.js";
+import type {
+  BindingMeta,
+  Literal,
+  LiteralValueQuotes,
+  MultilineMeta,
+  QuoteMeta,
+  StringLiteral
+} from "better-tailwindcss:types/ast.js";
 import type { AttributeSelector, MatcherFunctions, SelectorMatcher } from "better-tailwindcss:types/rule.js";
 
 
@@ -115,11 +122,13 @@ function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLi
   const whitespaces = getWhitespace(content);
   const indentation = getIndentation(line);
   const multilineQuotes = getMultilineQuotes(node);
+  const binding = getBinding(node, quotes, content);
 
   return {
     ...whitespaces,
     ...quotes,
     ...multilineQuotes,
+    ...binding && { binding },
     content,
     indentation,
     loc: node.loc,
@@ -130,6 +139,44 @@ function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLi
     type: "StringLiteral"
   };
 
+}
+
+function getBinding(node: AST.VLiteral, quotes: QuoteMeta, content: string): BindingMeta["binding"] {
+  const attribute = node.parent;
+
+  // nothing to convert for empty or whitespace-only attributes
+  if(content.trim() === ""){
+    return undefined;
+  }
+
+  // only static attributes (`class="…"`) can be converted to a binding
+  if(attribute.type !== "VAttribute" || attribute.directive || attribute.key.type !== "VIdentifier"){
+    return undefined;
+  }
+
+  // skip if the element already has a binding with the same name (`:class` or `v-bind:class`) to not create a duplicate attribute
+  const hasExistingBinding = attribute.parent.attributes.some(sibling => {
+    return sibling.directive &&
+      sibling.key.name.name === "bind" &&
+      sibling.key.argument?.type === "VIdentifier" &&
+      sibling.key.argument.name.toLowerCase() === attribute.key.name.toLowerCase();
+  });
+
+  if(hasExistingBinding){
+    return undefined;
+  }
+
+  // use the raw name to preserve the original casing (the parsed key name is lowercased)
+  const name = attribute.key.rawName;
+  const openingQuote = quotes.openingQuote ?? "\"";
+  const closingQuote = quotes.closingQuote ?? "\"";
+
+  return {
+    closing: closingQuote,
+    multilineQuotes: ["`"] as LiteralValueQuotes[],
+    opening: `:${name}=${openingQuote}`,
+    range: [attribute.range[0], attribute.range[1]]
+  };
 }
 
 function getMultilineQuotes(node: ESBaseNode & Rule.NodeParentExtension | AST.VLiteral): MultilineMeta {

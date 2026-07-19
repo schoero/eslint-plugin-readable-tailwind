@@ -83,6 +83,18 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 <br/>
 
+### `vueConvertToBinding`
+
+  When used together with prettier, a static `class` attribute that this rule wraps across multiple lines gets collapsed back onto a single line by prettier, which leads to an [endless conflict](https://github.com/schoero/eslint-plugin-better-tailwindcss/issues/290).  
+  Setting this option to `true` converts the static attribute to a bound attribute with a template literal (`class="…"` → `` :class="`…`" ``) before wrapping, which prettier leaves untouched.
+
+  This option is currently only supported by the vue parser. Existing bindings and classes that already fit on a single line are not changed. If the element already has a binding with the same name (`class="…" :class="…"`), the static attribute is kept and wrapped in place to not create a duplicate attribute.
+
+  **Type**: `boolean`  
+  **Default**: `false`
+
+<br/>
+
 <details>
   <summary>Common options</summary>
 
@@ -202,4 +214,23 @@ The following examples show how the rule behaves with different options:
   focus:font-bold focus:text-opacity-70
   hover:font-bold hover:text-opacity-70
 `} />;
+```
+
+With `vueConvertToBinding: true`, the vue parser converts a static `class` attribute to a bound attribute with a template literal when it wraps, to avoid conflicts with prettier:
+
+```vue
+<!-- ❌ BAD -->
+<template>
+  <img class="absolute top-0 mr-0 mb-0 h-64 -rotate-5 bg-foreground-secondary pt-0 pr-0 opacity-30 blur-sm not-dark:invert" />
+</template>
+```
+
+```vue
+<!-- ✅ GOOD: with { vueConvertToBinding: true } -->
+<template>
+  <img :class="`
+    absolute top-0 mr-0 mb-0 h-64 -rotate-5 bg-foreground-secondary pt-0 pr-0
+    opacity-30 blur-sm not-dark:invert
+  `" />
+</template>
 ```
