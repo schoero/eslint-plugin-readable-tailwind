@@ -133,6 +133,59 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
+  it("should ignore classes concatenated with plus operator", () => {
+    lint(
+      noUnknownClasses,
+      {
+        valid: [
+          {
+            angular: `<img [class]="'bg-' + color" />`,
+            astro: `<img class={"bg-" + color} />`,
+            jsx: `() => <img className={"bg-" + color} />`,
+            svelte: `<img class={"bg-" + color} />`,
+            vue: `<template><img :class="'bg-' + color" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it("should ignore interpolated class strings", () => {
+    lint(
+      noUnknownClasses,
+      {
+        valid: [
+          {
+            angular: `<img [class]="\`bg-\${color}\`" />`,
+            astro: `<img class={\`bg-\${color}\`} />`,
+            jsx: `() => <img className={\`bg-\${color}\`} />`,
+            svelte: `<img class={\`bg-\${color}\`} />`,
+            vue: `<template><img :class="\`bg-\${color}\`" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it("should only ignore unknown classes that are actually concatenated", () => {
+    lint(
+      noUnknownClasses,
+      {
+        invalid: [
+          {
+            angular: `<img [class]="'bg-' + color + ' unknown'" />`,
+            astro: `<img class={"bg-" + color + " unknown"} />`,
+            jsx: `() => <img className={"bg-" + color + " unknown"} />`,
+            svelte: `<img class={"bg-" + color + " unknown"} />`,
+            vue: `<template><img :class="'bg-' + color + ' unknown'" /></template>`,
+
+            errors: 1
+          }
+        ]
+      }
+    );
+  });
+
   it("should be possible to whitelist classes in options", () => {
     lint(
       noUnknownClasses,

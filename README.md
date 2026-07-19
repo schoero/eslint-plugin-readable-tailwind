@@ -143,6 +143,7 @@ The table below lists all available rules, the Tailwind CSS versions they suppor
 
 | Name | Description | `tw3` | `tw4` | `recommended` | autofix |
 | :--- | :--- | :---: | :---: | :---: | :---: |
+| [no-concatenated-classes](docs/rules/no-concatenated-classes.md) | Disallow concatenated classes in Tailwind CSS class strings. | ✔ | ✔ | ✔ |  |
 | [no-unknown-classes](docs/rules/no-unknown-classes.md) | Report classes not registered with Tailwind CSS. | ✔ | ✔ | ✔ |  |
 | [no-conflicting-classes](docs/rules/no-conflicting-classes.md) | Report classes that produce conflicting styles. |  | ✔ | ✔ |  |
 | [no-restricted-classes](docs/rules/no-restricted-classes.md) | Disallow restricted classes. | ✔ | ✔ |  | ✔ |
