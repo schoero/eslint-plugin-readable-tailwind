@@ -153,7 +153,9 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
 
     const classes = splitClasses(literal.content);
 
-    const { dissectedClasses, warnings } = getDissectedClasses(asyncCtx, classes);
+    const { dissectedClasses, warnings: dissectWarnings } = getDissectedClasses(asyncCtx, classes);
+
+    const warnings = [...dissectWarnings];
 
     const invalidLineBreaks = isLineBreakStyleLikelyMisconfigured(ctx, literal.raw);
     const invalidIndentations = isIndentationLikelyMisconfigured(ctx, literal.raw);

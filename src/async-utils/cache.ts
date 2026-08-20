@@ -1,5 +1,7 @@
 import { getModifiedDate } from "./fs.js";
 
+import type { AsyncContext } from "../utils/context.js";
+
 
 interface CacheItem {
   date: Date;
@@ -39,6 +41,22 @@ export function withCache<Result>(key: string, path: string | undefined, callbac
     CACHE.set(cacheKey, { date: new Date(), value });
     return value;
   }
+}
+
+/**
+ * Caches worker operation results.
+ *
+ * @template Operation The signature of the wrapped operation.
+ * @param name Unique name of the operation, used as part of the cache key.
+ * @param operation The operation to cache.
+ * @returns The wrapped operation.
+ */
+export function withOperationCache<Operation extends (ctx: AsyncContext, ...args: any[]) => any>(name: string, operation: Operation): Operation {
+  return ((ctx: AsyncContext, ...args: any[]) => withCache(
+    `${name}-${ctx.cwd}-${ctx.tsconfigPath}-${JSON.stringify(args)}`,
+    ctx.tailwindConfigPath,
+    () => operation(ctx, ...args)
+  )) as Operation;
 }
 
 export function clearCache() {
