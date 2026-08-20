@@ -59,6 +59,52 @@ export function withOperationCache<Operation extends (ctx: AsyncContext, ...args
   )) as Operation;
 }
 
+/**
+ * Caches an operation that filters a class list per class.
+ *
+ * @param key Unique name of the operation, used as part of the cache key.
+ * @param path Path of the file to watch for changes.
+ * @param classes The classes to filter.
+ * @param filterClasses The operation, called with the classes that have no cached verdict yet.
+ * @returns The classes for which the operation's verdict is positive, in input order.
+ */
+export function withPerClassCache(key: string, path: string | undefined, classes: string[], filterClasses: (uncachedClasses: string[]) => string[]): string[] {
+  const modified = path ? getModifiedDate(path) : undefined;
+
+  const verdicts = new Map<string, boolean>();
+  const uncachedClasses: string[] = [];
+
+  for(const className of classes){
+
+    if(verdicts.has(className)){
+      continue;
+    }
+
+    const cached = CACHE.get(`${key}-${className}-${path}`);
+
+    if(cached && !(modified && modified > cached.date)){
+      verdicts.set(className, cached.value as boolean);
+    } else {
+      uncachedClasses.push(className);
+      verdicts.set(className, false);
+    }
+  }
+
+  if(uncachedClasses.length > 0){
+    const matchedClasses = new Set(filterClasses(uncachedClasses));
+    const date = new Date();
+
+    for(const className of uncachedClasses){
+      const value = matchedClasses.has(className);
+
+      verdicts.set(className, value);
+      CACHE.set(`${key}-${className}-${path}`, { date, value });
+    }
+  }
+
+  return classes.filter(className => verdicts.get(className));
+}
+
 export function clearCache() {
   CACHE.clear();
 }
