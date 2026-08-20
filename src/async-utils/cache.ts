@@ -9,7 +9,10 @@ interface CacheItem {
 const CACHE = new Map<string, CacheItem>();
 
 export function invalidateByModifiedDate(cache: CacheItem, path: string | undefined): boolean {
-  if(!path){ return true; }
+  // without a path there is no file to watch for staleness
+  // the entry stays cached until clearCache()
+  // this requires callers to encode everything the callback depends on in the key
+  if(!path){ return false; }
 
   const modified = getModifiedDate(path);
   return modified > cache.date;

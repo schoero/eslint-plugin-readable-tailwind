@@ -35,7 +35,7 @@ function getTSConfigPath({ configPath, cwd }: {
   configPath: string | undefined;
   cwd: string;
 }) {
-  return withCache("tsconfig-path", configPath, () => {
+  return withCache(`tsconfig-path-${cwd}`, configPath, () => {
     const potentialPaths = [
       ...configPath ? [configPath] : [],
       "tsconfig.json",
@@ -57,7 +57,7 @@ export function getTailwindConfigPath({ configPath, cwd, version }: {
   cwd: string;
   version: Version;
 }) {
-  return withCache("config-path", configPath, () => {
+  return withCache(`config-path-${cwd}`, configPath, () => {
     if(version.major >= 4){
 
       const foundConfigPath = configPath && findPathRecursive(cwd, cwd, [configPath]);

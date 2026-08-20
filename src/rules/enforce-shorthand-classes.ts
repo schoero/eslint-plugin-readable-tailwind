@@ -124,15 +124,17 @@ export const shorthands = [
 
 
 function lintLiterals(ctx: Context<typeof enforceShorthandClasses>, literals: Literal[]) {
+  const asyncCtx = async(ctx);
+
   for(const literal of literals){
 
     const classes = splitClasses(literal.content);
-    const { dissectedClasses, warnings } = getDissectedClasses(async(ctx), classes);
+    const { dissectedClasses, warnings } = getDissectedClasses(asyncCtx, classes);
 
     const shorthandGroups = getShorthands(ctx, dissectedClasses);
 
     const { unknownClasses } = getUnknownClasses(
-      async(ctx),
+      asyncCtx,
       shorthandGroups
         .flat()
         .flatMap(([, shorthands]) => shorthands)
