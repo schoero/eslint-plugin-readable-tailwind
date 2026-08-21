@@ -8,11 +8,57 @@ interface CacheItem {
   value: any;
 }
 
-const CACHE = new Map<string, CacheItem>();
+class LruCache {
+
+  private cache = new Map<string, CacheItem>();
+  private maxSize: number;
+
+  constructor(maxSize: number) {
+    this.maxSize = maxSize;
+  }
+
+  get(key: string): CacheItem | undefined {
+    const item = this.cache.get(key);
+
+    if(item){
+      // fresh access, move to the end
+      this.cache.delete(key);
+      this.cache.set(key, item);
+    }
+
+    return item;
+  }
+
+  set(key: string, item: CacheItem): void {
+    // fresh write, move to the end if present
+    this.cache.delete(key);
+    this.cache.set(key, item);
+
+    // size limit
+    if(this.cache.size > this.maxSize){
+      const oldestKey = this.cache.keys().next().value;
+
+      if(oldestKey !== undefined){
+        this.cache.delete(oldestKey);
+      }
+    }
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+
+}
+
+// operation results and resolved configs are few but potentially large
+const CACHE = new LruCache(1000);
+
+// per-class verdicts are booleans, but every distinct class name ever seen creates an entry
+const CLASS_CACHE = new LruCache(20_000);
 
 export function invalidateByModifiedDate(cache: CacheItem, path: string | undefined): boolean {
   // without a path there is no file to watch for staleness
-  // the entry stays cached until clearCache()
+  // the entry stays cached until clearCache() or lru eviction
   // this requires callers to encode everything the callback depends on in the key
   if(!path){ return false; }
 
@@ -80,7 +126,7 @@ export function withPerClassCache(key: string, path: string | undefined, classes
       continue;
     }
 
-    const cached = CACHE.get(`${key}-${className}-${path}`);
+    const cached = CLASS_CACHE.get(`${key}-${className}-${path}`);
 
     if(cached && !(modified && modified > cached.date)){
       verdicts.set(className, cached.value as boolean);
@@ -98,7 +144,7 @@ export function withPerClassCache(key: string, path: string | undefined, classes
       const value = matchedClasses.has(className);
 
       verdicts.set(className, value);
-      CACHE.set(`${key}-${className}-${path}`, { date, value });
+      CLASS_CACHE.set(`${key}-${className}-${path}`, { date, value });
     }
   }
 
@@ -107,4 +153,5 @@ export function withPerClassCache(key: string, path: string | undefined, classes
 
 export function clearCache() {
   CACHE.clear();
+  CLASS_CACHE.clear();
 }
