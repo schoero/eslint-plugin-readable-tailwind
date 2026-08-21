@@ -30,10 +30,12 @@ export const enforceConsistentVariantOrder = createRule({
       return;
     }
 
+    const asyncCtx = async(ctx);
+
     for(const literal of literals){
       const classes = splitClasses(literal.content);
-      const { dissectedClasses, warnings: dissectedWarnings } = getDissectedClasses(async(ctx), classes);
-      const { variantOrder, warnings } = getVariantOrder(async(ctx), classes);
+      const { dissectedClasses, warnings: dissectedWarnings } = getDissectedClasses(asyncCtx, classes);
+      const { variantOrder, warnings } = getVariantOrder(asyncCtx, classes);
       const allWarnings = [...dissectedWarnings, ...warnings];
 
       lintClasses(ctx, literal, className => {

@@ -114,10 +114,12 @@ function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: L
   const { ignore } = ctx.options;
   const ignoredClassRegexes = ignore.map(ignoredClass => getCachedRegex(ignoredClass));
 
+  const asyncCtx = async(ctx);
+
   for(const literal of literals){
     const classes = splitClasses(literal.content);
 
-    const { dissectedClasses, warnings } = getDissectedClasses(async(ctx), classes);
+    const { dissectedClasses, warnings } = getDissectedClasses(asyncCtx, classes);
 
     const possibleFixes = Object.values(dissectedClasses).flatMap(dissectedClass => {
       const replacementBases = getReplacementBases(dissectedClass.base);
@@ -129,7 +131,7 @@ function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: L
       return replacementBases.map(base => buildClass(ctx, { ...dissectedClass, base }));
     });
 
-    const { unknownClasses } = getUnknownClasses(async(ctx), possibleFixes);
+    const { unknownClasses } = getUnknownClasses(asyncCtx, possibleFixes);
 
     lintClasses(ctx, literal, className => {
       if(ignoredClassRegexes.some(ignoredClassRegex => ignoredClassRegex.test(className))){

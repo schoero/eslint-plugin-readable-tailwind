@@ -110,7 +110,7 @@ export function lint<const Rule extends ESLintRule>(
 
     using _ = new TestDirectory(invalid.files);
 
-    for(const { RuleTester, syntaxes } of Object.values(LINTERS)){
+    for(const [linterName, { RuleTester, syntaxes }] of Object.entries(LINTERS)){
       for(const [name, options] of Object.entries(syntaxes)){
 
         const ruleTester = new RuleTester(options) as ESLintRuleTester;
@@ -125,7 +125,8 @@ export function lint<const Rule extends ESLintRule>(
             errors: invalid.errors,
             options: invalid.options ?? [],
             output: invalid[`${name}Output`] ?? null,
-            settings: invalid.settings ?? {}
+            settings: invalid.settings ?? {},
+            ...linterName === "oxlint" && { cwd: process.cwd() }
           }],
           valid: []
         });
@@ -139,7 +140,7 @@ export function lint<const Rule extends ESLintRule>(
 
     using _ = new TestDirectory(valid.files);
 
-    for(const { RuleTester, syntaxes } of Object.values(LINTERS)){
+    for(const [linterName, { RuleTester, syntaxes }] of Object.entries(LINTERS)){
       for(const [name, options] of Object.entries(syntaxes)){
 
         const ruleTester = new RuleTester(options) as ESLintRuleTester;
@@ -153,7 +154,8 @@ export function lint<const Rule extends ESLintRule>(
           valid: [{
             code: valid[name],
             options: valid.options ?? [],
-            settings: valid.settings ?? {}
+            settings: valid.settings ?? {},
+            ...linterName === "oxlint" && { cwd: process.cwd() }
           }]
         });
       }

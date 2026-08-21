@@ -15,6 +15,7 @@ import { isConcatenatedClass, splitClasses } from "better-tailwindcss:utils/util
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
+import type { AsyncContext } from "better-tailwindcss:utils/context.js";
 
 
 export const noUnknownClasses = createRule({
@@ -60,17 +61,18 @@ function lintLiterals(ctx: Context<typeof noUnknownClasses>, literals: Literal[]
 
   const { ignore } = ctx.options;
 
-  const { prefix, suffix } = getPrefix(async(ctx));
+  const asyncCtx = async(ctx);
+  const { prefix, suffix } = getPrefix(asyncCtx);
 
   const ignoredGroups = getCachedRegex(`^${escapeForRegex(`${prefix}${suffix}`)}group(?:\\/(\\S*))?$`);
   const ignoredPeers = getCachedRegex(`^${escapeForRegex(`${prefix}${suffix}`)}peer(?:\\/(\\S*))?$`);
 
-  const customComponentClassRegexes = getCustomComponentClassRegexes(ctx);
+  const customComponentClassRegexes = getCustomComponentClassRegexes(ctx, asyncCtx);
 
   for(const literal of literals){
     const classes = splitClasses(literal.content);
 
-    const { unknownClasses, warnings } = getUnknownClasses(async(ctx), classes);
+    const { unknownClasses, warnings } = getUnknownClasses(asyncCtx, classes);
 
     if(unknownClasses.length === 0){
       continue;
@@ -107,15 +109,15 @@ function lintLiterals(ctx: Context<typeof noUnknownClasses>, literals: Literal[]
   }
 }
 
-function getCustomComponentClassRegexes(ctx: Context<typeof noUnknownClasses>): RegExp[] | undefined {
+function getCustomComponentClassRegexes(ctx: Context<typeof noUnknownClasses>, asyncCtx: AsyncContext): RegExp[] | undefined {
   const { detectComponentClasses } = ctx.options;
 
   if(!detectComponentClasses){
     return;
   }
 
-  const { customComponentClasses } = getCustomComponentClasses(async(ctx));
-  const { prefix, suffix } = getPrefix(async(ctx));
+  const { customComponentClasses } = getCustomComponentClasses(asyncCtx);
+  const { prefix, suffix } = getPrefix(asyncCtx);
 
   return customComponentClasses.map(className => getCachedRegex(`^${escapeForRegex(`${prefix}${suffix}`)}(?:.*:)?${escapeForRegex(className)}$`));
 }

@@ -32,11 +32,13 @@ export const noConflictingClasses = createRule({
 
 function lintLiterals(ctx: Context<typeof noConflictingClasses>, literals: Literal[]) {
 
+  const asyncCtx = async(ctx);
+
   for(const literal of literals){
 
     const classes = splitClasses(literal.content);
 
-    const { conflictingClasses, warnings } = getConflictingClasses(async(ctx), classes);
+    const { conflictingClasses, warnings } = getConflictingClasses(asyncCtx, classes);
 
     if(Object.keys(conflictingClasses).length === 0){
       continue;

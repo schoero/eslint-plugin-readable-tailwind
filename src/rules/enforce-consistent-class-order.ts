@@ -14,6 +14,7 @@ import { display, splitClasses, splitWhitespaces } from "better-tailwindcss:util
 import type { DissectedClass } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import type { Warning } from "better-tailwindcss:types/async.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
+import type { AsyncContext } from "better-tailwindcss:utils/context.js";
 
 
 export const enforceConsistentClassOrder = createRule({
@@ -100,6 +101,8 @@ export const enforceConsistentClassOrder = createRule({
 
     const { messageStyle } = ctx.options;
 
+    const asyncCtx = async(ctx);
+
     for(const literal of literals){
 
       const classChunks = splitClasses(literal.content);
@@ -122,7 +125,7 @@ export const enforceConsistentClassOrder = createRule({
         unsortableClasses[1] = classChunks.pop() ?? "";
       }
 
-      const [sortedClassChunks, warnings] = sortClassNames(ctx, classChunks);
+      const [sortedClassChunks, warnings] = sortClassNames(ctx, asyncCtx, classChunks);
 
       const classes: string[] = [];
 
@@ -167,7 +170,7 @@ export const enforceConsistentClassOrder = createRule({
 });
 
 
-function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, classes: string[]): [classes: string[], warnings?: (Warning | undefined)[]] {
+function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, asyncCtx: AsyncContext, classes: string[]): [classes: string[], warnings?: (Warning | undefined)[]] {
 
   const { componentClassOrder, componentClassPosition, order, unknownClassOrder, unknownClassPosition } = ctx.options;
 
@@ -183,10 +186,10 @@ function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, classe
     return [classes];
   }
 
-  const { classOrder, warnings } = getClassOrder(async(ctx), classes);
+  const { classOrder, warnings } = getClassOrder(asyncCtx, classes);
   const { detectComponentClasses } = ctx.options;
   const customComponentClasses = detectComponentClasses
-    ? getCustomComponentClasses(async(ctx)).customComponentClasses
+    ? getCustomComponentClasses(asyncCtx).customComponentClasses
     : [];
 
   const officiallySortedClasses = classOrder
@@ -234,7 +237,7 @@ function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, classe
     return [officiallySortedClasses, warnings];
   }
 
-  const { dissectedClasses } = getDissectedClasses(async(ctx), officiallySortedClasses);
+  const { dissectedClasses } = getDissectedClasses(asyncCtx, officiallySortedClasses);
 
   const variantMap: VariantMap = {};
 

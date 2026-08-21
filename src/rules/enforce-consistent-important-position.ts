@@ -46,11 +46,15 @@ export const enforceConsistentImportantPosition = createRule({
         : "legacy"
     );
 
+    const asyncCtx = async(ctx);
+
     for(const literal of literals){
 
       const classes = splitClasses(literal.content);
 
-      const { dissectedClasses, warnings } = getDissectedClasses(async(ctx), classes);
+      const { dissectedClasses, warnings: dissectWarnings } = getDissectedClasses(asyncCtx, classes);
+
+      const warnings = [...dissectWarnings];
 
       lintClasses(ctx, literal, (className, index, after) => {
         const dissectedClass = dissectedClasses[className];

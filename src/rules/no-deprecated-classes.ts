@@ -75,11 +75,13 @@ function lintLiterals(ctx: Context<typeof noDeprecatedClasses>, literals: Litera
 
   const { major, minor } = ctx.version;
 
+  const asyncCtx = async(ctx);
+
   for(const literal of literals){
 
     const classes = splitClasses(literal.content);
 
-    const { dissectedClasses, warnings } = getDissectedClasses(async(ctx), classes);
+    const { dissectedClasses, warnings } = getDissectedClasses(asyncCtx, classes);
 
     lintClasses(ctx, literal, className => {
       const dissectedClass = dissectedClasses[className];

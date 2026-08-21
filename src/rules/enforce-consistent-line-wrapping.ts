@@ -132,6 +132,8 @@ export const enforceConsistentLineWrapping = createRule({
 function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, literals: Literal[]) {
   const { classesPerLine, group: groupSeparator, messageStyle, preferSingleLine, printWidth, strictness, vueConvertToBinding } = ctx.options;
 
+  const asyncCtx = async(ctx);
+
   for(const literal of literals){
 
     if(!literal.supportsMultiline){
@@ -151,7 +153,9 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
 
     const classes = splitClasses(literal.content);
 
-    const { dissectedClasses, warnings } = getDissectedClasses(async(ctx), classes);
+    const { dissectedClasses, warnings: dissectWarnings } = getDissectedClasses(asyncCtx, classes);
+
+    const warnings = [...dissectWarnings];
 
     const invalidLineBreaks = isLineBreakStyleLikelyMisconfigured(ctx, literal.raw);
     const invalidIndentations = isIndentationLikelyMisconfigured(ctx, literal.raw);
