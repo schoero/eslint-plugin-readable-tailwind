@@ -967,7 +967,15 @@ function findAdjacentTemplateQuasiNodes(node: ESNode, direction: "left" | "right
       continue;
     }
 
-    if(isESLogicalExpression(parent) && parent.operator === "&&" && parent.right === current){
+    if(
+      isESLogicalExpression(parent) &&
+      parent.right === current &&
+      (
+        parent.operator === "&&" ||
+        parent.operator === "||" ||
+        parent.operator === "??"
+      )
+    ){
       current = parent;
       continue;
     }
@@ -1046,7 +1054,14 @@ function findConcatenationLeafNodes(node: ESNode, edge: "left" | "right"): ESNod
     ];
   }
 
-  if(isESLogicalExpression(node) && node.operator === "&&"){
+  if(
+    isESLogicalExpression(node) &&
+    (
+      node.operator === "&&" ||
+      node.operator === "||" ||
+      node.operator === "??"
+    )
+  ){
     return findConcatenationLeafNodes(node.right, "left");
   }
 

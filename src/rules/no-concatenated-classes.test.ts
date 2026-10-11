@@ -693,4 +693,33 @@ describe(noConcatenatedClasses.name, () => {
       }]
     });
   });
+
+  // #413
+  it("should not report on a nullish coalescing operator fallback", () => {
+    lint(noConcatenatedClasses, {
+      valid: [
+        {
+          angular: `<img [class]="\`h-1.5 \${classes ?? 'rounded-r-full'}\`" />`,
+          astro: `<img class={\`h-1.5 \${classes ?? "rounded-r-full"}\`} />`,
+          jsx: `<img class={\`h-1.5 \${classes ?? "rounded-r-full"}\`} />`,
+          svelte: `<img class={\`h-1.5 \${classes ?? "rounded-r-full"}\`} />`,
+          vue: `<template><img :class="\`h-1.5 \${classes ?? "rounded-r-full"}\`" /></template>`
+        }
+      ]
+    });
+  });
+  it("should not report on a logical or operator fallback", () => {
+    lint(noConcatenatedClasses, {
+      valid: [
+        {
+          angular: `<img [class]="\`h-1.5 \${classes || 'rounded-r-full'}\`" />`,
+          astro: `<img class={\`h-1.5 \${classes || "rounded-r-full"}\`} />`,
+          jsx: `<img class={\`h-1.5 \${classes || "rounded-r-full"}\`} />`,
+          svelte: `<img class={\`h-1.5 \${classes || "rounded-r-full"}\`} />`,
+          vue: `<template><img :class="\`h-1.5 \${classes || "rounded-r-full"}\`" /></template>`
+        }
+      ]
+    });
+  });
+
 });

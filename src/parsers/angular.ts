@@ -725,7 +725,15 @@ function findAdjacentTemplateQuasiNodes(ctx: Rule.RuleContext, ast: AST, directi
       continue;
     }
 
-    if(isBinary(parent) && parent.operation === "&&" && parent.right === current){
+    if(
+      isBinary(parent) &&
+      parent.right === current &&
+      (
+        parent.operation === "&&" ||
+        parent.operation === "||" ||
+        parent.operation === "??"
+      )
+    ){
       current = parent;
       continue;
     }
@@ -812,7 +820,14 @@ function findConcatenationLeafNodes(ast: AST, edge: "left" | "right"): AST[] {
     ];
   }
 
-  if(isBinary(ast) && ast.operation === "&&"){
+  if(
+    isBinary(ast) &&
+    (
+      ast.operation === "&&" ||
+      ast.operation === "||" ||
+      ast.operation === "??"
+    )
+  ){
     return findConcatenationLeafNodes(ast.right, "left");
   }
 
