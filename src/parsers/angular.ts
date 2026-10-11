@@ -785,7 +785,15 @@ function findConcatenationCounterpart(ctx: Rule.RuleContext, ast: AST, direction
       continue;
     }
 
-    if(isBinary(parent) && parent.operation === "&&" && parent.right === current){
+    if(
+      isBinary(parent) &&
+      parent.right === current &&
+      (
+        parent.operation === "&&" ||
+        parent.operation === "||" ||
+        parent.operation === "??"
+      )
+    ){
       current = parent;
       continue;
     }

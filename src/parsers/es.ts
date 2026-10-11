@@ -1023,7 +1023,15 @@ function findConcatenationCounterpart(node: ESNode, direction: "left" | "right")
       continue;
     }
 
-    if(isESLogicalExpression(parent) && parent.operator === "&&" && parent.right === current){
+    if(
+      isESLogicalExpression(parent) &&
+      parent.right === current &&
+      (
+        parent.operator === "&&" ||
+        parent.operator === "||" ||
+        parent.operator === "??"
+      )
+    ){
       current = parent;
       continue;
     }
