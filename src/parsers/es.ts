@@ -1094,7 +1094,7 @@ function findConcatenationLeafNodes(node: ESNode, edge: "left" | "right"): Conca
 
     return {
       hasDynamicValue: left.hasDynamicValue || right.hasDynamicValue,
-      nodes: right.nodes
+      nodes: node.operator === "&&" ? right.nodes : [...left.nodes, ...right.nodes]
     };
   }
 

@@ -861,7 +861,7 @@ function findConcatenationLeafNodes(ast: AST, edge: "left" | "right"): Concatena
 
     return {
       hasDynamicValue: left.hasDynamicValue || right.hasDynamicValue,
-      nodes: right.nodes
+      nodes: ast.operation === "&&" ? right.nodes : [...left.nodes, ...right.nodes]
     };
   }
 
