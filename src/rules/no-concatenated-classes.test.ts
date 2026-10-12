@@ -703,14 +703,14 @@ describe(noConcatenatedClasses.name, () => {
           astro: `<img class={\`h-1.5 \${classes ?? "rounded-r-full"}\`} />`,
           jsx: `<img class={\`h-1.5 \${classes ?? "rounded-r-full"}\`} />`,
           svelte: `<img class={\`h-1.5 \${classes ?? "rounded-r-full"}\`} />`,
-          vue: `<template><img :class="\`h-1.5 \${classes ?? "rounded-r-full"}\`" /></template>`
+          vue: `<template><img :class="\`h-1.5 \${classes ?? 'rounded-r-full'}\`" /></template>`
         },
         {
           angular: `<img [class]="'h-1.5 ' + (classes ?? 'rounded-r-full')" />`,
           astro: `<img class={'h-1.5 ' + (classes ?? "rounded-r-full")} />`,
           jsx: `<img class={'h-1.5 ' + (classes ?? "rounded-r-full")} />`,
           svelte: `<img class={'h-1.5 ' + (classes ?? "rounded-r-full")} />`,
-          vue: `<template><img :class="'h-1.5 ' + (classes ?? "rounded-r-full")" /></template>`
+          vue: `<template><img :class="'h-1.5 ' + (classes ?? 'rounded-r-full')" /></template>`
         }
       ]
     });
