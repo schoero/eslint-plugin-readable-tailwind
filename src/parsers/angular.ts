@@ -35,7 +35,7 @@ import type {
 import type { Rule } from "eslint";
 import type { SourceLocation } from "estree";
 
-import type { BracesMeta, Literal } from "better-tailwindcss:types/ast.js";
+import type { BracesMeta, ConcatenationMeta, Literal } from "better-tailwindcss:types/ast.js";
 import type { AttributeSelector, MatcherFunctions, SelectorMatcher } from "better-tailwindcss:types/rule.js";
 
 // https://angular.dev/api/common/NgClass
@@ -585,7 +585,12 @@ function isInsideLogicalExpressionLeft(ctx: Rule.RuleContext, ast: AST): boolean
   return isInsideConditionalExpressionCondition(ctx, parent);
 }
 
-function getStringConcatenationMeta(ctx: Rule.RuleContext, ast: AST, visitedNodes?: Set<AST>): { isConcatenatedLeft: boolean; isConcatenatedRight: boolean; leftLiterals?: Literal[] | undefined; rightLiterals?: Literal[] | undefined; } {
+type ConcatenationLeafNodes<Node> = {
+  hasDynamicValue: boolean;
+  nodes: Node[];
+};
+
+function getStringConcatenationMeta(ctx: Rule.RuleContext, ast: AST, visitedNodes?: Set<AST>): ConcatenationMeta {
 
   const { isConcatenatedLeft, isConcatenatedRight } = getStringConcatenationDirection(ctx, ast);
 
@@ -598,8 +603,10 @@ function getStringConcatenationMeta(ctx: Rule.RuleContext, ast: AST, visitedNode
     findAdjacentPlusConcatenatedLiteralNodes(ctx, ast, "left");
 
   const leftLiterals = isConcatenatedLeft
-    ? buildConcatenationNeighborLiterals(ctx, leftNodes, visited)
+    ? buildConcatenationNeighborLiterals(ctx, leftNodes?.nodes, visited)
     : undefined;
+
+  const hasDynamicLeftNeighbor = isConcatenatedLeft && !!leftNodes?.hasDynamicValue;
 
   const rightNodes =
     findAdjacentInterpolatedExpressionNodes(ctx, ast, "right") ??
@@ -607,10 +614,19 @@ function getStringConcatenationMeta(ctx: Rule.RuleContext, ast: AST, visitedNode
     findAdjacentPlusConcatenatedLiteralNodes(ctx, ast, "right");
 
   const rightLiterals = isConcatenatedRight
-    ? buildConcatenationNeighborLiterals(ctx, rightNodes, visited)
+    ? buildConcatenationNeighborLiterals(ctx, rightNodes?.nodes, visited)
     : undefined;
 
-  return { isConcatenatedLeft, isConcatenatedRight, leftLiterals, rightLiterals };
+  const hasDynamicRightNeighbor = isConcatenatedRight && !!rightNodes?.hasDynamicValue;
+
+  return {
+    hasDynamicLeftNeighbor,
+    hasDynamicRightNeighbor,
+    isConcatenatedLeft,
+    isConcatenatedRight,
+    leftLiterals,
+    rightLiterals
+  };
 }
 
 function buildConcatenationNeighborLiterals(ctx: Rule.RuleContext, nodes: AST[] | undefined, visited: Set<AST>): Literal[] | undefined {
@@ -645,7 +661,6 @@ function getStringConcatenationDirection(ctx: Rule.RuleContext, ast: AST, isConc
     };
   }
 
-  // a template element is concatenated with the interpolation adjacent to it (`}` before, `${` after)
   if(isTemplateLiteralElement(ast) && isTemplateLiteral(parent)){
     const index = parent.elements.indexOf(ast);
     return getStringConcatenationDirection(
@@ -668,16 +683,14 @@ function getStringConcatenationDirection(ctx: Rule.RuleContext, ast: AST, isConc
   return getStringConcatenationDirection(ctx, parent, isConcatenatedLeft, isConcatenatedRight);
 }
 
-// resolves the literal nodes adjacent to `ast` on the given side of a `+` concatenation chain
-function findAdjacentPlusConcatenatedLiteralNodes(ctx: Rule.RuleContext, ast: AST, direction: "left" | "right"): AST[] | undefined {
+function findAdjacentPlusConcatenatedLiteralNodes(ctx: Rule.RuleContext, ast: AST, direction: "left" | "right"): ConcatenationLeafNodes<AST> | undefined {
   const sibling = findConcatenationCounterpart(ctx, ast, direction);
   if(!sibling){ return; }
   const leafNodes = findConcatenationLeafNodes(sibling, direction === "left" ? "right" : "left");
-  return leafNodes.length > 0 ? leafNodes : undefined;
+  return leafNodes.nodes.length > 0 || leafNodes.hasDynamicValue ? leafNodes : undefined;
 }
 
-// resolves the leaf literal nodes of the interpolation expression adjacent to a template element (through conditional branches)
-function findAdjacentInterpolatedExpressionNodes(ctx: Rule.RuleContext, ast: AST, direction: "left" | "right"): AST[] | undefined {
+function findAdjacentInterpolatedExpressionNodes(ctx: Rule.RuleContext, ast: AST, direction: "left" | "right"): ConcatenationLeafNodes<AST> | undefined {
   if(!isTemplateLiteralElement(ast)){ return; }
 
   const parent = findParent(ctx, ast);
@@ -690,11 +703,10 @@ function findAdjacentInterpolatedExpressionNodes(ctx: Rule.RuleContext, ast: AST
   if(!expression){ return; }
 
   const leafNodes = findConcatenationLeafNodes(expression, direction);
-  return leafNodes.length > 0 ? leafNodes : undefined;
+  return leafNodes.nodes.length > 0 || leafNodes.hasDynamicValue ? leafNodes : undefined;
 }
 
-// resolves the template elements directly adjacent to an interpolation expression (through conditional branches)
-function findAdjacentTemplateQuasiNodes(ctx: Rule.RuleContext, ast: AST, direction: "left" | "right"): AST[] | undefined {
+function findAdjacentTemplateQuasiNodes(ctx: Rule.RuleContext, ast: AST, direction: "left" | "right"): ConcatenationLeafNodes<AST> | undefined {
   let current: AST = ast;
 
   while(true){
@@ -712,7 +724,7 @@ function findAdjacentTemplateQuasiNodes(ctx: Rule.RuleContext, ast: AST, directi
       if(index === -1){ return; }
 
       const element = direction === "left" ? parent.elements[index] : parent.elements[index + 1];
-      return element ? [element] : undefined;
+      return element ? { hasDynamicValue: false, nodes: [element] } : undefined;
     }
 
     if(isParenthesizedExpression(parent)){
@@ -751,19 +763,16 @@ function findConcatenationCounterpart(ctx: Rule.RuleContext, ast: AST, direction
     if(!parent){ break; }
     if(isCallExpression(parent)){ break; }
 
-    // parenthesized expressions are transparent wrappers in the angular AST
     if(isParenthesizedExpression(parent)){
       current = parent;
       continue;
     }
 
-    // conditionals are transparent: an operand's neighbor lives outside the branch
     if(isConditional(parent) && (parent.trueExp === current || parent.falseExp === current)){
       current = parent;
       continue;
     }
 
-    // an edge element's `+` neighbor lives outside the template literal
     if(isTemplateLiteral(parent)){
       const elements = parent.elements;
       const isEdge = direction === "left"
@@ -802,19 +811,25 @@ function findConcatenationCounterpart(ctx: Rule.RuleContext, ast: AST, direction
   }
 }
 
-function findConcatenationLeafNodes(ast: AST, edge: "left" | "right"): AST[] {
+function findConcatenationLeafNodes(ast: AST, edge: "left" | "right"): ConcatenationLeafNodes<AST> {
   if(isParenthesizedExpression(ast)){
     return findConcatenationLeafNodes(ast.expression, edge);
   }
 
+  if(isStringLiteral(ast)){
+    return { hasDynamicValue: false, nodes: [ast] };
+  }
+
   if(isLiteralPrimitive(ast)){
-    return [ast];
+    return { hasDynamicValue: true, nodes: [] };
   }
 
   if(isTemplateLiteral(ast)){
     const elements = ast.elements;
     const edgeElement = edge === "left" ? elements[0] : elements[elements.length - 1];
-    return edgeElement ? [edgeElement] : [];
+    const adjacentExpression = ast.expressions[edge === "left" ? 0 : ast.expressions.length - 1];
+    const hasDynamicValue = !!edgeElement && edgeElement.text.length === 0 && !!adjacentExpression && findConcatenationLeafNodes(adjacentExpression, edge).hasDynamicValue;
+    return { hasDynamicValue, nodes: edgeElement ? [edgeElement] : [] };
   }
 
   if(isBinary(ast) && ast.operation === "+"){
@@ -822,10 +837,15 @@ function findConcatenationLeafNodes(ast: AST, edge: "left" | "right"): AST[] {
   }
 
   if(isConditional(ast)){
-    return [
-      ...findConcatenationLeafNodes(ast.trueExp, edge),
-      ...findConcatenationLeafNodes(ast.falseExp, edge)
+    const branches = [
+      findConcatenationLeafNodes(ast.trueExp, edge),
+      findConcatenationLeafNodes(ast.falseExp, edge)
     ];
+
+    return {
+      hasDynamicValue: branches.some(branch => branch.hasDynamicValue),
+      nodes: branches.flatMap(branch => branch.nodes)
+    };
   }
 
   if(
@@ -836,10 +856,16 @@ function findConcatenationLeafNodes(ast: AST, edge: "left" | "right"): AST[] {
       ast.operation === "??"
     )
   ){
-    return findConcatenationLeafNodes(ast.right, "left");
+    const left = findConcatenationLeafNodes(ast.left, edge);
+    const right = findConcatenationLeafNodes(ast.right, "left");
+
+    return {
+      hasDynamicValue: left.hasDynamicValue || right.hasDynamicValue,
+      nodes: right.nodes
+    };
   }
 
-  return [];
+  return { hasDynamicValue: true, nodes: [] };
 }
 
 function buildConcatenationNeighborLiteral(ctx: Rule.RuleContext, ast: AST | undefined, visitedNodes: Set<AST>): Literal | undefined {

@@ -584,20 +584,6 @@ describe(noConcatenatedClasses.name, () => {
           jsx: `() => <img class={\`\${someVar && "text-white"} bg-red-500\`} />`,
           svelte: `<img class={\`\${someVar && "text-white"} bg-red-500\`} />`,
           vue: `<template><img :class="\`\${someVar && 'text-white'} bg-red-500\`" /></template>`
-        },
-        {
-          angular: `<img [class]="\`bg-red-500\${someVar && ' text-white'}\`" />`,
-          astro: `<img class={\`bg-red-500\${someVar && " text-white"}\`} />`,
-          jsx: `() => <img class={\`bg-red-500\${someVar && " text-white"}\`} />`,
-          svelte: `<img class={\`bg-red-500\${someVar && " text-white"}\`} />`,
-          vue: `<template><img :class="\`bg-red-500\${someVar && ' text-white'}\`" /></template>`
-        },
-        {
-          angular: `<img [class]="\`\${someVar && 'text-white '}bg-red-500\`" />`,
-          astro: `<img class={\`\${someVar && "text-white "}bg-red-500\`} />`,
-          jsx: `() => <img class={\`\${someVar && "text-white "}bg-red-500\`} />`,
-          svelte: `<img class={\`\${someVar && "text-white "}bg-red-500\`} />`,
-          vue: `<template><img :class="\`\${someVar && 'text-white '}bg-red-500\`" /></template>`
         }
       ]
     });
@@ -623,6 +609,24 @@ describe(noConcatenatedClasses.name, () => {
           vue: `<template><img :class="\`\${someVar && 'text-white'}bg-red-500\`" /></template>`,
 
           errors: 2
+        },
+        {
+          angular: `<img [class]="\`bg-red-500\${someVar && ' text-white'}\`" />`,
+          astro: `<img class={\`bg-red-500\${someVar && " text-white"}\`} />`,
+          jsx: `() => <img class={\`bg-red-500\${someVar && " text-white"}\`} />`,
+          svelte: `<img class={\`bg-red-500\${someVar && " text-white"}\`} />`,
+          vue: `<template><img :class="\`bg-red-500\${someVar && ' text-white'}\`" /></template>`,
+
+          errors: 1
+        },
+        {
+          angular: `<img [class]="\`\${someVar && 'text-white '}bg-red-500\`" />`,
+          astro: `<img class={\`\${someVar && "text-white "}bg-red-500\`} />`,
+          jsx: `() => <img class={\`\${someVar && "text-white "}bg-red-500\`} />`,
+          svelte: `<img class={\`\${someVar && "text-white "}bg-red-500\`} />`,
+          vue: `<template><img :class="\`\${someVar && 'text-white '}bg-red-500\`" /></template>`,
+
+          errors: 1
         }
       ]
     });
@@ -723,17 +727,59 @@ describe(noConcatenatedClasses.name, () => {
           astro: `<img class={\`h-1.5 \${classes || "rounded-r-full"}\`} />`,
           jsx: `<img class={\`h-1.5 \${classes || "rounded-r-full"}\`} />`,
           svelte: `<img class={\`h-1.5 \${classes || "rounded-r-full"}\`} />`,
-          vue: `<template><img :class="\`h-1.5 \${classes || "rounded-r-full"}\`" /></template>`
+          vue: `<template><img :class="\`h-1.5 \${classes || 'rounded-r-full'}\`" /></template>`
         },
         {
           angular: `<img [class]="'h-1.5 ' + (classes || 'rounded-r-full')" />`,
           astro: `<img class={'h-1.5 ' + (classes || "rounded-r-full")} />`,
           jsx: `<img class={'h-1.5 ' + (classes || "rounded-r-full")} />`,
           svelte: `<img class={'h-1.5 ' + (classes || "rounded-r-full")} />`,
-          vue: `<template><img :class="'h-1.5 ' + (classes || "rounded-r-full")" /></template>`
+          vue: `<template><img :class="'h-1.5 ' + (classes || 'rounded-r-full')" /></template>`
         }
       ]
     });
   });
 
+  it("should report on a dynamic class concatenation candidates", () => {
+    lint(noConcatenatedClasses, {
+      invalid: [
+        {
+          angular: `<img [class]="\`h-1.5\${classes ?? ' rounded-r-full'}\`" />`,
+          astro: `<img class={\`h-1.5\${classes ?? " rounded-r-full"}\`} />`,
+          jsx: `<img class={\`h-1.5\${classes ?? " rounded-r-full"}\`} />`,
+          svelte: `<img class={\`h-1.5\${classes ?? " rounded-r-full"}\`} />`,
+          vue: `<template><img :class="\`h-1.5\${classes ?? ' rounded-r-full'}\`" /></template>`,
+
+          errors: 1
+        },
+        {
+          angular: `<img [class]="'h-1.5' + (classes ?? ' rounded-r-full')" />`,
+          astro: `<img class={'h-1.5' + (classes ?? " rounded-r-full")} />`,
+          jsx: `<img class={'h-1.5' + (classes ?? " rounded-r-full")} />`,
+          svelte: `<img class={'h-1.5' + (classes ?? " rounded-r-full")} />`,
+          vue: `<template><img :class="'h-1.5' + (classes ?? ' rounded-r-full')" /></template>`,
+
+          errors: 1
+        },
+        {
+          angular: `<img [class]="\`h-1.5\${classes || ' rounded-r-full'}\`" />`,
+          astro: `<img class={\`h-1.5\${classes || " rounded-r-full"}\`} />`,
+          jsx: `<img class={\`h-1.5\${classes || " rounded-r-full"}\`} />`,
+          svelte: `<img class={\`h-1.5\${classes || " rounded-r-full"}\`} />`,
+          vue: `<template><img :class="\`h-1.5\${classes || ' rounded-r-full'}\`" /></template>`,
+
+          errors: 1
+        },
+        {
+          angular: `<img [class]="'h-1.5' + (classes || ' rounded-r-full')" />`,
+          astro: `<img class={'h-1.5' + (classes || " rounded-r-full")} />`,
+          jsx: `<img class={'h-1.5' + (classes || " rounded-r-full")} />`,
+          svelte: `<img class={'h-1.5' + (classes || " rounded-r-full")} />`,
+          vue: `<template><img :class="'h-1.5' + (classes || ' rounded-r-full')" /></template>`,
+
+          errors: 1
+        }
+      ]
+    });
+  });
 });

@@ -51,6 +51,16 @@ export interface CSSMeta {
   trailingSemicolon?: string | undefined;
 }
 
+export interface ConcatenationMeta {
+  hasDynamicLeftNeighbor?: boolean | undefined;
+  hasDynamicRightNeighbor?: boolean | undefined;
+  isConcatenatedLeft?: boolean | undefined;
+  isConcatenatedRight?: boolean | undefined;
+  leftLiterals?: Literal[] | undefined;
+  rightLiterals?: Literal[] | undefined;
+}
+
+
 export interface Indentation {
   indentation: {
     spaces: number;
@@ -63,16 +73,12 @@ interface NodeBase extends Range, Loc {
   type: string;
 }
 
-interface LiteralBase extends NodeBase, MultilineMeta, QuoteMeta, BracesMeta, BindingMeta, WhitespaceMeta, CSSMeta, Indentation, Range, Loc {
+interface LiteralBase extends NodeBase, MultilineMeta, QuoteMeta, BracesMeta, BindingMeta, WhitespaceMeta, CSSMeta, ConcatenationMeta, Indentation, Range, Loc {
   content: string;
   raw: string;
   attribute?: string | undefined;
-  isConcatenatedLeft?: boolean | undefined;
-  isConcatenatedRight?: boolean | undefined;
   isInterpolated?: boolean | undefined;
-  leftLiterals?: Literal[] | undefined;
   priorLiterals?: Literal[] | undefined;
-  rightLiterals?: Literal[] | undefined;
 }
 
 export interface TemplateLiteral extends LiteralBase {
