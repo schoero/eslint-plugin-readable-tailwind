@@ -740,7 +740,7 @@ describe(noConcatenatedClasses.name, () => {
     });
   });
 
-  it("should report on a dynamic class concatenation candidates", () => {
+  it("should report on dynamic class concatenation candidates", () => {
     lint(noConcatenatedClasses, {
       invalid: [
         {
