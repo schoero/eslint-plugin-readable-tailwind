@@ -14,10 +14,12 @@ type IsolatedCache = Map<string, CacheEntry>;
 type CacheKey = (boolean | number | string | undefined)[] | boolean | number | string;
 type CacheKeyHash = string & { readonly __brand: "CacheKeyHash"; };
 
+export type CacheSource = string[] | string | undefined;
+
 interface CacheEntry<Value = unknown> {
   date: Date;
-  path: string | undefined;
-  tag: string | undefined;
+  path: string[] | undefined;
+  tag: string[] | undefined;
   value: Value;
 }
 
@@ -27,17 +29,17 @@ export interface CacheOptions<Value> {
    * when `path` is provided or `invalidateByTagChange` when `tag` is provided.
    */
   invalidate?: false | CacheInvalidator<Value> | undefined;
-  /** File path used for modification-time based invalidation. */
-  path?: string | undefined;
-  /** Arbitrary value used for equality-based invalidation (e.g. A `cwd`). */
-  tag?: string | undefined;
+  /** File path or paths used for modification-time based invalidation. */
+  path?: string[] | string | undefined;
+  /** Arbitrary value or values used for equality-based invalidation (e.g. A `cwd`). */
+  tag?: string[] | string | undefined;
 }
 
 interface CacheOption {
   cache?: IsolatedCache | SharedCache;
 }
 
-export type CacheInvalidator<Value> = (cached: CacheEntry<Value>, source: string | undefined) => boolean;
+export type CacheInvalidator<Value> = (cached: CacheEntry<Value>, source: CacheSource) => boolean;
 
 export class Cache {
 
@@ -83,6 +85,11 @@ export class Cache {
     return this.SHARED_CACHE.has(this._getKey(key));
   }
 
+  public static isValid<Value = unknown>(key: CacheKey, { cache = this.SHARED_CACHE, ...options }: CacheOption & CacheOptions<Value> = {}): boolean {
+    const cached = this._getValue<Value>(cache, key);
+    return cached !== undefined && this._isValid(cached, options);
+  }
+
   public static delete(key: CacheKey): boolean {
     return this.SHARED_CACHE.delete(this._getKey(key));
   }
@@ -117,29 +124,16 @@ export class Cache {
 
   public static readFile(path: string, options: CacheOptions<Uint8Array> = {}): string {
     const cached = this._getValue<Uint8Array>(this.SHARED_CACHE, path);
+    const normalizedPath = this._normalizeSource(path);
+    const normalizedTag = this._normalizeSource(options.tag);
 
-    if(cached){
-      const invalidators: { invalidate: CacheInvalidator<Uint8Array>; source: string | undefined; }[] = [];
-
-      if(options.invalidate !== false){
-        invalidators.push({ invalidate: invalidateByModifiedDate, source: path });
-
-        if(options.tag){
-          invalidators.push({ invalidate: invalidateByTagChange, source: options.tag });
-        }
-        if(options.invalidate){
-          invalidators.push({ invalidate: options.invalidate, source: path });
-        }
-      }
-
-      if(!invalidators.some(({ invalidate, source }) => invalidate(cached, source))){
-        return this.textDecoder.decode(cached.value);
-      }
+    if(cached && this._isValid(cached, { ...options, path })){
+      return this.textDecoder.decode(cached.value);
     }
 
     const bytes = readFileSync(path);
 
-    this._setValue(this.SHARED_CACHE, path, bytes, new Date(), path, options.tag);
+    this._setValue(this.SHARED_CACHE, path, bytes, new Date(), normalizedPath, normalizedTag);
 
     return this.textDecoder.decode(bytes);
   }
@@ -153,29 +147,14 @@ export class Cache {
   public static get<Value>(key: CacheKey, callback: () => Promise<Value>, options?: CacheOption & CacheOptions<Value>): Promise<Value>;
   public static get<Value>(key: CacheKey, callback: () => Promise<Value> | Value, { cache = this.SHARED_CACHE, ...options }: CacheOption & CacheOptions<Value> = {}): Promise<Value> | Value {
     const cached = this._getValue<Value>(cache, key);
+    const normalizedPath = this._normalizeSource(options.path);
+    const normalizedTag = this._normalizeSource(options.tag);
 
-    if(cached){
-
-      const invalidators: { invalidate: CacheInvalidator<Value>; source: string | undefined; }[] = [];
-
-      if(options.invalidate !== false){
-        if(options.path){
-          invalidators.push({ invalidate: invalidateByModifiedDate, source: options.path });
-        }
-        if(options.tag){
-          invalidators.push({ invalidate: invalidateByTagChange, source: options.tag });
-        }
-        if(options.invalidate){
-          invalidators.push({ invalidate: options.invalidate, source: options.path ?? options.tag });
-        }
-      }
-
-      if(!invalidators.some(({ invalidate, source }) => invalidate(cached, source))){
-        if(cache instanceof ShareableMap){
-          return this._decodeValue<Value>(cached.value as Uint8Array);
-        } else {
-          return cached.value;
-        }
+    if(cached && this._isValid(cached, options)){
+      if(cache instanceof ShareableMap){
+        return this._decodeValue<Value>(cached.value as Uint8Array);
+      } else {
+        return cached.value;
       }
     }
 
@@ -183,24 +162,42 @@ export class Cache {
 
     if(value instanceof Promise){
       return value.then(resolvedValue => {
-        this._setValue(cache, key, cache instanceof ShareableMap ? this._encodeValue(resolvedValue) : resolvedValue, new Date(), options.path, options.tag);
+        this._setValue(cache, key, cache instanceof ShareableMap ? this._encodeValue(resolvedValue) : resolvedValue, new Date(), normalizedPath, normalizedTag);
         return resolvedValue;
       });
     }
 
-    this._setValue(cache, key, cache instanceof ShareableMap ? this._encodeValue(value) : value, new Date(), options.path, options.tag);
+    this._setValue(cache, key, cache instanceof ShareableMap ? this._encodeValue(value) : value, new Date(), normalizedPath, normalizedTag);
 
     return value;
   }
 
   public static set<Value>(key: CacheKey, value: Value, { cache = this.SHARED_CACHE, ...options }: CacheOption & CacheOptions<Value> = {}): void {
-    this._setValue(cache, key, cache instanceof ShareableMap ? this._encodeValue(value) : value, new Date(), options.path, options.tag);
+    this._setValue(cache, key, cache instanceof ShareableMap ? this._encodeValue(value) : value, new Date(), this._normalizeSource(options.path), this._normalizeSource(options.tag));
   }
 
-  private static _setValue(cache: IsolatedCache, key: CacheKey, value: unknown, date: Date, path?: string | undefined, tag?: string | undefined): void;
-  private static _setValue(cache: SharedCache, key: CacheKey, value: Uint8Array, date: Date, path?: string | undefined, tag?: string | undefined): void;
-  private static _setValue(cache: IsolatedCache | SharedCache, key: CacheKey, value: unknown, date: Date, path?: string | undefined, tag?: string | undefined): void;
-  private static _setValue(cache: IsolatedCache | SharedCache, key: CacheKey, value: unknown, date: Date = new Date(), path?: string | undefined, tag?: string | undefined): void {
+  private static _isValid<Value>(cached: CacheEntry<Value>, options: CacheOptions<Value>): boolean {
+    if(options.invalidate === false){
+      return true;
+    }
+
+    const normalizedPath = this._normalizeSource(options.path);
+    const normalizedTag = this._normalizeSource(options.tag);
+
+    if(normalizedPath && invalidateByModifiedDate(cached, normalizedPath)){
+      return false;
+    }
+    if(normalizedTag && invalidateByTagChange(cached, normalizedTag)){
+      return false;
+    }
+
+    return !options.invalidate?.(cached, normalizedPath ?? normalizedTag);
+  }
+
+  private static _setValue(cache: IsolatedCache, key: CacheKey, value: unknown, date: Date, path?: string[] | undefined, tag?: string[] | undefined): void;
+  private static _setValue(cache: SharedCache, key: CacheKey, value: Uint8Array, date: Date, path?: string[] | undefined, tag?: string[] | undefined): void;
+  private static _setValue(cache: IsolatedCache | SharedCache, key: CacheKey, value: unknown, date: Date, path?: string[] | undefined, tag?: string[] | undefined): void;
+  private static _setValue(cache: IsolatedCache | SharedCache, key: CacheKey, value: unknown, date: Date = new Date(), path?: string[] | undefined, tag?: string[] | undefined): void {
     if(cache.size >= this.limit){
       const oldestKey = cache.keys().next().value;
       if(oldestKey !== undefined){
@@ -230,10 +227,26 @@ export class Cache {
 
   private static _getKey(key: CacheKey): CacheKeyHash {
     return this._hashKey(
-      Array.isArray(key)
-        ? key.filter((part): part is string => part !== undefined).join(":")
-        : key.toString()
+      JSON.stringify(
+        Array.isArray(key)
+          ? key.filter(part => part !== undefined)
+          : key
+      )
     ) as CacheKeyHash;
+  }
+
+  private static _normalizeSource(source: CacheSource): string[] | undefined {
+    if(source === undefined){
+      return;
+    }
+
+    if(!Array.isArray(source)){
+      return [source];
+    }
+
+    const defined = source.filter((part): part is string => part !== undefined);
+
+    return defined.length === 0 ? undefined : defined;
   }
 
   private static _hashKey(key: string) {
@@ -248,10 +261,36 @@ export class Cache {
     return JSON.parse(this.textDecoder.decode(bytes)).value as Value;
   }
 
-  private static _serializeData(date: Date, path: string | undefined, tag: string | undefined, value: Uint8Array): Uint8Array {
+  /**
+   * Flattens a cache entry into a single `Uint8Array` for storage in the shared
+   * (cross-worker) cache, which can only hold raw bytes — not JS objects.
+   *
+   * The three variable-length string fields (`date`, `path`, `tag`) each need a
+   * length prefix so they can be split back apart when parsing. Each length is a
+   * 4-byte unsigned integer written immediately before the data it describes.
+   *
+   * ```
+   * ┌──────────┬───────────┬──────────┬───────────┬──────────┬──────────┬───────────┐
+   * │ dateLen  │ date      │ pathLen  │ path      │ tagLen   │ tag      │ value     │
+   * │ (4 B)    │ (dateLen) │ (4 B)    │ (pathLen) │ (4 B)    │ (tagLen) │ (rest)    │
+   * └──────────┴───────────┴──────────┴───────────┴──────────┴──────────┴───────────┘
+   *   offset 0   offset 4
+   * ```
+   *
+   * That is three 4-byte length headers (12 bytes total) plus the data itself,
+   * i.e. `12 + dateLen + pathLen + tagLen + valueLen`. The `value` payload needs no
+   * length prefix because it always runs to the end of the buffer.
+   *
+   * @param date The date the entry was created.
+   * @param path The file paths used for modification-time invalidation.
+   * @param tag The arbitrary values used for equality-based invalidation.
+   * @param value The raw payload bytes.
+   * @returns The serialized entry.
+   */
+  private static _serializeData(date: Date, path: string[] | undefined, tag: string[] | undefined, value: Uint8Array): Uint8Array {
     const dateBytes = this.textEncoder.encode(date.toISOString());
-    const pathBytes = this.textEncoder.encode(path ?? "");
-    const tagBytes = this.textEncoder.encode(tag ?? "");
+    const pathBytes = this.textEncoder.encode(path === undefined ? "" : JSON.stringify(path));
+    const tagBytes = this.textEncoder.encode(tag === undefined ? "" : JSON.stringify(tag));
     const result = new Uint8Array(12 + dateBytes.byteLength + pathBytes.byteLength + tagBytes.byteLength + value.byteLength);
 
     const view = new DataView(result.buffer, result.byteOffset, result.byteLength);
@@ -261,12 +300,19 @@ export class Cache {
 
     result.set(dateBytes, 4);
     result.set(pathBytes, 8 + dateBytes.byteLength);
-    result.set(tagBytes, 8 + dateBytes.byteLength + pathBytes.byteLength);
+    result.set(tagBytes, 12 + dateBytes.byteLength + pathBytes.byteLength);
     result.set(value, 12 + dateBytes.byteLength + pathBytes.byteLength + tagBytes.byteLength);
 
     return result;
   }
 
+  /**
+   * Reconstructs a cache entry from the flat byte layout produced by
+   * {@link Cache._serializeData}. Returns `undefined` when the key is absent.
+   *
+   * @param bytes The serialized entry bytes.
+   * @returns The parsed cache entry, or `undefined` if there is nothing to parse.
+   */
   private static _parseData(bytes: Uint8Array): CacheEntry<Uint8Array> | undefined {
     if(!bytes){
       return;
@@ -284,26 +330,83 @@ export class Cache {
     const tagBytes = bytes.subarray(tagLengthOffset + 4, valueOffset);
     const value = bytes.subarray(valueOffset);
 
+    const parseSource = (sourceBytes: Uint8Array): string[] | undefined => {
+      if(sourceBytes.byteLength === 0){
+        return;
+      }
+
+      const parsed = JSON.parse(this.textDecoder.decode(sourceBytes));
+
+      if(Array.isArray(parsed)){
+        return parsed;
+      }
+
+      return [parsed];
+    };
+
     return {
       date: new Date(this.textDecoder.decode(dateBytes)),
-      path: pathBytes.byteLength > 0 ? this.textDecoder.decode(pathBytes) : undefined,
-      tag: tagBytes.byteLength > 0 ? this.textDecoder.decode(tagBytes) : undefined,
+      path: parseSource(pathBytes),
+      tag: parseSource(tagBytes),
       value
     };
   }
 
 }
 
-export function invalidateByModifiedDate(cache: CacheEntry, path: string | undefined): boolean {
-  if(!path || cache.path !== path){
+export function invalidateByModifiedDate(cache: CacheEntry, paths: CacheSource): boolean {
+  const normalizedPaths = Array.isArray(paths)
+    ? paths.filter((part): part is string => part !== undefined)
+    : paths === undefined
+      ? []
+      : [paths];
+
+  if(normalizedPaths.length === 0 || cache.path === undefined){
+    return cache.path !== undefined || normalizedPaths.length > 0;
+  }
+
+  if(normalizedPaths.length !== cache.path.length){
     return true;
   }
 
-  const modified = getModifiedDate(path);
+  for(let index = 0; index < normalizedPaths.length; index++){
+    const path = normalizedPaths[index];
+    const cachedPath = cache.path[index];
 
-  return modified > cache.date;
+    if(path !== cachedPath){
+      return true;
+    }
+
+    const modified = getModifiedDate(path);
+
+    if(modified === undefined || modified > cache.date){
+      return true;
+    }
+  }
+
+  return false;
 }
 
-export function invalidateByTagChange(cache: CacheEntry, tag: string | undefined): boolean {
-  return cache.tag !== tag;
+export function invalidateByTagChange(cache: CacheEntry, tags: CacheSource): boolean {
+  const normalizedTags = Array.isArray(tags)
+    ? tags.filter((part): part is string => part !== undefined)
+    : tags === undefined
+      ? []
+      : [tags];
+
+  if(normalizedTags.length === 0 || cache.tag === undefined){
+    return cache.tag !== undefined || normalizedTags.length > 0;
+  }
+
+  if(normalizedTags.length !== cache.tag.length){
+    return true;
+  }
+
+  for(let index = 0; index < normalizedTags.length; index++){
+    if(normalizedTags[index] !== cache.tag[index]){
+      return true;
+    }
+  }
+
+  return false;
 }

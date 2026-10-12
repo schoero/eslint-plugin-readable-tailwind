@@ -25,11 +25,11 @@ export function findPathRecursive(cwd: string, startDirectory: string, entries: 
   }
 }
 
-export function getModifiedDate(filePath: string): Date {
+export function getModifiedDate(filePath: string): Date | undefined {
   try {
     const stats = statSync(filePath);
     return stats.mtime;
   } catch {
-    return new Date();
+    return undefined;
   }
 }

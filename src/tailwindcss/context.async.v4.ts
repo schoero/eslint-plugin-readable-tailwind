@@ -5,67 +5,75 @@ import { pathToFileURL } from "node:url";
 import { createJiti } from "jiti";
 
 import { Cache } from "../async-utils/cache.js";
+import { flattenCssImportTree, getCssImportTree, parseCssFileWithTree } from "../async-utils/css-import-tree.js";
 import { normalize } from "../async-utils/path.js";
 import { resolveCss, resolveJs } from "../async-utils/resolvers.js";
 
 import type { AsyncContext } from "../utils/context.js";
 
 
-export const createTailwindContext = async (ctx: AsyncContext) => Cache.get(
-  "tailwind-context",
-  async () => {
-    const jiti = createJiti(getCurrentFilename(), {
-      fsCache: false,
-      moduleCache: false
-    });
+export async function createTailwindContext(ctx: AsyncContext) {
 
-    const importBasePath = dirname(ctx.tailwindConfigPath);
-    const tailwindPath = resolveJs(ctx, "tailwindcss", importBasePath);
+  const css = Cache.readFile(ctx.tailwindConfigPath, { path: ctx.tailwindConfigPath });
 
-    // eslint-disable-next-line eslint-plugin-typescript/naming-convention
-    const { __unstable__loadDesignSystem } = await import(normalize(tailwindPath));
+  const dependencies = await Cache.get("tailwind-context-dependencies", async () => {
+    const imports = await getCssImportTree(ctx, ctx.tailwindConfigPath, parseCssFileWithTree);
+    return flattenCssImportTree(imports);
+  }, { path: ctx.tailwindConfigPath });
 
-    const css = Cache.readFile(ctx.tailwindConfigPath);
+  return Cache.get(
+    "tailwind-context",
+    async () => {
 
-    // Load the design system and set up a compatible context object that is
-    // usable by the rest of the plugin
-    const design = await __unstable__loadDesignSystem(css, {
-      base: importBasePath,
-      loadModule: createLoader(ctx, jiti, {
-        filepath: ctx.tailwindConfigPath,
-        legacy: false,
-        onError: (id, err, resourceType) => {
-          console.error(`Unable to load ${resourceType}: ${id}`, err);
+      const jiti = createJiti(getCurrentFilename(), {
+        fsCache: false,
+        moduleCache: false
+      });
 
-          if(resourceType === "config"){
-            return {};
-          } else if(resourceType === "plugin"){
-            return () => {};
+      const importBasePath = dirname(ctx.tailwindConfigPath);
+      const tailwindPath = resolveJs(ctx, "tailwindcss", importBasePath);
+
+      // eslint-disable-next-line eslint-plugin-typescript/naming-convention
+      const { __unstable__loadDesignSystem } = await import(normalize(tailwindPath));
+
+      return __unstable__loadDesignSystem(css, {
+        base: importBasePath,
+        loadModule: createLoader(ctx, jiti, {
+          filepath: ctx.tailwindConfigPath,
+          legacy: false,
+          onError: (id, err, resourceType) => {
+            console.error(`Unable to load ${resourceType}: ${id}`, err);
+
+            if(resourceType === "config"){
+              return {};
+            } else if(resourceType === "plugin"){
+              return () => {};
+            }
+          }
+        }),
+        loadStylesheet: async (id: string, base: string) => {
+          try {
+            const resolved = resolveCss(ctx, id, base);
+
+            return {
+              base: dirname(resolved),
+              content: await readFile(resolved, "utf-8")
+            };
+          } catch {
+            return {
+              base: "",
+              content: ""
+            };
           }
         }
-      }),
-
-      loadStylesheet: async (id: string, base: string) => {
-        try {
-          const resolved = resolveCss(ctx, id, base);
-
-          return {
-            base: dirname(resolved),
-            content: await readFile(resolved, "utf-8")
-          };
-        } catch {
-          return {
-            base: "",
-            content: ""
-          };
-        }
-      }
-    });
-
-    return design;
-  },
-  { cache: Cache.ISOLATED_CACHE, path: ctx.tailwindConfigPath }
-);
+      });
+    },
+    {
+      cache: Cache.ISOLATED_CACHE,
+      path: [ctx.tailwindConfigPath, ...dependencies]
+    }
+  );
+}
 
 function createLoader<T>(ctx: AsyncContext, jiti: ReturnType<typeof createJiti>, {
   filepath,

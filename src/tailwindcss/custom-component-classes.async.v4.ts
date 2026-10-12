@@ -5,6 +5,7 @@ import { fork } from "@eslint/css-tree";
 import { tailwind4 } from "tailwind-csstree";
 
 import { Cache } from "../async-utils/cache.js";
+import { getCssImportTree } from "../async-utils/css-import-tree.js";
 import { resolveCss } from "../async-utils/resolvers.js";
 
 import type { CssNode } from "@eslint/css-tree";
@@ -36,29 +37,38 @@ export async function getCustomComponentClasses(ctx: AsyncContext): Promise<Cust
     return [];
   }
 
-  const files = await parseCssFilesDeep(ctx, resolvedPath);
+  const importTree = await getCssImportTree(ctx, resolvedPath, parseCssFile);
+  const files = await parseCssFilesDeep(ctx, importTree);
+
+  const entryFile = await parseCssFile(ctx, resolvedPath);
+
+  if(entryFile){
+    files[resolvedPath] = entryFile;
+  }
 
   return getCustomComponentUtilities(files, resolvedPath);
 }
 
-async function parseCssFilesDeep(ctx: AsyncContext, resolvedPath: string): Promise<CssFiles> {
+async function parseCssFilesDeep(ctx: AsyncContext, importTree: import("../async-utils/css-import-tree.js").CssImportTree): Promise<CssFiles> {
   const cssFiles: CssFiles = {};
 
-  const cssFile = await parseCssFile(ctx, resolvedPath);
+  for(const path in importTree){
+    const cssFile = await parseCssFile(ctx, path);
 
-  if(!cssFile){
-    return cssFiles;
-  }
+    if(cssFile){
+      cssFiles[path] = cssFile;
+    }
 
-  cssFiles[resolvedPath] = cssFile;
+    const subtree = importTree[path];
+    if(subtree){
+      const importedFiles = await parseCssFilesDeep(ctx, subtree);
 
-  for(const { path } of cssFile.imports){
-    const importedFiles = await parseCssFilesDeep(ctx, path);
-
-    for(const importedFile in importedFiles){
-      cssFiles[importedFile] = importedFiles[importedFile];
+      for(const importedFile in importedFiles){
+        cssFiles[importedFile] = importedFiles[importedFile];
+      }
     }
   }
+
   return cssFiles;
 }
 
