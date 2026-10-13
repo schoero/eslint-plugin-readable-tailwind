@@ -1,5 +1,21 @@
 # Changelog
 
+## v4.9.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.9.0...v4.9.1)
+
+### Fixes
+
+- **no-concatenated-classes:** False positives on nullish coalescing and logical or fallbacks ([#414](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/414))
+- Emit portable declaration imports ([#410](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/410))
+- Support type assertions and satisfies ([#421](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/421))
+- Bump synckit to 0.12 to recover after worker timeouts ([#418](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/418))
+
+### ❤️ Contributors
+
+- Sahinur ([@SahinurDEV](https://github.com/SahinurDEV))
+- Tinywaves ([@tinywaves](https://github.com/tinywaves))
+
 ## v4.9.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.8.0...v4.9.0)
