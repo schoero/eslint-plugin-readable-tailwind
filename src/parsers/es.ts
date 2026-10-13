@@ -450,7 +450,11 @@ export function getESObjectPath(node: WithParent<ESNode>): string | undefined {
     node.type !== "ArrayExpression" &&
     node.type !== "Identifier" &&
     node.type !== "Literal" &&
-    node.type !== "TemplateElement"
+    node.type !== "TemplateElement" &&
+    // @ts-expect-error - TypeScript nodes are not represented in the types
+    node.type !== "TSAsExpression" &&
+    // @ts-expect-error - TypeScript nodes are not represented in the types
+    node.type !== "TSSatisfiesExpression"
   ){
     return;
   }
@@ -536,7 +540,6 @@ export function isInsideObjectValue(node: WithParent<ESNode>) {
   return isInsideObjectValue(node.parent);
 }
 
-
 function findMatchingParentNodes<Node>(node: Partial<GenericNodeWithParent>, matchesNode: (node: unknown) => node is Node): Node | undefined {
   if(!isGenericNodeWithParent(node)){ return; }
 
@@ -545,6 +548,11 @@ function findMatchingParentNodes<Node>(node: Partial<GenericNodeWithParent>, mat
   }
 
   return findMatchingParentNodes(node.parent, matchesNode);
+}
+
+export function isTSTypeReference(node: ESNode) {
+  // @ts-expect-error - TypeScript nodes are not represented in the types
+  return node.type === "TSTypeReference";
 }
 
 export function isESSimpleStringLiteral(node: ESBaseNode): node is ESSimpleStringLiteral {
@@ -1067,7 +1075,8 @@ export function getESMatcherFunctions(
 
           if(isESNode(node) && (
             isESCallExpression(node) ||
-            isESVariableDeclarator(node)
+            isESVariableDeclarator(node) ||
+            isTSTypeReference(node)
           )){
             return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
           }
@@ -1129,7 +1138,8 @@ export function getESMatcherFunctions(
             isESCallExpression(node) ||
             isESArrowFunctionExpression(node) ||
             isESVariableDeclarator(node) ||
-            isESFunctionExpression(node)
+            isESFunctionExpression(node) ||
+            isTSTypeReference(node)
           )){
             return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
           }
@@ -1159,7 +1169,8 @@ export function getESMatcherFunctions(
             isESCallExpression(node) ||
             isESArrowFunctionExpression(node) ||
             isESVariableDeclarator(node) ||
-            isESFunctionExpression(node)
+            isESFunctionExpression(node) ||
+            isTSTypeReference(node)
           )){
             return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
           }
@@ -1194,7 +1205,8 @@ export function getESMatcherFunctions(
             isESCallExpression(node) ||
             isESArrowFunctionExpression(node) ||
             isESVariableDeclarator(node) ||
-            isESFunctionExpression(node)
+            isESFunctionExpression(node) ||
+            isTSTypeReference(node)
           )){
             return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
           }

@@ -27,7 +27,7 @@ export default defineConfig([
         {
           customGroups: [
             {
-              elementNamePattern: "^(astro|angular|jsx|svelte|vue|html)(Output)?$",
+              elementNamePattern: "^(astro|angular|jsx|tsx|svelte|vue|html)(Output)?$",
               groupName: "markup",
               selector: "property"
             }
