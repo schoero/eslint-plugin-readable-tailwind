@@ -4,6 +4,7 @@ import { normalize } from "node:path";
 import eslintParserAngular from "@angular-eslint/template-parser";
 import css from "@eslint/css";
 import eslintParserHTML from "@html-eslint/parser";
+import eslintParserTypescript from "@typescript-eslint/parser";
 import * as eslintParserAstro from "astro-eslint-parser";
 import { RuleTester as ESLintRuleTester } from "eslint";
 import { RuleTester as OxlintRuleTester } from "oxlint/plugins-dev";
@@ -46,6 +47,9 @@ export const TEST_SYNTAXES = {
   svelte: {
     languageOptions: { parser: eslintParserSvelte }
   },
+  tsx: {
+    languageOptions: { parser: eslintParserTypescript, parserOptions: { ecmaFeatures: { jsx: true } } }
+  },
   vue: {
     languageOptions: { parser: eslintParserVue }
   }
@@ -63,6 +67,7 @@ const LINTERS = {
       html: TEST_SYNTAXES.html,
       jsx: TEST_SYNTAXES.jsx,
       svelte: TEST_SYNTAXES.svelte,
+      tsx: TEST_SYNTAXES.tsx,
       vue: TEST_SYNTAXES.vue
     }
   },
@@ -196,10 +201,18 @@ export function withParentNodeExtension(node: ESNode, parent: ESNode = node) {
     if(typeof node[key] === "object" && key !== "parent"){
       if(Array.isArray(node[key])){
         for(const element of node[key]){
+          if(!element || typeof element !== "object"){
+            continue;
+          }
+
           element.parent = parent;
           withParentNodeExtension(element);
         }
       } else {
+        if(!node[key] || typeof node[key] !== "object"){
+          continue;
+        }
+
         node[key].parent = parent;
         withParentNodeExtension(node[key]);
       }

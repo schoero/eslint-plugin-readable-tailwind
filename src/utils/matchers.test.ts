@@ -684,4 +684,31 @@ describe("matchers", () => {
     });
   });
 
+  // #420
+  it("should still match when values have type assertions", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          tsx: "<img class={{ \" key \": \" lint \" } as const } />",
+          tsxOutput: "<img class={{ \"key\": \"lint\" } as const } />",
+
+          errors: 4,
+          options: [{
+            attributes: [["class", [{ match: MatcherType.ObjectKey }, { match: MatcherType.ObjectValue }]]]
+          }]
+        },
+        {
+          tsx: "<img class={{ \" key \": \" lint \" } satisfies Record<\" key \", string> } />",
+          tsxOutput: "<img class={{ \"key\": \"lint\" } satisfies Record<\" key \", string> } />",
+
+          errors: 4,
+          options: [{
+            attributes: [["class", [{ match: MatcherType.ObjectKey }, { match: MatcherType.ObjectValue }]]]
+          }]
+        }
+
+      ]
+    });
+  });
+
 });
