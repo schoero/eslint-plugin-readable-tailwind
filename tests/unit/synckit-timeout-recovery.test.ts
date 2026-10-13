@@ -1,12 +1,13 @@
-import { createSyncFn } from "synckit";
 import { resolve } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
+
+import { createSyncFn } from "synckit";
 import { describe, expect, it } from "vitest";
 
 /**
  * Regression for #386 / #415: with synckit 0.11, two timeouts against a shared
  * wake-up counter leave later calls permanently stuck in Atomics.wait().
- * synckit >= 0.12 isolates notifications per worker so calls recover.
+ * Synckit >= 0.12 isolates notifications per worker so calls recover.
  */
 describe("synckit timeout recovery", () => {
   it("recovers after timed-out calls instead of hanging forever", async () => {
@@ -17,7 +18,7 @@ describe("synckit timeout recovery", () => {
       try {
         run(ms);
         return false;
-      } catch (error) {
+      } catch (error){
         return error instanceof Error && /timed-out|timeout/i.test(error.message);
       }
     };
