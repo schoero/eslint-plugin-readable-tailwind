@@ -6,8 +6,6 @@
     "lib": ["ESNext"],
     "module": "Preserve",
     "paths": {
-      "*": ["./*"],
-
       "better-tailwindcss:build/*": ["./build/*"],
       "better-tailwindcss:options/*": ["./src/options/*"],
       "better-tailwindcss:configs/*": ["./src/configs/*"],
