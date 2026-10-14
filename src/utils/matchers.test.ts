@@ -684,4 +684,40 @@ describe("matchers", () => {
     });
   });
 
+  // #420
+  it("should still match when values have type assertions", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          tsx: "<img class={{ \" key \": \" value \" } as const } />",
+          tsxOutput: "<img class={{ \"key\": \"value\" } as const } />",
+
+          errors: 4,
+          options: [{
+            attributes: [["class", [{ match: MatcherType.ObjectKey }, { match: MatcherType.ObjectValue }]]]
+          }]
+        },
+        {
+          tsx: "<img class={{ \" key \": \" value \" } satisfies Record<\" key \", string> } />",
+          tsxOutput: "<img class={{ \"key\": \"value\" } satisfies Record<\" key \", string> } />",
+
+          errors: 4,
+          options: [{
+            attributes: [["class", [{ match: MatcherType.ObjectKey }, { match: MatcherType.ObjectValue }]]]
+          }]
+        },
+        {
+          tsx: "<img class={{ \" key \": \" value \" } satisfies { \" key \": \" value \" } } />",
+          tsxOutput: "<img class={{ \"key\": \"value\" } satisfies { \" key \": \" value \" } } />",
+
+          errors: 4,
+          options: [{
+            attributes: [["class", [{ match: MatcherType.ObjectKey }, { match: MatcherType.ObjectValue }]]]
+          }]
+        }
+
+      ]
+    });
+  });
+
 });

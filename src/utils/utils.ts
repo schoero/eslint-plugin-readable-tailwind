@@ -134,6 +134,10 @@ export function isConcatenatedLeft(literal: Literal): boolean {
     return false;
   }
 
+  if(literal.hasDynamicLeftNeighbor){
+    return true;
+  }
+
   if(literal.leftLiterals === undefined || literal.leftLiterals.length === 0){
     return true;
   }
@@ -158,6 +162,10 @@ export function isConcatenatedRight(literal: Literal): boolean {
 
   if(literal.trailingWhitespace?.length){
     return false;
+  }
+
+  if(literal.hasDynamicRightNeighbor){
+    return true;
   }
 
   if(literal.rightLiterals === undefined || literal.rightLiterals.length === 0){

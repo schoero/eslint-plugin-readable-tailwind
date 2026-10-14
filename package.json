@@ -1,5 +1,5 @@
 {
-  "version": "4.8.0",
+  "version": "4.9.1",
   "type": "module",
   "name": "eslint-plugin-better-tailwindcss",
   "description": "auto-wraps tailwind classes after a certain print width or class count into multiple lines to improve readability.",
@@ -86,14 +86,14 @@
     "enhanced-resolve": "^5.24.1",
     "jiti": "^2.7.0",
     "shared-memory-datastructures": "^1.0.0-alpha.9",
-    "synckit": "^0.11.13",
+    "synckit": "^0.12.3",
     "tailwind-csstree": "^0.3.3",
     "tsconfig-paths-webpack-plugin": "^4.2.0",
     "valibot": "^1.4.2"
   },
   "devDependencies": {
-    "@angular-eslint/template-parser": "^22.0.0",
     "@angular/compiler": "^22.0.5",
+    "@angular-eslint/template-parser": "^22.0.0",
     "@eslint/css": "^1.4.0",
     "@html-eslint/parser": "0.62.0",
     "@oxc-node/core": "^0.1.0",

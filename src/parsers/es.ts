@@ -45,6 +45,7 @@ import type {
 
 import type {
   BracesMeta,
+  ConcatenationMeta,
   Literal,
   LiteralValueQuotes,
   MultilineMeta,
@@ -450,7 +451,11 @@ export function getESObjectPath(node: WithParent<ESNode>): string | undefined {
     node.type !== "ArrayExpression" &&
     node.type !== "Identifier" &&
     node.type !== "Literal" &&
-    node.type !== "TemplateElement"
+    node.type !== "TemplateElement" &&
+    // @ts-expect-error - TypeScript nodes are not represented in the types
+    node.type !== "TSAsExpression" &&
+    // @ts-expect-error - TypeScript nodes are not represented in the types
+    node.type !== "TSSatisfiesExpression"
   ){
     return;
   }
@@ -536,7 +541,6 @@ export function isInsideObjectValue(node: WithParent<ESNode>) {
   return isInsideObjectValue(node.parent);
 }
 
-
 function findMatchingParentNodes<Node>(node: Partial<GenericNodeWithParent>, matchesNode: (node: unknown) => node is Node): Node | undefined {
   if(!isGenericNodeWithParent(node)){ return; }
 
@@ -545,6 +549,11 @@ function findMatchingParentNodes<Node>(node: Partial<GenericNodeWithParent>, mat
   }
 
   return findMatchingParentNodes(node.parent, matchesNode);
+}
+
+export function isTSTypeReference(node: ESNode) {
+  // @ts-expect-error - TypeScript nodes are not represented in the types
+  return node.type === "TSTypeReference";
 }
 
 export function isESSimpleStringLiteral(node: ESBaseNode): node is ESSimpleStringLiteral {
@@ -829,7 +838,12 @@ function isESTokenComment(token: ESTokenWithOptionalComment): token is ESTokenWi
   return (token.type === "Block" || token.type === "Line") && typeof token.value === "string";
 }
 
-function getStringConcatenationMeta(ctx: Rule.RuleContext, node: ESNode, visitedNodes?: Set<ESNode>): { isConcatenatedLeft: boolean; isConcatenatedRight: boolean; leftLiterals?: Literal[] | undefined; rightLiterals?: Literal[] | undefined; } {
+type ConcatenationLeafNodes<Node> = {
+  hasDynamicValue: boolean;
+  nodes: Node[];
+};
+
+function getStringConcatenationMeta(ctx: Rule.RuleContext, node: ESNode, visitedNodes?: Set<ESNode>): ConcatenationMeta {
 
   const { isConcatenatedLeft, isConcatenatedRight } = getStringConcatenationDirection(node);
 
@@ -842,8 +856,10 @@ function getStringConcatenationMeta(ctx: Rule.RuleContext, node: ESNode, visited
     findAdjacentPlusConcatenatedLiteralNodes(node, "left");
 
   const leftLiterals = isConcatenatedLeft
-    ? buildConcatenationNeighborLiterals(ctx, leftNodes, visited)
+    ? buildConcatenationNeighborLiterals(ctx, leftNodes?.nodes, visited)
     : undefined;
+
+  const hasDynamicLeftNeighbor = isConcatenatedLeft && !!leftNodes?.hasDynamicValue;
 
   const rightNodes =
     findAdjacentInterpolatedExpressionNodes(node, "right") ??
@@ -851,10 +867,19 @@ function getStringConcatenationMeta(ctx: Rule.RuleContext, node: ESNode, visited
     findAdjacentPlusConcatenatedLiteralNodes(node, "right");
 
   const rightLiterals = isConcatenatedRight
-    ? buildConcatenationNeighborLiterals(ctx, rightNodes, visited)
+    ? buildConcatenationNeighborLiterals(ctx, rightNodes?.nodes, visited)
     : undefined;
 
-  return { isConcatenatedLeft, isConcatenatedRight, leftLiterals, rightLiterals };
+  const hasDynamicRightNeighbor = isConcatenatedRight && !!rightNodes?.hasDynamicValue;
+
+  return {
+    hasDynamicLeftNeighbor,
+    hasDynamicRightNeighbor,
+    isConcatenatedLeft,
+    isConcatenatedRight,
+    leftLiterals,
+    rightLiterals
+  };
 
 }
 
@@ -917,16 +942,14 @@ export function getStringConcatenationDirection(node: ESNode, isConcatenatedLeft
   return getStringConcatenationDirection(parent, isConcatenatedLeft, isConcatenatedRight);
 }
 
-// resolves the literal nodes adjacent to `node` on the given side of a `+` concatenation chain
-function findAdjacentPlusConcatenatedLiteralNodes(node: ESNode, direction: "left" | "right"): ESNode[] | undefined {
+function findAdjacentPlusConcatenatedLiteralNodes(node: ESNode, direction: "left" | "right"): ConcatenationLeafNodes<ESNode> | undefined {
   const sibling = findConcatenationCounterpart(node, direction);
   if(!sibling){ return; }
   const leafNodes = findConcatenationLeafNodes(sibling, direction === "left" ? "right" : "left");
-  return leafNodes.length > 0 ? leafNodes : undefined;
+  return leafNodes.nodes.length > 0 || leafNodes.hasDynamicValue ? leafNodes : undefined;
 }
 
-// resolves the leaf literal nodes of the interpolation expression adjacent to a template element (through conditional branches)
-function findAdjacentInterpolatedExpressionNodes(node: ESNode, direction: "left" | "right"): ESNode[] | undefined {
+function findAdjacentInterpolatedExpressionNodes(node: ESNode, direction: "left" | "right"): ConcatenationLeafNodes<ESNode> | undefined {
   if(!isESTemplateElement(node) || !hasESNodeParentExtension(node) || !isESTemplateLiteral(node.parent)){
     return;
   }
@@ -939,11 +962,10 @@ function findAdjacentInterpolatedExpressionNodes(node: ESNode, direction: "left"
   if(!expression){ return; }
 
   const leafNodes = findConcatenationLeafNodes(expression, direction);
-  return leafNodes.length > 0 ? leafNodes : undefined;
+  return leafNodes.nodes.length > 0 || leafNodes.hasDynamicValue ? leafNodes : undefined;
 }
 
-// resolves the template quasis directly adjacent to an interpolation expression (through conditional branches)
-function findAdjacentTemplateQuasiNodes(node: ESNode, direction: "left" | "right"): ESNode[] | undefined {
+function findAdjacentTemplateQuasiNodes(node: ESNode, direction: "left" | "right"): ConcatenationLeafNodes<ESNode> | undefined {
   let current: ESNode = node;
 
   while(hasESNodeParentExtension(current)){
@@ -959,7 +981,7 @@ function findAdjacentTemplateQuasiNodes(node: ESNode, direction: "left" | "right
       if(index === -1){ return; }
 
       const quasi = direction === "left" ? parent.quasis[index] : parent.quasis[index + 1];
-      return quasi ? [quasi] : undefined;
+      return quasi ? { hasDynamicValue: false, nodes: [quasi] } : undefined;
     }
 
     if(isESConditionalExpression(parent) && (parent.consequent === current || parent.alternate === current)){
@@ -967,7 +989,15 @@ function findAdjacentTemplateQuasiNodes(node: ESNode, direction: "left" | "right
       continue;
     }
 
-    if(isESLogicalExpression(parent) && parent.operator === "&&" && parent.right === current){
+    if(
+      isESLogicalExpression(parent) &&
+      parent.right === current &&
+      (
+        parent.operator === "&&" ||
+        parent.operator === "||" ||
+        parent.operator === "??"
+      )
+    ){
       current = parent;
       continue;
     }
@@ -987,13 +1017,11 @@ function findConcatenationCounterpart(node: ESNode, direction: "left" | "right")
     if(isESFunctionExpression(parent)){ break; }
     if(isESVariableDeclarator(parent)){ break; }
 
-    // conditionals are transparent: an operand's neighbor lives outside the branch
     if(isESConditionalExpression(parent) && (parent.consequent === current || parent.alternate === current)){
       current = parent;
       continue;
     }
 
-    // an edge quasi's `+` neighbor lives outside the template literal
     if(isESTemplateLiteral(parent)){
       const quasis = parent.quasis;
       const isEdge = direction === "left"
@@ -1015,7 +1043,15 @@ function findConcatenationCounterpart(node: ESNode, direction: "left" | "right")
       continue;
     }
 
-    if(isESLogicalExpression(parent) && parent.operator === "&&" && parent.right === current){
+    if(
+      isESLogicalExpression(parent) &&
+      parent.right === current &&
+      (
+        parent.operator === "&&" ||
+        parent.operator === "||" ||
+        parent.operator === "??"
+      )
+    ){
       current = parent;
       continue;
     }
@@ -1024,15 +1060,17 @@ function findConcatenationCounterpart(node: ESNode, direction: "left" | "right")
   }
 }
 
-function findConcatenationLeafNodes(node: ESNode, edge: "left" | "right"): ESNode[] {
+function findConcatenationLeafNodes(node: ESNode, edge: "left" | "right"): ConcatenationLeafNodes<ESNode> {
   if(isESSimpleStringLiteral(node)){
-    return [node];
+    return { hasDynamicValue: false, nodes: [node] };
   }
 
   if(isESTemplateLiteral(node)){
     const quasis = node.quasis;
     const edgeQuasi = edge === "left" ? quasis[0] : quasis[quasis.length - 1];
-    return edgeQuasi ? [edgeQuasi] : [];
+    const adjacentExpression = node.expressions[edge === "left" ? 0 : node.expressions.length - 1];
+    const hasDynamicValue = !!edgeQuasi && edgeQuasi.value.raw.length === 0 && !!adjacentExpression && findConcatenationLeafNodes(adjacentExpression, edge).hasDynamicValue;
+    return { hasDynamicValue, nodes: edgeQuasi ? [edgeQuasi] : [] };
   }
 
   if(isESBinaryExpression(node) && node.operator === "+"){
@@ -1040,17 +1078,35 @@ function findConcatenationLeafNodes(node: ESNode, edge: "left" | "right"): ESNod
   }
 
   if(isESConditionalExpression(node)){
-    return [
-      ...findConcatenationLeafNodes(node.consequent, edge),
-      ...findConcatenationLeafNodes(node.alternate, edge)
+    const branches = [
+      findConcatenationLeafNodes(node.consequent, edge),
+      findConcatenationLeafNodes(node.alternate, edge)
     ];
+
+    return {
+      hasDynamicValue: branches.some(branch => branch.hasDynamicValue),
+      nodes: branches.flatMap(branch => branch.nodes)
+    };
   }
 
-  if(isESLogicalExpression(node) && node.operator === "&&"){
-    return findConcatenationLeafNodes(node.right, "left");
+  if(
+    isESLogicalExpression(node) &&
+    (
+      node.operator === "&&" ||
+      node.operator === "||" ||
+      node.operator === "??"
+    )
+  ){
+    const left = findConcatenationLeafNodes(node.left, edge);
+    const right = findConcatenationLeafNodes(node.right, "left");
+
+    return {
+      hasDynamicValue: left.hasDynamicValue || right.hasDynamicValue,
+      nodes: node.operator === "&&" ? right.nodes : [...left.nodes, ...right.nodes]
+    };
   }
 
-  return [];
+  return { hasDynamicValue: true, nodes: [] };
 }
 
 export function getESMatcherFunctions(
@@ -1067,7 +1123,8 @@ export function getESMatcherFunctions(
 
           if(isESNode(node) && (
             isESCallExpression(node) ||
-            isESVariableDeclarator(node)
+            isESVariableDeclarator(node) ||
+            isTSTypeReference(node)
           )){
             return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
           }
@@ -1129,7 +1186,8 @@ export function getESMatcherFunctions(
             isESCallExpression(node) ||
             isESArrowFunctionExpression(node) ||
             isESVariableDeclarator(node) ||
-            isESFunctionExpression(node)
+            isESFunctionExpression(node) ||
+            isTSTypeReference(node)
           )){
             return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
           }
@@ -1159,7 +1217,8 @@ export function getESMatcherFunctions(
             isESCallExpression(node) ||
             isESArrowFunctionExpression(node) ||
             isESVariableDeclarator(node) ||
-            isESFunctionExpression(node)
+            isESFunctionExpression(node) ||
+            isTSTypeReference(node)
           )){
             return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
           }
@@ -1194,7 +1253,8 @@ export function getESMatcherFunctions(
             isESCallExpression(node) ||
             isESArrowFunctionExpression(node) ||
             isESVariableDeclarator(node) ||
-            isESFunctionExpression(node)
+            isESFunctionExpression(node) ||
+            isTSTypeReference(node)
           )){
             return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
           }
