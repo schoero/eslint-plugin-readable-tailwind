@@ -4,7 +4,7 @@ import type { CanonicalClasses, CanonicalClassOptions } from "./canonical-classe
 
 
 export function getCanonicalClasses(tailwindContext: any, classes: string[], options: CanonicalClassOptions): CanonicalClasses {
-  const result: CanonicalClasses = {};
+  const result: CanonicalClasses = Object.create(null);
 
   if(typeof tailwindContext?.canonicalizeCandidates !== "function"){
     for(const className of classes){
