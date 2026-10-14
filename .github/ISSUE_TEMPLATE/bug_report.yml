@@ -31,9 +31,10 @@ body:
   - attributes:
       description: The code that triggers the bug.
       label: Code Input
-      placeholder: |
+      value: |
+        ```tsx
         // Code snippet
-      render: tsx
+        ```
     id: code-input
     type: textarea
     validations:
@@ -42,8 +43,7 @@ body:
       description: What you expected to happen.
       label: Expected Behavior
       placeholder: |
-        // Expected output
-      render: tsx
+        Describe what you expected to happen...
     id: expected-behavior
     type: textarea
     validations:
@@ -52,8 +52,7 @@ body:
       description: What actually happened.
       label: Actual Behavior
       placeholder: |
-        // Actual output
-      render: tsx
+        Describe what actually happened...
     id: actual-behavior
     type: textarea
     validations:
