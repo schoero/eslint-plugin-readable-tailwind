@@ -101,6 +101,40 @@ export default defineConfig({
 
 <br/>
 
+### Template engine syntax
+
+If your HTML files contain template engine syntax like Twig, Handlebars, ERB or Nunjucks, configure the `templateEngineSyntax` option of `@html-eslint/parser`. Template expressions will then be skipped during linting, while the static parts around them are still linted.
+
+For example with the configuration below, `{{ isActive ? 'flex' : 'hidden' }}` is left untouched:
+
+```html
+<p class="p-4 {{ isActive ? 'flex' : 'hidden' }}">Hello</p>
+```
+
+```js
+// eslint.config.js
+
+export default defineConfig({
+  // ...
+  files: ["**/*.html"],
+
+  languageOptions: {
+    parser: eslintParserHTML,
+    parserOptions: {
+      templateEngineSyntax: [
+        { close: "}}", open: "{{" }, // Twig, Handlebars, Nunjucks
+        { close: "%}", open: "{%" }, // Twig, Nunjucks
+        { close: "%>", open: "<%" } // ERB
+      ]
+    }
+  }
+});
+```
+
+Read more about the [templateEngineSyntax option](https://html-eslint.org/docs/integrating-template-engine) in the `@html-eslint/parser` documentation.
+
+<br/>
+
 ## Oxlint
 
 Oxlint currently does **not** support HTML parser integration for this use case.

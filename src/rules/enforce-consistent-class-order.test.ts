@@ -154,6 +154,66 @@ describe(enforceConsistentClassOrder.name, () => {
     });
   });
 
+  it("should not sort template expressions in html", () => {
+    lint(
+      enforceConsistentClassOrder,
+      {
+        valid: [
+          {
+            html: `<p class="p-4 {{ isActive ? 'flex' : 'hidden' }}">Hello</p>`,
+
+            options: [{ order: "official" }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should sort static classes around template expressions in html without moving the expression", () => {
+    lint(
+      enforceConsistentClassOrder,
+      {
+        invalid: [
+          {
+            html: `<p class="w-full {{ isActive ? 'flex' : 'hidden' }} py-24 px-12">Hello</p>`,
+            htmlOutput: `<p class="w-full {{ isActive ? 'flex' : 'hidden' }} px-12 py-24">Hello</p>`,
+
+            errors: 1,
+            options: [{ order: "official" }]
+          },
+          {
+            html: `<p class="  {{ isActive ? 'flex' : 'hidden' }} w-full absolute  ">Hello</p>`,
+            htmlOutput: `<p class="  {{ isActive ? 'flex' : 'hidden' }} absolute w-full  ">Hello</p>`,
+
+            errors: 1,
+            options: [{ order: "official" }]
+          },
+          {
+            html: `<p class="{% isActive %} w-full absolute">Hello</p>`,
+            htmlOutput: `<p class="{% isActive %} absolute w-full">Hello</p>`,
+
+            errors: 1,
+            options: [{ order: "official" }]
+          },
+          {
+            html: `<p class="<% isActive %> w-full absolute">Hello</p>`,
+            htmlOutput: `<p class="<% isActive %> absolute w-full">Hello</p>`,
+
+            errors: 1,
+            options: [{ order: "official" }]
+          },
+          {
+            html: `<p class="  {{ first }}   {{ second }} w-full absolute {{ third }}  ">Hello</p>`,
+            htmlOutput: `<p class="  {{ first }}   {{ second }} absolute w-full {{ third }}  ">Hello</p>`,
+
+            errors: 1,
+            options: [{ order: "official" }]
+          }
+        ]
+      }
+    );
+  });
+
   it("should keep the quotes as they are", () => {
     lint(
       enforceConsistentClassOrder,
@@ -264,6 +324,27 @@ describe(enforceConsistentClassOrder.name, () => {
           jsxOutput: `() => <img class={\`${clean}\`} />`,
           svelte: `<img class={\`${dirty}\`} />`,
           svelteOutput: `<img class={\`${clean}\`} />`,
+
+          errors: 2,
+          options: [{ order: "asc" }]
+        },
+        {
+          html: `<p class="c b a{{ isActive ? 'flex' : 'hidden' }}f e d">Hello</p>`,
+          htmlOutput: `<p class="b c a{{ isActive ? 'flex' : 'hidden' }}f d e">Hello</p>`,
+
+          errors: 2,
+          options: [{ order: "asc" }]
+        },
+        {
+          html: `<p class="c b a{% isActive %}f e d">Hello</p>`,
+          htmlOutput: `<p class="b c a{% isActive %}f d e">Hello</p>`,
+
+          errors: 2,
+          options: [{ order: "asc" }]
+        },
+        {
+          html: `<p class="c b a<% isActive %>f e d">Hello</p>`,
+          htmlOutput: `<p class="b c a<% isActive %>f d e">Hello</p>`,
 
           errors: 2,
           options: [{ order: "asc" }]
