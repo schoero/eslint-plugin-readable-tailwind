@@ -1,5 +1,4 @@
-import { CachedStore, CacheTag } from "better-tailwindcss:utils/cached-store.js";
-
+import { CachedStore, CacheTag } from "../async-utils/cached-store.js";
 import { escapeForRegex } from "../async-utils/escape.js";
 import { getCachedRegex } from "../async-utils/regex.js";
 import { segment } from "../async-utils/segment.js";

@@ -4,8 +4,7 @@ import { dirname } from "node:path";
 import { fork } from "@eslint/css-tree";
 import { tailwind4 } from "tailwind-csstree";
 
-import { CachedStore } from "better-tailwindcss:utils/cached-store.js";
-
+import { CachedStore } from "../async-utils/cached-store.js";
 import { flattenCssImportTree, getCssImportTree } from "../async-utils/css-import-tree.js";
 import { resolveCss } from "../async-utils/resolvers.js";
 

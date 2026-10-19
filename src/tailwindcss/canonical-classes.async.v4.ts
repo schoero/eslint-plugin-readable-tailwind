@@ -1,5 +1,4 @@
-import { CachedStore, CacheTag } from "better-tailwindcss:utils/cached-store.js";
-
+import { CachedStore, CacheTag } from "../async-utils/cached-store.js";
 import { getUnknownClasses } from "./unknown-classes.async.v4.js";
 
 import type { CanonicalClasses, CanonicalClassOptions } from "./canonical-classes.js";
