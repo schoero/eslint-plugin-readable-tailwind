@@ -1,5 +1,3 @@
-import { NodeTypes } from "es-html-parser";
-
 import {
   addAttribute,
   deduplicateLiterals,
@@ -77,7 +75,7 @@ export function getLiteralsByHTMLAttributeNode(ctx: Rule.RuleContext, attribute:
 }
 
 function hasTemplateParts(value: AttributeValueNode): boolean {
-  return value.parts?.some(part => part.type === NodeTypes.Template) ?? false;
+  return value.parts?.some(part => part.type === "Template") ?? false;
 }
 
 function getLiteralsByHTMLAttributeValueParts(ctx: Rule.RuleContext, attribute: AttributeNode, value: AttributeValueNode): Literal[] {
@@ -88,7 +86,7 @@ function getLiteralsByHTMLAttributeValueParts(ctx: Rule.RuleContext, attribute: 
   for(let index = 0; index < value.parts.length; index++){
     const part = value.parts[index];
 
-    if(part.type === NodeTypes.Part){
+    if(part.type === "Part"){
       literals.push(getLiteralByHTMLAttributeValuePart(
         ctx,
         attribute,
@@ -211,8 +209,8 @@ function getBracesByHTMLAttributePart(value: AttributeValueNode, range: [number,
   const nextPart = value.parts[index + 1];
 
   return {
-    closingBraces: previousPart?.type === NodeTypes.Template ? previousPart.close?.value : undefined,
-    openingBraces: nextPart?.type === NodeTypes.Template ? nextPart.open?.value : undefined
+    closingBraces: previousPart?.type === "Template" ? previousPart.close?.value : undefined,
+    openingBraces: nextPart?.type === "Template" ? nextPart.open?.value : undefined
   };
 }
 
