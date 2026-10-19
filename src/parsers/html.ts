@@ -205,6 +205,10 @@ function getLiteralByHTMLAttributeValuePart(
 function getBracesByHTMLAttributePart(value: AttributeValueNode, range: [number, number]): { closingBraces?: string | undefined; openingBraces?: string | undefined; } {
   const index = value.parts.findIndex(part => part.range[0] === range[0] && part.range[1] === range[1]);
 
+  if(index === -1){
+    return {};
+  }
+
   const previousPart = value.parts[index - 1];
   const nextPart = value.parts[index + 1];
 
