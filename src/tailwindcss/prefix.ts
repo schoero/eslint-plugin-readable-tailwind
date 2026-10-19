@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { Cache } from "better-tailwindcss:utils/cache.js";
+import { CachedStore } from "better-tailwindcss:utils/cached-store.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
@@ -26,7 +26,7 @@ export function createGetPrefix(ctx: Context): GetPrefix {
   const workerOptions = getWorkerOptions();
   const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getPrefix = ctx => runWorker("getPrefix", Cache.toTransferableState(), ctx);
+  getPrefix = ctx => runWorker("getPrefix", CachedStore.toTransferableState(), ctx);
 
   return getPrefix;
 }

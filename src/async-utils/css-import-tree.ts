@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { dirname } from "node:path";
 
 import { fork } from "@eslint/css-tree";
@@ -21,30 +21,30 @@ export interface CssFileWithImports {
   imports: { path: string; }[];
 }
 
-export type ParseCssFile = (ctx: AsyncContext, resolvedPath: string) => Promise<CssFileWithImports | undefined>;
+export type ParseCssFile = (ctx: AsyncContext, resolvedPath: string) => CssFileWithImports | undefined;
 
 
-export async function getCssImportTree(
+export function getCssImportTree(
   ctx: AsyncContext,
   entryPath: string,
   parseCssFile: ParseCssFile
-): Promise<CssImportTree> {
+): CssImportTree {
   const visited = createVisitedNodes<string>();
 
   return buildTree(ctx, entryPath, parseCssFile, visited);
 }
 
-async function buildTree(
+function buildTree(
   ctx: AsyncContext,
   resolvedPath: string,
   parseCssFile: ParseCssFile,
   visited: ReturnType<typeof createVisitedNodes<string>>
-): Promise<CssImportTree> {
+): CssImportTree {
   if(!visitNode(visited, resolvedPath)){
     return {};
   }
 
-  const cssFile = await parseCssFile(ctx, resolvedPath);
+  const cssFile = parseCssFile(ctx, resolvedPath);
 
   if(!cssFile){
     return {};
@@ -53,7 +53,7 @@ async function buildTree(
   const tree: CssImportTree = {};
 
   for(const { path } of cssFile.imports){
-    tree[path] = await buildTree(ctx, path, parseCssFile, visited);
+    tree[path] = buildTree(ctx, path, parseCssFile, visited);
   }
 
   return tree;
@@ -76,9 +76,9 @@ export function flattenCssImportTree(tree: CssImportTree): string[] {
   return Array.from(paths);
 }
 
-export const parseCssFileWithTree: ParseCssFile = async (ctx, resolvedPath) => {
+export const parseCssFileWithTree: ParseCssFile = (ctx, resolvedPath) => {
   try {
-    const content = await readFile(resolvedPath, "utf-8");
+    const content = readFileSync(resolvedPath, "utf-8");
     const ast = parse(content);
 
     const importNodes = findAll(ast, node => node.type === "Atrule" &&

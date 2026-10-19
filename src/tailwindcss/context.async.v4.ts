@@ -1,10 +1,10 @@
-import { readFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { pathToFileURL } from "node:url";
 
 import { createJiti } from "jiti";
 
-import { Cache } from "../async-utils/cache.js";
+import { CachedStore, CacheTag } from "../async-utils/cached-store.js";
 import { flattenCssImportTree, getCssImportTree, parseCssFileWithTree } from "../async-utils/css-import-tree.js";
 import { normalize } from "../async-utils/path.js";
 import { resolveCss, resolveJs } from "../async-utils/resolvers.js";
@@ -12,67 +12,75 @@ import { resolveCss, resolveJs } from "../async-utils/resolvers.js";
 import type { AsyncContext } from "../utils/context.js";
 
 
+let tailwindContext: Awaited<ReturnType<typeof buildTailwindContext>>;
+
 export async function createTailwindContext(ctx: AsyncContext) {
+  const css = CachedStore.readFile(ctx.tailwindConfigPath);
 
-  const css = Cache.readFile(ctx.tailwindConfigPath, { path: ctx.tailwindConfigPath });
-
-  const dependencies = await Cache.get("tailwind-context-dependencies", async () => {
-    const imports = await getCssImportTree(ctx, ctx.tailwindConfigPath, parseCssFileWithTree);
+  const dependencies = await CachedStore.getOrCreate(["tailwind-context-dependencies", ctx.tailwindConfigPath], async () => {
+    const imports = getCssImportTree(ctx, ctx.tailwindConfigPath, parseCssFileWithTree);
     return flattenCssImportTree(imports);
-  }, { path: ctx.tailwindConfigPath });
+  }, { paths: [ctx.tailwindConfigPath] });
 
-  return Cache.get(
-    "tailwind-context",
-    async () => {
+  const options = {
+    paths: [ctx.cwd, ctx.installation, ctx.tailwindConfigPath, ...dependencies, ...ctx.tsconfigPath ? [ctx.tsconfigPath] : []],
+    tags: [CacheTag.CWD, CacheTag.TS_CONFIG]
+  };
 
-      const jiti = createJiti(getCurrentFilename(), {
-        fsCache: false,
-        moduleCache: false
-      });
+  if(tailwindContext !== undefined && CachedStore.isValid("tailwind-context-v4", options)){
+    return tailwindContext;
+  }
+  const context = await buildTailwindContext(ctx, css);
+  CachedStore.getOrCreate("tailwind-context-v4", () => true, options);
+  tailwindContext = context;
+  return context;
+}
 
-      const importBasePath = dirname(ctx.tailwindConfigPath);
-      const tailwindPath = resolveJs(ctx, "tailwindcss", importBasePath);
+async function buildTailwindContext(ctx: AsyncContext, css: string) {
+  CachedStore.invalidateTag(CacheTag.CONTEXT);
 
-      // eslint-disable-next-line eslint-plugin-typescript/naming-convention
-      const { __unstable__loadDesignSystem } = await import(normalize(tailwindPath));
+  const jiti = createJiti(getCurrentFilename(), {
+    fsCache: false,
+    moduleCache: false
+  });
 
-      return __unstable__loadDesignSystem(css, {
-        base: importBasePath,
-        loadModule: createLoader(ctx, jiti, {
-          filepath: ctx.tailwindConfigPath,
-          legacy: false,
-          onError: (id, err, resourceType) => {
-            console.error(`Unable to load ${resourceType}: ${id}`, err);
+  const importBasePath = dirname(ctx.tailwindConfigPath);
+  const tailwindPath = resolveJs(ctx, "tailwindcss", importBasePath);
 
-            if(resourceType === "config"){
-              return {};
-            } else if(resourceType === "plugin"){
-              return () => {};
-            }
-          }
-        }),
-        loadStylesheet: async (id: string, base: string) => {
-          try {
-            const resolved = resolveCss(ctx, id, base);
+  // eslint-disable-next-line eslint-plugin-typescript/naming-convention
+  const { __unstable__loadDesignSystem } = await import(normalize(tailwindPath));
 
-            return {
-              base: dirname(resolved),
-              content: await readFile(resolved, "utf-8")
-            };
-          } catch {
-            return {
-              base: "",
-              content: ""
-            };
-          }
+  return __unstable__loadDesignSystem(css, {
+    base: importBasePath,
+    loadModule: createLoader(ctx, jiti, {
+      filepath: ctx.tailwindConfigPath,
+      legacy: false,
+      onError: (id, err, resourceType) => {
+        console.error(`Unable to load ${resourceType}: ${id}`, err);
+
+        if(resourceType === "config"){
+          return {};
+        } else if(resourceType === "plugin"){
+          return () => {};
         }
-      });
-    },
-    {
-      cache: Cache.ISOLATED_CACHE,
-      path: [ctx.tailwindConfigPath, ...dependencies]
+      }
+    }),
+    loadStylesheet: async (id: string, base: string) => {
+      try {
+        const resolved = resolveCss(ctx, id, base);
+
+        return {
+          base: dirname(resolved),
+          content: readFileSync(resolved, "utf-8")
+        };
+      } catch {
+        return {
+          base: "",
+          content: ""
+        };
+      }
     }
-  );
+  });
 }
 
 function createLoader<T>(ctx: AsyncContext, jiti: ReturnType<typeof createJiti>, {

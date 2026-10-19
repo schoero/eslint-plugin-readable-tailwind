@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { Cache } from "better-tailwindcss:utils/cache.js";
+import { CachedStore, CacheTag } from "better-tailwindcss:utils/cached-store.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
@@ -24,9 +24,10 @@ export function createGetUnknownClasses(ctx: Context): GetUnknownClasses {
   const workerOptions = getWorkerOptions();
   const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getUnknownClasses = (ctx, classes) => Cache.get(
-    ["unknown-classes", ...classes],
-    () => runWorker("getUnknownClasses", Cache.toTransferableState(), ctx, classes)
+  getUnknownClasses = (ctx, classes) => CachedStore.getOrCreate(
+    ["unknown-classes-response", ...classes],
+    () => runWorker("getUnknownClasses", CachedStore.toTransferableState(), ctx, classes),
+    { tags: [CacheTag.CONTEXT] }
   );
 
   return getUnknownClasses;

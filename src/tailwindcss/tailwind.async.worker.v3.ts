@@ -1,6 +1,6 @@
 import { runAsWorker } from "synckit";
 
-import { Cache } from "../async-utils/cache.js";
+import { CachedStore } from "../async-utils/cached-store.js";
 import { getClassOrder } from "./class-order.async.v3.js";
 import { createTailwindContext } from "./context.async.v3.js";
 import { getCustomComponentClasses } from "./custom-component-classes.async.v3.js";
@@ -9,8 +9,7 @@ import { getPrefix, getSuffix } from "./prefix.async.v3.js";
 import { getUnknownClasses } from "./unknown-classes.async.v3.js";
 import { getVariantOrder } from "./variant-order.async.v3.js";
 
-import type { TransferableState } from "shared-memory-datastructures";
-
+import type { CachedStoreState } from "../async-utils/cached-store.js";
 import type { OperationHandlers, Operations } from "../async-utils/operations.js";
 import type { CanonicalClasses } from "./canonical-classes.js";
 import type { ConflictingClasses } from "./conflicting-classes.js";
@@ -70,7 +69,7 @@ const handlers: OperationHandlers = {
   }
 };
 
-runAsWorker(async <Operation extends keyof Operations>(operation: Operation, cache: TransferableState, ...args: Parameters<Operations[Operation]>) => {
-  Cache.fromTransferableState(cache);
+runAsWorker(async <Operation extends keyof Operations>(operation: Operation, cache: CachedStoreState, ...args: Parameters<Operations[Operation]>) => {
+  CachedStore.attachShared(cache);
   return handlers[operation](...args);
 });

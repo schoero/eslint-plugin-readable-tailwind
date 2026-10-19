@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 
-import { Cache } from "better-tailwindcss:utils/cache.js";
+import { CachedStore, CacheTag } from "better-tailwindcss:utils/cached-store.js";
 import { findPathRecursive } from "better-tailwindcss:utils/fs.js";
 import { resolveCss } from "better-tailwindcss:utils/resolvers.js";
 
@@ -34,9 +34,11 @@ export function async(ctx: Context): AsyncContext {
 const getTSConfigPath = ({ configPath, cwd }: {
   configPath: string | undefined;
   cwd: string;
-}) => Cache.get(
-  "tsconfig-path",
+}) => CachedStore.getOrCreate(
+  ["tsconfig-path", configPath],
   () => {
+    CachedStore.invalidateTag(CacheTag.TS_CONFIG);
+
     const potentialPaths = [
       ...configPath ? [configPath] : [],
       "tsconfig.json",
@@ -51,14 +53,14 @@ const getTSConfigPath = ({ configPath, cwd }: {
       warnings: [warning]
     };
   },
-  { tag: cwd }
+  { tags: [CacheTag.CWD] }
 );
 export const getTailwindConfigPath = ({ configPath, cwd, version }: {
   configPath: string | undefined;
   cwd: string;
   version: Version;
-}) => Cache.get(
-  "config-path",
+}) => CachedStore.getOrCreate(
+  ["config-path", configPath],
   () => {
     if(version.major >= 4){
 
@@ -105,7 +107,7 @@ export const getTailwindConfigPath = ({ configPath, cwd, version }: {
 
     throw new Error(`Unsupported Tailwind CSS version: ${version.major}. Please use a version between 3 and 4.`);
   },
-  { tag: configPath }
+  { tags: [CacheTag.CWD] }
 );
 
 function getEntryPointWarning(entryPoint: string | undefined, foundEntryPoint: string | undefined): Warning | undefined {

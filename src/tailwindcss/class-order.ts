@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { Cache } from "better-tailwindcss:utils/cache.js";
+import { CachedStore } from "better-tailwindcss:utils/cached-store.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
@@ -24,7 +24,7 @@ export function createGetClassOrder(ctx: Context): GetClassOrder {
   const workerOptions = getWorkerOptions();
   const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getClassOrder = (ctx, classes) => runWorker("getClassOrder", Cache.toTransferableState(), ctx, classes);
+  getClassOrder = (ctx, classes) => runWorker("getClassOrder", CachedStore.toTransferableState(), ctx, classes);
 
   return getClassOrder;
 }

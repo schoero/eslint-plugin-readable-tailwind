@@ -25,6 +25,7 @@ import {
 import { getAttributesByVueStartTag, getLiteralsByVueAttribute } from "better-tailwindcss:parsers/vue.js";
 import { SelectorKind } from "better-tailwindcss:types/rule.js";
 import { getLocByRange } from "better-tailwindcss:utils/ast.js";
+import { CachedStore, CacheTag } from "better-tailwindcss:utils/cached-store.js";
 import { augmentMessageWithWarnings, escapeMessage } from "better-tailwindcss:utils/utils.js";
 import { removeDefaults } from "better-tailwindcss:utils/valibot.js";
 import { warnOnce } from "better-tailwindcss:utils/warn.js";
@@ -168,6 +169,10 @@ export function createRule<
           ? resolve(ctx.cwd, options.cwd)
           : ctx.cwd;
 
+        if(CachedStore.get<string>("cwd") !== cwd){
+          CachedStore.invalidateTag(CacheTag.CWD);
+          CachedStore.upsert("cwd", cwd);
+        }
 
         const packageJsonPath = getTailwindPackageJsonPath(cwd);
 

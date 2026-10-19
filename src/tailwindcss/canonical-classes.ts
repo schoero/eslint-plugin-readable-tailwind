@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { Cache } from "better-tailwindcss:utils/cache.js";
+import { CachedStore, CacheTag } from "better-tailwindcss:utils/cached-store.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
@@ -35,9 +35,10 @@ export function createGetCanonicalClasses(ctx: Context): GetCanonicalClasses {
   const workerOptions = getWorkerOptions();
   const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getCanonicalClasses = (ctx, classes, options) => Cache.get(
+  getCanonicalClasses = (ctx, classes, options) => CachedStore.getOrCreate(
     ["canonical-classes", ...classes, options.collapse, options.logicalToPhysical, options.rem],
-    () => runWorker("getCanonicalClasses", Cache.toTransferableState(), ctx, classes, options)
+    () => runWorker("getCanonicalClasses", CachedStore.toTransferableState(), ctx, classes, options),
+    { tags: [CacheTag.CONTEXT] }
   );
 
   return getCanonicalClasses;

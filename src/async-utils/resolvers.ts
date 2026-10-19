@@ -3,51 +3,86 @@ import fs from "node:fs";
 import enhancedResolve from "enhanced-resolve";
 import { TsconfigPathsPlugin } from "tsconfig-paths-webpack-plugin";
 
-import { Cache } from "../async-utils/cache.js";
+import { CachedStore, CacheTag } from "./cached-store.js";
 
 import type { AsyncContext } from "../utils/context.js";
+import type { CachedStoreState } from "./cached-store.js";
 
 
 const fileSystem = new enhancedResolve.CachedInputFileSystem(fs, 30_000);
 
-const getESMResolver = (ctx: AsyncContext | undefined) => Cache.get(
-  "esm-resolver",
-  () => enhancedResolve.ResolverFactory.createResolver({
+let esmResolver: ReturnType<typeof enhancedResolve.ResolverFactory.createResolver> | undefined;
+let cjsResolver: ReturnType<typeof enhancedResolve.ResolverFactory.createResolver> | undefined;
+let cssResolver: ReturnType<typeof enhancedResolve.ResolverFactory.createResolver> | undefined;
+let resolverState: CachedStoreState | undefined;
+
+function resolverOptions(ctx: AsyncContext | undefined) {
+  const state = CachedStore.toTransferableState();
+  if(resolverState !== state){
+    esmResolver = undefined;
+    cjsResolver = undefined;
+    cssResolver = undefined;
+    resolverState = state;
+  }
+  return {
+    paths: [ctx?.cwd ?? process.cwd(), ...ctx?.tsconfigPath ? [ctx.tsconfigPath] : []],
+    tags: [CacheTag.CWD, CacheTag.TS_CONFIG]
+  };
+}
+
+const getESMResolver = (ctx: AsyncContext | undefined) => {
+  const options = resolverOptions(ctx);
+  if(esmResolver && CachedStore.isValid("esm-resolver", options)){
+    return esmResolver;
+  }
+  const resolver = enhancedResolve.ResolverFactory.createResolver({
     conditionNames: ["node", "import"],
     extensions: [".mjs", ".js"],
     fileSystem,
     mainFields: ["module"],
     plugins: ctx?.tsconfigPath ? [new TsconfigPathsPlugin({ configFile: ctx.tsconfigPath, mainFields: ["module"] })] : [],
     useSyncFileSystemCalls: true
-  }),
-  { cache: Cache.ISOLATED_CACHE, tag: ctx?.tsconfigPath }
-);
+  });
+  CachedStore.getOrCreate("esm-resolver", () => true, options);
+  esmResolver = resolver;
+  return esmResolver;
+};
 
-const getCJSResolver = (ctx: AsyncContext | undefined) => Cache.get(
-  "cjs-resolver",
-  () => enhancedResolve.ResolverFactory.createResolver({
+const getCJSResolver = (ctx: AsyncContext | undefined) => {
+  const options = resolverOptions(ctx);
+  if(cjsResolver && CachedStore.isValid("cjs-resolver", options)){
+    return cjsResolver;
+  }
+  const resolver = enhancedResolve.ResolverFactory.createResolver({
     conditionNames: ["node", "require"],
     extensions: [".js", ".cjs"],
     fileSystem,
     mainFields: ["main"],
     plugins: ctx?.tsconfigPath ? [new TsconfigPathsPlugin({ configFile: ctx.tsconfigPath, mainFields: ["main"] })] : [],
     useSyncFileSystemCalls: true
-  }),
-  { cache: Cache.ISOLATED_CACHE, tag: ctx?.tsconfigPath }
-);
+  });
+  CachedStore.getOrCreate("cjs-resolver", () => true, options);
+  cjsResolver = resolver;
+  return cjsResolver;
+};
 
-const getCSSResolver = (ctx: AsyncContext | undefined) => Cache.get(
-  "css-resolver",
-  () => enhancedResolve.ResolverFactory.createResolver({
+const getCSSResolver = (ctx: AsyncContext | undefined) => {
+  const options = resolverOptions(ctx);
+  if(cssResolver && CachedStore.isValid("css-resolver", options)){
+    return cssResolver;
+  }
+  const resolver = enhancedResolve.ResolverFactory.createResolver({
     conditionNames: ["style"],
     extensions: [".css"],
     fileSystem,
     mainFields: ["style"],
     plugins: ctx?.tsconfigPath ? [new TsconfigPathsPlugin({ configFile: ctx.tsconfigPath, mainFields: ["style"] })] : [],
     useSyncFileSystemCalls: true
-  }),
-  { cache: Cache.ISOLATED_CACHE, tag: ctx?.tsconfigPath }
-);
+  });
+  CachedStore.getOrCreate("css-resolver", () => true, options);
+  cssResolver = resolver;
+  return cssResolver;
+};
 
 const jsonResolver = enhancedResolve.ResolverFactory.createResolver({
   conditionNames: ["json"],

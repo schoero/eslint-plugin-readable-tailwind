@@ -1,11 +1,12 @@
-import { readFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { dirname } from "node:path";
 
 import { fork } from "@eslint/css-tree";
 import { tailwind4 } from "tailwind-csstree";
 
-import { Cache } from "../async-utils/cache.js";
-import { getCssImportTree } from "../async-utils/css-import-tree.js";
+import { CachedStore } from "better-tailwindcss:utils/cached-store.js";
+
+import { flattenCssImportTree, getCssImportTree } from "../async-utils/css-import-tree.js";
 import { resolveCss } from "../async-utils/resolvers.js";
 
 import type { CssNode } from "@eslint/css-tree";
@@ -30,30 +31,37 @@ interface CssFiles {
 
 const { findAll, generate, parse, walk } = fork(tailwind4);
 
-export async function getCustomComponentClasses(ctx: AsyncContext): Promise<CustomComponentClasses> {
+export function getCustomComponentClasses(ctx: AsyncContext): CustomComponentClasses {
   const resolvedPath = resolveCss(ctx, ctx.tailwindConfigPath);
 
   if(!resolvedPath){
     return [];
   }
 
-  const importTree = await getCssImportTree(ctx, resolvedPath, parseCssFile);
-  const files = await parseCssFilesDeep(ctx, importTree);
+  const importTree = getCssImportTree(ctx, resolvedPath, parseCssFile);
+  const cssFiles = [resolvedPath, ...flattenCssImportTree(importTree)];
 
-  const entryFile = await parseCssFile(ctx, resolvedPath);
+  return CachedStore.getOrCreate(
+    ["custom-component-classes", resolvedPath],
+    () => {
+      const files = parseCssFilesDeep(ctx, importTree);
+      const entryFile = parseCssFile(ctx, resolvedPath);
 
-  if(entryFile){
-    files[resolvedPath] = entryFile;
-  }
+      if(entryFile){
+        files[resolvedPath] = entryFile;
+      }
 
-  return getCustomComponentUtilities(files, resolvedPath);
+      return getCustomComponentUtilities(files, resolvedPath);
+    },
+    { paths: cssFiles }
+  );
 }
 
-async function parseCssFilesDeep(ctx: AsyncContext, importTree: import("../async-utils/css-import-tree.js").CssImportTree): Promise<CssFiles> {
+function parseCssFilesDeep(ctx: AsyncContext, importTree: import("../async-utils/css-import-tree.js").CssImportTree): CssFiles {
   const cssFiles: CssFiles = {};
 
   for(const path in importTree){
-    const cssFile = await parseCssFile(ctx, path);
+    const cssFile = parseCssFile(ctx, path);
 
     if(cssFile){
       cssFiles[path] = cssFile;
@@ -61,7 +69,7 @@ async function parseCssFilesDeep(ctx: AsyncContext, importTree: import("../async
 
     const subtree = importTree[path];
     if(subtree){
-      const importedFiles = await parseCssFilesDeep(ctx, subtree);
+      const importedFiles = parseCssFilesDeep(ctx, subtree);
 
       for(const importedFile in importedFiles){
         cssFiles[importedFile] = importedFiles[importedFile];
@@ -72,53 +80,49 @@ async function parseCssFilesDeep(ctx: AsyncContext, importTree: import("../async
   return cssFiles;
 }
 
-const parseCssFile = async (ctx: AsyncContext, resolvedPath: string): Promise<CssFile | undefined> => Cache.get(
-  ["css-file", resolvedPath],
-  async () => {
-    try {
-      const content = await readFile(resolvedPath, "utf-8");
-      const ast = parse(content);
+const parseCssFile = (ctx: AsyncContext, resolvedPath: string): CssFile | undefined => {
+  try {
+    const content = readFileSync(resolvedPath, "utf-8");
+    const ast = parse(content);
 
-      const importNodes = findAll(ast, node => node.type === "Atrule" &&
+    const importNodes = findAll(ast, node => node.type === "Atrule" &&
       node.name === "import" &&
       node.prelude?.type === "AtrulePrelude");
 
-      const imports = importNodes.reduce<ImportInfo[]>((imports, importNode) => {
-        if(importNode.type !== "Atrule" || !importNode.prelude){
-          return imports;
-        }
-
-        const prelude = generate(importNode.prelude);
-        const importStatement = prelude.match(/["'](?<importPath>[^"']+)["'](?<rest>.*)/);
-
-        if(!importStatement){
-          return imports;
-        }
-
-        const { importPath, rest } = importStatement.groups || {};
-
-        const layerMatch = rest?.match(/layer(?:\((?<layerName>[^)]+)\))?/);
-        const layer = layerMatch ? layerMatch.groups?.layerName || "anonymous" : undefined;
-
-        const cwd = dirname(resolvedPath);
-        const resolvedImportPath = resolveCss(ctx, importPath, cwd);
-
-        if(resolvedImportPath){
-          imports.push({ layer, path: resolvedImportPath });
-        }
-
+    const imports = importNodes.reduce<ImportInfo[]>((imports, importNode) => {
+      if(importNode.type !== "Atrule" || !importNode.prelude){
         return imports;
-      }, []);
+      }
 
-      return {
-        ast,
-        imports
-      } satisfies CssFile;
+      const prelude = generate(importNode.prelude);
+      const importStatement = prelude.match(/["'](?<importPath>[^"']+)["'](?<rest>.*)/);
 
-    } catch {}
-  },
-  { path: resolvedPath }
-);
+      if(!importStatement){
+        return imports;
+      }
+
+      const { importPath, rest } = importStatement.groups || {};
+
+      const layerMatch = rest?.match(/layer(?:\((?<layerName>[^)]+)\))?/);
+      const layer = layerMatch ? layerMatch.groups?.layerName || "anonymous" : undefined;
+
+      const cwd = dirname(resolvedPath);
+      const resolvedImportPath = resolveCss(ctx, importPath, cwd);
+
+      if(resolvedImportPath){
+        imports.push({ layer, path: resolvedImportPath });
+      }
+
+      return imports;
+    }, []);
+
+    return {
+      ast,
+      imports
+    } satisfies CssFile;
+
+  } catch {}
+};
 
 function getCustomComponentUtilities(files: CssFiles, filePath: string, currentLayer: string[] = []): string[] {
   const classes = new Set<string>();

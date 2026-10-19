@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 
-import { Cache } from "./cache.js";
+import { CachedStore } from "./cached-store.js";
 import { findPathRecursive } from "./fs.js";
 
 import type { Warning } from "../types/async.js";
@@ -16,7 +16,7 @@ export interface GetTSConfigResponse {
   warnings: (Warning | undefined)[];
 }
 
-export const getTSConfigPath = ({ configPath, cwd }: GetTSConfigRequest): GetTSConfigResponse => Cache.get(
+export const getTSConfigPath = ({ configPath, cwd }: GetTSConfigRequest): GetTSConfigResponse => CachedStore.getOrCreate(
   ["tsconfig-path", cwd, configPath],
   () => {
 

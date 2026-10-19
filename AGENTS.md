@@ -86,6 +86,7 @@ Rules that only need pure string checks (for example `no-unnecessary-whitespace`
 ## Testing rules
 
 - Use the `lint(...)` helper from `tests/utils/lint.ts`.
+- Use `TestDirectory` from `tests/utils/tmp.ts` to create and clean up temporary files and directories in tests.
 - Supported parser keys in tests: `angular`, `astro`, `css`, `html`, `jsx`, `svelte`, `vue`.
 - Use `invalid` cases only where syntax is valid for that parser.
 - Include `errors` assertions for invalid cases.

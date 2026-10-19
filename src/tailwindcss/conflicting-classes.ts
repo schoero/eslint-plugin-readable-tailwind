@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { Cache } from "better-tailwindcss:utils/cache.js";
+import { CachedStore } from "better-tailwindcss:utils/cached-store.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
@@ -33,7 +33,7 @@ export function createGetConflictingClasses(ctx: Context): GetConflictingClasses
   const workerOptions = getWorkerOptions();
   const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getConflictingClasses = (ctx, classes) => runWorker("getConflictingClasses", Cache.toTransferableState(), ctx, classes);
+  getConflictingClasses = (ctx, classes) => runWorker("getConflictingClasses", CachedStore.toTransferableState(), ctx, classes);
 
   return getConflictingClasses;
 }
