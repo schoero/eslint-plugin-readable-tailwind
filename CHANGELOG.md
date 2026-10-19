@@ -1,5 +1,29 @@
 # Changelog
 
+## v4.10.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.9.1...v4.10.0)
+
+### Features
+
+- Html templating ([#429](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/429))
+
+### Fixes
+
+- Handle prototype keys in canonical classes ([#423](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/423))
+
+### Documentation
+
+- Show an absolute cwd configuration ([#424](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/424))
+
+### Chore
+
+- Update issue template ([0175ac3](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/0175ac3))
+
+### ❤️ Contributors
+
+- Langning Zhang ([@Boulea7](https://github.com/Boulea7))
+
 ## v4.9.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.9.0...v4.9.1)
@@ -55,7 +79,7 @@
 ### ❤️ Contributors
 
 - Benjamin Canac ([@benjamincanac](https://github.com/benjamincanac))
-- Jamal Ali <jamalkamaladdin@gmail.com>
+- Jamal Ali ([@jamalkamaladdin](https://github.com/jamalkamaladdin))
 - Simon Bobrov ([@smnbbrv](https://github.com/smnbbrv))
 
 ## v4.7.0
