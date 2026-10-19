@@ -16,7 +16,7 @@ import { TestDirectory } from "better-tailwindcss:tests/utils/tmp.js";
 import { getNodeVersion } from "better-tailwindcss:tests/utils/version.js";
 import { clearCache } from "better-tailwindcss:utils/cache.js";
 
-import type { ESLint } from "eslint";
+import type { ESLint, Linter } from "eslint";
 import type { Node as ESNode } from "estree";
 
 import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
@@ -39,7 +39,16 @@ export const TEST_SYNTAXES = {
     plugins: { css: css as unknown as ESLint.Plugin }
   },
   html: {
-    languageOptions: { parser: eslintParserHTML }
+    languageOptions: {
+      parser: eslintParserHTML,
+      parserOptions: {
+        templateEngineSyntax: [
+          { close: "}}", open: "{{" },
+          { close: "%}", open: "{%" },
+          { close: "%>", open: "<%" }
+        ]
+      } as Record<string, Linter.ParserOptions>
+    }
   },
   jsx: {
     languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } }

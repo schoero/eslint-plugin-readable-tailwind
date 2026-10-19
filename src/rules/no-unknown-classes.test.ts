@@ -127,6 +127,53 @@ describe(noUnknownClasses.name, () => {
             vue: `<template><img class="unknown" /></template>`,
 
             errors: 1
+          },
+          {
+            html: `<img class=unknown />`,
+
+            errors: 1
+          }
+        ]
+      }
+    );
+  });
+
+  it("should not report on template expressions in html", () => {
+    lint(
+      noUnknownClasses,
+      {
+        valid: [
+          {
+            html: `<p class="p-4 {{ isActive ? 'flex' : 'hidden' }}">Hello</p>`
+          },
+          {
+            html: `<p class="{{ isActive ? 'flex' : 'hidden' }} p-4">Hello</p>`
+          },
+          {
+            html: `<p class="p-4{{ isActive ? 'flex' : 'hidden' }}">Hello</p>`
+          },
+          {
+            html: `<p class="<% if isActive %>flex<% end %> p-4">Hello</p>`
+          }
+        ]
+      }
+    );
+  });
+
+  it("should still report unknown classes next to template expressions in html", () => {
+    lint(
+      noUnknownClasses,
+      {
+        invalid: [
+          {
+            html: `<p class="unknown {{ isActive ? 'flex' : 'hidden' }}">Hello</p>`,
+
+            errors: 1
+          },
+          {
+            html: `<p class="{{ isActive ? 'flex' : 'hidden' }} unknown">Hello</p>`,
+
+            errors: 1
           }
         ]
       }
