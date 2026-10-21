@@ -91,7 +91,24 @@ export default [
 
   The working directory used to resolve `tailwindcss` and related config files. This is useful for monorepos where linting runs from the repository root but each project has its own `node_modules` and Tailwind setup.
 
-  This path is resolved relative to the current working directory of the ESLint process. If not specified, it falls back to the current working directory of the ESLint process.
+  Relative paths are resolved against ESLint's current working directory, which defaults to the process working directory when using the CLI. If not specified, ESLint's current working directory is used.
+
+  Use an absolute path to keep the Tailwind resolution directory the same when invoking ESLint from different directories. For example, in the consumer package's own ESM ESLint config:
+
+```js
+// packages/website/eslint.config.mjs
+export default [
+  {
+    settings: {
+      "better-tailwindcss": {
+        cwd: import.meta.dirname
+      }
+    }
+  }
+];
+```
+
+  Tailwind CSS must be resolvable from that directory. When using a shared config, set this path in the consumer's own config, since `import.meta.dirname` in the shared config refers to the shared config's directory.
 
   **Type**: `string`  
   **Default**: `undefined`

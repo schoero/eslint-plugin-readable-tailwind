@@ -7,7 +7,7 @@ import type { CanonicalClasses, CanonicalClassOptions } from "./canonical-classe
 export const getCanonicalClasses = (tailwindContext: any, classes: string[], options: CanonicalClassOptions): CanonicalClasses => CachedStore.getOrCreate(
   ["canonical-classes", ...classes, options.collapse, options.logicalToPhysical, options.rem],
   () => {
-    const result: CanonicalClasses = {};
+    const result: CanonicalClasses = Object.create(null);
 
     if(typeof tailwindContext?.canonicalizeCandidates !== "function"){
       for(const className of classes){

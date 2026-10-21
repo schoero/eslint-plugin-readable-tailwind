@@ -12,7 +12,7 @@ import type { Context } from "better-tailwindcss:types/rule.js";
 
 
 export const noConflictingClasses = createRule({
-  autofix: true,
+  autofix: false,
   category: "correctness",
   description: "Disallow classes that produce conflicting styles.",
   docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-conflicting-classes.md",
@@ -20,7 +20,7 @@ export const noConflictingClasses = createRule({
   recommended: true,
 
   messages: {
-    conflicting: "Conflicting class detected: \"{{ className }}\" and \"{{ conflictingClassString }}\" apply the same CSS properties: \"{{ conflictingPropertiesString }}\"."
+    conflicting: "Conflicting class detected: \"{{ className }}\" and \"{{ conflictingClassString }}\" apply the same CSS properties: {{ conflictingPropertiesString }}."
   },
 
   initialize(ctx) {

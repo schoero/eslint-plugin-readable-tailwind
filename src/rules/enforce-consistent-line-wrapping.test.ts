@@ -140,28 +140,33 @@ describe(enforceConsistentLineWrapping.name, () => {
 
   it("should wrap and not collapse short lines containing expressions", () => {
 
-    const expression = "${true ? 'true' : 'false'}";
+    const expression = "true ? 'true' : 'false'";
 
-    const incorrect = dedent`
+    const templateExpression = `\${${expression}}`;
+    const htmlExpression = `{{ ${expression} }}`;
+
+    const getIncorrect = (expression: string) => dedent`
       a ${expression}
     `;
-
-    const correct = dedent`
+    const getCorrect = (expression: string) => dedent`
       a
       ${expression}
     `;
+
 
     lint(
       enforceConsistentLineWrapping,
       {
         invalid: [
           {
-            angular: `<img class="{{\`${incorrect}\`}}" />`,
-            angularOutput: `<img class="{{\`${correct}\`}}" />`,
-            jsx: `() => <img class={\`${incorrect}\`} />`,
-            jsxOutput: `() => <img class={\`${correct}\`} />`,
-            svelte: `<img class={\`${incorrect}\`} />`,
-            svelteOutput: `<img class={\`${correct}\`} />`,
+            angular: `<img class="{{\`${getIncorrect(templateExpression)}\`}}" />`,
+            angularOutput: `<img class="{{\`${getCorrect(templateExpression)}\`}}" />`,
+            html: `<img class="${getIncorrect(htmlExpression)}" />`,
+            htmlOutput: `<img class="${getCorrect(htmlExpression)}" />`,
+            jsx: `() => <img class={\`${getIncorrect(templateExpression)}\`} />`,
+            jsxOutput: `() => <img class={\`${getCorrect(templateExpression)}\`} />`,
+            svelte: `<img class={\`${getIncorrect(templateExpression)}\`} />`,
+            svelteOutput: `<img class={\`${getCorrect(templateExpression)}\`} />`,
 
             errors: 1,
             options: [{ classesPerLine: 3, indent: 2 }]
@@ -518,33 +523,34 @@ describe(enforceConsistentLineWrapping.name, () => {
   it("should wrap expressions correctly", () => {
 
     const expression = "${true ? 'true' : 'false'}";
+    const htmlExpression = "{{ true ? 'true' : 'false' }}";
 
-    const singleLineWithExpressionAtBeginning = `${expression} a b c d e f g h `;
-    const multilineWithExpressionAtBeginning = dedent`
+    const getSingleLineWithExpressionAtBeginning = (expression: string) => `${expression} a b c d e f g h `;
+    const getMultilineWithExpressionAtBeginning = (expression: string) => dedent`
       ${expression}
       a b c
       d e f
       g h
     `;
 
-    const singleLineWithExpressionInCenter = `a b c ${expression} d e f g h `;
-    const multilineWithExpressionInCenter = dedent`
+    const getSingleLineWithExpressionInCenter = (expression: string) => `a b c ${expression} d e f g h `;
+    const getMultilineWithExpressionInCenter = (expression: string) => dedent`
       a b c
       ${expression}
       d e f
       g h
     `;
 
-    const singleLineWithExpressionAtEnd = `a b c d e f g h ${expression}`;
-    const multilineWithExpressionAtEnd = dedent`
+    const getSingleLineWithExpressionAtEnd = (expression: string) => `a b c d e f g h ${expression}`;
+    const getMultilineWithExpressionAtEnd = (expression: string) => dedent`
       a b c
       d e f
       g h
       ${expression}
     `;
 
-    const singleLineWithClassesAroundExpression = `a b ${expression} c d e f g h `;
-    const multilineWithClassesAroundExpression = dedent`
+    const getSingleLineWithClassesAroundExpression = (expression: string) => `a b ${expression} c d e f g h `;
+    const getMultilineWithClassesAroundExpression = (expression: string) => dedent`
       a b
       ${expression}
       c d e f
@@ -556,37 +562,45 @@ describe(enforceConsistentLineWrapping.name, () => {
       {
         invalid: [
           {
-            jsx: `() => <img class={\`${singleLineWithExpressionAtBeginning}\`} />`,
-            jsxOutput: `() => <img class={\`${multilineWithExpressionAtBeginning}\`} />`,
-            svelte: `<img class={\`${singleLineWithExpressionAtBeginning}\`} />`,
-            svelteOutput: `<img class={\`${multilineWithExpressionAtBeginning}\`} />`,
+            html: `<img class="${getSingleLineWithExpressionAtBeginning(htmlExpression)}" />`,
+            htmlOutput: `<img class="${getMultilineWithExpressionAtBeginning(htmlExpression)}" />`,
+            jsx: `() => <img class={\`${getSingleLineWithExpressionAtBeginning(expression)}\`} />`,
+            jsxOutput: `() => <img class={\`${getMultilineWithExpressionAtBeginning(expression)}\`} />`,
+            svelte: `<img class={\`${getSingleLineWithExpressionAtBeginning(expression)}\`} />`,
+            svelteOutput: `<img class={\`${getMultilineWithExpressionAtBeginning(expression)}\`} />`,
 
             errors: 2,
             options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
-            jsx: `() => <img class={\`${singleLineWithExpressionInCenter}\`} />`,
-            jsxOutput: `() => <img class={\`${multilineWithExpressionInCenter}\`} />`,
-            svelte: `<img class={\`${singleLineWithExpressionInCenter}\`} />`,
-            svelteOutput: `<img class={\`${multilineWithExpressionInCenter}\`} />`,
+            html: `<img class="${getSingleLineWithExpressionInCenter(htmlExpression)}" />`,
+            htmlOutput: `<img class="${getMultilineWithExpressionInCenter(htmlExpression)}" />`,
+            jsx: `() => <img class={\`${getSingleLineWithExpressionInCenter(expression)}\`} />`,
+            jsxOutput: `() => <img class={\`${getMultilineWithExpressionInCenter(expression)}\`} />`,
+            svelte: `<img class={\`${getSingleLineWithExpressionInCenter(expression)}\`} />`,
+            svelteOutput: `<img class={\`${getMultilineWithExpressionInCenter(expression)}\`} />`,
 
             errors: 2,
             options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
-            jsx: `() => <img class={\`${singleLineWithExpressionAtEnd}\`} />`,
-            jsxOutput: `() => <img class={\`${multilineWithExpressionAtEnd}\`} />`,
-            svelte: `<img class={\`${singleLineWithExpressionAtEnd}\`} />`,
-            svelteOutput: `<img class={\`${multilineWithExpressionAtEnd}\`} />`,
+            html: `<img class="${getSingleLineWithExpressionAtEnd(htmlExpression)}" />`,
+            htmlOutput: `<img class="${getMultilineWithExpressionAtEnd(htmlExpression)}" />`,
+            jsx: `() => <img class={\`${getSingleLineWithExpressionAtEnd(expression)}\`} />`,
+            jsxOutput: `() => <img class={\`${getMultilineWithExpressionAtEnd(expression)}\`} />`,
+            svelte: `<img class={\`${getSingleLineWithExpressionAtEnd(expression)}\`} />`,
+            svelteOutput: `<img class={\`${getMultilineWithExpressionAtEnd(expression)}\`} />`,
 
             errors: 2,
             options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
-            jsx: `() => <img class={\`${singleLineWithClassesAroundExpression}\`} />`,
-            jsxOutput: `() => <img class={\`${multilineWithClassesAroundExpression}\`} />`,
-            svelte: `<img class={\`${singleLineWithClassesAroundExpression}\`} />`,
-            svelteOutput: `<img class={\`${multilineWithClassesAroundExpression}\`} />`,
+            html: `<img class="${getSingleLineWithClassesAroundExpression(htmlExpression)}" />`,
+            htmlOutput: `<img class="${getMultilineWithClassesAroundExpression(htmlExpression)}" />`,
+            jsx: `() => <img class={\`${getSingleLineWithClassesAroundExpression(expression)}\`} />`,
+            jsxOutput: `() => <img class={\`${getMultilineWithClassesAroundExpression(expression)}\`} />`,
+            svelte: `<img class={\`${getSingleLineWithClassesAroundExpression(expression)}\`} />`,
+            svelteOutput: `<img class={\`${getMultilineWithClassesAroundExpression(expression)}\`} />`,
 
             errors: 2,
             options: [{ classesPerLine: 4, indent: 2 }]
@@ -600,33 +614,34 @@ describe(enforceConsistentLineWrapping.name, () => {
   it("should not place expressions on a new line when the expression is not surrounded by a space", () => {
 
     const expression = "${true ? 'true' : 'false'}";
+    const htmlExpression = "{{ true ? 'true' : 'false' }}";
 
-    const singleLineWithExpressionAtBeginningWithStickyClassAtEnd = `${expression}a b c d e f g h `;
-    const multilineWithExpressionAtBeginningWithStickyClassAtEnd = dedent`
+    const getSingleLineWithExpressionAtBeginningWithStickyClassAtEnd = (expression: string) => `${expression}a b c d e f g h `;
+    const getMultilineWithExpressionAtBeginningWithStickyClassAtEnd = (expression: string) => dedent`
       ${expression}a
       b c d
       e f g
       h
     `;
 
-    const singleLineWithExpressionInCenterWithStickyClassAtBeginning = `a b c${expression} d e f g h `;
-    const multilineWithExpressionInCenterWithStickyClassAtBeginning = dedent`
+    const getSingleLineWithExpressionInCenterWithStickyClassAtBeginning = (expression: string) => `a b c${expression} d e f g h `;
+    const getMultilineWithExpressionInCenterWithStickyClassAtBeginning = (expression: string) => dedent`
       a b
       c${expression}
       d e f
       g h
     `;
 
-    const singleLineWithExpressionInCenterWithStickyClassAtEnd = `a b c ${expression}d e f g h `;
-    const multilineWithExpressionInCenterWithStickyClassAtEnd = dedent`
+    const getSingleLineWithExpressionInCenterWithStickyClassAtEnd = (expression: string) => `a b c ${expression}d e f g h `;
+    const getMultilineWithExpressionInCenterWithStickyClassAtEnd = (expression: string) => dedent`
       a b c
       ${expression}d
       e f g
       h
     `;
 
-    const singleLineWithExpressionAtEndWithStickyClassAtBeginning = `a b c d e f g h${expression}`;
-    const multilineWithExpressionAtEndWithStickyClassAtBeginning = dedent`
+    const getSingleLineWithExpressionAtEndWithStickyClassAtBeginning = (expression: string) => `a b c d e f g h${expression}`;
+    const getMultilineWithExpressionAtEndWithStickyClassAtBeginning = (expression: string) => dedent`
       a b c
       d e f
       g
@@ -638,37 +653,45 @@ describe(enforceConsistentLineWrapping.name, () => {
       {
         invalid: [
           {
-            jsx: `() => <img class={\`${singleLineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`,
-            jsxOutput: `() => <img class={\`${multilineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`,
-            svelte: `<img class={\`${singleLineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`,
-            svelteOutput: `<img class={\`${multilineWithExpressionAtBeginningWithStickyClassAtEnd}\`} />`,
+            html: `<img class="${getSingleLineWithExpressionAtBeginningWithStickyClassAtEnd(htmlExpression)}" />`,
+            htmlOutput: `<img class="${getMultilineWithExpressionAtBeginningWithStickyClassAtEnd(htmlExpression)}" />`,
+            jsx: `() => <img class={\`${getSingleLineWithExpressionAtBeginningWithStickyClassAtEnd(expression)}\`} />`,
+            jsxOutput: `() => <img class={\`${getMultilineWithExpressionAtBeginningWithStickyClassAtEnd(expression)}\`} />`,
+            svelte: `<img class={\`${getSingleLineWithExpressionAtBeginningWithStickyClassAtEnd(expression)}\`} />`,
+            svelteOutput: `<img class={\`${getMultilineWithExpressionAtBeginningWithStickyClassAtEnd(expression)}\`} />`,
 
             errors: 2,
             options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
-            jsx: `() => <img class={\`${singleLineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`,
-            jsxOutput: `() => <img class={\`${multilineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`,
-            svelte: `<img class={\`${singleLineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`,
-            svelteOutput: `<img class={\`${multilineWithExpressionInCenterWithStickyClassAtBeginning}\`} />`,
+            html: `<img class="${getSingleLineWithExpressionInCenterWithStickyClassAtBeginning(htmlExpression)}" />`,
+            htmlOutput: `<img class="${getMultilineWithExpressionInCenterWithStickyClassAtBeginning(htmlExpression)}" />`,
+            jsx: `() => <img class={\`${getSingleLineWithExpressionInCenterWithStickyClassAtBeginning(expression)}\`} />`,
+            jsxOutput: `() => <img class={\`${getMultilineWithExpressionInCenterWithStickyClassAtBeginning(expression)}\`} />`,
+            svelte: `<img class={\`${getSingleLineWithExpressionInCenterWithStickyClassAtBeginning(expression)}\`} />`,
+            svelteOutput: `<img class={\`${getMultilineWithExpressionInCenterWithStickyClassAtBeginning(expression)}\`} />`,
 
             errors: 2,
             options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
-            jsx: `() => <img class={\`${singleLineWithExpressionInCenterWithStickyClassAtEnd}\`} />`,
-            jsxOutput: `() => <img class={\`${multilineWithExpressionInCenterWithStickyClassAtEnd}\`} />`,
-            svelte: `<img class={\`${singleLineWithExpressionInCenterWithStickyClassAtEnd}\`} />`,
-            svelteOutput: `<img class={\`${multilineWithExpressionInCenterWithStickyClassAtEnd}\`} />`,
+            html: `<img class="${getSingleLineWithExpressionInCenterWithStickyClassAtEnd(htmlExpression)}" />`,
+            htmlOutput: `<img class="${getMultilineWithExpressionInCenterWithStickyClassAtEnd(htmlExpression)}" />`,
+            jsx: `() => <img class={\`${getSingleLineWithExpressionInCenterWithStickyClassAtEnd(expression)}\`} />`,
+            jsxOutput: `() => <img class={\`${getMultilineWithExpressionInCenterWithStickyClassAtEnd(expression)}\`} />`,
+            svelte: `<img class={\`${getSingleLineWithExpressionInCenterWithStickyClassAtEnd(expression)}\`} />`,
+            svelteOutput: `<img class={\`${getMultilineWithExpressionInCenterWithStickyClassAtEnd(expression)}\`} />`,
 
             errors: 2,
             options: [{ classesPerLine: 3, indent: 2 }]
           },
           {
-            jsx: `() => <img class={\`${singleLineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`,
-            jsxOutput: `() => <img class={\`${multilineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`,
-            svelte: `<img class={\`${singleLineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`,
-            svelteOutput: `<img class={\`${multilineWithExpressionAtEndWithStickyClassAtBeginning}\`} />`,
+            html: `<img class="${getSingleLineWithExpressionAtEndWithStickyClassAtBeginning(htmlExpression)}" />`,
+            htmlOutput: `<img class="${getMultilineWithExpressionAtEndWithStickyClassAtBeginning(htmlExpression)}" />`,
+            jsx: `() => <img class={\`${getSingleLineWithExpressionAtEndWithStickyClassAtBeginning(expression)}\`} />`,
+            jsxOutput: `() => <img class={\`${getMultilineWithExpressionAtEndWithStickyClassAtBeginning(expression)}\`} />`,
+            svelte: `<img class={\`${getSingleLineWithExpressionAtEndWithStickyClassAtBeginning(expression)}\`} />`,
+            svelteOutput: `<img class={\`${getMultilineWithExpressionAtEndWithStickyClassAtBeginning(expression)}\`} />`,
 
             errors: 2,
             options: [{ classesPerLine: 3, indent: 2 }]
@@ -682,8 +705,9 @@ describe(enforceConsistentLineWrapping.name, () => {
   it("should not add an unnecessary new line after a sticky class", () => {
 
     const expression = "${true ? 'true' : 'false'}";
+    const htmlExpression = "{{ true ? 'true' : 'false' }}";
 
-    const multilineWithWithStickyClassAtEnd = dedent`
+    const getMultilineWithWithStickyClassAtEnd = (expression: string) => dedent`
       ${expression}a
     `;
 
@@ -692,8 +716,9 @@ describe(enforceConsistentLineWrapping.name, () => {
       {
         valid: [
           {
-            jsx: `() => <img class={\`${multilineWithWithStickyClassAtEnd}\`} />`,
-            svelte: `<img class={\`${multilineWithWithStickyClassAtEnd}\`} />`,
+            html: `<img class="${getMultilineWithWithStickyClassAtEnd(htmlExpression)}" />`,
+            jsx: `() => <img class={\`${getMultilineWithWithStickyClassAtEnd(expression)}\`} />`,
+            svelte: `<img class={\`${getMultilineWithWithStickyClassAtEnd(expression)}\`} />`,
 
             options: [{ classesPerLine: 3, indent: 2 }]
           }

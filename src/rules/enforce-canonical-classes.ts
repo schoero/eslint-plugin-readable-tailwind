@@ -92,6 +92,10 @@ function lintLiterals(ctx: Context<typeof enforceCanonicalClasses>, literals: Li
     });
 
     lintClasses(ctx, literal, className => {
+      if(!Object.hasOwn(canonicalClasses, className)){
+        return;
+      }
+
       const canonicalClass = canonicalClasses[className];
 
       if(!canonicalClass){

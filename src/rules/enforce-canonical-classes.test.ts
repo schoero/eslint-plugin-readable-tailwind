@@ -5,9 +5,115 @@ import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { css } from "better-tailwindcss:tests/utils/template.js";
 import { values } from "better-tailwindcss:tests/utils/values.js";
 import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version.js";
+import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
+
+import { getDefaultSelectors } from "../api/defaults.js";
 
 
 describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name, () => {
+
+  it.each(["__proto__", "constructor", "toString"])("should leave selected %s strings unchanged", className => {
+    lint(enforceCanonicalClasses, {
+      valid: [
+        {
+          jsx: `const key = "${className}";`,
+
+          files: {
+            "app.css": css`
+              @import "tailwindcss";
+            `
+          },
+          settings: {
+            "better-tailwindcss": {
+              entryPoint: "app.css",
+              selectors: [
+                ...getDefaultSelectors(),
+                {
+                  kind: SelectorKind.Variable,
+                  match: [{ type: MatcherType.String }],
+                  name: ".*"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    });
+  });
+
+  it.each(["__proto__", "constructor", "toString"])("should ignore %s while canonicalizing other classes", className => {
+    lint(enforceCanonicalClasses, {
+      invalid: [
+        {
+          html: `<img class="${className} [color:red]/100" />`,
+          htmlOutput: `<img class="${className} text-[red]" />`,
+          jsx: `() => <img class="${className} [color:red]/100" />`,
+          jsxOutput: `() => <img class="${className} text-[red]" />`,
+
+          errors: [{
+            message: values(enforceCanonicalClasses.messages!.single, {
+              canonicalClass: "text-[red]",
+              className: "[color:red]/100"
+            })
+          }],
+
+          files: {
+            "styles.css": css`
+              @import "tailwindcss";
+            `
+          },
+          options: [{
+            entryPoint: "styles.css",
+            ignore: [`^${className}$`]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should preserve prototype property names while canonicalizing and collapsing other classes", () => {
+    lint(enforceCanonicalClasses, {
+      invalid: [
+        {
+          html: `<img class="__proto__ constructor toString [color:red]/100 w-10 h-10" />`,
+          htmlOutput: `<img class="__proto__ constructor toString text-[red] size-10 " />`,
+          jsx: `() => <img class="__proto__ constructor toString [color:red]/100 w-10 h-10" />`,
+          jsxOutput: `() => <img class="__proto__ constructor toString text-[red] size-10 " />`,
+
+          errors: [
+            {
+              message: values(enforceCanonicalClasses.messages!.single, {
+                canonicalClass: "text-[red]",
+                className: "[color:red]/100"
+              })
+            },
+            {
+              message: values(enforceCanonicalClasses.messages!.multiple, {
+                canonicalClass: "size-10",
+                classNames: "w-10, h-10"
+              })
+            },
+            {
+              message: values(enforceCanonicalClasses.messages!.multiple, {
+                canonicalClass: "size-10",
+                classNames: "w-10, h-10"
+              })
+            }
+          ],
+
+          files: {
+            "styles.css": css`
+              @import "tailwindcss";
+            `
+          },
+          options: [{
+            collapse: true,
+            entryPoint: "styles.css"
+          }]
+        }
+      ]
+    });
+  });
 
   it("should convert unnecessary arbitrary value to canonical class", () => {
     lint(enforceCanonicalClasses, {
