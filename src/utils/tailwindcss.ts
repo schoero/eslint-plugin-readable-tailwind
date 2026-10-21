@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 
 import { literal, object, parse, string } from "valibot";
 
-import { CachedStore, CacheTag } from "better-tailwindcss:utils/cached-store.js";
+import { CachedStore, CacheEntry } from "better-tailwindcss:utils/cached-store.js";
 import { resolveJson } from "better-tailwindcss:utils/resolvers.js";
 import { parseSemanticVersion } from "better-tailwindcss:utils/version.js";
 
@@ -13,22 +13,24 @@ const packageJsonSchema = object({
 });
 
 export function getTailwindPackageJsonPath(cwd: string) {
+  CachedStore.upsert(CacheEntry.CWD, cwd);
+
   return CachedStore.getOrCreate(
-    "tailwind-package-json-path",
+    CacheEntry.TAILWIND_PACKAGE_JSON_PATH,
     () => {
       return resolveJson("tailwindcss/package.json", cwd);
     },
-    { tags: [CacheTag.CWD] }
+    { dependencies: [CacheEntry.CWD] }
   );
 }
 
 export function getTailwindVersion(packageJsonPath: string) {
   return CachedStore.getOrCreate(
-    "tailwind-version",
+    CacheEntry.TAILWIND_VERSION,
     () => {
       const packageJson = parse(packageJsonSchema, JSON.parse(readFileSync(packageJsonPath, "utf-8")));
       return parseSemanticVersion(packageJson.version);
     },
-    { paths: [packageJsonPath], tags: [CacheTag.CWD] }
+    { dependencies: [CacheEntry.TAILWIND_PACKAGE_JSON_PATH], paths: [packageJsonPath] }
   );
 }

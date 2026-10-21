@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { CachedStore, CacheTag } from "better-tailwindcss:utils/cached-store.js";
+import { CachedStore, CacheEntry } from "better-tailwindcss:utils/cached-store.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
@@ -41,7 +41,7 @@ export function createGetDissectedClasses(ctx: Context): GetDissectedClasses {
     dissectedClasses: CachedStore.getOrCreate(
       ["dissected-classes", ...classes],
       () => runWorker("getDissectedClasses", CachedStore.getSharedState(), ctx, classes),
-      { tags: [CacheTag.CONTEXT] }
+      { dependencies: [CacheEntry.TAILWIND_CONTEXT] }
     ),
     warnings: ctx.warnings
   });

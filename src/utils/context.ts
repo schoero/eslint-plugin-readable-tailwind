@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 
-import { CachedStore, CacheTag } from "better-tailwindcss:utils/cached-store.js";
+import { CachedStore, CacheEntry } from "better-tailwindcss:utils/cached-store.js";
 import { findPathRecursive } from "better-tailwindcss:utils/fs.js";
 import { resolveCss } from "better-tailwindcss:utils/resolvers.js";
 
@@ -21,6 +21,10 @@ export function async(ctx: Context): AsyncContext {
   const { path: resolvedTailwindPath, warnings: tailwindConfigWarnings } = getTailwindConfigPath({ configPath: ctx.options.entryPoint ?? ctx.options.tailwindConfig, cwd: ctx.cwd, version: ctx.version });
   const { path: resolvedTSConfigPath, warnings: tsconfigWarnings } = getTSConfigPath({ configPath: ctx.options.tsconfig, cwd: ctx.cwd });
 
+  // cached results only depend on the tailwind context transitively, which never accesses the file system
+  // this records changes to the files the context was built from without a round trip to the worker
+  CachedStore.refreshPaths(CacheEntry.TAILWIND_CONTEXT);
+
   return {
     cwd: ctx.cwd,
     installation: ctx.installation,
@@ -31,84 +35,95 @@ export function async(ctx: Context): AsyncContext {
   };
 }
 
-const getTSConfigPath = ({ configPath, cwd }: {
+// only one tsconfig path is cached, it is resolved again when the cwd or the option changes
+function getTSConfigPath({ configPath, cwd }: {
   configPath: string | undefined;
   cwd: string;
-}) => CachedStore.getOrCreate(
-  ["tsconfig-path", configPath],
-  () => {
-    CachedStore.invalidateTag(CacheTag.TS_CONFIG);
+}) {
+  CachedStore.upsert(CacheEntry.CWD, cwd);
+  CachedStore.upsert(CacheEntry.TSCONFIG_OPTION, configPath);
 
-    const potentialPaths = [
-      ...configPath ? [configPath] : [],
-      "tsconfig.json",
-      "jsconfig.json"
-    ];
+  return CachedStore.getOrCreate(
+    CacheEntry.TSCONFIG_PATH,
+    () => {
+      const potentialPaths = [
+        ...configPath ? [configPath] : [],
+        "tsconfig.json",
+        "jsconfig.json"
+      ];
 
-    const foundConfigPath = findPathRecursive(cwd, cwd, potentialPaths);
-    const warning = getConfigPathWarning(configPath, foundConfigPath);
+      const foundConfigPath = findPathRecursive(cwd, cwd, potentialPaths);
+      const warning = getConfigPathWarning(configPath, foundConfigPath);
 
-    return {
-      path: foundConfigPath,
-      warnings: [warning]
-    };
-  },
-  { tags: [CacheTag.CWD] }
-);
-export const getTailwindConfigPath = ({ configPath, cwd, version }: {
+      return {
+        path: foundConfigPath,
+        warnings: [warning]
+      };
+    },
+    { dependencies: [CacheEntry.CWD, CacheEntry.TSCONFIG_OPTION] }
+  );
+}
+
+// only one tailwind config path is cached, it is resolved again when the cwd, the option or the tailwind version changes
+export function getTailwindConfigPath({ configPath, cwd, version }: {
   configPath: string | undefined;
   cwd: string;
   version: Version;
-}) => CachedStore.getOrCreate(
-  ["config-path", configPath],
-  () => {
-    if(version.major >= 4){
+}) {
+  CachedStore.upsert(CacheEntry.CWD, cwd);
+  CachedStore.upsert(CacheEntry.TAILWIND_CONFIG_OPTION, configPath);
 
-      const foundConfigPath = configPath && findPathRecursive(cwd, cwd, [configPath]);
-      const warning = getEntryPointWarning(configPath, foundConfigPath);
+  return CachedStore.getOrCreate(
+    CacheEntry.TAILWIND_CONFIG_PATH,
+    () => {
+      if(version.major >= 4){
 
-      if(foundConfigPath){
+        const foundConfigPath = configPath && findPathRecursive(cwd, cwd, [configPath]);
+        const warning = getEntryPointWarning(configPath, foundConfigPath);
+
+        if(foundConfigPath){
+          return {
+            path: foundConfigPath,
+            warnings: [warning]
+          };
+        }
+
+        const defaultConfigPath = resolveCss("tailwindcss/theme.css", cwd);
+
+        if(!defaultConfigPath){
+          throw new Error("No default tailwind config found. Please ensure you have Tailwind CSS installed.");
+        }
+
         return {
-          path: foundConfigPath,
+          path: defaultConfigPath,
           warnings: [warning]
         };
       }
 
-      const defaultConfigPath = resolveCss("tailwindcss/theme.css", cwd);
+      if(version.major <= 3){
+        const defaultPaths = [
+          "tailwind.config.js",
+          "tailwind.config.cjs",
+          "tailwind.config.mjs",
+          "tailwind.config.ts"
+        ];
 
-      if(!defaultConfigPath){
-        throw new Error("No default tailwind config found. Please ensure you have Tailwind CSS installed.");
+        const foundConfigPath = configPath && findPathRecursive(cwd, cwd, [configPath]);
+
+        const foundDefaultPath = findPathRecursive(cwd, cwd, defaultPaths);
+        const warning = getConfigPathWarning(configPath, foundConfigPath);
+
+        return {
+          path: foundConfigPath ?? foundDefaultPath ?? "default",
+          warnings: [warning]
+        };
       }
 
-      return {
-        path: defaultConfigPath,
-        warnings: [warning]
-      };
-    }
-
-    if(version.major <= 3){
-      const defaultPaths = [
-        "tailwind.config.js",
-        "tailwind.config.cjs",
-        "tailwind.config.mjs",
-        "tailwind.config.ts"
-      ];
-
-      const foundConfigPath = configPath && findPathRecursive(cwd, cwd, [configPath]);
-
-      const foundDefaultPath = findPathRecursive(cwd, cwd, defaultPaths);
-      const warning = getConfigPathWarning(configPath, foundConfigPath);
-
-      return {
-        path: foundConfigPath ?? foundDefaultPath ?? "default",
-        warnings: [warning]
-      };
-    }
-
-    throw new Error(`Unsupported Tailwind CSS version: ${version.major}. Please use a version between 3 and 4.`);
-  },
-  { tags: [CacheTag.CWD] }
-);
+      throw new Error(`Unsupported Tailwind CSS version: ${version.major}. Please use a version between 3 and 4.`);
+    },
+    { dependencies: [CacheEntry.CWD, CacheEntry.TAILWIND_CONFIG_OPTION, CacheEntry.TAILWIND_VERSION] }
+  );
+}
 
 function getEntryPointWarning(entryPoint: string | undefined, foundEntryPoint: string | undefined): Warning | undefined {
   if(!!entryPoint && !!foundEntryPoint){

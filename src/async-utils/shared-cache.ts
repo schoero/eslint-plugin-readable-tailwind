@@ -9,11 +9,11 @@ export interface CacheOptions {
   maxMetadataCapacity: number;
 }
 
-export interface CacheReadOptions {
-  tags?: readonly string[];
-}
+// the version is the version of the key or path entry at the time the dependent value was created
+export type CacheDependency = { key: string; version: number; } | { path: string; version: number; };
 
-export interface CacheEntryOptions extends CacheReadOptions {
+export interface CacheEntryOptions {
+  dependencies?: readonly CacheDependency[];
   path?: string;
 }
 
@@ -31,10 +31,12 @@ export interface CacheStats {
   writingEntries: number;
 }
 
-const HEADER = 48;
-const MAGIC = 0x53_54_41_43;
+const HEADER = 56;
+const MAGIC = 0x53_54_41_45;
 const LIMIT = 0x7F_FF_FF_F8;
-const RECORD_SIZE = 72;
+const ENTRY_SIZE = 88;
+const DEPENDENCY_SIZE = 24;
+const MAX_DEPENDENCY_DEPTH = 32;
 const INITIAL_BUCKETS = 16;
 const STREAM_CHUNK_SIZE = 64 * 1024;
 
@@ -42,47 +44,57 @@ const HEADER_FIELDS = {
   bucketCount: 20,
   buckets: 16,
   clock: 40,
+  count: 24,
   dataEnd: 32,
   dataFree: 36,
   end: 8,
   entries: 28,
   free: 12,
   magic: 0,
-  names: 24
+  resetRequested: 4,
+  tail: 48
 };
 const ENTRY_FIELDS = {
   capacity: 16,
   createdAt: 40,
+  dependencies: 48,
+  hash: 28,
+  hashNext: 4,
   invalid: 64,
-  key: 4,
+  key: 88,
+  keyLength: 60,
+  kind: 56,
   length: 12,
   next: 0,
-  observed: 32,
   offset: 8,
-  path: 28,
-  pathNext: 56,
-  pathPrevious: 60,
   previous: 52,
   readers: 24,
   state: 20,
-  tags: 48
+  timestamp: 32,
+  validatedAt: 80,
+  version: 72
 };
-const NAME_FIELDS = {
+const DEPENDENCY_FIELDS = {
   hash: 4,
+  key: 24,
+  keyLength: 12,
   kind: 8,
-  length: 12,
   next: 0,
-  target: 16,
-  text: 32,
-  timestamp: 24
+  version: 16
 };
 const WRITING = 1;
 const LIVE = 2;
 const RETIRED = 3;
 const FREE = 4;
 const KEY = 1;
-const TAG = 2;
-const PATH = 3;
+const PATH = 2;
+
+// thrown when a buffer would have to grow beyond its maximum capacity
+export class SharedCacheCapacityError extends RangeError {
+  constructor() {
+    super("SharedCache capacity exhausted");
+  }
+}
 
 function align(value: number): number {
   return Math.ceil(value / 8) * 8;
@@ -93,6 +105,20 @@ function validateCapacity(value: number, name: string): void {
     throw new RangeError(`${name} must be an integer between 0 and ${LIMIT}`);
   }
 }
+
+// fnv-1a over the utf-16le bytes, computed from the char codes without encoding the text first
+function hashText(text: string, kind: number): number {
+  let hash = kind;
+  for(let index = 0; index < text.length; index++){
+    const code = text.charCodeAt(index);
+    hash = Math.imul(hash ^ code & 0xFF, 16_777_619) >>> 0;
+    hash = Math.imul(hash ^ code >>> 8, 16_777_619) >>> 0;
+  }
+  return hash;
+}
+
+// returns the current modification time of a path, used to refresh the paths an entry depends on
+export type ModifiedTime = (path: string) => number;
 
 export class SharedCache {
   readonly metadata: SharedArrayBuffer;
@@ -114,7 +140,7 @@ export class SharedCache {
     if(options.initialMetadataCapacity < HEADER + 8 + INITIAL_BUCKETS * 4 ||
       options.initialMetadataCapacity > options.maxMetadataCapacity ||
       options.initialDataCapacity > options.maxDataCapacity){
-      throw new RangeError("Invalid initial or maximum buffer capacity (metadata requires at least 120 bytes)");
+      throw new RangeError(`Invalid initial or maximum buffer capacity (metadata requires at least ${HEADER + 8 + INITIAL_BUCKETS * 4} bytes)`);
     }
     const metadata = new SharedArrayBuffer(options.initialMetadataCapacity, { maxByteLength: options.maxMetadataCapacity });
     const data = new SharedArrayBuffer(options.initialDataCapacity, { maxByteLength: options.maxDataCapacity });
@@ -138,22 +164,67 @@ export class SharedCache {
     return new SharedCache(metadata, data);
   }
 
-  get(key: string, options: CacheReadOptions = {}): Uint8Array | undefined {
-    const entry = this.current(key);
-    if(entry && !this.stale(entry, options.tags)){
+  // passing `modified` records the current modification times of the paths the entry depends on directly
+  // entries that only depend on it transitively compare the recorded versions and never access the file system
+  get(key: string, modified?: ModifiedTime): Uint8Array | undefined {
+    const entry = this.lookup(key, modified);
+    if(entry && !this.stale(entry)){
+      this.touch(entry);
       return this.payload(entry).slice();
     }
   }
 
-  has(key: string, options: CacheReadOptions = {}): boolean {
-    const entry = this.current(key);
-    return !!entry && !this.stale(entry, options.tags);
+  has(key: string, modified?: ModifiedTime): boolean {
+    const entry = this.lookup(key, modified);
+    if(entry && !this.stale(entry)){
+      this.touch(entry);
+      return true;
+    }
+    return false;
+  }
+
+  // the version of a valid entry changes whenever the entry is written with a different value
+  // entries that depend on it record this version and become stale when it changes
+  version(key: string, modified?: ModifiedTime): number | undefined {
+    const entry = this.lookup(key, modified);
+    if(entry && !this.stale(entry)){
+      this.touch(entry);
+      return this.readFloat64(entry + ENTRY_FIELDS.version);
+    }
+  }
+
+  // the paths the current entry depends on directly, regardless of whether the entry is still valid
+  pathDependencies(key: string): string[] {
+    const entry = this.find(key, KEY);
+    const paths: string[] = [];
+    for(let dependency = entry ? this.readUint32(entry + ENTRY_FIELDS.dependencies) : 0; dependency; dependency = this.readUint32(dependency + DEPENDENCY_FIELDS.next)){
+      if(this.readUint32(dependency + DEPENDENCY_FIELDS.kind) === PATH){
+        paths.push(this.text(dependency + DEPENDENCY_FIELDS.key, this.readUint32(dependency + DEPENDENCY_FIELDS.keyLength)));
+      }
+    }
+    return paths;
   }
 
   set(key: string, data: Uint8Array, options: CacheEntryOptions = {}): void {
-    const entry = this.reserve(key, data.byteLength, options);
+    const previous = this.find(key, KEY);
+    let version: number | undefined;
+    if(previous && this.payloadEquals(previous, data)){
+      // an identical valid entry does not need to be written again
+      if(!this.stale(previous)){
+        this.touch(previous);
+        return;
+      }
+      // the value did not change, so entries that were derived from it stay valid
+      version = this.readFloat64(previous + ENTRY_FIELDS.version);
+    }
+    const entry = this.reserve(key, data.byteLength, options, version);
     try {
       this.payload(entry).set(data);
+      // a dependency may have been evicted to make room for the entry, which is then not worth caching
+      if(this.readUint32(entry + ENTRY_FIELDS.invalid) === 0 && this.stale(entry)){
+        this.retire(entry);
+        return;
+      }
       this.publish(entry);
     } catch (error){
       this.retire(entry);
@@ -201,7 +272,7 @@ export class SharedCache {
   }
 
   createReadStream(key: string): Readable {
-    const entry = this.current(key);
+    const entry = this.find(key, KEY);
     if(!entry || this.stale(entry)){
       throw new Error("Cache entry is missing or stale");
     }
@@ -277,34 +348,13 @@ export class SharedCache {
   }
 
   delete(key: string): boolean {
-    const entry = this.current(key);
+    const entry = this.find(key, KEY);
     if(!entry){
       return false;
     }
-    this.writeUint32(this.readUint32(entry + ENTRY_FIELDS.key) + NAME_FIELDS.target, 0);
+    this.unlinkHash(entry);
     this.retire(entry);
     return true;
-  }
-
-  addTags(key: string, tags: readonly string[]): void {
-    const entry = this.current(key);
-    if(!entry){
-      return;
-    }
-    const associations = this.makeTags(tags);
-    if(associations){
-      let tail = associations;
-      while(this.readUint32(tail)){
-        tail = this.readUint32(tail);
-      }
-      this.writeUint32(tail, this.readUint32(entry + ENTRY_FIELDS.tags));
-      this.writeUint32(entry + ENTRY_FIELDS.tags, associations);
-    }
-  }
-
-  invalidateTag(tag: string): void {
-    const timestamp = this.nextTimestamp();
-    this.metadataView.setFloat64(this.name(tag, TAG, true) + NAME_FIELDS.timestamp, timestamp, true);
   }
 
   clear(): void {
@@ -315,47 +365,59 @@ export class SharedCache {
       if(state === WRITING){
         this.writeUint32(entry + ENTRY_FIELDS.invalid, 1);
       } else if(state === LIVE){
-        this.writeUint32(this.readUint32(entry + ENTRY_FIELDS.key) + NAME_FIELDS.target, 0);
+        this.unlinkHash(entry);
         this.retire(entry);
       }
       entry = next;
     }
   }
 
-  isTagValid(tag: string, key: string): boolean {
-    const entry = this.current(key);
-    if(!entry){
-      return false;
-    }
-    const record = this.name(tag, TAG, false);
-    return !record || this.metadataView.getFloat64(record + NAME_FIELDS.timestamp, true) <=
-      this.metadataView.getFloat64(entry + ENTRY_FIELDS.createdAt, true);
-  }
-
-  recordPathUpdate(path: string, timestamp = Date.now()): void {
+  // records the modification time of a path and returns its version, which only changes when the time changes
+  recordPathUpdate(path: string, timestamp = Date.now()): number {
     if(!Number.isFinite(timestamp)){
       throw new RangeError("Path timestamp must be finite");
     }
-    this.updatePath(this.name(path, PATH, true), timestamp);
+    const entry = this.find(path, PATH);
+    if(!entry){
+      return this.readFloat64(this.createPath(path, timestamp) + ENTRY_FIELDS.version);
+    }
+    if(this.readFloat64(entry + ENTRY_FIELDS.timestamp) !== timestamp){
+      this.updatePath(entry, timestamp);
+    }
+    return this.readFloat64(entry + ENTRY_FIELDS.version);
+  }
+
+  pathVersion(path: string): number | undefined {
+    const entry = this.find(path, PATH);
+    return entry ? this.readFloat64(entry + ENTRY_FIELDS.version) : undefined;
   }
 
   getPathLastModified(path: string): number | undefined {
-    const record = this.name(path, PATH, false);
-    return record ? this.metadataView.getFloat64(record + NAME_FIELDS.timestamp, true) : undefined;
+    const entry = this.find(path, PATH);
+    return entry ? this.readFloat64(entry + ENTRY_FIELDS.timestamp) : undefined;
   }
 
   invalidatePath(path: string): void {
-    const record = this.name(path, PATH, true);
-    const previous = this.metadataView.getFloat64(record + NAME_FIELDS.timestamp, true);
+    const entry = this.find(path, PATH) || this.createPath(path, 0);
+    const previous = this.readFloat64(entry + ENTRY_FIELDS.timestamp);
     let timestamp = Math.max(Date.now(), previous + 1);
     if(timestamp === previous){
       timestamp = previous === 0 ? 1 : -previous;
     }
-    this.updatePath(record, timestamp);
+    this.updatePath(entry, timestamp);
+  }
+
+  // lets an attached thread ask the owner of the buffers to replace them, for example once they are exhausted
+  requestReset(): void {
+    this.writeUint32(HEADER_FIELDS.resetRequested, 1);
+  }
+
+  get resetRequested(): boolean {
+    return this.readUint32(HEADER_FIELDS.resetRequested) === 1;
   }
 
   isStale(key: string): boolean {
-    const entry = this.current(key);
+    const entry = this.find(key, KEY);
     return !!entry && this.stale(entry);
   }
 
@@ -379,17 +441,15 @@ export class SharedCache {
       if(this.readUint32(entry + ENTRY_FIELDS.readers)){
         stats.pinnedEntries++;
       }
-      if(this.readUint32(entry + ENTRY_FIELDS.state) === WRITING){
+      const state = this.readUint32(entry + ENTRY_FIELDS.state);
+      if(state === WRITING){
         stats.writingEntries++;
-      } else if(this.readUint32(entry + ENTRY_FIELDS.state) === LIVE){
+      } else if(state === LIVE && this.readUint32(entry + ENTRY_FIELDS.kind) === KEY){
         if(this.stale(entry)){
           stats.staleEntries++;
         } else {
           stats.entries++;
-          const keyRecord = this.readUint32(entry + ENTRY_FIELDS.key);
-          const keyLength = this.readUint32(keyRecord + NAME_FIELDS.length);
-          const key = Buffer.from(this.metadataBytes.subarray(keyRecord + NAME_FIELDS.text, keyRecord + NAME_FIELDS.text + keyLength)).toString("utf16le");
-          stats.keys.push(key);
+          stats.keys.push(this.text(entry + ENTRY_FIELDS.key, this.readUint32(entry + ENTRY_FIELDS.keyLength)));
         }
       }
     }
@@ -409,24 +469,60 @@ export class SharedCache {
     this.metadataView.setUint32(offset, value, true);
   }
 
+  private readFloat64(offset: number): number {
+    return this.metadataView.getFloat64(offset, true);
+  }
+
+  private writeFloat64(offset: number, value: number): void {
+    this.metadataView.setFloat64(offset, value, true);
+  }
+
   private nextTimestamp(): number {
-    const timestamp = this.metadataView.getFloat64(HEADER_FIELDS.clock, true) + 1;
+    const timestamp = this.readFloat64(HEADER_FIELDS.clock) + 1;
     if(!Number.isSafeInteger(timestamp)){
       throw new RangeError("SharedCache logical clock exhausted");
     }
-    this.metadataView.setFloat64(HEADER_FIELDS.clock, timestamp, true);
+    this.writeFloat64(HEADER_FIELDS.clock, timestamp);
     return timestamp;
   }
 
   private grow(buffer: SharedArrayBuffer, required: number): void {
     if(required > buffer.maxByteLength){
-      throw new RangeError("SharedCache capacity exhausted");
+      throw new SharedCacheCapacityError();
     }
     buffer.grow(Math.min(buffer.maxByteLength, Math.max(required, buffer.byteLength * 2, 8)));
   }
 
   private allocateMetadata(size: number): number {
     const total = align(size + 8);
+    if(HEADER + total > this.metadata.maxByteLength){
+      throw new SharedCacheCapacityError();
+    }
+    for(let reclaimed = false; ; reclaimed = true){
+      const block = this.allocateFreeBlock(total);
+      if(block){
+        return block;
+      }
+      const end = this.readUint32(HEADER_FIELDS.end);
+      if(end + total <= this.metadata.maxByteLength){
+        if(end + total > this.metadata.byteLength){
+          this.grow(this.metadata, end + total);
+        }
+        this.writeUint32(end, total);
+        this.writeUint32(HEADER_FIELDS.end, end + total);
+        this.metadataBytes.fill(0, end + 8, end + total);
+        return end + 8;
+      }
+      // the arena is at its maximum, stale entries go first, then the least recently used ones
+      if(!reclaimed){
+        this.reclaimStale();
+      } else if(!this.evict()){
+        throw new SharedCacheCapacityError();
+      }
+    }
+  }
+
+  private allocateFreeBlock(total: number): number {
     let link = HEADER_FIELDS.free;
     for(let block = this.readUint32(link); block; block = this.readUint32(link)){
       const available = this.readUint32(block);
@@ -446,14 +542,7 @@ export class SharedCache {
       }
       link = block + 4;
     }
-    const block = this.readUint32(HEADER_FIELDS.end);
-    if(block + total > this.metadata.byteLength){
-      this.grow(this.metadata, block + total);
-    }
-    this.writeUint32(block, total);
-    this.writeUint32(HEADER_FIELDS.end, block + total);
-    this.metadataBytes.fill(0, block + 8, block + total);
-    return block + 8;
+    return 0;
   }
 
   private freeMetadata(offset: number): void {
@@ -476,36 +565,121 @@ export class SharedCache {
     }
   }
 
-  private name(text: string, kind: number, create: boolean): number {
-    const encoded = Buffer.from(text, "utf16le");
-    let hash = kind;
-    for(const byte of encoded){
-      hash = Math.imul(hash ^ byte, 16_777_619) >>> 0;
-    }
-    let bucket = this.readUint32(HEADER_FIELDS.buckets) + hash % this.readUint32(HEADER_FIELDS.bucketCount) * 4;
-    for(let record = this.readUint32(bucket); record; record = this.readUint32(record + NAME_FIELDS.next)){
-      if(this.readUint32(record + NAME_FIELDS.hash) === hash && this.readUint32(record + NAME_FIELDS.kind) === kind &&
-        this.readUint32(record + NAME_FIELDS.length) === encoded.length &&
-        encoded.every((byte, index) => byte === this.metadataBytes[record + NAME_FIELDS.text + index])){
-        return record;
+  private bucket(hash: number): number {
+    return this.readUint32(HEADER_FIELDS.buckets) + hash % this.readUint32(HEADER_FIELDS.bucketCount) * 4;
+  }
+
+  private lookup(key: string, modified: ModifiedTime | undefined): number {
+    const entry = this.find(key, KEY);
+    if(entry && modified){
+      // creating path entries may evict, the entry is pinned so that its dependencies stay readable
+      this.writeUint32(entry + ENTRY_FIELDS.readers, this.readUint32(entry + ENTRY_FIELDS.readers) + 1);
+      try {
+        this.refresh(entry, modified);
+      } finally {
+        this.writeUint32(entry + ENTRY_FIELDS.readers, this.readUint32(entry + ENTRY_FIELDS.readers) - 1);
       }
     }
-    if(!create){
-      return 0;
+    return entry;
+  }
+
+  private refresh(entry: number, modified: ModifiedTime): void {
+    for(let dependency = this.readUint32(entry + ENTRY_FIELDS.dependencies); dependency; dependency = this.readUint32(dependency + DEPENDENCY_FIELDS.next)){
+      if(this.readUint32(dependency + DEPENDENCY_FIELDS.kind) !== PATH){
+        continue;
+      }
+      const length = this.readUint32(dependency + DEPENDENCY_FIELDS.keyLength);
+      const path = this.findStored(this.readUint32(dependency + DEPENDENCY_FIELDS.hash), PATH, dependency + DEPENDENCY_FIELDS.key, length);
+      const timestamp = modified(this.text(dependency + DEPENDENCY_FIELDS.key, length));
+      if(!path){
+        this.createPath(this.text(dependency + DEPENDENCY_FIELDS.key, length), timestamp);
+      } else if(this.readFloat64(path + ENTRY_FIELDS.timestamp) !== timestamp){
+        this.updatePath(path, timestamp);
+      }
     }
-    if(this.readUint32(HEADER_FIELDS.names) >= this.readUint32(HEADER_FIELDS.bucketCount) * 2){
+  }
+
+  // the published entry of a key or path, the hash table only contains live entries
+  private find(key: string, kind: number): number {
+    const hash = hashText(key, kind);
+    const length = key.length * 2;
+    for(let entry = this.readUint32(this.bucket(hash)); entry; entry = this.readUint32(entry + ENTRY_FIELDS.hashNext)){
+      if(this.readUint32(entry + ENTRY_FIELDS.hash) === hash && this.readUint32(entry + ENTRY_FIELDS.kind) === kind &&
+        this.readUint32(entry + ENTRY_FIELDS.keyLength) === length && this.matchesText(entry + ENTRY_FIELDS.key, key)){
+        return entry;
+      }
+    }
+    return 0;
+  }
+
+  // the same lookup for a key that is stored in the metadata, without decoding it
+  private findStored(hash: number, kind: number, key: number, length: number, start = this.readUint32(this.bucket(hash))): number {
+    for(let entry = start; entry; entry = this.readUint32(entry + ENTRY_FIELDS.hashNext)){
+      if(this.readUint32(entry + ENTRY_FIELDS.hash) === hash && this.readUint32(entry + ENTRY_FIELDS.kind) === kind &&
+        this.readUint32(entry + ENTRY_FIELDS.keyLength) === length && this.matchesBytes(entry + ENTRY_FIELDS.key, key, length)){
+        return entry;
+      }
+    }
+    return 0;
+  }
+
+  private matchesText(offset: number, text: string): boolean {
+    for(let index = 0; index < text.length; index++){
+      if(this.metadataView.getUint16(offset + index * 2, true) !== text.charCodeAt(index)){
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private matchesBytes(first: number, second: number, length: number): boolean {
+    let index = 0;
+    for(; index + 4 <= length; index += 4){
+      if(this.readUint32(first + index) !== this.readUint32(second + index)){
+        return false;
+      }
+    }
+    for(; index < length; index += 2){
+      if(this.metadataView.getUint16(first + index, true) !== this.metadataView.getUint16(second + index, true)){
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private writeText(offset: number, text: string): void {
+    for(let index = 0; index < text.length; index++){
+      this.metadataView.setUint16(offset + index * 2, text.charCodeAt(index), true);
+    }
+  }
+
+  private text(offset: number, length: number): string {
+    return Buffer.from(this.metadataBytes.subarray(offset, offset + length)).toString("utf16le");
+  }
+
+  private linkHash(entry: number): void {
+    if(this.readUint32(HEADER_FIELDS.count) >= this.readUint32(HEADER_FIELDS.bucketCount) * 2){
       this.rehash();
-      bucket = this.readUint32(HEADER_FIELDS.buckets) + hash % this.readUint32(HEADER_FIELDS.bucketCount) * 4;
     }
-    const record = this.allocateMetadata(NAME_FIELDS.text + encoded.length);
-    this.writeUint32(record + NAME_FIELDS.next, this.readUint32(bucket));
-    this.writeUint32(record + NAME_FIELDS.hash, hash);
-    this.writeUint32(record + NAME_FIELDS.kind, kind);
-    this.writeUint32(record + NAME_FIELDS.length, encoded.length);
-    this.metadataBytes.set(encoded, record + NAME_FIELDS.text);
-    this.writeUint32(bucket, record);
-    this.writeUint32(HEADER_FIELDS.names, this.readUint32(HEADER_FIELDS.names) + 1);
-    return record;
+    const bucket = this.bucket(this.readUint32(entry + ENTRY_FIELDS.hash));
+    this.writeUint32(entry + ENTRY_FIELDS.hashNext, this.readUint32(bucket));
+    this.writeUint32(bucket, entry);
+    this.writeUint32(HEADER_FIELDS.count, this.readUint32(HEADER_FIELDS.count) + 1);
+  }
+
+  private unlinkHash(entry: number): void {
+    // entries that depend on it may become stale, which has to invalidate remembered validations
+    this.nextTimestamp();
+    let link = this.bucket(this.readUint32(entry + ENTRY_FIELDS.hash));
+    for(let current = this.readUint32(link); current; current = this.readUint32(link)){
+      if(current === entry){
+        this.writeUint32(link, this.readUint32(entry + ENTRY_FIELDS.hashNext));
+        this.writeUint32(entry + ENTRY_FIELDS.hashNext, 0);
+        this.writeUint32(HEADER_FIELDS.count, this.readUint32(HEADER_FIELDS.count) - 1);
+        return;
+      }
+      link = current + ENTRY_FIELDS.hashNext;
+    }
   }
 
   private rehash(): void {
@@ -513,13 +687,13 @@ export class SharedCache {
     const count = this.readUint32(HEADER_FIELDS.bucketCount);
     const replacement = this.allocateMetadata(count * 8);
     for(let index = 0; index < count; index++){
-      let record = this.readUint32(old + index * 4);
-      while(record){
-        const next = this.readUint32(record + NAME_FIELDS.next);
-        const bucket = replacement + this.readUint32(record + NAME_FIELDS.hash) % (count * 2) * 4;
-        this.writeUint32(record + NAME_FIELDS.next, this.readUint32(bucket));
-        this.writeUint32(bucket, record);
-        record = next;
+      let entry = this.readUint32(old + index * 4);
+      while(entry){
+        const next = this.readUint32(entry + ENTRY_FIELDS.hashNext);
+        const bucket = replacement + this.readUint32(entry + ENTRY_FIELDS.hash) % (count * 2) * 4;
+        this.writeUint32(entry + ENTRY_FIELDS.hashNext, this.readUint32(bucket));
+        this.writeUint32(bucket, entry);
+        entry = next;
       }
     }
     this.writeUint32(HEADER_FIELDS.buckets, replacement);
@@ -527,89 +701,123 @@ export class SharedCache {
     this.freeMetadata(old);
   }
 
-  private current(key: string): number {
-    const record = this.name(key, KEY, false);
-    return record ? this.readUint32(record + NAME_FIELDS.target) : 0;
+  // entry records contain their key, so they can be found and freed without any other record
+  private allocateEntry(key: string, kind: number): number {
+    const entry = this.allocateMetadata(ENTRY_SIZE + key.length * 2);
+    this.writeUint32(entry + ENTRY_FIELDS.hash, hashText(key, kind));
+    this.writeUint32(entry + ENTRY_FIELDS.kind, kind);
+    this.writeUint32(entry + ENTRY_FIELDS.keyLength, key.length * 2);
+    this.writeText(entry + ENTRY_FIELDS.key, key);
+    return entry;
   }
 
-  private makeTags(tags: readonly string[]): number {
+  // paths are entries without payload, their version changes whenever their timestamp changes
+  private createPath(path: string, timestamp: number): number {
+    const version = this.nextTimestamp();
+    const entry = this.allocateEntry(path, PATH);
+    this.writeUint32(entry + ENTRY_FIELDS.state, LIVE);
+    this.writeFloat64(entry + ENTRY_FIELDS.createdAt, version);
+    this.writeFloat64(entry + ENTRY_FIELDS.version, version);
+    this.writeFloat64(entry + ENTRY_FIELDS.timestamp, timestamp);
+    try {
+      this.linkHash(entry);
+    } catch (error){
+      this.freeMetadata(entry);
+      throw error;
+    }
+    this.linkEntry(entry);
+    return entry;
+  }
+
+  private updatePath(entry: number, timestamp: number): void {
+    this.writeFloat64(entry + ENTRY_FIELDS.timestamp, timestamp);
+    this.writeFloat64(entry + ENTRY_FIELDS.version, this.nextTimestamp());
+  }
+
+  private makeDependencies(dependencies: readonly CacheDependency[]): number {
     let head = 0;
     try {
-      for(const tag of new Set(tags)){
-        const record = this.name(tag, TAG, true);
-        const association = this.allocateMetadata(8);
-        this.writeUint32(association, head);
-        this.writeUint32(association + 4, record);
-        head = association;
+      for(const dependency of dependencies){
+        const [key, kind] = "key" in dependency ? [dependency.key, KEY] : [dependency.path, PATH];
+        const node = this.allocateMetadata(DEPENDENCY_SIZE + key.length * 2);
+        this.writeUint32(node + DEPENDENCY_FIELDS.next, head);
+        this.writeUint32(node + DEPENDENCY_FIELDS.hash, hashText(key, kind));
+        this.writeUint32(node + DEPENDENCY_FIELDS.kind, kind);
+        this.writeUint32(node + DEPENDENCY_FIELDS.keyLength, key.length * 2);
+        this.writeFloat64(node + DEPENDENCY_FIELDS.version, dependency.version);
+        this.writeText(node + DEPENDENCY_FIELDS.key, key);
+        head = node;
       }
       return head;
     } catch (error){
-      this.freeTags(head);
+      this.freeDependencies(head);
       throw error;
     }
   }
 
-  private freeTags(head: number): void {
+  private freeDependencies(head: number): void {
     while(head){
-      const next = this.readUint32(head);
+      const next = this.readUint32(head + DEPENDENCY_FIELDS.next);
       this.freeMetadata(head);
       head = next;
     }
   }
 
-  private stale(entry: number, tags: readonly string[] = []): boolean {
+  // dependencies store their key and are looked up again, so they never point to freed records
+  private stale(entry: number, depth = 0): boolean {
     if(this.readUint32(entry + ENTRY_FIELDS.invalid)){
       return true;
     }
-    const path = this.readUint32(entry + ENTRY_FIELDS.path);
-    if(path && this.metadataView.getFloat64(path + NAME_FIELDS.timestamp, true) !== this.metadataView.getFloat64(entry + ENTRY_FIELDS.observed, true)){
-      return true;
+    // the clock advances with every change that can make an entry stale, so a validation stays valid until then
+    const clock = this.readFloat64(HEADER_FIELDS.clock);
+    if(this.readFloat64(entry + ENTRY_FIELDS.validatedAt) === clock){
+      return false;
     }
-    const createdAt = this.metadataView.getFloat64(entry + ENTRY_FIELDS.createdAt, true);
-    for(let tag = this.readUint32(entry + ENTRY_FIELDS.tags); tag; tag = this.readUint32(tag)){
-      const record = this.readUint32(tag + 4);
-      if(this.metadataView.getFloat64(record + NAME_FIELDS.timestamp, true) > createdAt){
+    for(let dependency = this.readUint32(entry + ENTRY_FIELDS.dependencies); dependency; dependency = this.readUint32(dependency + DEPENDENCY_FIELDS.next)){
+      const kind = this.readUint32(dependency + DEPENDENCY_FIELDS.kind);
+      const target = this.findStored(
+        this.readUint32(dependency + DEPENDENCY_FIELDS.hash),
+        kind,
+        dependency + DEPENDENCY_FIELDS.key,
+        this.readUint32(dependency + DEPENDENCY_FIELDS.keyLength)
+      );
+      if(!target || this.readFloat64(target + ENTRY_FIELDS.version) !== this.readFloat64(dependency + DEPENDENCY_FIELDS.version)){
+        return true;
+      }
+      // entries are only as valid as the entries they are derived from
+      if(kind === KEY && (depth >= MAX_DEPENDENCY_DEPTH || this.stale(target, depth + 1))){
         return true;
       }
     }
-    return tags.some(tag => {
-      const record = this.name(tag, TAG, false);
-      return !!record && this.metadataView.getFloat64(record + NAME_FIELDS.timestamp, true) > createdAt;
-    });
+    this.writeFloat64(entry + ENTRY_FIELDS.validatedAt, clock);
+    return false;
   }
 
-  private updatePath(path: number, timestamp: number): void {
-    if(this.metadataView.getFloat64(path + NAME_FIELDS.timestamp, true) !== timestamp){
-      this.metadataView.setFloat64(path + NAME_FIELDS.timestamp, timestamp, true);
-      for(let entry = this.readUint32(path + NAME_FIELDS.target); entry; entry = this.readUint32(entry + ENTRY_FIELDS.pathNext)){
-        this.writeUint32(entry + ENTRY_FIELDS.invalid, 1);
-      }
-    }
-  }
-
-  private reserve(key: string, length: number, options: CacheEntryOptions): number {
+  private reserve(key: string, length: number, options: CacheEntryOptions, version?: number): number {
     validateCapacity(length, "Payload length");
     const createdAt = this.nextTimestamp();
-    const keyRecord = this.name(key, KEY, true);
-    const path = options.path === undefined ? 0 : this.name(options.path, PATH, true);
-    const tags = this.makeTags(options.tags ?? []);
+    let dependencies = options.dependencies ?? [];
+    if(options.path !== undefined){
+      // the entry becomes stale as soon as the timestamp of its path changes
+      const path = this.find(options.path, PATH) || this.createPath(options.path, 0);
+      dependencies = [...dependencies, { path: options.path, version: this.readFloat64(path + ENTRY_FIELDS.version) }];
+    }
+    const head = this.makeDependencies(dependencies);
     let entry = 0;
     try {
-      entry = this.allocateMetadata(RECORD_SIZE);
+      entry = this.allocateEntry(key, KEY);
       const offset = this.allocateData(length);
-      this.writeUint32(entry + ENTRY_FIELDS.key, keyRecord);
       this.writeUint32(entry + ENTRY_FIELDS.offset, offset);
       this.writeUint32(entry + ENTRY_FIELDS.length, length);
       this.writeUint32(entry + ENTRY_FIELDS.capacity, length);
       this.writeUint32(entry + ENTRY_FIELDS.state, WRITING);
-      this.writeUint32(entry + ENTRY_FIELDS.path, path);
-      this.writeUint32(entry + ENTRY_FIELDS.tags, tags);
-      this.metadataView.setFloat64(entry + ENTRY_FIELDS.createdAt, createdAt, true);
-      this.metadataView.setFloat64(entry + ENTRY_FIELDS.observed, path ? this.metadataView.getFloat64(path + NAME_FIELDS.timestamp, true) : 0, true);
+      this.writeUint32(entry + ENTRY_FIELDS.dependencies, head);
+      this.writeFloat64(entry + ENTRY_FIELDS.createdAt, createdAt);
+      this.writeFloat64(entry + ENTRY_FIELDS.version, version ?? createdAt);
       this.linkEntry(entry);
       return entry;
     } catch (error){
-      this.freeTags(tags);
+      this.freeDependencies(head);
       if(entry){
         this.freeMetadata(entry);
       }
@@ -621,23 +829,44 @@ export class SharedCache {
     if(!length){
       return 0;
     }
-    let offset = this.allocateFreeExtent(length);
-    if(offset !== undefined){
-      return offset;
+    if(length > this.data.maxByteLength){
+      throw new SharedCacheCapacityError();
     }
-    if(this.readUint32(HEADER_FIELDS.dataEnd) + length > this.data.byteLength){
-      this.reclaimStale();
-      offset = this.allocateFreeExtent(length);
-      if(offset !== undefined){
+    for(let reclaimed = false; ; reclaimed = true){
+      const extent = this.allocateFreeExtent(length);
+      if(extent !== undefined){
+        return extent;
+      }
+      const offset = this.readUint32(HEADER_FIELDS.dataEnd);
+      // stale entries are reclaimed before growing, the least recently used ones are only evicted at the maximum
+      if(offset + length > this.data.byteLength && !reclaimed){
+        this.reclaimStale();
+        continue;
+      }
+      if(offset + length <= this.data.maxByteLength){
+        if(offset + length > this.data.byteLength){
+          this.grow(this.data, offset + length);
+        }
+        this.writeUint32(HEADER_FIELDS.dataEnd, offset + length);
         return offset;
       }
+      if(!this.evict()){
+        throw new SharedCacheCapacityError();
+      }
     }
-    offset = this.readUint32(HEADER_FIELDS.dataEnd);
-    if(offset + length > this.data.byteLength){
-      this.grow(this.data, offset + length);
+  }
+
+  // evicts the least recently used entry that is not being written, read, or a path
+  private evict(): boolean {
+    for(let entry = this.readUint32(HEADER_FIELDS.tail); entry; entry = this.readUint32(entry + ENTRY_FIELDS.previous)){
+      if(this.readUint32(entry + ENTRY_FIELDS.state) === LIVE && this.readUint32(entry + ENTRY_FIELDS.kind) === KEY &&
+        !this.readUint32(entry + ENTRY_FIELDS.readers)){
+        this.unlinkHash(entry);
+        this.retire(entry);
+        return true;
+      }
     }
-    this.writeUint32(HEADER_FIELDS.dataEnd, offset + length);
-    return offset;
+    return false;
   }
 
   private allocateFreeExtent(length: number): number | undefined {
@@ -665,10 +894,7 @@ export class SharedCache {
     while(entry){
       const next = this.readUint32(entry + ENTRY_FIELDS.next);
       if(this.readUint32(entry + ENTRY_FIELDS.state) === LIVE && this.stale(entry)){
-        const key = this.readUint32(entry + ENTRY_FIELDS.key);
-        if(this.readUint32(key + NAME_FIELDS.target) === entry){
-          this.writeUint32(key + NAME_FIELDS.target, 0);
-        }
+        this.unlinkHash(entry);
         this.retire(entry);
       }
       entry = next;
@@ -685,6 +911,11 @@ export class SharedCache {
     return new Uint8Array(this.data, offset, length);
   }
 
+  private payloadEquals(entry: number, data: Uint8Array): boolean {
+    const payload = this.payload(entry);
+    return payload.length === data.length && Buffer.from(payload.buffer, payload.byteOffset, payload.length).equals(data);
+  }
+
   private publish(entry: number): void {
     if(this.readUint32(entry + ENTRY_FIELDS.state) !== WRITING){
       throw new Error("Entry is not writable");
@@ -692,11 +923,18 @@ export class SharedCache {
     if(this.stale(entry)){
       throw new Error("Cannot publish a stale cache entry");
     }
-    const key = this.readUint32(entry + ENTRY_FIELDS.key);
-    const previous = this.readUint32(key + NAME_FIELDS.target);
+    // linking may grow the hash table, evict, or fail, so the previous entry is only looked up afterwards
+    this.linkHash(entry);
     this.writeUint32(entry + ENTRY_FIELDS.state, LIVE);
-    this.writeUint32(key + NAME_FIELDS.target, entry);
+    const previous = this.findStored(
+      this.readUint32(entry + ENTRY_FIELDS.hash),
+      KEY,
+      entry + ENTRY_FIELDS.key,
+      this.readUint32(entry + ENTRY_FIELDS.keyLength),
+      this.readUint32(entry + ENTRY_FIELDS.hashNext)
+    );
     if(previous){
+      this.unlinkHash(previous);
       this.retire(previous);
     }
   }
@@ -710,7 +948,8 @@ export class SharedCache {
 
   private release(entry: number): void {
     this.unlinkEntry(entry);
-    this.freeTags(this.readUint32(entry + ENTRY_FIELDS.tags));
+    this.freeDependencies(this.readUint32(entry + ENTRY_FIELDS.dependencies));
+    this.writeUint32(entry + ENTRY_FIELDS.dependencies, 0);
     this.writeUint32(entry + ENTRY_FIELDS.state, FREE);
     if(this.readUint32(entry + ENTRY_FIELDS.capacity)){
       this.freeDataExtent(entry);
@@ -719,40 +958,26 @@ export class SharedCache {
     }
   }
 
+  // the active entry list is ordered from the most to the least recently used entry
   private linkEntry(entry: number): void {
     const head = this.readUint32(HEADER_FIELDS.entries);
+    this.writeUint32(entry + ENTRY_FIELDS.previous, 0);
     this.writeUint32(entry + ENTRY_FIELDS.next, head);
-    if(head){
-      this.writeUint32(head + ENTRY_FIELDS.previous, entry);
-    }
+    this.writeUint32(head ? head + ENTRY_FIELDS.previous : HEADER_FIELDS.tail, entry);
     this.writeUint32(HEADER_FIELDS.entries, entry);
-
-    const path = this.readUint32(entry + ENTRY_FIELDS.path);
-    if(path){
-      const pathHead = this.readUint32(path + NAME_FIELDS.target);
-      this.writeUint32(entry + ENTRY_FIELDS.pathNext, pathHead);
-      if(pathHead){
-        this.writeUint32(pathHead + ENTRY_FIELDS.pathPrevious, entry);
-      }
-      this.writeUint32(path + NAME_FIELDS.target, entry);
-    }
   }
 
   private unlinkEntry(entry: number): void {
     const previousEntry = this.readUint32(entry + ENTRY_FIELDS.previous);
     const nextEntry = this.readUint32(entry + ENTRY_FIELDS.next);
     this.writeUint32(previousEntry ? previousEntry + ENTRY_FIELDS.next : HEADER_FIELDS.entries, nextEntry);
-    if(nextEntry){
-      this.writeUint32(nextEntry + ENTRY_FIELDS.previous, previousEntry);
-    }
-    const path = this.readUint32(entry + ENTRY_FIELDS.path);
-    if(path){
-      const previous = this.readUint32(entry + ENTRY_FIELDS.pathPrevious);
-      const next = this.readUint32(entry + ENTRY_FIELDS.pathNext);
-      this.writeUint32(previous ? previous + ENTRY_FIELDS.pathNext : path + NAME_FIELDS.target, next);
-      if(next){
-        this.writeUint32(next + ENTRY_FIELDS.pathPrevious, previous);
-      }
+    this.writeUint32(nextEntry ? nextEntry + ENTRY_FIELDS.previous : HEADER_FIELDS.tail, previousEntry);
+  }
+
+  private touch(entry: number): void {
+    if(this.readUint32(HEADER_FIELDS.entries) !== entry){
+      this.unlinkEntry(entry);
+      this.linkEntry(entry);
     }
   }
 

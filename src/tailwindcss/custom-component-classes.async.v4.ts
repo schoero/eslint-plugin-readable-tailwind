@@ -4,8 +4,6 @@ import { dirname } from "node:path";
 import { fork } from "@eslint/css-tree";
 import { tailwind4 } from "tailwind-csstree";
 
-import { CachedStore } from "../async-utils/cached-store.js";
-import { flattenCssImportTree, getCssImportTree } from "../async-utils/css-import-tree.js";
 import { resolveCss } from "../async-utils/resolvers.js";
 
 import type { CssNode } from "@eslint/css-tree";
@@ -37,43 +35,27 @@ export function getCustomComponentClasses(ctx: AsyncContext): CustomComponentCla
     return [];
   }
 
-  const importTree = getCssImportTree(ctx, resolvedPath, parseCssFile);
-  const cssFiles = [resolvedPath, ...flattenCssImportTree(importTree)];
+  // the host caches the result, the tailwind context tracks the same files
+  const files = parseCssFilesDeep(ctx, resolvedPath);
 
-  return CachedStore.getOrCreate(
-    ["custom-component-classes", resolvedPath],
-    () => {
-      const files = parseCssFilesDeep(ctx, importTree);
-      const entryFile = parseCssFile(ctx, resolvedPath);
-
-      if(entryFile){
-        files[resolvedPath] = entryFile;
-      }
-
-      return getCustomComponentUtilities(files, resolvedPath);
-    },
-    { paths: cssFiles }
-  );
+  return getCustomComponentUtilities(files, resolvedPath);
 }
 
-function parseCssFilesDeep(ctx: AsyncContext, importTree: import("../async-utils/css-import-tree.js").CssImportTree): CssFiles {
-  const cssFiles: CssFiles = {};
+function parseCssFilesDeep(ctx: AsyncContext, resolvedPath: string, cssFiles: CssFiles = {}): CssFiles {
+  if(resolvedPath in cssFiles){
+    return cssFiles;
+  }
 
-  for(const path in importTree){
-    const cssFile = parseCssFile(ctx, path);
+  const cssFile = parseCssFile(ctx, resolvedPath);
 
-    if(cssFile){
-      cssFiles[path] = cssFile;
-    }
+  if(!cssFile){
+    return cssFiles;
+  }
 
-    const subtree = importTree[path];
-    if(subtree){
-      const importedFiles = parseCssFilesDeep(ctx, subtree);
+  cssFiles[resolvedPath] = cssFile;
 
-      for(const importedFile in importedFiles){
-        cssFiles[importedFile] = importedFiles[importedFile];
-      }
-    }
+  for(const { path } of cssFile.imports){
+    parseCssFilesDeep(ctx, path, cssFiles);
   }
 
   return cssFiles;

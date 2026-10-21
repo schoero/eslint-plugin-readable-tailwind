@@ -29,6 +29,8 @@ const handlers: OperationHandlers = {
     return getConflictingClasses(tailwindContext, classes);
   },
   getCustomComponentClasses: async ctx => {
+    // the host caches the result with a dependency on the tailwind context, which therefore has to exist
+    await createTailwindContext(ctx);
     return getCustomComponentClasses(ctx);
   },
   getDissectedClasses: async (ctx, classes) => {

@@ -6,7 +6,7 @@ import { Worker } from "node:worker_threads";
 import { ModuleKind, ScriptTarget, transpileModule } from "typescript";
 import { describe, expect, it, vi } from "vitest";
 
-import { SharedCache } from "../../src/async-utils/shared-cache.js";
+import { SharedCache, SharedCacheCapacityError } from "../../src/async-utils/shared-cache.js";
 import { TestDirectory } from "../utils/tmp.js";
 
 
@@ -18,36 +18,38 @@ const create = (data = 32, maximum = 4096): SharedCache => SharedCache.create({
   maxDataCapacity: maximum,
   maxMetadataCapacity: 1 << 20
 });
+const dependency = (cache: SharedCache, key = "dependency") => ({ key, version: cache.version(key)! });
 
 describe("sharedCache core", () => {
-  it("keeps newer tagged entries valid without reviving previous entries", () => {
+  it("keeps entries valid only while their dependencies keep their version", () => {
     const cache = create();
-    cache.set("old", encode("old"), { tags: ["tag"] });
-    cache.invalidateTag("tag");
-    expect(cache.isTagValid("tag", "old")).toBe(false);
+    cache.set("dependency", encode("1"));
+    cache.set("old", encode("old"), { dependencies: [dependency(cache)] });
+    expect(cache.has("old")).toBe(true);
+    cache.set("dependency", encode("2"));
     expect(cache.has("old")).toBe(false);
-    cache.set("new", encode("new"), { tags: ["tag"] });
-    expect(cache.isTagValid("tag", "new")).toBe(true);
-    expect(cache.isTagValid("unknown", "new")).toBe(true);
-    expect(cache.isTagValid("tag", "missing")).toBe(false);
+    cache.set("new", encode("new"), { dependencies: [dependency(cache)] });
     expect(decode(cache.get("new"))).toBe("new");
     expect(cache.has("old")).toBe(false);
+    expect(cache.version("old")).toBeUndefined();
+    expect(cache.version("missing")).toBeUndefined();
   });
 
-  it("orders writes and invalidations in one millisecond across attachments", () => {
+  it("orders writes and dependency changes in one millisecond across attachments", () => {
     const now = vi.spyOn(Date, "now").mockReturnValue(123);
     try {
       const cache = create();
       const attached = SharedCache.attach(cache.metadata, cache.data);
+      cache.set("dependency", encode("initial"));
       for(let index = 0; index < 5; index++){
-        cache.set(`old:${index}`, encode("old"), { tags: ["tag"] });
-        attached.invalidateTag("tag");
-        cache.set(`new:${index}`, encode("new"), { tags: ["tag"] });
+        cache.set(`old:${index}`, encode("old"), { dependencies: [dependency(cache)] });
+        attached.set("dependency", encode(`${index}`));
+        cache.set(`new:${index}`, encode("new"), { dependencies: [dependency(cache)] });
         expect(attached.has(`old:${index}`)).toBe(false);
         expect(attached.has(`new:${index}`)).toBe(true);
       }
       cache.clear();
-      attached.set("fresh", encode("fresh"), { tags: ["tag"] });
+      attached.set("fresh", encode("fresh"));
       expect(cache.has("fresh")).toBe(true);
     } finally {
       now.mockRestore();
@@ -73,30 +75,81 @@ describe("sharedCache core", () => {
     expect(attached.get("replacement")).toEqual(new Uint8Array(16).fill(9));
   });
 
-  it("compares additional and newly associated tags against the original write time", () => {
+  it("validates dependencies transitively and keeps the version of identical values", () => {
     const cache = create();
-    cache.invalidateTag("before");
-    cache.set("entry", encode("value"));
-    expect(cache.has("entry", { tags: ["before", "unknown"] })).toBe(true);
-    cache.addTags("entry", ["before"]);
-    expect(cache.has("entry")).toBe(true);
-    cache.invalidateTag("after");
-    expect(cache.get("entry", { tags: ["after"] })).toBeUndefined();
-    expect(cache.has("entry")).toBe(true);
-    cache.addTags("entry", ["after"]);
-    expect(cache.has("entry")).toBe(false);
-    cache.set("fresh", encode("fresh"));
-    expect(decode(cache.get("fresh", { tags: ["after"] }))).toBe("fresh");
-    expect(cache.has("entry")).toBe(false);
+    cache.set("input", encode("1"));
+    cache.set("derived", encode("same"), { dependencies: [dependency(cache, "input")] });
+    cache.set("result", encode("result"), { dependencies: [dependency(cache, "derived")] });
+    const version = cache.version("derived");
+    cache.set("input", encode("1"));
+    expect(cache.has("result")).toBe(true);
+    cache.set("input", encode("2"));
+    expect(cache.has("derived")).toBe(false);
+    expect(cache.has("result")).toBe(false);
+    cache.set("derived", encode("same"), { dependencies: [dependency(cache, "input")] });
+    expect(cache.version("derived")).toBe(version);
+    expect(cache.has("result")).toBe(true);
+    cache.set("derived", encode("different"), { dependencies: [dependency(cache, "input")] });
+    expect(cache.version("derived")).not.toBe(version);
+    expect(cache.has("result")).toBe(false);
   });
 
-  it("rejects clock exhaustion instead of losing invalidation ordering", () => {
+  it("compares path dependencies against the version of the recorded timestamp", () => {
     const cache = create();
-    cache.set("entry", encode("value"), { tags: ["tag"] });
+    const version = cache.recordPathUpdate("/file", 1);
+    expect(cache.recordPathUpdate("/file", 1)).toBe(version);
+    expect(cache.pathVersion("/file")).toBe(version);
+    expect(cache.pathVersion("/missing")).toBeUndefined();
+    cache.set("entry", encode("value"), { dependencies: [{ path: "/file", version }, { path: "/other", version: cache.recordPathUpdate("/other", -1) }] });
+    expect(cache.has("entry")).toBe(true);
+    expect(cache.pathDependencies("entry").sort()).toEqual(["/file", "/other"]);
+    expect(cache.pathDependencies("missing")).toEqual([]);
+    expect(cache.getStats().entries).toBe(1);
+    expect(cache.recordPathUpdate("/file", 2)).not.toBe(version);
+    expect(cache.has("entry")).toBe(false);
+    cache.recordPathUpdate("/file", 1);
+    expect(cache.has("entry")).toBe(false);
+    expect(cache.pathDependencies("entry").sort()).toEqual(["/file", "/other"]);
+    cache.set("missing", encode("value"), { dependencies: [{ path: "/unknown", version: 1 }] });
+    expect(cache.has("missing")).toBe(false);
+  });
+
+  it("frees all metadata of deleted entries and cleared paths for reuse", () => {
+    const cache = SharedCache.create({ initialDataCapacity: 32, initialMetadataCapacity: 4096, maxDataCapacity: 32, maxMetadataCapacity: 4096 });
+    for(let index = 0; index < 1000; index++){
+      const path = `/files/${index}`;
+      cache.set(`key:${index}`, encode("value"), { dependencies: [{ path, version: cache.recordPathUpdate(path, index) }] });
+      expect(cache.has(`key:${index}`)).toBe(true);
+      cache.delete(`key:${index}`);
+      if(index % 10 === 0){
+        cache.clear();
+      }
+    }
+    expect(cache.getStats().metadataCapacity).toBe(4096);
+    cache.clear();
+    expect(cache.getPathLastModified("/files/999")).toBeUndefined();
+  });
+
+  it("rejects clock exhaustion instead of losing version ordering", () => {
+    const cache = create();
+    cache.set("entry", encode("value"));
     new DataView(cache.metadata).setFloat64(40, Number.MAX_SAFE_INTEGER, true);
-    expect(() => cache.invalidateTag("tag")).toThrow(/clock exhausted/);
+    expect(() => cache.set("other", encode("other"))).toThrow(/clock exhausted/);
     expect(() => cache.set("entry", encode("new"))).toThrow(/clock exhausted/);
     expect(decode(cache.get("entry"))).toBe("value");
+  });
+
+  it("shares reset requests across attachments", () => {
+    const cache = create();
+    const attached = SharedCache.attach(cache.metadata, cache.data);
+    expect(cache.resetRequested).toBe(false);
+    attached.requestReset();
+    expect(cache.resetRequested).toBe(true);
+  });
+
+  it("throws a dedicated error when a buffer would exceed its maximum capacity", () => {
+    const cache = create(8, 8);
+    expect(() => cache.set("key", new Uint8Array(16))).toThrow(SharedCacheCapacityError);
   });
 
   it("shares indexed keys across attachments, grows metadata, and returns copies", () => {
@@ -116,14 +169,15 @@ describe("sharedCache core", () => {
     expect(cache.delete("key:0")).toBe(false);
   });
 
-  it("invalidates tags and paths and reclaims stale storage before growth", () => {
+  it("invalidates dependents and paths and reclaims stale storage before growth", () => {
     const cache = create(16, 16);
     cache.recordPathUpdate("/file", 1);
-    cache.set("tagged", new Uint8Array(8), { tags: ["tag", "other"] });
+    cache.set("dependency", new Uint8Array(0));
+    cache.set("dependent", new Uint8Array(8), { dependencies: [dependency(cache)] });
     cache.set("file", new Uint8Array(8), { path: "/file" });
-    cache.invalidateTag("tag");
+    cache.delete("dependency");
     cache.recordPathUpdate("/file", 2);
-    expect(cache.get("tagged")).toBeUndefined();
+    expect(cache.get("dependent")).toBeUndefined();
     expect(cache.has("file")).toBe(false);
     expect(cache.isStale("file")).toBe(true);
     cache.set("replacement", new Uint8Array(16).fill(7));
@@ -138,17 +192,16 @@ describe("sharedCache core", () => {
     cache.set("second", new Uint8Array(8).fill(2));
     cache.set("third", new Uint8Array(8).fill(3));
     cache.delete("first");
-    expect(() => cache.set("fragmented", new Uint8Array(12))).toThrow(/capacity/);
     cache.delete("second");
     cache.set("combined", new Uint8Array(12).fill(4));
     expect(cache.getStats().freeBytes).toBe(4);
     expect(cache.get("third")).toEqual(new Uint8Array(8).fill(3));
   });
 
-  it("preserves valid entries when replacement exceeds capacity", () => {
+  it("preserves valid entries when a payload can never fit", () => {
     const cache = create(8, 8);
     cache.set("key", encode("original"));
-    expect(() => cache.set("key", encode("new"))).toThrow(/capacity/);
+    expect(() => cache.set("key", encode("too large"))).toThrow(/capacity/);
     expect(decode(cache.get("key"))).toBe("original");
     expect(cache.getStats().writingEntries).toBe(0);
   });
@@ -161,7 +214,7 @@ describe("sharedCache core", () => {
     expect(cache.getStats().dataCapacity).toBe(16);
   });
 
-  it("tracks added tags, absent names, exact Unicode keys, and irreversible path changes", () => {
+  it("skips stale dependencies and tracks absent names, exact Unicode keys, and irreversible path changes", () => {
     const cache = create();
     expect(cache.get("missing")).toBeUndefined();
     expect(cache.isStale("missing")).toBe(false);
@@ -170,9 +223,7 @@ describe("sharedCache core", () => {
     cache.set("\uFFFD", encode("replacement"));
     expect(decode(cache.get("\uD800"))).toBe("surrogate");
     expect(decode(cache.get("\uFFFD"))).toBe("replacement");
-    cache.set("key", encode("value"), { path: "/file" });
-    cache.addTags("key", ["added", "added"]);
-    cache.invalidateTag("added");
+    cache.set("key", encode("value"), { dependencies: [{ key: "absent", version: 1 }] });
     expect(cache.has("key")).toBe(false);
     cache.set("path", encode("value"), { path: "/file" });
     cache.recordPathUpdate("/file", 1);
@@ -189,9 +240,91 @@ describe("sharedCache core", () => {
     expect(() => SharedCache.create({ initialDataCapacity: -1, initialMetadataCapacity: 256, maxDataCapacity: 8, maxMetadataCapacity: 256 })).toThrow(RangeError);
     const cache = SharedCache.create({ initialDataCapacity: 32, initialMetadataCapacity: 512, maxDataCapacity: 32, maxMetadataCapacity: 512 });
     cache.set("key", encode("old"));
-    expect(() => cache.set("key", encode("new"), { tags: ["a", "b", "c", "d", "e"] })).toThrow(/capacity/);
+    expect(() => cache.set("key", encode("new"), { dependencies: [{ path: "a".repeat(300), version: 0 }] })).toThrow(/capacity/);
     expect(decode(cache.get("key"))).toBe("old");
     expect(cache.getStats().writingEntries).toBe(0);
+  });
+});
+
+describe("sharedCache eviction", () => {
+  it("evicts the least recently used entries when the data buffer is at its maximum", () => {
+    const cache = create(24, 24);
+    cache.set("first", new Uint8Array(8).fill(1));
+    cache.set("second", new Uint8Array(8).fill(2));
+    cache.set("third", new Uint8Array(8).fill(3));
+    expect(cache.get("first")).toEqual(new Uint8Array(8).fill(1));
+    cache.set("fourth", new Uint8Array(8).fill(4));
+    expect(cache.has("second")).toBe(false);
+    expect(cache.get("first")).toEqual(new Uint8Array(8).fill(1));
+    expect(cache.get("third")).toEqual(new Uint8Array(8).fill(3));
+    expect(cache.get("fourth")).toEqual(new Uint8Array(8).fill(4));
+    cache.set("large", new Uint8Array(16).fill(5));
+    expect(cache.get("large")).toEqual(new Uint8Array(16).fill(5));
+    expect(cache.getStats().dataCapacity).toBe(24);
+  });
+
+  it("treats identical writes and version reads as uses", () => {
+    const cache = create(16, 16);
+    cache.set("first", new Uint8Array(8).fill(1));
+    cache.set("second", new Uint8Array(8).fill(2));
+    cache.set("first", new Uint8Array(8).fill(1));
+    cache.set("third", new Uint8Array(8).fill(3));
+    expect(cache.has("first")).toBe(true);
+    expect(cache.has("second")).toBe(false);
+    cache.version("first");
+    cache.set("fourth", new Uint8Array(8).fill(4));
+    expect(cache.has("first")).toBe(true);
+    expect(cache.has("third")).toBe(false);
+  });
+
+  it("reclaims stale entries before evicting valid ones", () => {
+    const cache = create(16, 16);
+    cache.set("dependency", new Uint8Array(0));
+    cache.set("dependent", new Uint8Array(8), { dependencies: [dependency(cache)] });
+    cache.set("valid", new Uint8Array(8).fill(1));
+    cache.get("dependent");
+    cache.delete("dependency");
+    cache.set("new", new Uint8Array(8).fill(2));
+    expect(cache.get("valid")).toEqual(new Uint8Array(8).fill(1));
+    expect(cache.get("new")).toEqual(new Uint8Array(8).fill(2));
+  });
+
+  it("never evicts pinned entries, entries being written, or paths", async () => {
+    const cache = create(16, 16);
+    const version = cache.recordPathUpdate("/file", 1);
+    cache.set("pinned", new Uint8Array(8).fill(1));
+    const reader = cache.createReadStream("pinned");
+    const writer = cache.createWriteStream("pending", 8);
+    expect(() => cache.set("other", new Uint8Array(8))).toThrow(/capacity/);
+    expect(cache.get("pinned")).toEqual(new Uint8Array(8).fill(1));
+    expect(cache.pathVersion("/file")).toBe(version);
+    reader.destroy();
+    writer.destroy();
+    await Promise.all([finished(reader).catch(() => {}), finished(writer).catch(() => {})]);
+    cache.set("other", new Uint8Array(8).fill(2));
+    expect(cache.get("other")).toEqual(new Uint8Array(8).fill(2));
+  });
+
+  it("makes entries stale whose dependencies were evicted", () => {
+    const cache = create(16, 16);
+    cache.set("dependency", new Uint8Array(8).fill(1));
+    cache.set("dependent", new Uint8Array(0), { dependencies: [dependency(cache)] });
+    cache.get("dependent");
+    cache.set("other", new Uint8Array(8));
+    cache.set("another", new Uint8Array(8));
+    expect(cache.has("dependency")).toBe(false);
+    expect(cache.has("dependent")).toBe(false);
+  });
+
+  it("evicts entries when the metadata buffer is at its maximum", () => {
+    const cache = SharedCache.create({ initialDataCapacity: 32, initialMetadataCapacity: 512, maxDataCapacity: 1 << 20, maxMetadataCapacity: 4096 });
+    for(let index = 0; index < 1000; index++){
+      cache.set(`key:${index}`, encode(`${index}`));
+    }
+    expect(decode(cache.get("key:999"))).toBe("999");
+    expect(cache.has("key:0")).toBe(false);
+    expect(cache.getStats().metadataCapacity).toBe(4096);
+    expect(cache.getStats().entries).toBeLessThan(1000);
   });
 });
 
@@ -206,8 +339,9 @@ it("grows from the reclaimed tail rather than abandoning the final free extent",
 
 it("reuses coalesced metadata across repeated replacements", () => {
   const cache = SharedCache.create({ initialDataCapacity: 32, initialMetadataCapacity: 1024, maxDataCapacity: 32, maxMetadataCapacity: 1024 });
+  const version = cache.recordPathUpdate("/dependency", 0);
   for(let index = 0; index < 1000; index++){
-    cache.set("key", new Uint8Array(8).fill(index % 256), { path: "/file", tags: ["tag"] });
+    cache.set("key", new Uint8Array(8).fill(index % 256), { dependencies: [{ path: "/dependency", version }], path: "/file" });
     expect(cache.get("key")).toEqual(new Uint8Array(8).fill(index % 256));
   }
   expect(cache.getStats().metadataCapacity).toBe(1024);
@@ -239,11 +373,12 @@ describe("sharedCache streams", () => {
     expect(cache.getStats().usedBytes).toBe(32);
   });
 
-  it("keeps a pending writer stale even after a newer tagged write succeeds", async () => {
+  it("keeps a pending writer stale even after a newer dependent write succeeds", async () => {
     const cache = create();
-    const writer = cache.createWriteStream("pending", 3, { tags: ["tag"] });
-    cache.invalidateTag("tag");
-    cache.set("new", encode("new"), { tags: ["tag"] });
+    cache.set("dependency", encode("1"));
+    const writer = cache.createWriteStream("pending", 3, { dependencies: [dependency(cache)] });
+    cache.set("dependency", encode("2"));
+    cache.set("new", encode("new"), { dependencies: [dependency(cache)] });
     const completion = finished(writer);
     writer.end("old");
     await expect(completion).rejects.toThrow(/stale/);
@@ -262,11 +397,12 @@ describe("sharedCache streams", () => {
     writer.end("w");
     await expect(completion).rejects.toThrow(/stale/);
     expect(decode(cache.get("key"))).toBe("old");
-    const tagged = cache.createWriteStream("key", 3, { tags: ["changing"] });
-    cache.invalidateTag("changing");
-    const taggedCompletion = finished(tagged);
-    tagged.end("new");
-    await expect(taggedCompletion).rejects.toThrow(/stale/);
+    cache.set("changing", encode("1"));
+    const dependent = cache.createWriteStream("key", 3, { dependencies: [dependency(cache, "changing")] });
+    cache.set("changing", encode("2"));
+    const dependentCompletion = finished(dependent);
+    dependent.end("new");
+    await expect(dependentCompletion).rejects.toThrow(/stale/);
     expect(decode(cache.get("key"))).toBe("old");
     expect(cache.getStats().writingEntries).toBe(0);
   });
@@ -391,7 +527,8 @@ describe("sharedCache streams", () => {
 describe("sharedCache worker handoff", () => {
   it("supports sequential access from one worker without overlapping allocations", async () => {
     const cache = create(32, 1 << 20);
-    cache.set("tagged", encode("old"), { tags: ["worker-tag"] });
+    cache.set("worker-dependency", encode("1"));
+    cache.set("dependent", encode("old"), { dependencies: [dependency(cache, "worker-dependency")] });
     cache.recordPathUpdate("/worker-path", 1);
     cache.set("path", encode("old"), { path: "/worker-path" });
     const source = readFileSync(new URL("../../src/async-utils/shared-cache.ts", import.meta.url), "utf8");
@@ -408,7 +545,7 @@ describe("sharedCache worker handoff", () => {
             cache.set(key, new Uint8Array(length).fill(1));
           }
         }
-        cache.invalidateTag('worker-tag');
+        cache.set('worker-dependency', new Uint8Array([2]));
         cache.recordPathUpdate('/worker-path', 2);`;
     const worker = new Worker(new URL(`data:text/javascript,${encodeURIComponent(workerSource)}`), {
       execArgv: [],
@@ -422,7 +559,7 @@ describe("sharedCache worker handoff", () => {
       for(let index = 0; index < 150; index++){
         expect(cache.get(`worker:${index}`)).toEqual(new Uint8Array(17 + index % 83).fill(1));
       }
-      expect(cache.has("tagged")).toBe(false);
+      expect(cache.has("dependent")).toBe(false);
       expect(cache.has("path")).toBe(false);
       const metadata = new DataView(cache.metadata);
       const ranges: { end: number; start: number; }[] = [];

@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { CachedStore } from "better-tailwindcss:utils/cached-store.js";
+import { CachedStore, CacheEntry } from "better-tailwindcss:utils/cached-store.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
@@ -25,7 +25,11 @@ export function createGetVariantOrder(ctx: Context): GetVariantOrder {
   const runWorker = createSyncFn(workerPath, workerOptions);
 
   getVariantOrder = (ctx, classes) => ({
-    variantOrder: runWorker("getVariantOrder", CachedStore.getSharedState(), ctx, classes),
+    variantOrder: CachedStore.getOrCreate(
+      ["variant-order", ...classes],
+      () => runWorker("getVariantOrder", CachedStore.getSharedState(), ctx, classes),
+      { dependencies: [CacheEntry.TAILWIND_CONTEXT] }
+    ),
     warnings: ctx.warnings
   });
 

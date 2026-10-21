@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import {
   existsSync,
   readFileSync,
@@ -13,7 +12,7 @@ import { dirname, join, relative } from "node:path";
 import enhancedResolve from "enhanced-resolve";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { CachedStore, CacheTag } from "../../src/async-utils/cached-store.js";
+import { CachedStore } from "../../src/async-utils/cached-store.js";
 import { resolveCss } from "../../src/async-utils/resolvers.js";
 import { SharedCache } from "../../src/async-utils/shared-cache.js";
 import { TestDirectory } from "../utils/tmp.js";
@@ -29,10 +28,8 @@ const createCache = (maximum = 1 << 20): SharedCache => SharedCache.create({
 });
 const directories: TestDirectory<{ "file.bin": string; }>[] = [];
 
-function hashKey(key: string): string {
-  return createHash("sha256").update(key)
-    .digest("hex")
-    .slice(0, 32);
+function valueKey(key: string): string {
+  return `value:${JSON.stringify(key)}`;
 }
 
 function createStore(cache = createCache()): typeof CachedStore {
@@ -67,15 +64,12 @@ describe("module-level resolver caching", () => {
     expect(resolveCss(path, directory)).toBe(realpathSync(path));
     expect(resolveCss(path, directory)).toBe(realpathSync(path));
     expect(create).toHaveBeenCalledTimes(1);
-    CachedStore.invalidateTag(CacheTag.TS_CONFIG);
+    CachedStore.delete(["css-resolver"]);
     resolveCss(path, directory);
     expect(create).toHaveBeenCalledTimes(2);
-    CachedStore.invalidateTag(CacheTag.CWD);
-    resolveCss(path, directory);
-    expect(create).toHaveBeenCalledTimes(3);
     CachedStore.clear();
     resolveCss(path, directory);
-    expect(create).toHaveBeenCalledTimes(4);
+    expect(create).toHaveBeenCalledTimes(3);
   });
 
   it("rebuilds local resolvers for changed dependencies and context switches", () => {
@@ -135,36 +129,34 @@ describe("module-level resolver caching", () => {
       throw new Error("construction failed");
     });
     resolveCss(path, dirname(path));
-    expect(CachedStore.isValid("css-resolver", {
-      paths: [process.cwd()],
-      tags: [CacheTag.CWD, CacheTag.TS_CONFIG]
-    })).toBe(false);
+    expect(CachedStore.has(["css-resolver"])).toBe(false);
     expect(resolveCss(path, dirname(path))).toBe(realpathSync(path));
     expect(create).toHaveBeenCalledTimes(2);
   });
 });
 
 describe("cachedStore values", () => {
-  it("checks memoized entry validity without creating or refreshing entries", () => {
+  it("checks entry validity against entry and file dependencies without creating entries", () => {
     const store = createStore();
     const path = fixture();
-    const options = { paths: [path], tags: ["tag"] };
-    expect(store.isValid("local", options)).toBe(false);
-    expect(store.getStats().entries).toBe(0);
+    const options = { dependencies: ["dependency"], paths: [path] };
+    store.upsert("dependency", 1);
+    expect(store.has("local")).toBe(false);
+    expect(store.getStats().entries).toBe(1);
     store.getOrCreate("local", () => true, options);
-    expect(store.isValid("local", options)).toBe(true);
-    store.invalidateTag("tag");
-    expect(store.isValid("local", options)).toBe(false);
+    expect(store.has("local")).toBe(true);
+    store.upsert("dependency", 2);
+    expect(store.has("local")).toBe(false);
     store.getOrCreate("local", () => true, options);
+    expect(store.has("local")).toBe(true);
     changeFile(path, "changed");
-    expect(store.isValid("local", options)).toBe(false);
+    expect(store.has("local")).toBe(false);
     store.getOrCreate("local", () => true, options);
-    expect(store.isValid("local", options)).toBe(true);
-    expect(store.isValid("local", { paths: [], tags: ["tag"] })).toBe(false);
+    expect(store.has("local")).toBe(true);
     unlinkSync(path);
-    expect(store.isValid("local", options)).toBe(false);
+    expect(store.has("local")).toBe(false);
     store.clear();
-    expect(store.isValid("local", options)).toBe(false);
+    expect(store.has("local")).toBe(false);
   });
 
   it("memoizes computed values with compound keys and cached undefined results", () => {
@@ -193,14 +185,15 @@ describe("cachedStore values", () => {
     const first = fixture();
     const second = fixture();
     const compute = vi.fn(() => compute.mock.calls.length);
-    const options = { paths: [first, second], tags: ["tag"] };
+    const options = { dependencies: ["dependency"], paths: [first, second] };
+    store.upsert("dependency", 1);
     store.getOrCreate("key", compute, options);
     store.getOrCreate("key", compute, options);
     expect(compute).toHaveBeenCalledTimes(1);
     changeFile(second, "changed");
     store.getOrCreate("key", compute, options);
     expect(compute).toHaveBeenCalledTimes(2);
-    store.invalidateTag("tag");
+    store.upsert("dependency", 2);
     store.getOrCreate("key", compute, options);
     expect(compute).toHaveBeenCalledTimes(3);
     unlinkSync(first);
@@ -247,41 +240,191 @@ describe("cachedStore values", () => {
     const cache = createCache(32);
     const store = createStore(cache);
     store.upsert("key", "old");
-    cache.invalidateTag("tag");
-    expect(() => store.upsert("key", () => 1, { tags: ["tag"] })).toThrow();
-    expect(cache.isTagValid("tag", `value:${hashKey("key")}`)).toBe(false);
+    expect(() => store.upsert("key", () => 1)).toThrow();
     expect(store.get("key")).toBe("old");
-    expect(() => store.upsert("key", "x".repeat(100))).toThrow(/capacity/);
+    // attached threads skip caching and ask the owner to replace the buffers
+    expect(() => store.upsert("key", "x".repeat(100))).not.toThrow();
+    expect(cache.resetRequested).toBe(true);
     expect(store.get("key")).toBe("old");
   });
 
-  it("refreshes invalidated tags for new values without reviving older dependents", () => {
-    const store = createStore();
-    store.upsert("old", "old", { tags: ["shared", "other"] });
-    for(let index = 0; index < 3; index++){
-      store.invalidateTag("shared");
-      expect(store.get("old")).toBeUndefined();
-      store.upsert("new", index, { tags: ["shared"] });
-      expect(store.get("new")).toBe(index);
-      expect(store.has("old")).toBe(false);
+  it("creates buffers with the configured capacity and only replaces them for a larger one", () => {
+    const original = CachedStore.getSharedState();
+    const capacity = Reflect.get(CachedStore, "capacity");
+    const create = vi.spyOn(SharedCache, "create");
+    const megabytes = (value: number) => value * 1024 * 1024;
+    try {
+      Reflect.set(CachedStore, "_cache", undefined);
+      Reflect.set(CachedStore, "state", undefined);
+      Reflect.set(CachedStore, "capacity", undefined);
+      CachedStore.setCapacity(megabytes(8));
+      const first = CachedStore.getSharedState();
+      expect(create).toHaveBeenLastCalledWith(expect.objectContaining({ maxDataCapacity: megabytes(6), maxMetadataCapacity: megabytes(2) }));
+      CachedStore.setCapacity(megabytes(4));
+      CachedStore.setCapacity(megabytes(8));
+      expect(CachedStore.getSharedState()).toBe(first);
+      CachedStore.setCapacity(megabytes(16));
+      expect(CachedStore.getSharedState()).not.toBe(first);
+      expect(create).toHaveBeenLastCalledWith(expect.objectContaining({ maxDataCapacity: megabytes(12), maxMetadataCapacity: megabytes(4) }));
+      expect(create).toHaveBeenCalledTimes(2);
+    } finally {
+      Reflect.set(CachedStore, "capacity", capacity);
+      CachedStore.attachSharedState(original);
     }
-    store.invalidateTag("other");
-    expect(store.has("new")).toBe(true);
   });
 
-  it("treats read tags as additional guards without changing stored dependencies", () => {
+  it("attaches shared buffers without creating buffers of its own", () => {
+    const original = CachedStore.getSharedState();
+    const cache = createCache();
+    const create = vi.spyOn(SharedCache, "create");
+    try {
+      Reflect.set(CachedStore, "_cache", undefined);
+      CachedStore.attachSharedState({ data: cache.data, metadata: cache.metadata });
+      expect(create).not.toHaveBeenCalled();
+      expect(CachedStore.getSharedState().metadata).toBe(cache.metadata);
+    } finally {
+      CachedStore.attachSharedState(original);
+    }
+  });
+
+  it("evicts least recently used values instead of exhausting the buffers", () => {
+    const cache = createCache(4096);
+    const store = createStore(cache);
+    store.upsert("dependency", "value");
+    for(let index = 0; index < 1000; index++){
+      store.upsert(`key:${index}`, index, { dependencies: ["dependency"] });
+      store.get("dependency");
+    }
+    expect(cache.resetRequested).toBe(false);
+    expect(store.get("key:999")).toBe(999);
+    expect(store.get("key:0")).toBeUndefined();
+    expect(store.get("dependency")).toBe("value");
+    expect(cache.getStats().dataCapacity).toBe(4096);
+  });
+
+  it("replaces exhausted buffers it owns and buffers an attached thread asks to replace", () => {
+    const original = CachedStore.getSharedState();
+    const create = SharedCache.create.bind(SharedCache);
+    vi.spyOn(SharedCache, "create").mockImplementation(options => create({ ...options, initialDataCapacity: 32, maxDataCapacity: 64 }));
+    try {
+      Reflect.set(CachedStore, "_cache", undefined);
+      CachedStore.upsert("key", "value");
+      const exhausted = CachedStore.getSharedState();
+      expect(CachedStore.get("key")).toBe("value");
+      expect(() => CachedStore.upsert("key", "x".repeat(100))).not.toThrow();
+      expect(CachedStore.getSharedState()).not.toBe(exhausted);
+      expect(CachedStore.get("key")).toBeUndefined();
+      CachedStore.upsert("key", "value");
+      const requested = CachedStore.getSharedState();
+      SharedCache.attach(requested.metadata, requested.data).requestReset();
+      expect(CachedStore.get("key")).toBeUndefined();
+      expect(CachedStore.getSharedState()).not.toBe(requested);
+    } finally {
+      CachedStore.attachSharedState(original);
+    }
+  });
+
+  it("invalidates transitive dependents only when a value changes", () => {
     const store = createStore();
+    store.upsert("input", "a");
+    store.upsert("derived", "derived", { dependencies: ["input"] });
+    store.upsert("result", "result", { dependencies: ["derived"] });
+    store.upsert("input", "a");
+    expect(store.has("result")).toBe(true);
+    store.upsert("input", "b");
+    expect(store.has("derived")).toBe(false);
+    expect(store.has("result")).toBe(false);
+    // the same value written again keeps the entries that were derived from it valid
+    store.upsert("derived", "derived", { dependencies: ["input"] });
+    expect(store.has("result")).toBe(true);
+    store.upsert("derived", "changed", { dependencies: ["input"] });
+    expect(store.has("result")).toBe(false);
+    store.delete("derived");
+    expect(store.has("result")).toBe(false);
+  });
+
+  it("does not store values with missing or changing dependencies", () => {
+    const store = createStore();
+    store.upsert("result", "value", { dependencies: ["missing"] });
+    expect(store.has("result")).toBe(false);
+    const compute = vi.fn(() => "value");
+    store.getOrCreate("computed", compute, { dependencies: ["missing"] });
+    store.getOrCreate("computed", compute, { dependencies: ["missing"] });
+    expect(compute).toHaveBeenCalledTimes(2);
+    store.upsert("dependency", 1);
+    store.getOrCreate("changing", () => {
+      store.upsert("dependency", 2);
+      return "value";
+    }, { dependencies: ["dependency"] });
+    expect(store.has("changing")).toBe(false);
+    expect(store.delete("dependency")).toBe(true);
+    expect(store.delete("dependency")).toBe(false);
+  });
+
+  it("creates only missing values of many keys and stores each of them", () => {
+    const store = createStore();
+    store.upsert("dependency", 1);
+    const create = vi.fn((missing: number[]) => missing.map(index => `value:${index}`));
+    const options = { dependencies: ["dependency"] };
+    expect(store.getOrCreateEach(["a", "b", "a"], create, options)).toEqual(["value:0", "value:1", "value:0"]);
+    expect(create).toHaveBeenLastCalledWith([0, 1]);
+    expect(store.getOrCreateEach(["b", "c", "a"], create, options)).toEqual(["value:1", "value:1", "value:0"]);
+    expect(create).toHaveBeenLastCalledWith([1]);
+    expect(store.getOrCreateEach(["a", "b", "c"], create, options)).toEqual(["value:0", "value:1", "value:1"]);
+    expect(create).toHaveBeenCalledTimes(2);
+    store.upsert("dependency", 2);
+    store.getOrCreateEach(["a"], create, options);
+    expect(create).toHaveBeenLastCalledWith([0]);
+    store.getOrCreateEach(["missing"], create, { dependencies: ["absent"] });
+    expect(store.has("missing")).toBe(false);
+  });
+
+  it("hashes long keys and keeps short keys as they are", () => {
+    const cache = createCache();
+    const store = createStore(cache);
+    const classes = Array.from({ length: 100 }, (_, index) => `class-${index}`);
+    store.upsert(["classes", ...classes], "long");
+    store.upsert(["classes", ...classes.slice(0, 2)], "short");
+    expect(store.get(["classes", ...classes])).toBe("long");
+    expect(store.get(["classes", ...classes.slice(0, 2)])).toBe("short");
+    expect(store.get(["classes", ...classes.slice(1)])).toBeUndefined();
+    const keys = cache.getStats().keys;
+    expect(keys).toContain(`value:${JSON.stringify(["classes", "class-0", "class-1"])}`);
+    expect(keys.find(key => key.startsWith("value:#"))).toHaveLength(39);
+  });
+
+  it("does not serialize unchanged primitives again unless the entry changed", () => {
+    const cache = createCache();
+    const store = createStore(cache);
+    store.upsert("input", "value");
+    const set = vi.spyOn(SharedCache.prototype, "set");
+    store.upsert("input", "value");
+    expect(set).not.toHaveBeenCalled();
+    SharedCache.attach(cache.metadata, cache.data).set(valueKey("input"), new Uint8Array([1]));
+    store.upsert("input", "value");
+    expect(set).toHaveBeenCalledTimes(2);
+    expect(store.get("input")).toBe("value");
+    store.clear();
+    store.upsert("input", "value");
+    expect(store.get("input")).toBe("value");
+    store.upsert("input", "changed");
+    expect(store.get("input")).toBe("changed");
+  });
+
+  it("only writes entries when necessary", () => {
+    const cache = createCache();
+    const store = createStore(cache);
+    const set = vi.spyOn(SharedCache.prototype, "set");
+    // the other side of the worker boundary writes the entry while it is being created
+    expect(store.getOrCreate("key", () => {
+      store.upsert("key", "value");
+      return "value";
+    })).toBe("value");
+    expect(set).toHaveBeenCalledTimes(1);
+    const version = cache.version(valueKey("key"));
     store.upsert("key", "value");
-    expect(store.get("key", { tags: ["guard"] })).toBe("value");
-    store.invalidateTag("guard");
-    expect(store.get("key", { tags: ["guard"] })).toBeUndefined();
-    expect(store.has("key", { tags: ["guard"] })).toBe(false);
-    expect(store.get("key")).toBe("value");
-    store.upsert("fresh", "new");
-    expect(store.get("fresh", { tags: ["guard"] })).toBe("new");
-    expect(store.get("key", { tags: ["guard"] })).toBeUndefined();
-    expect(store.delete("key")).toBe(true);
-    expect(store.delete("key")).toBe(false);
+    expect(cache.version(valueKey("key"))).toBe(version);
+    expect(store.getStats().entries).toBe(1);
   });
 });
 
@@ -300,7 +443,7 @@ describe("cachedStore files", () => {
     expect(store.readFile(path)).toBe(expected);
     expect(store.readFile(path)).toBe(expected);
     expect(load).toHaveBeenCalledTimes(1);
-    expect(cache.get(`file:${hashKey(path)}`)).toEqual(new Uint8Array(bytes));
+    expect(cache.get(`file:${path}`)).toEqual(new Uint8Array(bytes));
   });
 
   it("loads on a miss, reuses unchanged files, and normalizes relative paths", () => {
@@ -332,31 +475,18 @@ describe("cachedStore files", () => {
     expect(readFileSync(path, "utf8")).toBe("backdated");
   });
 
-  it("keeps file and value keys separate and supports shared reusable tags", () => {
+  it("keeps file and value keys separate", () => {
     const store = createStore();
     const path = fixture();
-    store.upsert(path, "value", { tags: ["shared"] });
-    expect(store.readFile(path, { tags: ["shared"] })).toBe("first");
-    store.invalidateTag("shared");
+    store.upsert(path, "value");
+    expect(store.readFile(path)).toBe("first");
+    expect(store.get(path)).toBe("value");
+    store.deleteFile(path);
     expect(store.hasFile(path)).toBe(false);
-    expect(store.get(path)).toBeUndefined();
-    expect(store.readFile(path, { tags: ["shared"] })).toBe("first");
-    expect(store.get(path)).toBeUndefined();
-    store.upsert(path, "fresh", { tags: ["shared"] });
-    expect(store.get(path)).toBe("fresh");
-    expect(store.hasFile(path)).toBe(true);
-  });
-
-  it("checks optional file tags without populating on existence checks", () => {
-    const store = createStore();
-    const path = fixture();
-    store.readFile(path);
-    store.invalidateTag("guard");
-    expect(store.hasFile(path, { tags: ["guard"] })).toBe(false);
-    expect(store.hasFile(path)).toBe(true);
-    expect(store.readFile(path, { tags: ["guard"] })).toBe("first");
-    store.invalidateTag("guard");
+    expect(store.get(path)).toBe("value");
+    store.delete(path);
     expect(store.hasFile(path)).toBe(false);
+    expect(store.readFile(path)).toBe("first");
   });
 
   it("never serves deleted files and propagates non-missing filesystem errors", () => {
@@ -394,9 +524,13 @@ describe("cachedStore files", () => {
     expect(store.hasFile(path)).toBe(false);
   });
 
-  it("propagates capacity errors rather than bypassing cache limits", () => {
-    const store = createStore(createCache(2));
-    expect(() => store.readFile(fixture())).toThrow(/capacity/);
+  it("reads files directly when the cache is exhausted", () => {
+    const cache = createCache(2);
+    const store = createStore(cache);
+    const path = fixture();
+    expect(store.readFile(path)).toBe("first");
+    expect(store.hasFile(path)).toBe(false);
+    expect(cache.resetRequested).toBe(true);
   });
 });
 
@@ -415,7 +549,7 @@ it("clears values and files in place across wrapper attachments", () => {
   expect(store.getStats().dataCapacity).toBe(before.dataCapacity);
   expect(store.getStats().metadataCapacity).toBe(before.metadataCapacity);
   store.upsert("key", "new");
-  expect(attached.has(`value:${hashKey("key")}`)).toBe(true);
+  expect(attached.has(valueKey("key"))).toBe(true);
   expect(store.get("key")).toBe("new");
   expect(existsSync(path)).toBe(true);
 });

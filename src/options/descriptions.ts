@@ -3,6 +3,7 @@ import { strictObject } from "valibot";
 import { ATTRIBUTES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/attributes.js";
 import { CALLEES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/callees.js";
 import {
+  CACHE_SIZE_OPTION_SCHEMA,
   CWD_OPTION_SCHEMA,
   DETECT_COMPONENT_CLASSES_OPTION_SCHEMA,
   ENTRYPOINT_OPTION_SCHEMA,
@@ -30,7 +31,8 @@ export const COMMON_OPTIONS = strictObject({
   ...TSCONFIG_OPTION_SCHEMA.entries,
   ...DETECT_COMPONENT_CLASSES_OPTION_SCHEMA.entries,
   ...ROOT_FONT_SIZE_OPTION_SCHEMA.entries,
-  ...CWD_OPTION_SCHEMA.entries
+  ...CWD_OPTION_SCHEMA.entries,
+  ...CACHE_SIZE_OPTION_SCHEMA.entries
 });
 
 export type CommonOptions = InferOutput<typeof COMMON_OPTIONS>;

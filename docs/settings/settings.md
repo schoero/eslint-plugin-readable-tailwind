@@ -8,6 +8,7 @@
 - [cwd](#cwd)
 - [detectComponentClasses](#detectcomponentclasses)
 - [rootFontSize](#rootfontsize)
+- [cacheSize](#cachesize)
 - [messageStyle](#messagestyle)
 - [selectors](#selectors)
 
@@ -115,6 +116,17 @@ If provided, this will be used to determine if arbitrary values can be replaced 
 
 **Type**: `number | undefined`  
 **Default**: `undefined`
+
+<br/>
+
+### `cacheSize`
+
+  The maximum memory in megabytes the plugin may use to cache Tailwind CSS results. The cache is shared with the worker that runs Tailwind CSS and grows as needed up to this size. Beyond that, the least recently used entries are evicted and recomputed when they are needed again.
+
+  The cache is shared by all rules. If different values are configured, the first one applies and later ones only if they are larger. It is therefore best set in the global settings.
+
+  **Type**: `number`  
+  **Default**: `32`
 
 <br/>
 

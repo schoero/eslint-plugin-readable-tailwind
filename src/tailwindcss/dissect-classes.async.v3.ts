@@ -1,4 +1,4 @@
-import { CachedStore, CacheTag } from "../async-utils/cached-store.js";
+import { CachedStore, CacheEntry } from "../async-utils/cached-store.js";
 import { escapeForRegex } from "../async-utils/escape.js";
 import { getCachedRegex } from "../async-utils/regex.js";
 import { segment } from "../async-utils/segment.js";
@@ -45,5 +45,5 @@ export const getDissectedClasses = async (ctx: AsyncContext, tailwindContext: an
       return acc;
     }, {});
   },
-  { tags: [CacheTag.CONTEXT] }
+  { dependencies: [CacheEntry.TAILWIND_CONTEXT] }
 );

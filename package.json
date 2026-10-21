@@ -55,7 +55,6 @@
     "test": "vitest -c ./vite.config.ts --exclude tests/bench --exclude tests/e2e --typecheck",
     "test:all": "npm run test:v3 && npm run test:v4",
     "test:e2e": "vitest -c ./vite.config.ts tests/e2e --run",
-    "test:shared-cache": "vitest -c ./vite.config.shared-cache.ts --run",
     "test:v3": "npm run test -- --run",
     "test:v4": "npm run test -- --run",
     "typecheck": "tsc --noEmit",

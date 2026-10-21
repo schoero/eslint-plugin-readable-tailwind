@@ -5,7 +5,7 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { CachedStore } from "better-tailwindcss:utils/cached-store.js";
+import { CachedStore, CacheEntry } from "better-tailwindcss:utils/cached-store.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
@@ -28,7 +28,12 @@ export function createGetCustomComponentClasses(ctx: Context): GetCustomComponen
   const runWorker = createSyncFn(workerPath, workerOptions);
 
   getCustomComponentClasses = ctx => ({
-    customComponentClasses: runWorker("getCustomComponentClasses", CachedStore.getSharedState(), ctx),
+    // derived from the same css files as the tailwind context, which tracks all of them
+    customComponentClasses: CachedStore.getOrCreate(
+      "custom-component-classes",
+      () => runWorker("getCustomComponentClasses", CachedStore.getSharedState(), ctx),
+      { dependencies: [CacheEntry.TAILWIND_CONTEXT] }
+    ),
     warnings: ctx.warnings
   });
 

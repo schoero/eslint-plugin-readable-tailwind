@@ -4,7 +4,7 @@ import { pathToFileURL } from "node:url";
 
 import { createJiti } from "jiti";
 
-import { CachedStore, CacheTag } from "../async-utils/cached-store.js";
+import { CachedStore, CacheEntry } from "../async-utils/cached-store.js";
 import { flattenCssImportTree, getCssImportTree, parseCssFileWithTree } from "../async-utils/css-import-tree.js";
 import { normalize } from "../async-utils/path.js";
 import { resolveCss, resolveJs } from "../async-utils/resolvers.js";
@@ -15,29 +15,32 @@ import type { AsyncContext } from "../utils/context.js";
 let tailwindContext: Awaited<ReturnType<typeof buildTailwindContext>>;
 
 export async function createTailwindContext(ctx: AsyncContext) {
-  const css = CachedStore.readFile(ctx.tailwindConfigPath);
-
-  const dependencies = await CachedStore.getOrCreate(["tailwind-context-dependencies", ctx.tailwindConfigPath], async () => {
-    const imports = getCssImportTree(ctx, ctx.tailwindConfigPath, parseCssFileWithTree);
-    return flattenCssImportTree(imports);
-  }, { paths: [ctx.tailwindConfigPath] });
-
-  const options = {
-    paths: [ctx.cwd, ctx.installation, ctx.tailwindConfigPath, ...dependencies, ...ctx.tsconfigPath ? [ctx.tsconfigPath] : []],
-    tags: [CacheTag.CWD, CacheTag.TS_CONFIG]
-  };
-
-  if(tailwindContext !== undefined && CachedStore.isValid("tailwind-context-v4", options)){
+  if(tailwindContext !== undefined && CachedStore.has(CacheEntry.TAILWIND_CONTEXT)){
     return tailwindContext;
   }
-  const context = await buildTailwindContext(ctx, css);
-  CachedStore.getOrCreate("tailwind-context-v4", () => true, options);
-  tailwindContext = context;
-  return context;
+
+  // a new entry makes everything derived from the previous context stale
+  CachedStore.delete(CacheEntry.TAILWIND_CONTEXT);
+
+  const imports = flattenCssImportTree(getCssImportTree(ctx, ctx.tailwindConfigPath, parseCssFileWithTree));
+
+  await CachedStore.getOrCreate(
+    CacheEntry.TAILWIND_CONTEXT,
+    async () => {
+      tailwindContext = await buildTailwindContext(ctx);
+      return true;
+    },
+    {
+      dependencies: [CacheEntry.TAILWIND_CONFIG_PATH, CacheEntry.TSCONFIG_PATH, CacheEntry.TAILWIND_VERSION],
+      paths: [ctx.tailwindConfigPath, ...imports, ...ctx.tsconfigPath ? [ctx.tsconfigPath] : []]
+    }
+  );
+
+  return tailwindContext;
 }
 
-async function buildTailwindContext(ctx: AsyncContext, css: string) {
-  CachedStore.invalidateTag(CacheTag.CONTEXT);
+async function buildTailwindContext(ctx: AsyncContext) {
+  const css = CachedStore.readFile(ctx.tailwindConfigPath);
 
   const jiti = createJiti(getCurrentFilename(), {
     fsCache: false,

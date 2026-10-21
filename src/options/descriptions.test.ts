@@ -1,5 +1,6 @@
 import { toJsonSchema } from "@valibot/to-json-schema";
 import { validate } from "json-schema";
+import { parse } from "valibot";
 import { describe, expect, test } from "vitest";
 
 import { COMMON_OPTIONS } from "better-tailwindcss:options/descriptions.js";
@@ -273,6 +274,14 @@ describe("descriptions", () => {
       { errors: [], valid: true }
     );
 
+  });
+
+  test("cache size", () => {
+    expect(parse(COMMON_OPTIONS, {}).cacheSize).toBe(32);
+    expect(parse(COMMON_OPTIONS, { cacheSize: 8 }).cacheSize).toBe(8);
+    expect(() => parse(COMMON_OPTIONS, { cacheSize: 0 })).toThrow();
+    expect(validate({ cacheSize: 64 }, toJsonSchema(COMMON_OPTIONS)).valid).toBe(true);
+    expect(validate({ cacheSize: "64" }, toJsonSchema(COMMON_OPTIONS)).valid).toBe(false);
   });
 
 });
