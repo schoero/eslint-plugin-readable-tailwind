@@ -11,7 +11,7 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 - `asc`: Sort classes alphabetically in ascending order.
 - `desc`: Sort classes alphabetically in descending order.
 - `official`: Sort classes according to the official sorting order from Tailwind CSS based on semantics.
-- `strict`: Shorthand for `{ order: "official", groupBy: "variant" }`.
+- `strict`: Shorthand for `{ order: "official", groupBy: "variant" }`. If [`groupBy`](#groupby) is set as well, it takes precedence over the variant grouping.
 
   When classes are grouped via [`groupBy`](#groupby), `asc` and `desc` compare classes by their base class, ignoring variants, the prefix and negative and important modifiers. They also respect the component and unknown class options below.
 
@@ -30,8 +30,15 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
   - Classes with less variants come before classes with more variants.
   - Classes with arbitrary variants come last.
   - Variant groups are sorted in the official variant order for `official` and alphabetically for `asc` and `desc`.
+- `property`: Group classes by the CSS properties they set, so that a class is followed by the variant classes that override it:
+  - Classes that set exactly the same CSS properties, ignoring their variants, get grouped together.
+  - Each group is placed at the position of its first class. Classes within a group are sorted by their variants like with `variant`.
+  - Classes that don't set any CSS properties, like unknown and component classes, keep their position.
+  - Only supported in Tailwind CSS v4. In Tailwind CSS v3, classes are not grouped.
 
-  **Type**: `"none" | "variant"`  
+  Use the same value for the [`groupBy`](./enforce-consistent-line-wrapping.md#groupby) option of `enforce-consistent-line-wrapping` to put each group on its own line.
+
+  **Type**: `"none" | "property" | "variant"`  
   **Default**: `"none"`
 
 <br/>
@@ -94,6 +101,34 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
   **Type**: `"start" | "end"`  
   **Default**: `"start"`
+
+<br/>
+
+### `ungroupedClassOrder`
+
+  Defines how ungrouped classes should be ordered among themselves. A class is ungrouped if it is the only class in its group when classes are grouped via [`groupBy`](#groupby). Unknown and component classes are not part of any group and are ordered by their own options.
+
+- `asc`: Sort ungrouped classes alphabetically in ascending order.
+- `desc`: Sort ungrouped classes alphabetically in descending order.
+- `preserve`: Keep ungrouped classes in their original order.
+
+  **Type**: `"asc" | "desc" | "preserve"`  
+  **Default**: `"preserve"`
+
+<br/>
+
+### `ungroupedClassPosition`
+
+  Defines where ungrouped classes should be placed in relation to the groups. Has no effect without [`groupBy`](#groupby).
+
+- `start`: Place ungrouped classes before the groups.
+- `end`: Place ungrouped classes after the groups.
+- `preserve`: Keep ungrouped classes at their position.
+
+  Use the [`combineUngroupedClasses`](./enforce-consistent-line-wrapping.md#combineungroupedclasses) option of `enforce-consistent-line-wrapping` to put them on a shared line.
+
+  **Type**: `"start" | "end" | "preserve"`  
+  **Default**: `"preserve"`
 
 <br/>
 
@@ -181,6 +216,16 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 ```tsx
 // ✅ GOOD: with option { order: 'official', groupBy: 'variant' } or { order: 'strict' }
 <div class="text-black hover:text-black hover:dark:text-black"/>;
+```
+
+```tsx
+// ✅ GOOD: with option { groupBy: 'property' }
+<div class="flex flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 py-3 text-sm md:text-base"/>;
+```
+
+```tsx
+// ✅ GOOD: with option { groupBy: 'property', ungroupedClassPosition: 'start' }
+<div class="flex py-3 flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 text-sm md:text-base"/>;
 ```
 
 ```tsx

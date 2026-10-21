@@ -10,6 +10,7 @@ import { getVariantOrder } from "./variant-order.async.v3.js";
 
 import type { OperationHandlers, Operations } from "../async-utils/operations.js";
 import type { CanonicalClasses } from "./canonical-classes.js";
+import type { ClassProperties } from "./class-properties.js";
 import type { ConflictingClasses } from "./conflicting-classes.js";
 
 
@@ -30,6 +31,11 @@ const handlers: OperationHandlers = {
     const classOrder = getClassOrder(tailwindContext, classes);
 
     return { classOrder, warnings: ctx.warnings };
+  },
+  getClassProperties: async (ctx, _classes) => {
+    const classProperties: ClassProperties = Object.create(null);
+
+    return { classProperties, warnings: ctx.warnings };
   },
   getConflictingClasses: async (ctx, _classes) => {
     const conflictingClasses: ConflictingClasses = {};

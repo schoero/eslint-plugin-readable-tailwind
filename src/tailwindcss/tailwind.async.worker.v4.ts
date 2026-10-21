@@ -2,6 +2,7 @@ import { runAsWorker } from "synckit";
 
 import { getCanonicalClasses } from "./canonical-classes.async.v4.js";
 import { getClassOrder } from "./class-order.async.v4.js";
+import { getClassProperties } from "./class-properties.async.v4.js";
 import { getConflictingClasses } from "./conflicting-classes.async.v4.js";
 import { createTailwindContext } from "./context.async.v4.js";
 import { getCustomComponentClasses } from "./custom-component-classes.async.v4.js";
@@ -25,6 +26,12 @@ const handlers: OperationHandlers = {
     const classOrder = getClassOrder(tailwindContext, classes);
 
     return { classOrder, warnings: ctx.warnings };
+  },
+  getClassProperties: async (ctx, classes) => {
+    const tailwindContext = await createTailwindContext(ctx);
+    const classProperties = getClassProperties(tailwindContext, classes);
+
+    return { classProperties, warnings: ctx.warnings };
   },
   getConflictingClasses: async (ctx, classes) => {
     const tailwindContext = await createTailwindContext(ctx);

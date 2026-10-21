@@ -27,10 +27,33 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 ### `group`
 
-  Defines how different groups of classes should be separated. A group is a set of classes that share the same variant.
+  Defines how different groups of classes should be separated. Which classes form a group is defined by the [`groupBy`](#groupby) option.
 
   **Type**: `"emptyLine" | "never" | "newLine"`  
   **Default**: `"newLine"`  
+
+<br/>
+
+### `groupBy`
+
+  Defines which classes form a group.
+
+- `variant`: Classes that share the same variants form a group.
+- `property`: Classes that set exactly the same CSS properties, ignoring their variants, form a group. This keeps a class and the variant classes that override it on the same line. Class strings are still only wrapped if they contain variants or exceed the `printWidth` or `classesPerLine` limit. Only supported in Tailwind CSS v4. In Tailwind CSS v3, classes are grouped by variant.
+
+  Classes are only grouped if they are next to each other. Use the same value for the [`groupBy`](./enforce-consistent-class-order.md#groupby) option of `enforce-consistent-class-order` to move them next to each other.
+
+  **Type**: `"property" | "variant"`  
+  **Default**: `"variant"`  
+
+<br/>
+
+### `combineUngroupedClasses`
+
+  Put consecutive ungrouped classes on the same line, instead of putting each of them on its own line. A class is ungrouped if it is the only class in its group. Ungrouped classes that are not next to each other stay on separate lines. Use the [`ungroupedClassPosition`](./enforce-consistent-class-order.md#ungroupedclassposition) option of `enforce-consistent-class-order` to move them next to each other.
+
+  **Type**: `boolean`  
+  **Default**: `false`  
 
 <br/>
 
@@ -214,6 +237,33 @@ The following examples show how the rule behaves with different options:
   focus:font-bold focus:text-opacity-70
   hover:font-bold hover:text-opacity-70
 `} />;
+```
+
+```css
+/* ✅ GOOD: with { groupBy: "property", printWidth: 120 } and { groupBy: "property" } for enforce-consistent-class-order */
+.nav {
+  @apply
+    flex
+    flex-col md:flex-row
+    gap-2 md:gap-6
+    px-4 md:px-8
+    py-3
+    text-sm md:text-base
+  ;
+}
+```
+
+```css
+/* ✅ GOOD: with { combineUngroupedClasses: true, groupBy: "property", printWidth: 120 } and { groupBy: "property", ungroupedClassPosition: "start" } for enforce-consistent-class-order */
+.nav {
+  @apply
+    flex py-3
+    flex-col md:flex-row
+    gap-2 md:gap-6
+    px-4 md:px-8
+    text-sm md:text-base
+  ;
+}
 ```
 
 With `vueConvertToBinding: true`, the vue parser converts a static `class` attribute to a bound attribute with a template literal when it wraps, to avoid conflicts with prettier:

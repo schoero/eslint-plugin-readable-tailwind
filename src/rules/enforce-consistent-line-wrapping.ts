@@ -10,6 +10,11 @@ import {
   union
 } from "valibot";
 
+import {
+  createGetClassProperties,
+  getClassProperties,
+  getPropertiesOfClass
+} from "better-tailwindcss:tailwindcss/class-properties.js";
 import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { async } from "better-tailwindcss:utils/context.js";
 import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
@@ -19,6 +24,7 @@ import { display, splitClasses } from "better-tailwindcss:utils/utils.js";
 import type { DissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import type { BracesMeta, Literal, QuoteMeta, WhitespaceMeta } from "better-tailwindcss:types/ast.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
+import type { AsyncContext } from "better-tailwindcss:utils/context.js";
 
 
 interface Meta extends QuoteMeta, BracesMeta, WhitespaceMeta {
@@ -48,6 +54,13 @@ export const enforceConsistentLineWrapping = createRule({
       ),
       0
     ),
+    combineUngroupedClasses: optional(
+      pipe(
+        boolean(),
+        description("Put consecutive ungrouped classes on the same line.")
+      ),
+      false
+    ),
     group: optional(
       pipe(
         union([
@@ -58,6 +71,16 @@ export const enforceConsistentLineWrapping = createRule({
         description("Defines how different groups of classes should be separated.")
       ),
       "newLine"
+    ),
+    groupBy: optional(
+      pipe(
+        union([
+          literal("property"),
+          literal("variant")
+        ]),
+        description("Defines which classes form a group.")
+      ),
+      "variant"
     ),
     indent: optional(
       pipe(
@@ -123,6 +146,10 @@ export const enforceConsistentLineWrapping = createRule({
 
   initialize: ctx => {
     createGetDissectedClasses(ctx);
+
+    if(ctx.options.groupBy === "property" && ctx.version.major >= 4){
+      createGetClassProperties(ctx);
+    }
   },
 
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
@@ -130,9 +157,12 @@ export const enforceConsistentLineWrapping = createRule({
 
 
 function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, literals: Literal[]) {
-  const { classesPerLine, group: groupSeparator, messageStyle, preferSingleLine, printWidth, strictness, vueConvertToBinding } = ctx.options;
+  const { classesPerLine, combineUngroupedClasses, group: groupSeparator, groupBy, messageStyle, preferSingleLine, printWidth, strictness, vueConvertToBinding } = ctx.options;
 
   const asyncCtx = async(ctx);
+
+  // the css properties of a class can only be resolved in tailwind >= 4
+  const isGroupingByProperty = groupBy === "property" && ctx.version.major >= 4;
 
   for(const literal of literals){
 
@@ -176,7 +206,24 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
       });
     }
 
-    const groupedClasses = groupClasses(classes, dissectedClasses);
+    if(groupBy === "property" && !isGroupingByProperty){
+      warnings.push({
+        option: "groupBy",
+        title: "Grouping classes by property is only supported in Tailwind CSS v4",
+        url: `${ctx.docs}#groupby`
+      });
+    }
+
+    // the variants decide whether a class string has to be wrapped, regardless of how its lines are grouped
+    const variantGroups = groupClassesByVariant(classes, dissectedClasses);
+
+    const classGroups = isGroupingByProperty
+      ? groupClassesByProperty(asyncCtx, classes)
+      : variantGroups;
+
+    const groupedClasses = combineUngroupedClasses && classGroups
+      ? combineConsecutiveUngroupedClasses(classGroups)
+      : classGroups;
 
     if(literal.openingQuote){
       if(multilineQuotes?.includes("`")){
@@ -387,7 +434,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
     collapse:{
 
       // disallow collapsing if the literal contains variants, except preferSingleLine is enabled
-      if(groupedClasses?.length !== 1 && !preferSingleLine){
+      if(variantGroups?.length !== 1 && !preferSingleLine){
         break collapse;
       }
 
@@ -466,8 +513,8 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
     // skip line wrapping if it is not necessary
     skip:{
 
-      // disallow skipping if class string contains multiple groups
-      if(groupedClasses && groupedClasses.length > 1){
+      // disallow skipping if class string contains variants
+      if(variantGroups && variantGroups.length > 1){
         break skip;
       }
 
@@ -697,7 +744,49 @@ class Line {
   }
 }
 
-function groupClasses(classes: string[], dissectedClasses: DissectedClasses) {
+function groupClassesByVariant(classes: string[], dissectedClasses: DissectedClasses) {
+  return groupClasses(classes, className => {
+    // parse variants manually for custom component classes
+    return dissectedClasses[className].variants?.join() ?? className.match(/^(.*):/)?.[1] ?? "";
+  });
+}
+
+function groupClassesByProperty(ctx: AsyncContext, classes: string[]) {
+  const { classProperties } = getClassProperties(ctx, classes);
+
+  return groupClasses(classes, className => {
+    // classes that don't set any properties, like unknown and component classes, share a group
+    return getPropertiesOfClass(classProperties, className)?.join(",") ?? "";
+  });
+}
+
+function combineConsecutiveUngroupedClasses(groups: Groups) {
+
+  const combinedGroups = new Groups();
+
+  // a class is ungrouped if it is the only class in its group
+  const isUngrouped = (group: Group) => group.classCount === 1;
+
+  for(let g = 0; g < groups.length; g++){
+    const group = groups.at(g)!;
+
+    const isFirstGroup = g === 0;
+    const continuesUngroupedClasses = !isFirstGroup && isUngrouped(group) && isUngrouped(groups.at(g - 1)!);
+
+    if(!isFirstGroup && !continuesUngroupedClasses){
+      combinedGroups.addGroup();
+    }
+
+    for(const className of group.classes){
+      combinedGroups.group.addClass(className);
+    }
+  }
+
+  return combinedGroups;
+
+}
+
+function groupClasses(classes: string[], getGroupKey: (className: string) => string) {
 
   if(classes.length === 0){
     return;
@@ -714,14 +803,7 @@ function groupClasses(classes: string[], dissectedClasses: DissectedClasses) {
     const lastClassName = lastGroup?.at(-1);
 
     if(lastClassName){
-      const lastDissectedClass = dissectedClasses[lastClassName];
-      const currentDissectedClass = dissectedClasses[className];
-
-      // parse variants manually for custom component classes
-      const lastVariant = lastDissectedClass.variants?.join() ?? lastClassName.match(/^(.*):/)?.[1] ?? "";
-      const variant = currentDissectedClass.variants?.join() ?? className.match(/^(.*):/)?.[1] ?? "";
-
-      if(lastVariant !== variant && !(isFirstClass && isFirstGroup)){
+      if(getGroupKey(lastClassName) !== getGroupKey(className) && !(isFirstClass && isFirstGroup)){
         groups.addGroup();
       }
     }

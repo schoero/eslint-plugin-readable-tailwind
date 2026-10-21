@@ -1542,4 +1542,183 @@ describe(enforceConsistentLineWrapping.name, () => {
       expect(eslintOutput.trim()).toBe(prettierOutput.trim());
     });
   });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should keep classes that set the same properties on the same line with `groupBy: property` in tailwind >= 4", () => {
+    const singleLine = "flex flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 py-3 text-sm md:text-base";
+    const multiLine = "\n  flex\n  flex-col md:flex-row\n  gap-2 md:gap-6\n  px-4 md:px-8\n  py-3\n  text-sm md:text-base\n";
+
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        invalid: [
+          {
+            angular: `<img class="${singleLine}" />`,
+            angularOutput: `<img class="${multiLine}" />`,
+            html: `<img class="${singleLine}" />`,
+            htmlOutput: `<img class="${multiLine}" />`,
+            jsx: `() => <img class="${singleLine}" />`,
+            jsxOutput: `() => <img class="${multiLine}" />`,
+            svelte: `<img class="${singleLine}" />`,
+            svelteOutput: `<img class="${multiLine}" />`,
+            vue: `<template><img class="${singleLine}" /></template>`,
+            vueOutput: `<template><img class="${multiLine}" /></template>`,
+
+            css: `.nav {\n  @apply ${singleLine};\n}`,
+            cssOutput: `.nav {\n  @apply \n    flex\n    flex-col md:flex-row\n    gap-2 md:gap-6\n    px-4 md:px-8\n    py-3\n    text-sm md:text-base\n  ;\n}`,
+
+            errors: 1,
+            options: [{ group: "newLine", groupBy: "property", indent: 2, printWidth: 120 }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should only wrap class strings that contain variants with `groupBy: property` in tailwind >= 4", () => {
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        invalid: [
+          {
+            jsx: `() => <img class="\n  flex\n  px-4\n" />`,
+            jsxOutput: `() => <img class="flex px-4" />`,
+
+            errors: 1,
+            options: [{ groupBy: "property", indent: 2 }]
+          }
+        ],
+        valid: [
+          {
+            jsx: `() => <img class="flex px-4 py-2" />`,
+
+            options: [{ groupBy: "property", indent: 2 }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should put consecutive classes without properties on the same line with `groupBy: property` in tailwind >= 4", () => {
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        invalid: [
+          {
+            jsx: `() => <img class="unknown-a unknown-b px-4 md:px-8" />`,
+            jsxOutput: `() => <img class="\n  unknown-a unknown-b\n  px-4 md:px-8\n" />`,
+
+            errors: 1,
+            options: [{ group: "newLine", groupBy: "property", indent: 2 }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should separate property groups with empty lines with `group: emptyLine` and `groupBy: property` in tailwind >= 4", () => {
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        invalid: [
+          {
+            jsx: `() => <img class="flex px-4 md:px-8" />`,
+            jsxOutput: `() => <img class="\n  flex\n\n  px-4 md:px-8\n" />`,
+
+            errors: 1,
+            options: [{ group: "emptyLine", groupBy: "property", indent: 2 }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should put consecutive ungrouped classes on the same line with `combineUngroupedClasses` in tailwind >= 4", () => {
+    const singleLine = "flex py-3 flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 text-sm md:text-base";
+    const multiLine = "\n  flex py-3\n  flex-col md:flex-row\n  gap-2 md:gap-6\n  px-4 md:px-8\n  text-sm md:text-base\n";
+
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        invalid: [
+          {
+            angular: `<img class="${singleLine}" />`,
+            angularOutput: `<img class="${multiLine}" />`,
+            html: `<img class="${singleLine}" />`,
+            htmlOutput: `<img class="${multiLine}" />`,
+            jsx: `() => <img class="${singleLine}" />`,
+            jsxOutput: `() => <img class="${multiLine}" />`,
+            svelte: `<img class="${singleLine}" />`,
+            svelteOutput: `<img class="${multiLine}" />`,
+            vue: `<template><img class="${singleLine}" /></template>`,
+            vueOutput: `<template><img class="${multiLine}" /></template>`,
+
+            errors: 1,
+            options: [{ combineUngroupedClasses: true, groupBy: "property", indent: 2, printWidth: 120 }]
+          },
+          {
+            jsx: `() => <img class="px-4 md:px-8 flex items-center" />`,
+            jsxOutput: `() => <img class="\n  px-4 md:px-8\n  flex items-center\n" />`,
+
+            errors: 1,
+            options: [{ combineUngroupedClasses: true, groupBy: "property", indent: 2 }]
+          }
+        ],
+        valid: [
+          {
+            jsx: `() => <img class="\n  flex\n  flex-col md:flex-row\n  py-3\n" />`,
+
+            options: [{ combineUngroupedClasses: true, groupBy: "property", indent: 2 }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should put consecutive ungrouped classes on the same line with `combineUngroupedClasses` and `groupBy: variant`", () => {
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        invalid: [
+          {
+            jsx: `() => <img class="a b hover:c focus:d" />`,
+            jsxOutput: `() => <img class="\n  a b\n  hover:c focus:d\n" />`,
+
+            errors: 1,
+            options: [{ combineUngroupedClasses: true, indent: 2 }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindCSSVersion().major <= 3)("should fall back to grouping by variant with `groupBy: property` in tailwind <= 3", () => {
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        invalid: [
+          {
+            jsx: `() => <img class="flex px-4 md:px-8" />`,
+            jsxOutput: `() => <img class="\n  flex px-4\n  md:px-8\n" />`,
+
+            errors: [{
+              message: [
+                "⚠️ Warning: Grouping classes by property is only supported in Tailwind CSS v4. Option `groupBy` may be misconfigured.",
+                "Check documentation at https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/enforce-consistent-line-wrapping.md#groupby",
+                "",
+                "Incorrect line wrapping. Expected",
+                "",
+                "\"flex·px-4·md:px-8\"",
+                "",
+                "to be",
+                "",
+                "\"↵\n··flex·px-4↵\n··md:px-8↵\n\""
+              ].join("\n")
+            }],
+            options: [{ group: "newLine", groupBy: "property", indent: 2 }]
+          }
+        ]
+      }
+    );
+  });
+
 });

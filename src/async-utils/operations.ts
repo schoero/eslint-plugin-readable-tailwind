@@ -1,5 +1,6 @@
 import type { GetCanonicalClasses } from "../tailwindcss/canonical-classes.js";
 import type { GetClassOrder } from "../tailwindcss/class-order.js";
+import type { GetClassProperties } from "../tailwindcss/class-properties.js";
 import type { GetConflictingClasses } from "../tailwindcss/conflicting-classes.js";
 import type { GetCustomComponentClasses } from "../tailwindcss/custom-component-classes.js";
 import type { GetDissectedClasses } from "../tailwindcss/dissect-classes.js";
@@ -12,6 +13,7 @@ import type { Async } from "../types/async.js";
 export interface Operations {
   getCanonicalClasses: Async<GetCanonicalClasses>;
   getClassOrder: Async<GetClassOrder>;
+  getClassProperties: Async<GetClassProperties>;
   getConflictingClasses: Async<GetConflictingClasses>;
   getCustomComponentClasses: Async<GetCustomComponentClasses>;
   getDissectedClasses: Async<GetDissectedClasses>;

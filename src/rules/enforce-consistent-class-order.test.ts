@@ -907,6 +907,300 @@ describe(enforceConsistentClassOrder.name, () => {
     });
   });
 
+  it.runIf(getTailwindCSSVersion().major >= 4)("should move classes behind the first class that sets the same properties with `groupBy: property` in tailwind >= 4", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          angular: `<img class="md:flex-row flex flex-col md:gap-6 gap-2 px-4 md:px-8 py-3 text-sm md:text-base" />`,
+          angularOutput: `<img class="flex flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 py-3 text-sm md:text-base" />`,
+          html: `<img class="md:flex-row flex flex-col md:gap-6 gap-2 px-4 md:px-8 py-3 text-sm md:text-base" />`,
+          htmlOutput: `<img class="flex flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 py-3 text-sm md:text-base" />`,
+          jsx: `() => <img class="md:flex-row flex flex-col md:gap-6 gap-2 px-4 md:px-8 py-3 text-sm md:text-base" />`,
+          jsxOutput: `() => <img class="flex flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 py-3 text-sm md:text-base" />`,
+          svelte: `<img class="md:flex-row flex flex-col md:gap-6 gap-2 px-4 md:px-8 py-3 text-sm md:text-base" />`,
+          svelteOutput: `<img class="flex flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 py-3 text-sm md:text-base" />`,
+          vue: `<template><img class="md:flex-row flex flex-col md:gap-6 gap-2 px-4 md:px-8 py-3 text-sm md:text-base" /></template>`,
+          vueOutput: `<template><img class="flex flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 py-3 text-sm md:text-base" /></template>`,
+
+          css: `.nav { @apply md:flex-row flex flex-col md:gap-6 gap-2 px-4 md:px-8 py-3 text-sm md:text-base; }`,
+          cssOutput: `.nav { @apply flex flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 py-3 text-sm md:text-base; }`,
+
+          errors: 1,
+          options: [{ groupBy: "property" }]
+        }
+      ]
+    });
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should only group classes that set exactly the same properties with `groupBy: property` in tailwind >= 4", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          jsx: `() => <img class="md:px-8 p-4 px-4 md:p-6" />`,
+          jsxOutput: `() => <img class="p-4 md:p-6 px-4 md:px-8" />`,
+
+          errors: 1,
+          options: [{ groupBy: "property" }]
+        }
+      ],
+      valid: [
+        {
+          jsx: `() => <img class="flex before:flex" />`,
+
+          options: [{ groupBy: "property" }]
+        }
+      ]
+    });
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should sort the classes within a property group by their variants with `groupBy: property` in tailwind >= 4", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          jsx: `() => <img class="data-[attr=a]:px-2 md:hover:px-6 md:px-4 px-1 hover:px-3" />`,
+          jsxOutput: `() => <img class="px-1 hover:px-3 md:px-4 md:hover:px-6 data-[attr=a]:px-2" />`,
+
+          errors: 1,
+          options: [{ groupBy: "property" }]
+        }
+      ]
+    });
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should keep variant classes without a matching base class in place with `groupBy: property` in tailwind >= 4", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          jsx: `() => <img class="md:flex-row md:px-8 flex px-4" />`,
+          jsxOutput: `() => <img class="flex px-4 md:px-8 md:flex-row" />`,
+
+          errors: 1,
+          options: [{ groupBy: "property" }]
+        }
+      ]
+    });
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should sort property groups alphabetically with `groupBy: property` in tailwind >= 4", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          jsx: `() => <img class="md:px-8 -mt-2 px-4 md:-mt-4 flex" />`,
+          jsxOutput: `() => <img class="flex -mt-2 md:-mt-4 px-4 md:px-8" />`,
+
+          errors: 1,
+          options: [{ groupBy: "property", order: "asc" }]
+        },
+        {
+          jsx: `() => <img class="md:px-8 -mt-2 px-4 md:-mt-4 flex" />`,
+          jsxOutput: `() => <img class="px-4 md:px-8 -mt-2 md:-mt-4 flex" />`,
+
+          errors: 1,
+          options: [{ groupBy: "property", order: "desc" }]
+        }
+      ]
+    });
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should keep unknown and component classes in their position with `groupBy: property` in tailwind >= 4", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          jsx: `() => <img class="md:px-8 unknown px-4 card" />`,
+          jsxOutput: `() => <img class="card unknown px-4 md:px-8" />`,
+
+          errors: 1,
+
+          files: {
+            "tailwind.css": css`
+              @import "tailwindcss";
+
+              @layer components {
+                .card {
+                  @apply font-bold;
+                }
+              }
+            `
+          },
+          options: [{
+            detectComponentClasses: true,
+            entryPoint: "./tailwind.css",
+            groupBy: "property"
+          }]
+        }
+      ]
+    });
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should move ungrouped classes to the start or end with `ungroupedClassPosition` and `groupBy: property` in tailwind >= 4", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          angular: `<img class="flex flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 py-3 text-sm md:text-base" />`,
+          angularOutput: `<img class="flex py-3 flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 text-sm md:text-base" />`,
+          html: `<img class="flex flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 py-3 text-sm md:text-base" />`,
+          htmlOutput: `<img class="flex py-3 flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 text-sm md:text-base" />`,
+          jsx: `() => <img class="flex flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 py-3 text-sm md:text-base" />`,
+          jsxOutput: `() => <img class="flex py-3 flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 text-sm md:text-base" />`,
+          svelte: `<img class="flex flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 py-3 text-sm md:text-base" />`,
+          svelteOutput: `<img class="flex py-3 flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 text-sm md:text-base" />`,
+          vue: `<template><img class="flex flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 py-3 text-sm md:text-base" /></template>`,
+          vueOutput: `<template><img class="flex py-3 flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 text-sm md:text-base" /></template>`,
+
+          css: `.nav { @apply flex flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 py-3 text-sm md:text-base; }`,
+          cssOutput: `.nav { @apply flex py-3 flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 text-sm md:text-base; }`,
+
+          errors: 1,
+          options: [{ groupBy: "property", ungroupedClassPosition: "start" }]
+        },
+        {
+          jsx: `() => <img class="flex flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 py-3 text-sm md:text-base" />`,
+          jsxOutput: `() => <img class="flex-col md:flex-row gap-2 md:gap-6 px-4 md:px-8 text-sm md:text-base flex py-3" />`,
+
+          errors: 1,
+          options: [{ groupBy: "property", ungroupedClassPosition: "end" }]
+        }
+      ],
+      valid: [
+        {
+          jsx: `() => <img class="flex flex-col md:flex-row py-3" />`,
+
+          options: [{ groupBy: "property", ungroupedClassOrder: "preserve", ungroupedClassPosition: "preserve" }]
+        },
+        {
+          jsx: `() => <img class="py-3 px-4 flex" />`,
+
+          options: [{ groupBy: "none", order: "desc", ungroupedClassOrder: "asc", ungroupedClassPosition: "start" }]
+        }
+      ]
+    });
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should sort ungrouped classes among themselves with `ungroupedClassOrder` in tailwind >= 4", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          jsx: `() => <img class="flex flex-col md:flex-row py-3 px-4 md:px-8" />`,
+          jsxOutput: `() => <img class="py-3 flex flex-col md:flex-row px-4 md:px-8" />`,
+
+          errors: 1,
+          options: [{ groupBy: "property", ungroupedClassOrder: "desc", ungroupedClassPosition: "start" }]
+        },
+        {
+          jsx: `() => <img class="flex flex-col md:flex-row py-3 px-4 md:px-8" />`,
+          jsxOutput: `() => <img class="py-3 flex-col md:flex-row px-4 md:px-8 flex" />`,
+
+          errors: 1,
+          options: [{ groupBy: "property", ungroupedClassOrder: "desc" }]
+        }
+      ]
+    });
+  });
+
+  it("should move ungrouped classes with `ungroupedClassPosition` and `groupBy: variant`", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          jsx: `() => <img class="flex px-4 hover:px-2 hover:py-2 md:px-4" />`,
+          jsxOutput: `() => <img class="md:px-4 flex px-4 hover:px-2 hover:py-2" />`,
+
+          errors: 1,
+          options: [{ order: "strict", ungroupedClassPosition: "start" }]
+        },
+        {
+          jsx: `() => <img class="md:px-4 hover:px-2 hover:py-2 flex" />`,
+          jsxOutput: `() => <img class="hover:px-2 hover:py-2 flex md:px-4" />`,
+
+          errors: 1,
+          options: [{ groupBy: "variant", ungroupedClassPosition: "end" }]
+        }
+      ]
+    });
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should keep the position of unknown classes with `ungroupedClassPosition` in tailwind >= 4", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          jsx: `() => <img class="unknown px-4 md:px-8 flex" />`,
+          jsxOutput: `() => <img class="unknown flex px-4 md:px-8" />`,
+
+          errors: 1,
+          options: [{ groupBy: "property", ungroupedClassPosition: "start" }]
+        },
+        {
+          jsx: `() => <img class="flex px-4 md:px-8 unknown" />`,
+          jsxOutput: `() => <img class="px-4 md:px-8 flex unknown" />`,
+
+          errors: 1,
+          options: [{ groupBy: "property", ungroupedClassPosition: "end", unknownClassPosition: "end" }]
+        },
+        {
+          jsx: `() => <img class="md:p-4 unknown flex px-4" />`,
+          jsxOutput: `() => <img class="unknown md:p-4 flex px-4" />`,
+
+          errors: 1,
+          options: [{ groupBy: "variant", ungroupedClassPosition: "start" }]
+        }
+      ]
+    });
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should prefer `groupBy` over the variant grouping of the `strict` sorting order in tailwind >= 4", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          jsx: `() => <img class="md:px-8 flex px-4" />`,
+          jsxOutput: `() => <img class="flex px-4 md:px-8" />`,
+
+          errors: 1,
+          options: [{ groupBy: "property", order: "strict" }]
+        },
+        {
+          jsx: `() => <img class="md:px-8 md:flex flex px-4" />`,
+          jsxOutput: `() => <img class="flex md:flex px-4 md:px-8" />`,
+
+          errors: 1,
+          options: [{ groupBy: "property", order: "strict" }]
+        }
+      ]
+    });
+  });
+
+  it.runIf(getTailwindCSSVersion().major <= 3)("should fall back to ungrouped sorting with `groupBy: property` in tailwind <= 3", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          jsx: `() => <img class="md:px-8 flex px-4" />`,
+          jsxOutput: `() => <img class="flex px-4 md:px-8" />`,
+
+          errors: [{
+            message: [
+              "⚠️ Warning: Grouping classes by property is only supported in Tailwind CSS v4. Option `groupBy` may be misconfigured.",
+              "Check documentation at https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/enforce-consistent-class-order.md#groupby",
+              "",
+              "Incorrect class order. Expected",
+              "",
+              "\"md:px-8·flex·px-4\"",
+              "",
+              "to be",
+              "",
+              "\"flex·px-4·md:px-8\""
+            ].join("\n")
+          }],
+          options: [{ groupBy: "property" }]
+        }
+      ],
+      valid: [
+        {
+          jsx: `() => <img class="flex px-4 md:flex md:px-8" />`,
+
+          options: [{ groupBy: "property" }]
+        }
+      ]
+    });
+  });
+
   it("should sort unknown classes to the start by default", () => {
     lint(
       enforceConsistentClassOrder,

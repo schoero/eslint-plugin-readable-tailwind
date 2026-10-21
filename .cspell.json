@@ -25,6 +25,7 @@
     "eslintrc",
     "espree",
     "estree",
+    "groupby",
     "jiti",
     "linebreak",
     "linebreakstyle",

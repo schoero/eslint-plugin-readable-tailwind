@@ -2,6 +2,11 @@ import { description, literal, optional, pipe, strictObject, union } from "valib
 
 import { createGetClassOrder, getClassOrder } from "better-tailwindcss:tailwindcss/class-order.js";
 import {
+  createGetClassProperties,
+  getClassProperties,
+  getPropertiesOfClass
+} from "better-tailwindcss:tailwindcss/class-properties.js";
+import {
   createGetCustomComponentClasses,
   getCustomComponentClasses
 } from "better-tailwindcss:tailwindcss/custom-component-classes.js";
@@ -11,6 +16,7 @@ import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { display, splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
 
+import type { ClassProperties } from "better-tailwindcss:tailwindcss/class-properties.js";
 import type { DissectedClass, DissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import type { Warning } from "better-tailwindcss:types/async.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
@@ -55,6 +61,7 @@ export const enforceConsistentClassOrder = createRule({
       pipe(
         union([
           literal("none"),
+          literal("property"),
           literal("variant")
         ]),
         description("Defines how classes should be grouped. Classes within a group are sorted according to the `order` option.")
@@ -72,6 +79,28 @@ export const enforceConsistentClassOrder = createRule({
         description("The algorithm to use when sorting classes.")
       ),
       "official"
+    ),
+    ungroupedClassOrder: optional(
+      pipe(
+        union([
+          literal("asc"),
+          literal("desc"),
+          literal("preserve")
+        ]),
+        description("Defines how ungrouped classes should be ordered among themselves.")
+      ),
+      "preserve"
+    ),
+    ungroupedClassPosition: optional(
+      pipe(
+        union([
+          literal("start"),
+          literal("end"),
+          literal("preserve")
+        ]),
+        description("Defines where ungrouped classes should be placed in relation to the groups.")
+      ),
+      "preserve"
     ),
     unknownClassOrder: optional(
       pipe(
@@ -97,13 +126,17 @@ export const enforceConsistentClassOrder = createRule({
   }),
 
   initialize: ctx => {
-    const { detectComponentClasses } = ctx.options;
+    const { detectComponentClasses, groupBy } = ctx.options;
 
     createGetClassOrder(ctx);
     createGetDissectedClasses(ctx);
 
     if(detectComponentClasses){
       createGetCustomComponentClasses(ctx);
+    }
+
+    if(groupBy === "property" && ctx.version.major >= 4){
+      createGetClassProperties(ctx);
     }
   },
 
@@ -182,7 +215,7 @@ export const enforceConsistentClassOrder = createRule({
 
 function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, asyncCtx: AsyncContext, classes: string[]): [classes: string[], warnings?: (Warning | undefined)[]] {
 
-  const { componentClassOrder, componentClassPosition, detectComponentClasses, unknownClassOrder, unknownClassPosition } = ctx.options;
+  const { componentClassOrder, componentClassPosition, detectComponentClasses, ungroupedClassOrder, ungroupedClassPosition, unknownClassOrder, unknownClassPosition } = ctx.options;
 
   // `strict` is a shorthand for `{ order: "official", groupBy: "variant" }`
   const order = ctx.options.order === "strict" ? "official" : ctx.options.order;
@@ -203,9 +236,10 @@ function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, asyncC
 
   const { classOrder, warnings } = getClassOrder(asyncCtx, classes);
 
-  const { dissectedClasses } = order !== "official" || groupBy !== "none"
-    ? getDissectedClasses(asyncCtx, classes)
-    : { dissectedClasses: {} };
+  // ungrouped classes are sorted in the official order here, which doesn't need dissected classes
+  const { dissectedClasses } = groupBy === "none"
+    ? { dissectedClasses: {} }
+    : getDissectedClasses(asyncCtx, classes);
 
   const customComponentClasses = detectComponentClasses
     ? getCustomComponentClasses(asyncCtx).customComponentClasses
@@ -260,15 +294,124 @@ function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, asyncC
     })
     .map(([className]) => className);
 
-  if(groupBy === "variant"){
-    return [groupByVariant(order, sortedClasses, dissectedClasses), warnings];
+  if(groupBy === "none"){
+    return [sortedClasses, warnings];
   }
 
-  return [sortedClasses, warnings];
+  // the css properties of a class can only be resolved in tailwind >= 4
+  if(groupBy === "property" && ctx.version.major <= 3){
+    const warning: Warning = {
+      option: "groupBy",
+      title: "Grouping classes by property is only supported in Tailwind CSS v4",
+      url: `${ctx.docs}#groupby`
+    };
+
+    return [sortedClasses, [...warnings, warning]];
+  }
+
+  const groups = groupBy === "variant"
+    ? groupByVariant(order, sortedClasses, dissectedClasses)
+    : groupByProperty(order, sortedClasses, dissectedClasses, getClassProperties(asyncCtx, classes).classProperties);
+
+  if(ungroupedClassPosition === "preserve" && ungroupedClassOrder === "preserve"){
+    return [groups.flat(), warnings];
+  }
+
+  const unknownClasses = new Set(classOrder.filter(([, index]) => index === null).map(([className]) => className));
+  const isTailwindClass = (className: string) => !unknownClasses.has(className) && !customComponentClasses.includes(className);
+
+  return [positionUngroupedClasses(groups, ungroupedClassPosition, ungroupedClassOrder, isTailwindClass), warnings];
 
 }
 
-function groupByVariant(order: "asc" | "desc" | "official", sortedClasses: string[], dissectedClasses: DissectedClasses): string[] {
+function positionUngroupedClasses(groups: string[][], position: "end" | "preserve" | "start", order: "asc" | "desc" | "preserve", isTailwindClass: (className: string) => boolean): string[] {
+
+  // unknown and component classes are not part of a group and keep the position defined by their own options
+  const units: string[][] = [];
+
+  for(const group of groups){
+    const tailwindClasses = group.filter(isTailwindClass);
+
+    for(const className of group){
+      if(!isTailwindClass(className)){
+        units.push([className]);
+        continue;
+      }
+
+      if(!units.includes(tailwindClasses)){
+        units.push(tailwindClasses);
+      }
+    }
+  }
+
+  const isGroup = (unit: string[]) => isTailwindClass(unit[0]);
+
+  // a class is ungrouped if it is the only tailwind class in its group
+  const isUngrouped = (unit: string[]) => isGroup(unit) && unit.length === 1;
+
+  const ungroupedClasses = units
+    .filter(isUngrouped)
+    .toSorted(([classA], [classB]) => {
+      if(order === "asc"){ return compareClasses(classA, classB); }
+      if(order === "desc"){ return compareClasses(classB, classA); }
+      return 0;
+    });
+
+  if(position === "preserve"){
+    return replaceUnits(units, isUngrouped, ungroupedClasses);
+  }
+
+  const groupedClasses = units.filter(unit => isGroup(unit) && !isUngrouped(unit));
+
+  const groupsAndUngroupedClasses = position === "start"
+    ? [...ungroupedClasses, ...groupedClasses]
+    : [...groupedClasses, ...ungroupedClasses];
+
+  return replaceUnits(units, isGroup, groupsAndUngroupedClasses);
+
+}
+
+// replaces the matching units in order, so that all other units keep their position
+function replaceUnits(units: string[][], isReplaced: (unit: string[]) => boolean, replacements: string[][]): string[] {
+  let replacementIndex = 0;
+
+  return units.flatMap(unit => isReplaced(unit) ? replacements[replacementIndex++] : unit);
+}
+
+function groupByProperty(order: Order, sortedClasses: string[], dissectedClasses: DissectedClasses, classProperties: ClassProperties): string[][] {
+
+  // each group is placed at the position of its first class
+  const groups: string[][] = [];
+  const groupsByProperties = new Map<string, string[]>();
+
+  for(const className of sortedClasses){
+    const properties = getPropertiesOfClass(classProperties, className)?.join(",");
+
+    // classes that don't set any properties, like unknown and component classes, keep their position
+    if(properties === undefined){
+      groups.push([className]);
+      continue;
+    }
+
+    const group = groupsByProperties.get(properties);
+
+    if(group){
+      group.push(className);
+      continue;
+    }
+
+    const newGroup = [className];
+
+    groups.push(newGroup);
+    groupsByProperties.set(properties, newGroup);
+  }
+
+  // sort the classes within each group by their variants
+  return groups.map(group => groupByVariant(order, group, dissectedClasses).flat());
+
+}
+
+function groupByVariant(order: Order, sortedClasses: string[], dissectedClasses: DissectedClasses): string[][] {
 
   const variantMap: VariantMap = {};
 
@@ -301,6 +444,8 @@ function groupByVariant(order: "asc" | "desc" | "official", sortedClasses: strin
 }
 
 
+type Order = "asc" | "desc" | "official";
+
 type VariantMap = {
   [variant: string]: {
     dissectedClasses: DissectedClass[];
@@ -308,8 +453,8 @@ type VariantMap = {
   };
 };
 
-function getVariantGroupOrder(order: "asc" | "desc" | "official", variantMap: VariantMap): string[] {
-  const orderedClasses: string[] = [];
+function getVariantGroupOrder(order: Order, variantMap: VariantMap): string[][] {
+  const orderedGroups: string[][] = [];
 
   const orderedVariants = Object.keys(variantMap).sort((a, b) => {
     const aIsArbitrary = isArbitrary(a);
@@ -336,14 +481,16 @@ function getVariantGroupOrder(order: "asc" | "desc" | "official", variantMap: Va
 
     const { dissectedClasses, nested } = variantMap[variant];
 
-    orderedClasses.push(...dissectedClasses.map(dissectedClass => dissectedClass.className));
+    if(dissectedClasses.length > 0){
+      orderedGroups.push(dissectedClasses.map(dissectedClass => dissectedClass.className));
+    }
 
     if(Object.keys(nested).length > 0){
-      orderedClasses.push(...getVariantGroupOrder(order, nested));
+      orderedGroups.push(...getVariantGroupOrder(order, nested));
     }
   }
 
-  return orderedClasses;
+  return orderedGroups;
 
 }
 

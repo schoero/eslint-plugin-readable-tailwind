@@ -77,6 +77,7 @@ Helpers under `src/tailwindcss/*.ts` come in `createGetX` / `getX` pairs backed 
 - `createGetVariantOrder` / `getVariantOrder(ctx, classes)` from `src/tailwindcss/variant-order.ts`: sort order index per variant.
 - `createGetUnknownClasses` / `getUnknownClasses(ctx, classes)` from `src/tailwindcss/unknown-classes.ts`: classes not registered in the Tailwind design system.
 - `createGetConflictingClasses` / `getConflictingClasses(ctx, classes)` from `src/tailwindcss/conflicting-classes.ts`: classes that write the same CSS properties.
+- `createGetClassProperties` / `getClassProperties(ctx, classes)` from `src/tailwindcss/class-properties.ts`: sorted CSS property names each class sets, ignoring its variants (`undefined` for classes without properties). Tailwind v4 only; returns an empty object in v3.
 - `createGetCanonicalClasses` / `getCanonicalClasses(ctx, classes, options)` from `src/tailwindcss/canonical-classes.ts`: canonical/collapsed form per class.
 - `createGetCustomComponentClasses` / `getCustomComponentClasses(ctx)` from `src/tailwindcss/custom-component-classes.ts`: custom component class names (only initialize when `ctx.options.detectComponentClasses` is enabled).
 - `createGetPrefix` / `getPrefix(ctx)` from `src/tailwindcss/prefix.ts`: configured Tailwind prefix/suffix.
