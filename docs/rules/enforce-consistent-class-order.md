@@ -11,13 +11,28 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 - `asc`: Sort classes alphabetically in ascending order.
 - `desc`: Sort classes alphabetically in descending order.
 - `official`: Sort classes according to the official sorting order from Tailwind CSS based on semantics.
-- `strict`: Same as `official` but sorts variants more strictly:
-  - Classes that share the same base variants get grouped together.
-  - Classes with less variants come before classes with more variants.
-  - Classes with arbitrary variants come last.
+- `strict`: Shorthand for `{ order: "official", groupBy: "variant" }`.
+
+  When classes are grouped via [`groupBy`](#groupby), `asc` and `desc` compare classes by their base class, ignoring variants, the prefix and negative and important modifiers. They also respect the component and unknown class options below.
 
   **Type**: `"asc" | "desc" | "official" | "strict"`  
   **Default**: `"official"`
+
+<br/>
+
+### `groupBy`
+
+  Defines how classes should be grouped. Classes within a group are sorted according to the [`order`](#order) option.
+
+- `none`: Don't group classes.
+- `variant`: Group classes by their variants:
+  - Classes that share the same base variants get grouped together.
+  - Classes with less variants come before classes with more variants.
+  - Classes with arbitrary variants come last.
+  - Variant groups are sorted in the official variant order for `official` and alphabetically for `asc` and `desc`.
+
+  **Type**: `"none" | "variant"`  
+  **Default**: `"none"`
 
 <br/>
 
@@ -156,6 +171,16 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 ```tsx
 // ✅ GOOD: with option { order: 'official' }
 <div class="text-black underline hover:font-bold hover:text-opacity-70 focus:font-bold focus:text-opacity-70"/>;
+```
+
+```tsx
+// ✅ GOOD: with option { order: 'asc', groupBy: 'variant' }
+<div class="mb-1 -mt-2 p-4 focus:ring hover:underline"/>;
+```
+
+```tsx
+// ✅ GOOD: with option { order: 'official', groupBy: 'variant' } or { order: 'strict' }
+<div class="text-black hover:text-black hover:dark:text-black"/>;
 ```
 
 ```tsx

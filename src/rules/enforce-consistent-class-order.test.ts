@@ -728,6 +728,13 @@ describe(enforceConsistentClassOrder.name, () => {
 
           errors: 1,
           options: [{ order: "strict" }]
+        },
+        {
+          jsx: `() => <img class="hover:flex flex hover:flex" />`,
+          jsxOutput: `() => <img class="flex hover:flex hover:flex" />`,
+
+          errors: 1,
+          options: [{ groupBy: "variant", order: "asc" }]
         }
       ]
     });
@@ -742,6 +749,159 @@ describe(enforceConsistentClassOrder.name, () => {
 
           errors: 1,
           options: [{ order: "strict", unknownClassPosition: "end" }]
+        }
+      ]
+    });
+  });
+
+  it("should group variants together with `groupBy: variant` the same way as the `strict` sorting order", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          jsx: `<img class="data-[attr=a]:*:text-black text-white px-4 block mix-blend-difference py-2 data-[attr=a]:text-black" />`,
+          jsxOutput: `<img class="block px-4 py-2 text-white mix-blend-difference data-[attr=a]:text-black data-[attr=a]:*:text-black" />`,
+
+          errors: 1,
+          options: [{ groupBy: "variant", order: "official" }]
+        },
+        {
+          jsx: `<img class="hover:text-black text-black hover:dark:text-black" />`,
+          jsxOutput: `<img class="text-black hover:text-black hover:dark:text-black" />`,
+
+          errors: 1,
+          options: [{ groupBy: "none", order: "strict" }]
+        }
+      ]
+    });
+  });
+
+  it("should sort alphabetically within variant groups with `groupBy: variant`", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          angular: `<img class="hover:underline -mt-2 p-4 focus:ring mb-1 mt-4" />`,
+          angularOutput: `<img class="mb-1 -mt-2 mt-4 p-4 focus:ring hover:underline" />`,
+          html: `<img class="hover:underline -mt-2 p-4 focus:ring mb-1 mt-4" />`,
+          htmlOutput: `<img class="mb-1 -mt-2 mt-4 p-4 focus:ring hover:underline" />`,
+          jsx: `() => <img class="hover:underline -mt-2 p-4 focus:ring mb-1 mt-4" />`,
+          jsxOutput: `() => <img class="mb-1 -mt-2 mt-4 p-4 focus:ring hover:underline" />`,
+          svelte: `<img class="hover:underline -mt-2 p-4 focus:ring mb-1 mt-4" />`,
+          svelteOutput: `<img class="mb-1 -mt-2 mt-4 p-4 focus:ring hover:underline" />`,
+          vue: `<template><img class="hover:underline -mt-2 p-4 focus:ring mb-1 mt-4" /></template>`,
+          vueOutput: `<template><img class="mb-1 -mt-2 mt-4 p-4 focus:ring hover:underline" /></template>`,
+
+          errors: 1,
+          options: [{ groupBy: "variant", order: "asc" }]
+        },
+        {
+          jsx: `() => <img class="hover:underline -mt-2 p-4 focus:ring mb-1 mt-4" />`,
+          jsxOutput: `() => <img class="p-4 mt-4 -mt-2 mb-1 hover:underline focus:ring" />`,
+
+          errors: 1,
+          options: [{ groupBy: "variant", order: "desc" }]
+        }
+      ]
+    });
+  });
+
+  it("should ignore negative and important modifiers when sorting alphabetically with `groupBy: variant`", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          jsx: `() => <img class="mt-2 !p-4 -mt-2 m-2" />`,
+          jsxOutput: `() => <img class="m-2 -mt-2 mt-2 !p-4" />`,
+
+          errors: 1,
+          options: [{ groupBy: "variant", order: "asc" }]
+        },
+        {
+          jsx: `() => <img class="m-2 -mt-2 mt-2 !p-4" />`,
+          jsxOutput: `() => <img class="!p-4 mt-2 -mt-2 m-2" />`,
+
+          errors: 1,
+          options: [{ groupBy: "variant", order: "desc" }]
+        }
+      ]
+    });
+  });
+
+  it("should sort nested and arbitrary variant groups alphabetically with `groupBy: variant`", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          jsx: `() => <img class="data-[attr=a]:flex md:hover:flex md:flex hover:flex flex" />`,
+          jsxOutput: `() => <img class="flex hover:flex md:flex md:hover:flex data-[attr=a]:flex" />`,
+
+          errors: 1,
+          options: [{ groupBy: "variant", order: "asc" }]
+        },
+        {
+          jsx: `() => <img class="data-[attr=a]:flex md:hover:flex md:flex hover:flex flex" />`,
+          jsxOutput: `() => <img class="flex md:flex md:hover:flex hover:flex data-[attr=a]:flex" />`,
+
+          errors: 1,
+          options: [{ groupBy: "variant", order: "desc" }]
+        }
+      ]
+    });
+  });
+
+  it("should only respect the unknown class position for alphabetical sorting when classes are grouped", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          jsx: `() => <img class="flex unknown" />`,
+          jsxOutput: `() => <img class="unknown flex" />`,
+
+          errors: 1,
+          options: [{ groupBy: "variant", order: "asc" }]
+        },
+        {
+          jsx: `() => <img class="b-unknown flex a-unknown" />`,
+          jsxOutput: `() => <img class="flex a-unknown b-unknown" />`,
+
+          errors: 1,
+          options: [{ groupBy: "variant", order: "asc", unknownClassOrder: "asc", unknownClassPosition: "end" }]
+        }
+      ],
+      valid: [
+        {
+          jsx: `() => <img class="flex unknown" />`,
+
+          options: [{ order: "asc" }]
+        }
+      ]
+    });
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should sort component classes separately when sorting alphabetically with `groupBy: variant` in tailwind >= 4", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          jsx: `() => <img class="hover:underline -mt-2 card p-4 focus:ring btn mb-1" />`,
+          jsxOutput: `() => <img class="btn card mb-1 -mt-2 p-4 focus:ring hover:underline" />`,
+
+          errors: 1,
+
+          files: {
+            "tailwind.css": css`
+              @import "tailwindcss";
+
+              @layer components {
+                .btn, .card {
+                  @apply font-bold;
+                }
+              }
+            `
+          },
+          options: [{
+            componentClassOrder: "asc",
+            componentClassPosition: "start",
+            detectComponentClasses: true,
+            entryPoint: "./tailwind.css",
+            groupBy: "variant",
+            order: "asc"
+          }]
         }
       ]
     });

@@ -11,7 +11,7 @@ import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { display, splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
 
-import type { DissectedClass } from "better-tailwindcss:tailwindcss/dissect-classes.js";
+import type { DissectedClass, DissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import type { Warning } from "better-tailwindcss:types/async.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
 import type { AsyncContext } from "better-tailwindcss:utils/context.js";
@@ -50,6 +50,16 @@ export const enforceConsistentClassOrder = createRule({
         description("Defines where component classes should be placed in relation to the whole string literal.")
       ),
       "start"
+    ),
+    groupBy: optional(
+      pipe(
+        union([
+          literal("none"),
+          literal("variant")
+        ]),
+        description("Defines how classes should be grouped. Classes within a group are sorted according to the `order` option.")
+      ),
+      "none"
     ),
     order: optional(
       pipe(
@@ -172,13 +182,18 @@ export const enforceConsistentClassOrder = createRule({
 
 function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, asyncCtx: AsyncContext, classes: string[]): [classes: string[], warnings?: (Warning | undefined)[]] {
 
-  const { componentClassOrder, componentClassPosition, order, unknownClassOrder, unknownClassPosition } = ctx.options;
+  const { componentClassOrder, componentClassPosition, detectComponentClasses, unknownClassOrder, unknownClassPosition } = ctx.options;
 
-  if(order === "asc"){
+  // `strict` is a shorthand for `{ order: "official", groupBy: "variant" }`
+  const order = ctx.options.order === "strict" ? "official" : ctx.options.order;
+  const groupBy = ctx.options.order === "strict" && ctx.options.groupBy === "none" ? "variant" : ctx.options.groupBy;
+
+  // ungrouped alphabetical sorting compares the raw class names and ignores component and unknown classes
+  if(groupBy === "none" && order === "asc"){
     return [classes.toSorted((a, b) => compareClasses(a, b))];
   }
 
-  if(order === "desc"){
+  if(groupBy === "none" && order === "desc"){
     return [classes.toSorted((a, b) => compareClasses(b, a))];
   }
 
@@ -187,12 +202,16 @@ function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, asyncC
   }
 
   const { classOrder, warnings } = getClassOrder(asyncCtx, classes);
-  const { detectComponentClasses } = ctx.options;
+
+  const { dissectedClasses } = order !== "official" || groupBy !== "none"
+    ? getDissectedClasses(asyncCtx, classes)
+    : { dissectedClasses: {} };
+
   const customComponentClasses = detectComponentClasses
     ? getCustomComponentClasses(asyncCtx).customComponentClasses
     : [];
 
-  const officiallySortedClasses = classOrder
+  const sortedClasses = classOrder
     .toSorted((a, b) => {
       const [classA, aIndex] = a;
       const [classB, bIndex] = b;
@@ -226,6 +245,14 @@ function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, asyncC
         return unknownClassSorting;
       }
 
+      if(order === "asc"){
+        return compareBaseClasses(dissectedClasses, classA, classB);
+      }
+
+      if(order === "desc"){
+        return compareBaseClasses(dissectedClasses, classB, classA);
+      }
+
       if(aIndex === bIndex){ return 0; }
       if(aIndex === null){ return -1; }
       if(bIndex === null){ return +1; }
@@ -233,15 +260,19 @@ function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, asyncC
     })
     .map(([className]) => className);
 
-  if(order === "official"){
-    return [officiallySortedClasses, warnings];
+  if(groupBy === "variant"){
+    return [groupByVariant(order, sortedClasses, dissectedClasses), warnings];
   }
 
-  const { dissectedClasses } = getDissectedClasses(asyncCtx, officiallySortedClasses);
+  return [sortedClasses, warnings];
+
+}
+
+function groupByVariant(order: "asc" | "desc" | "official", sortedClasses: string[], dissectedClasses: DissectedClasses): string[] {
 
   const variantMap: VariantMap = {};
 
-  for(const originalClass of officiallySortedClasses){
+  for(const originalClass of sortedClasses){
     const dissectedClass = dissectedClasses[originalClass];
 
     // parse variants manually for custom component classes
@@ -265,9 +296,7 @@ function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, asyncC
     }
   }
 
-  const strictOrder = getStrictOrder(variantMap);
-
-  return [strictOrder, warnings];
+  return getVariantGroupOrder(order, variantMap);
 
 }
 
@@ -279,7 +308,7 @@ type VariantMap = {
   };
 };
 
-function getStrictOrder(variantMap: VariantMap): string[] {
+function getVariantGroupOrder(order: "asc" | "desc" | "official", variantMap: VariantMap): string[] {
   const orderedClasses: string[] = [];
 
   const orderedVariants = Object.keys(variantMap).sort((a, b) => {
@@ -290,6 +319,15 @@ function getStrictOrder(variantMap: VariantMap): string[] {
     if(aIsArbitrary && !bIsArbitrary){ return +1; }
     if(!aIsArbitrary && bIsArbitrary){ return -1; }
 
+    if(order === "asc"){
+      return compareClasses(a, b);
+    }
+
+    if(order === "desc"){
+      return compareClasses(b, a);
+    }
+
+    // keep the official variant order
     return 0;
   });
 
@@ -301,7 +339,7 @@ function getStrictOrder(variantMap: VariantMap): string[] {
     orderedClasses.push(...dissectedClasses.map(dissectedClass => dissectedClass.className));
 
     if(Object.keys(nested).length > 0){
-      orderedClasses.push(...getStrictOrder(nested));
+      orderedClasses.push(...getVariantGroupOrder(order, nested));
     }
   }
 
@@ -347,6 +385,14 @@ function getCustomOrder(position: "end" | "start", order: "asc" | "desc" | "pres
 function compareClasses(classA: string, classB: string): number {
   if(classA === classB){ return 0; }
   return classA < classB ? -1 : +1;
+}
+
+// compare by the base class to ignore variants, prefix, negative and important modifiers
+function compareBaseClasses(dissectedClasses: DissectedClasses, classA: string, classB: string): number {
+  const baseA = dissectedClasses[classA]?.base ?? classA;
+  const baseB = dissectedClasses[classB]?.base ?? classB;
+
+  return compareClasses(baseA, baseB) || compareClasses(classA, classB);
 }
 
 function isArbitrary(variant?: string): boolean {
