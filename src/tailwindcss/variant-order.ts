@@ -24,7 +24,10 @@ export function createGetVariantOrder(ctx: Context): GetVariantOrder {
   const workerOptions = getWorkerOptions();
   const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getVariantOrder = (ctx, classes) => runWorker("getVariantOrder", CachedStore.toTransferableState(), ctx, classes);
+  getVariantOrder = (ctx, classes) => ({
+    variantOrder: runWorker("getVariantOrder", CachedStore.getSharedState(), ctx, classes),
+    warnings: ctx.warnings
+  });
 
   return getVariantOrder;
 }

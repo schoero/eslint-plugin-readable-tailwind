@@ -27,7 +27,10 @@ export function createGetCustomComponentClasses(ctx: Context): GetCustomComponen
   const workerOptions = getWorkerOptions();
   const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getCustomComponentClasses = ctx => runWorker("getCustomComponentClasses", CachedStore.toTransferableState(), ctx);
+  getCustomComponentClasses = ctx => ({
+    customComponentClasses: runWorker("getCustomComponentClasses", CachedStore.getSharedState(), ctx),
+    warnings: ctx.warnings
+  });
 
   return getCustomComponentClasses;
 }

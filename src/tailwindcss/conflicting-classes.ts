@@ -33,7 +33,10 @@ export function createGetConflictingClasses(ctx: Context): GetConflictingClasses
   const workerOptions = getWorkerOptions();
   const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getConflictingClasses = (ctx, classes) => runWorker("getConflictingClasses", CachedStore.toTransferableState(), ctx, classes);
+  getConflictingClasses = (ctx, classes) => ({
+    conflictingClasses: runWorker("getConflictingClasses", CachedStore.getSharedState(), ctx, classes),
+    warnings: ctx.warnings
+  });
 
   return getConflictingClasses;
 }

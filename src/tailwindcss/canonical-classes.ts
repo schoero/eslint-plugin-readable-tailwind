@@ -35,11 +35,14 @@ export function createGetCanonicalClasses(ctx: Context): GetCanonicalClasses {
   const workerOptions = getWorkerOptions();
   const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getCanonicalClasses = (ctx, classes, options) => CachedStore.getOrCreate(
-    ["canonical-classes", ...classes, options.collapse, options.logicalToPhysical, options.rem],
-    () => runWorker("getCanonicalClasses", CachedStore.toTransferableState(), ctx, classes, options),
-    { tags: [CacheTag.CONTEXT] }
-  );
+  getCanonicalClasses = (ctx, classes, options) => ({
+    canonicalClasses: CachedStore.getOrCreate(
+      ["canonical-classes", ...classes, options.collapse, options.logicalToPhysical, options.rem],
+      () => runWorker("getCanonicalClasses", CachedStore.getSharedState(), ctx, classes, options),
+      { tags: [CacheTag.CONTEXT] }
+    ),
+    warnings: ctx.warnings
+  });
 
   return getCanonicalClasses;
 }

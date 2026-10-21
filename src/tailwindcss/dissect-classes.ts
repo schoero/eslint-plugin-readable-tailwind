@@ -37,11 +37,14 @@ export function createGetDissectedClasses(ctx: Context): GetDissectedClasses {
   const workerOptions = getWorkerOptions();
   const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getDissectedClasses = (ctx, classes) => CachedStore.getOrCreate(
-    ["dissected-classes", ...classes],
-    () => runWorker("getDissectedClasses", CachedStore.toTransferableState(), ctx, classes),
-    { tags: [CacheTag.CONTEXT] }
-  );
+  getDissectedClasses = (ctx, classes) => ({
+    dissectedClasses: CachedStore.getOrCreate(
+      ["dissected-classes", ...classes],
+      () => runWorker("getDissectedClasses", CachedStore.getSharedState(), ctx, classes),
+      { tags: [CacheTag.CONTEXT] }
+    ),
+    warnings: ctx.warnings
+  });
 
   return getDissectedClasses;
 }

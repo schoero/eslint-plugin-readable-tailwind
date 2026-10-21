@@ -17,7 +17,7 @@ let cssResolver: ReturnType<typeof enhancedResolve.ResolverFactory.createResolve
 let resolverState: CachedStoreState | undefined;
 
 function resolverOptions(ctx: AsyncContext | undefined) {
-  const state = CachedStore.toTransferableState();
+  const state = CachedStore.getSharedState();
   if(resolverState !== state){
     esmResolver = undefined;
     cjsResolver = undefined;

@@ -36,7 +36,7 @@ function hashKey(key: string): string {
 }
 
 function createStore(cache = createCache()): typeof CachedStore {
-  CachedStore.attachShared({ data: cache.data, metadata: cache.metadata });
+  CachedStore.attachSharedState({ data: cache.data, metadata: cache.metadata });
   return CachedStore;
 }
 
@@ -108,23 +108,23 @@ describe("module-level resolver caching", () => {
   it("resets local objects when switching stores but not for the same buffer attachment", () => {
     const path = fixture();
     const directory = dirname(path);
-    const original = CachedStore.toTransferableState();
+    const original = CachedStore.getSharedState();
     const replacementCache = createCache();
     const replacement = { data: replacementCache.data, metadata: replacementCache.metadata };
     CachedStore.clear();
     const create = vi.spyOn(enhancedResolve.ResolverFactory, "createResolver");
     try {
       resolveCss(path, directory);
-      CachedStore.attachShared(original);
+      CachedStore.attachSharedState(original);
       resolveCss(path, directory);
       expect(create).toHaveBeenCalledTimes(1);
-      CachedStore.attachShared(replacement);
+      CachedStore.attachSharedState(replacement);
       resolveCss(path, directory);
-      CachedStore.attachShared(original);
+      CachedStore.attachSharedState(original);
       resolveCss(path, directory);
       expect(create).toHaveBeenCalledTimes(3);
     } finally {
-      CachedStore.attachShared(original);
+      CachedStore.attachSharedState(original);
     }
   });
 
@@ -212,9 +212,9 @@ describe("cachedStore values", () => {
     expect(CachedStore).not.toHaveProperty("shared");
     CachedStore.clear();
     CachedStore.upsert("singleton", "value");
-    const state = CachedStore.toTransferableState();
-    CachedStore.attachShared(state);
-    expect(CachedStore.toTransferableState()).toBe(state);
+    const state = CachedStore.getSharedState();
+    CachedStore.attachSharedState(state);
+    expect(CachedStore.getSharedState()).toBe(state);
     expect(CachedStore.get("singleton")).toBe("value");
     CachedStore.clear();
     expect(CachedStore.has("singleton")).toBe(false);

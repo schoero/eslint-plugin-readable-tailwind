@@ -24,11 +24,14 @@ export function createGetUnknownClasses(ctx: Context): GetUnknownClasses {
   const workerOptions = getWorkerOptions();
   const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getUnknownClasses = (ctx, classes) => CachedStore.getOrCreate(
-    ["unknown-classes-response", ...classes],
-    () => runWorker("getUnknownClasses", CachedStore.toTransferableState(), ctx, classes),
-    { tags: [CacheTag.CONTEXT] }
-  );
+  getUnknownClasses = (ctx, classes) => ({
+    unknownClasses: CachedStore.getOrCreate(
+      ["unknown-classes-response", ...classes],
+      () => runWorker("getUnknownClasses", CachedStore.getSharedState(), ctx, classes),
+      { tags: [CacheTag.CONTEXT] }
+    ),
+    warnings: ctx.warnings
+  });
 
   return getUnknownClasses;
 }

@@ -64,7 +64,7 @@ export class CachedStore {
     });
   }
 
-  static attachShared(state: CachedStoreState): void {
+  static attachSharedState(state: CachedStoreState): void {
     if(this.cache?.metadata === state.metadata && this.cache.data === state.data){
       return;
     }
@@ -72,7 +72,7 @@ export class CachedStore {
     this.state = undefined;
   }
 
-  static toTransferableState(): CachedStoreState {
+  static getSharedState(): CachedStoreState {
     return this.state ??= { data: this.cache.data, metadata: this.cache.metadata };
   }
 

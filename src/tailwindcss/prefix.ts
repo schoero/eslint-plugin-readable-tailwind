@@ -26,7 +26,10 @@ export function createGetPrefix(ctx: Context): GetPrefix {
   const workerOptions = getWorkerOptions();
   const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getPrefix = ctx => runWorker("getPrefix", CachedStore.toTransferableState(), ctx);
+  getPrefix = ctx => ({
+    ...runWorker("getPrefix", CachedStore.getSharedState(), ctx),
+    warnings: ctx.warnings
+  });
 
   return getPrefix;
 }

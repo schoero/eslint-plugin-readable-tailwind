@@ -24,7 +24,10 @@ export function createGetClassOrder(ctx: Context): GetClassOrder {
   const workerOptions = getWorkerOptions();
   const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getClassOrder = (ctx, classes) => runWorker("getClassOrder", CachedStore.toTransferableState(), ctx, classes);
+  getClassOrder = (ctx, classes) => ({
+    classOrder: runWorker("getClassOrder", CachedStore.getSharedState(), ctx, classes),
+    warnings: ctx.warnings
+  });
 
   return getClassOrder;
 }

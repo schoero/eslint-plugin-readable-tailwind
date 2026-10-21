@@ -18,55 +18,41 @@ import type { OperationHandlers, Operations } from "../async-utils/operations.js
 const handlers: OperationHandlers = {
   getCanonicalClasses: async (ctx, classes, options) => {
     const tailwindContext = await createTailwindContext(ctx);
-    const canonicalClasses = getCanonicalClasses(tailwindContext, classes, options);
-
-    return { canonicalClasses, warnings: ctx.warnings };
+    return getCanonicalClasses(tailwindContext, classes, options);
   },
   getClassOrder: async (ctx, classes) => {
     const tailwindContext = await createTailwindContext(ctx);
-    const classOrder = getClassOrder(tailwindContext, classes);
-
-    return { classOrder, warnings: ctx.warnings };
+    return getClassOrder(tailwindContext, classes);
   },
   getConflictingClasses: async (ctx, classes) => {
     const tailwindContext = await createTailwindContext(ctx);
-    const conflictingClasses = await getConflictingClasses(tailwindContext, classes);
-
-    return { conflictingClasses, warnings: ctx.warnings };
+    return getConflictingClasses(tailwindContext, classes);
   },
   getCustomComponentClasses: async ctx => {
-    const customComponentClasses = getCustomComponentClasses(ctx);
-
-    return { customComponentClasses, warnings: ctx.warnings };
+    return getCustomComponentClasses(ctx);
   },
   getDissectedClasses: async (ctx, classes) => {
     const tailwindContext = await createTailwindContext(ctx);
-    const dissectedClasses = getDissectedClasses(tailwindContext, classes);
-
-    return { dissectedClasses, warnings: ctx.warnings };
+    return getDissectedClasses(tailwindContext, classes);
   },
   getPrefix: async ctx => {
     const tailwindContext = await createTailwindContext(ctx);
     const prefix = getPrefix(tailwindContext);
     const suffix = getSuffix(tailwindContext);
 
-    return { prefix, suffix, warnings: ctx.warnings };
+    return { prefix, suffix };
   },
   getUnknownClasses: async (ctx, classes) => {
     const tailwindContext = await createTailwindContext(ctx);
-    const unknownClasses = getUnknownClasses(tailwindContext, classes);
-
-    return { unknownClasses, warnings: ctx.warnings };
+    return getUnknownClasses(tailwindContext, classes);
   },
   getVariantOrder: async (ctx, classes) => {
     const tailwindContext = await createTailwindContext(ctx);
-    const variantOrder = getVariantOrder(tailwindContext, classes);
-
-    return { variantOrder, warnings: ctx.warnings };
+    return getVariantOrder(tailwindContext, classes);
   }
 };
 
 runAsWorker(async <Operation extends keyof Operations>(operation: Operation, cache: CachedStoreState, ...args: Parameters<Operations[Operation]>) => {
-  CachedStore.attachShared(cache);
+  CachedStore.attachSharedState(cache);
   return handlers[operation](...args);
 });
