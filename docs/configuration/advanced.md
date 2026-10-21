@@ -16,6 +16,8 @@ To extend defaults instead of replacing them, import and spread `getDefaultSelec
 
 You can find the default selectors in the [defaults documentation](../api/defaults.md).
 
+To narrow down the selectors to the frameworks and utilities you actually use, compose them from the [presets](../api/presets.md) exported from `eslint-plugin-better-tailwindcss/presets`.
+
 <br/>
 <br/>
 

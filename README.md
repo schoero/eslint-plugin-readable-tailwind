@@ -167,6 +167,8 @@ This plugin is pre-configured to lint tailwind classes for the most popular util
 - [obj str](https://github.com/lukeed/obj-str): `objstr`
 - [react-twc](https://github.com/gregberge/twc): `twc` · `twx`
 
+If you only use some of these utilities or a single framework, you can narrow down what gets linted with the [presets](./docs/api/presets.md).
+
 <br/>
 <br/>
 

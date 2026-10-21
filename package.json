@@ -15,8 +15,10 @@
   "exports": {
     ".": "./lib/configs/config.js",
     "./api/defaults": "./lib/api/defaults.js",
+    "./api/presets": "./lib/api/presets.js",
     "./api/types": "./lib/api/types.js",
     "./defaults": "./lib/api/defaults.js",
+    "./presets": "./lib/api/presets.js",
     "./types": "./lib/api/types.js"
   },
   "main": "./lib/configs/config.js",

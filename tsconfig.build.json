@@ -15,6 +15,7 @@
     "src/tailwindcss/**/*.ts",
     "src/configs/config.ts",
     "src/api/defaults.ts",
+    "src/api/presets.ts",
     "src/api/types.ts"
   ],
   "exclude": [
