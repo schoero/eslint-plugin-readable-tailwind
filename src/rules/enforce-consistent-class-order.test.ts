@@ -704,6 +704,49 @@ describe(enforceConsistentClassOrder.name, () => {
     );
   });
 
+  it("should keep duplicate classes in the `strict` sorting order", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          angular: `<img class="flex hover:flex flex" />`,
+          angularOutput: `<img class="flex flex hover:flex" />`,
+          html: `<img class="flex hover:flex flex" />`,
+          htmlOutput: `<img class="flex flex hover:flex" />`,
+          jsx: `() => <img class="flex hover:flex flex" />`,
+          jsxOutput: `() => <img class="flex flex hover:flex" />`,
+          svelte: `<img class="flex hover:flex flex" />`,
+          svelteOutput: `<img class="flex flex hover:flex" />`,
+          vue: `<template><img class="flex hover:flex flex" /></template>`,
+          vueOutput: `<template><img class="flex flex hover:flex" /></template>`,
+
+          errors: 1,
+          options: [{ order: "strict" }]
+        },
+        {
+          jsx: `() => <img class="hover:flex flex hover:flex" />`,
+          jsxOutput: `() => <img class="flex hover:flex hover:flex" />`,
+
+          errors: 1,
+          options: [{ order: "strict" }]
+        }
+      ]
+    });
+  });
+
+  it("should not move numeric class names to the start in the `strict` sorting order", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          jsx: `() => <img class="1 flex" />`,
+          jsxOutput: `() => <img class="flex 1" />`,
+
+          errors: 1,
+          options: [{ order: "strict", unknownClassPosition: "end" }]
+        }
+      ]
+    });
+  });
+
   it("should sort unknown classes to the start by default", () => {
     lint(
       enforceConsistentClassOrder,
