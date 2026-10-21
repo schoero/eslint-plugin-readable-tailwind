@@ -4,6 +4,7 @@ import { dirname, resolve } from "node:path";
 import { toJsonSchema } from "@valibot/to-json-schema";
 import { getDefaults, strictObject } from "valibot";
 
+import { DEFAULT_SELECTORS } from "better-tailwindcss:options/default-options.js";
 import { COMMON_OPTIONS } from "better-tailwindcss:options/descriptions.js";
 import { migrateLegacySelectorsToFlatSelectors } from "better-tailwindcss:options/migrate.js";
 import { getAttributesByAngularElement, getLiteralsByAngularAttribute } from "better-tailwindcss:parsers/angular.js";
@@ -136,7 +137,13 @@ export function createRule<
     const hasTagOverride = mergedOptions.tags !== undefined;
     const hasVariableOverride = mergedOptions.variables !== undefined;
 
-    const preservedSelectors = (mergedOptions.selectors ?? []).filter(selector => {
+    const configuredSelectors = mergedOptions.selectors ?? [];
+
+    const resolvedSelectors = Array.isArray(configuredSelectors)
+      ? configuredSelectors
+      : [...DEFAULT_SELECTORS, ...configuredSelectors.extend];
+
+    const preservedSelectors = resolvedSelectors.filter(selector => {
       if(hasAttributeOverride && selector.kind === SelectorKind.Attribute){
         return false;
       }

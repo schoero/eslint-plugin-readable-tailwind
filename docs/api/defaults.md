@@ -3,6 +3,7 @@
 
 The plugin comes with a set of default [selectors](../configuration/advanced.md#selectors). These selectors are used to [determine how the rules should behave](../configuration/advanced.md#advanced-configuration) when checking your code.
 In order to extend the default configuration instead of overwriting it, you can import the default options from `eslint-plugin-better-tailwindcss/defaults` and merge them with your own options.
+To only add selectors, use [`selectors: { extend: [...] }`](../settings/settings.md#selectors) instead; importing the defaults is mainly useful to filter or reorder them.
 
 <br/>
 <br/>
