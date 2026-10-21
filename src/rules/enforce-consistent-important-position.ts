@@ -46,6 +46,14 @@ export const enforceConsistentImportantPosition = createRule({
         : "legacy"
     );
 
+    const positionWarning = ctx.version.major <= 3 && position === "recommended"
+      ? {
+        option: "position",
+        title: `The "${position}" position is not supported in Tailwind CSS v3`,
+        url: `${ctx.docs}#position`
+      }
+      : undefined;
+
     const asyncCtx = async(ctx);
 
     for(const literal of literals){
@@ -54,7 +62,7 @@ export const enforceConsistentImportantPosition = createRule({
 
       const { dissectedClasses, warnings: dissectWarnings } = getDissectedClasses(asyncCtx, classes);
 
-      const warnings = [...dissectWarnings];
+      const warnings = [...dissectWarnings, positionWarning];
 
       lintClasses(ctx, literal, className => {
         const dissectedClass = dissectedClasses[className];
@@ -71,14 +79,6 @@ export const enforceConsistentImportantPosition = createRule({
           position === "recommended" && importantAtEnd
         ){
           return;
-        }
-
-        if(ctx.version.major <= 3 && position === "recommended"){
-          warnings.push({
-            option: "position",
-            title: `The "${position}" position is not supported in Tailwind CSS v3`,
-            url: `${ctx.docs}#position`
-          });
         }
 
         const fix = position === "recommended"

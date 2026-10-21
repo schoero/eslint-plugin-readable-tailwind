@@ -5,7 +5,7 @@ Disallow conflicting classes in Tailwind CSS class strings. Conflicting classes 
 <br/>
 
 > [!NOTE]
-> This rule is similar to `cssConflict` from the [Tailwind CSS IntelliSense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss) VSCode extension. It is recommended to disable `cssConflict` in your projects `.vscode/settings.json` to avoid confusion:
+> This rule is similar to `cssConflict` from the [Tailwind CSS IntelliSense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss) VSCode extension. It is recommended to disable `cssConflict` in your project's `.vscode/settings.json` to avoid confusion:
 >
 > ```jsonc
 > {
@@ -76,7 +76,7 @@ Disallow conflicting classes in Tailwind CSS class strings. Conflicting classes 
 ## Examples
 
 ```tsx
-// ❌ BAD: Conflicting class detected: "flex" and "grid" apply the same css properties: "display"
+// ❌ BAD: Conflicting class detected: "flex" and "grid" apply the same CSS properties: "display".
 <div class="flex grid" />;
 ```
 

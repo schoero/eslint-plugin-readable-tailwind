@@ -68,10 +68,13 @@ The following classes will be reported as deprecated:
 
 ### `tailwindConfig`
 
-  Tailwind config file path.  
-  
-  **Type**: string  
-  **Default**: Tailwind's default config resolution
+  The path to the `tailwind.config.js` file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.  
+  This can also be set globally via the [`settings` object](../settings/settings.md#tailwindConfig).  
+
+  For Tailwind CSS v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
+
+  **Type**: `string`  
+  **Default**: `undefined`
 
   <br/>
 

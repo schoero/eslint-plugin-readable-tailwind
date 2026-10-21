@@ -3,7 +3,9 @@ import { describe, it } from "vitest";
 import { enforceConsistentImportantPosition } from "better-tailwindcss:rules/enforce-consistent-important-position.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { css, ts } from "better-tailwindcss:tests/utils/template.js";
+import { values } from "better-tailwindcss:tests/utils/values.js";
 import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version";
+import { augmentMessageWithWarnings } from "better-tailwindcss:utils/utils.js";
 
 
 describe(enforceConsistentImportantPosition.name, () => {
@@ -166,6 +168,43 @@ describe(enforceConsistentImportantPosition.name, () => {
 
             errors: 1,
             options: [{ position: "legacy" }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindCSSVersion().major <= 3)(`should not repeat the unsupported position warning for multiple classes in tailwind <= 3`, () => {
+    const warning = augmentMessageWithWarnings("", enforceConsistentImportantPosition.rule.meta.docs.url, [{
+      option: "position",
+      title: `The "recommended" position is not supported in Tailwind CSS v3`,
+      url: `${enforceConsistentImportantPosition.rule.meta.docs.url}#position`
+    }]);
+
+    lint(
+      enforceConsistentImportantPosition,
+
+      {
+        invalid: [
+          {
+            html: `<img class="!w-4 !h-4" />`,
+            htmlOutput: `<img class="w-4! h-4!" />`,
+            jsx: `() => <img class="!w-4 !h-4" />`,
+            jsxOutput: `() => <img class="w-4! h-4!" />`,
+
+            errors: [
+              { message: `${warning}${values(enforceConsistentImportantPosition.messages!.position, { className: "!w-4", fix: "w-4!" })}` },
+              { message: `${warning}${values(enforceConsistentImportantPosition.messages!.position, { className: "!h-4", fix: "h-4!" })}` }
+            ],
+            files: {
+              "tailwind.config.js": ts`
+                export default {};
+              `
+            },
+            options: [{
+              position: "recommended",
+              tailwindConfig: "./tailwind.config.js"
+            }]
           }
         ]
       }
