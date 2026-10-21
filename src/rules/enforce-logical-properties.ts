@@ -5,7 +5,6 @@ import { createGetUnknownClasses, getUnknownClasses } from "better-tailwindcss:t
 import { buildClass } from "better-tailwindcss:utils/class.js";
 import { async } from "better-tailwindcss:utils/context.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
-import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { replacePlaceholders, splitClasses } from "better-tailwindcss:utils/utils.js";
 
@@ -112,7 +111,7 @@ const mappings = [
 
 function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: Literal[]) {
   const { ignore } = ctx.options;
-  const ignoredClassRegexes = ignore.map(ignoredClass => getCachedRegex(ignoredClass));
+  const ignoredClassRegexes = ignore.map(ignoredClass => new RegExp(ignoredClass));
 
   const asyncCtx = async(ctx);
 

@@ -65,7 +65,6 @@ The plugin is built around a strict separation between parsing and linting:
 - `splitClasses(classes)` / `splitWhitespaces(classes)` from `src/utils/utils.ts`: split a class string into class chunks or whitespace chunks (aligned by index).
 - `buildClass(ctx, parts)` from `src/utils/class.ts`: reassembles a class string from dissected parts (`variants`, `prefix`, `negative`, `base`, `important`), placing the prefix correctly for Tailwind v3 vs v4.
 - `replacePlaceholders(template, match)` from `src/utils/utils.ts`: substitutes `$1…$n` placeholders with regex capture groups (used to build fix strings).
-- `getCachedRegex(pattern, flags?)` from `better-tailwindcss:utils/regex.ts`: cached `RegExp` factory; prefer it over `new RegExp` for option-derived patterns.
 - `display(messageStyle, classes)`, `deduplicateClasses(classes)`, `isClassSticky(literal, classIndex)`, `augmentMessageWithWarnings(message, docs, warnings)` from `src/utils/utils.ts`: message formatting, deduping (first occurrence wins), interpolation-safety check before reordering/removing a class, and prepending warning links to messages.
 
 ### Tailwind worker helpers

@@ -1,6 +1,5 @@
 import { hasESNodeParentExtension, isESSimpleStringLiteral } from "better-tailwindcss:parsers/es.js";
 import { MATCHER_RESULT } from "better-tailwindcss:types/rule.js";
-import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
 import { isGenericNodeWithParent } from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
@@ -112,7 +111,7 @@ function findMatchingNestedNodes<Node>(node: GenericNodeWithParent, matcherFunct
 }
 
 export function matchesPathPattern(path: string, pattern: string): boolean {
-  return getCachedRegex(pattern).test(path);
+  return new RegExp(pattern).test(path);
 }
 
 export function isCalleeName(callee: Callees[number]): callee is CalleeName {

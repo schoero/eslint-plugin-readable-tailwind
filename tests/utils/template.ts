@@ -1,6 +1,3 @@
-import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
-
-
 const EOL = "\n";
 const TABS_IN_SPACES = 4;
 
@@ -33,20 +30,20 @@ function findCommonIndentation(content: string, eol: string = EOL) {
   const lines = content.split(eol).filter(line => /\S/.test(line));
 
   for(const line of lines){
-    if(getCachedRegex(/^\S+/).test(line)){
+    if(/^\S+/.test(line)){
       return 0;
     }
   }
 
   const spaces = lines.map(
-    line => getCachedRegex(/^[^\S\t\n\r]+\S/).test(line)
-      ? line.match(getCachedRegex(/^[^\S\t\n\r]*/))?.[0].length ?? 0
+    line => /^[^\S\t\n\r]+\S/.test(line)
+      ? line.match(/^[^\S\t\n\r]*/)?.[0].length ?? 0
       : undefined
   ).filter(space => space !== undefined);
 
   const tabs = lines.map(
-    line => getCachedRegex(/^\t+\S/).test(line)
-      ? line.match(getCachedRegex(/^\t*/))?.[0].length ?? 0
+    line => /^\t+\S/.test(line)
+      ? line.match(/^\t*/)?.[0].length ?? 0
       : undefined
   ).filter(tab => tab !== undefined);
 
@@ -97,7 +94,7 @@ function removeCommonIndentation(content: string, minIndentation: number, eol: s
 }
 
 function removeSurroundingNewLines(content: string) {
-  return content.replace(getCachedRegex(/^\n|\n[\t ]*$/g), "");
+  return content.replace(/^\n|\n[\t ]*$/g, "");
 }
 
 function assembleTemplateString(templateString: TemplateStringsArray, ...values: (boolean | number | string)[]) {
