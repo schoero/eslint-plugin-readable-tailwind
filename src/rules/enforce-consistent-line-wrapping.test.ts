@@ -478,6 +478,61 @@ describe(enforceConsistentLineWrapping.name, () => {
     });
   });
 
+  // #299
+  it("should change jsx attributes to template literals when jsxConvertToTemplateLiteral is enabled", () => {
+
+    const singleLine = " a b c d e f g h ";
+    const multipleLines = dedent`
+      a b c
+      d e f
+      g h
+    `;
+
+    lint(enforceConsistentLineWrapping, {
+      invalid: [
+        {
+          astro: `<img class="${singleLine}" />`,
+          astroOutput: `<img class={\`${multipleLines}\`} />`,
+          html: `<img class="${singleLine}" />`,
+          htmlOutput: `<img class="${multipleLines}" />`,
+          jsx: `() => <img class="${singleLine}" />`,
+          jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
+          svelte: `<img class="${singleLine}" />`,
+          svelteOutput: `<img class="${multipleLines}" />`,
+          vue: `<template><img class="${singleLine}" /></template>`,
+          vueOutput: `<template><img class="${multipleLines}" /></template>`,
+
+          errors: 1,
+          options: [{ classesPerLine: 3, indent: 2, jsxConvertToTemplateLiteral: true }]
+        },
+        {
+          jsx: `() => <img class='${singleLine}' />`,
+          jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
+
+          errors: 1,
+          options: [{ classesPerLine: 3, indent: 2, jsxConvertToTemplateLiteral: true }]
+        }
+      ],
+      valid: [
+        {
+          jsx: `() => <img class={\`${multipleLines}\`} />`,
+
+          options: [{ classesPerLine: 3, indent: 2, jsxConvertToTemplateLiteral: true }]
+        },
+        {
+          jsx: `() => <img class="a b" />`,
+
+          options: [{ classesPerLine: 3, indent: 2, jsxConvertToTemplateLiteral: true }]
+        },
+        {
+          jsx: `() => <img class="   " />`,
+
+          options: [{ classesPerLine: 3, indent: 2, jsxConvertToTemplateLiteral: true }]
+        }
+      ]
+    });
+  });
+
   it("should change the quotes to backticks in attribute expressions", () => {
 
     const singleLine = " a b c d e f g h ";

@@ -62,6 +62,17 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
 <br/>
 
+### `jsxConvertToTemplateLiteral`
+
+  Converts string attributes to template literals (`className="…"` → ``className={`…`}``) before wrapping them across multiple lines. Template literals make it easier to add conditional classes via interpolation later on and result in a cleaner diff when the classes change.
+
+  This option is currently only supported by the jsx parser. Classes that already fit on a single line are not changed.
+
+  **Type**: `boolean`  
+  **Default**: `false`
+
+<br/>
+
 ### `lineBreakStyle`
 
   The line break style.  
@@ -233,4 +244,19 @@ With `vueConvertToBinding: true`, the vue parser converts a static `class` attri
     opacity-30 blur-sm not-dark:invert
   `" />
 </template>
+```
+
+With `jsxConvertToTemplateLiteral: true`, the jsx parser converts a string attribute to an expression container with a template literal when it wraps:
+
+```tsx
+// ❌ BAD
+<img className="absolute top-0 mr-0 mb-0 h-64 -rotate-5 bg-foreground-secondary pt-0 pr-0 opacity-30 blur-sm not-dark:invert" />;
+```
+
+```tsx
+// ✅ GOOD: with { jsxConvertToTemplateLiteral: true }
+<img className={`
+  absolute top-0 mr-0 mb-0 h-64 -rotate-5 bg-foreground-secondary pt-0 pr-0
+  opacity-30 blur-sm not-dark:invert
+`} />;
 ```

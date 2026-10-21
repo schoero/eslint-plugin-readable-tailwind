@@ -69,6 +69,13 @@ export const enforceConsistentLineWrapping = createRule({
       ),
       2
     ),
+    jsxConvertToTemplateLiteral: optional(
+      pipe(
+        boolean(),
+        description("Convert string attributes to expression containers with template literals when wrapping lines. Currently only supported by the jsx parser.")
+      ),
+      false
+    ),
     lineBreakStyle: optional(
       pipe(
         union([literal("unix"),
@@ -130,7 +137,7 @@ export const enforceConsistentLineWrapping = createRule({
 
 
 function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, literals: Literal[]) {
-  const { classesPerLine, group: groupSeparator, messageStyle, preferSingleLine, printWidth, strictness, vueConvertToBinding } = ctx.options;
+  const { classesPerLine, group: groupSeparator, jsxConvertToTemplateLiteral, messageStyle, preferSingleLine, printWidth, strictness, vueConvertToBinding } = ctx.options;
 
   const asyncCtx = async(ctx);
 
@@ -142,7 +149,14 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
 
     // convert a static attribute to a bound attribute if the option is enabled and the parser provided a binding
     const binding = vueConvertToBinding ? literal.binding : undefined;
-    const multilineQuotes = binding?.multilineQuotes ?? literal.multilineQuotes;
+
+    // literals that require surrounding braces can only be converted to template literals if the option is enabled
+    const surroundingBraces = jsxConvertToTemplateLiteral && literal.surroundingBraces;
+    const multilineQuotes = binding?.multilineQuotes ?? (
+      literal.surroundingBraces && !surroundingBraces
+        ? undefined
+        : literal.multilineQuotes
+    );
 
     const lineStartPosition = getLineStartPosition(ctx, literal);
     const literalStartPosition = getLiteralStartPosition(ctx, literal);
@@ -517,7 +531,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
     // convert a static attribute to a bound attribute with a template literal, or wrap in place
     const fix = binding
       ? `${binding.opening}${fixedClasses}${binding.closing}`
-      : literal.surroundingBraces
+      : surroundingBraces
         ? `{${fixedClasses}}`
         : fixedClasses;
 
