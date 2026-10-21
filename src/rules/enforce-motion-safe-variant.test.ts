@@ -85,6 +85,44 @@ describe(enforceMotionSafeVariant.name, () => {
     });
   });
 
+  it("should not report classes that remove motion", () => {
+    lint(enforceMotionSafeVariant, {
+      valid: [
+        {
+          angular: `<img class="transition-none" />`,
+          html: `<img class="transition-none" />`,
+          jsx: `() => <img class="transition-none" />`,
+          svelte: `<img class="transition-none" />`,
+          vue: `<template><img class="transition-none" /></template>`
+        },
+        {
+          angular: `<img class="animate-none" />`,
+          html: `<img class="animate-none" />`,
+          jsx: `() => <img class="animate-none" />`,
+          svelte: `<img class="animate-none" />`,
+          vue: `<template><img class="animate-none" /></template>`
+        }
+      ]
+    });
+  });
+
+  it("should still report when allowMotionReduce option is enabled and the literal contains non-tailwind classes", () => {
+    lint(enforceMotionSafeVariant, {
+      invalid: [
+        {
+          angular: `<img class="custom-class transition-all" />`,
+          html: `<img class="custom-class transition-all" />`,
+          jsx: `() => <img class="custom-class transition-all" />`,
+          svelte: `<img class="custom-class transition-all" />`,
+          vue: `<template><img class="custom-class transition-all" /></template>`,
+
+          errors: 1,
+          options: [{ allowMotionReduce: true }]
+        }
+      ]
+    });
+  });
+
   it("should report transition classes without the motion-safe variant", () => {
     lint(enforceMotionSafeVariant, {
       invalid: [

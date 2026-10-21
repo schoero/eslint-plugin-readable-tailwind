@@ -44,7 +44,7 @@ export const enforceMotionSafeVariant = createRule({
         array(string()),
         description("A list of regular expression patterns for classes that require the 'motion-safe' variant.")
       ),
-      ["^transition(-.*)?$", "^animate(-.*)?$"]
+      ["^transition(?!-none$)(-.*)?$", "^animate(?!-none$)(-.*)?$"]
     )
   }),
 
@@ -122,6 +122,6 @@ function hasMotionReduceInClasses(
   dissectedClasses: ReturnType<typeof getDissectedClasses>["dissectedClasses"]
 ): boolean {
   return Object.values(dissectedClasses).some(
-    dissectedClass => dissectedClass.variants?.includes("motion-reduce")
+    dissectedClass => dissectedClass?.variants?.includes("motion-reduce")
   );
 }

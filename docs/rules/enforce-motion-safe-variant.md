@@ -22,7 +22,9 @@ Suppress warnings for a literal that already contains a class with the `motion-r
 A list of regular expression patterns for classes that require the `motion-safe` variant. This allows you to customize which classes trigger this rule.
 
 **Type**: `string[]`  
-**Default**: `["^transition(-.*)?$", "^animate(-.*)?$"]`
+**Default**: `["^transition(?!-none$)(-.*)?$", "^animate(?!-none$)(-.*)?$"]`
+
+By default, `transition-none` and `animate-none` are excluded, because they remove motion instead of adding it.
 
 <br/>
 
