@@ -202,6 +202,7 @@ describe(enforceConsistentImportantPosition.name, () => {
               `
             },
             options: [{
+              messageStyle: "visual",
               position: "recommended",
               tailwindConfig: "./tailwind.config.js"
             }]
