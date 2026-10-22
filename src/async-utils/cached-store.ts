@@ -7,7 +7,7 @@ import { DefaultDeserializer, DefaultSerializer } from "node:v8";
 
 import { MAX_BUFFER_CAPACITY, SharedCache, SharedCacheCapacityError } from "./shared-cache.js";
 
-import type { CacheDependency, CacheStats } from "./shared-cache.js";
+import type { CacheDependency } from "./shared-cache.js";
 
 
 export type CacheKey = readonly (boolean | number | string | undefined)[] | boolean | number | string;
@@ -178,10 +178,7 @@ export class CachedStore {
     // taken before creating the value, so that changes during its creation make it stale
     const dependencies = this.snapshot(options);
     const save = (value: Value, asynchronous: boolean): Value => {
-      // the other side of the worker boundary may have written the entry in the meantime
-      if(!this.cache.has(cacheKey)){
-        this.write(cacheKey, value, asynchronous, dependencies);
-      }
+      this.writeIfMissing(cacheKey, value, asynchronous, dependencies);
       return value;
     };
     const value = create();
@@ -219,10 +216,7 @@ export class CachedStore {
       for(let position = 0; position < missing.length; position++){
         const index = missing[position];
         values[index] = created[position];
-        // the other side of the worker boundary may have written the entry in the meantime
-        if(!this.cache.has(cacheKeys[index])){
-          this.write(cacheKeys[index], created[position], false, dependencies);
-        }
+        this.writeIfMissing(cacheKeys[index], created[position], false, dependencies);
       }
     }
 
@@ -236,7 +230,7 @@ export class CachedStore {
   // records the current modification times of the files an entry depends on
   // entries that depend on it transitively only compare the recorded times and never access the file system
   static refreshPaths(key: CacheKey): void {
-    this.withCapacity(() => this.cache.has(this.valueKey(key), this.modified), false);
+    this.has(key);
   }
 
   static delete(key: CacheKey): boolean {
@@ -244,20 +238,13 @@ export class CachedStore {
   }
 
   static readFile(filePath: string): string {
-    try {
-      return this.readCachedFile(filePath);
-    } catch (error){
-      if(!(error instanceof SharedCacheCapacityError)){
-        throw error;
-      }
-      this.handleExhaustion();
-      return this.textDecoder.decode(readFileSync(resolve(filePath)));
-    }
+    return this.withCapacity(() => this.readCachedFile(filePath), undefined) ??
+      this.textDecoder.decode(readFileSync(resolve(filePath)));
   }
 
   private static readCachedFile(filePath: string): string {
     const path = resolve(filePath);
-    const key = `file:${path}`;
+    const key = this.fileKey(path);
     let before = this.fileStats(path);
     this.cache.recordPathUpdate(path, before.mtimeMs);
     const cached = this.cache.get(key);
@@ -292,33 +279,8 @@ export class CachedStore {
     throw new Error(`File changed repeatedly while being cached: ${path}`);
   }
 
-  static hasFile(filePath: string): boolean {
-    const path = resolve(filePath);
-    try {
-      this.cache.recordPathUpdate(path, this.fileStats(path).mtimeMs);
-    } catch (error){
-      if(isMissingFile(error)){
-        return false;
-      }
-      if(error instanceof SharedCacheCapacityError){
-        this.handleExhaustion();
-        return false;
-      }
-      throw error;
-    }
-    return this.cache.has(`file:${path}`);
-  }
-
-  static deleteFile(filePath: string): boolean {
-    return this.cache.delete(`file:${resolve(filePath)}`);
-  }
-
   static clear(): void {
     this.cache.clear();
-  }
-
-  static getStats(): CacheStats {
-    return this.cache.getStats();
   }
 
   private static valueKey(key: CacheKey): string {
@@ -331,12 +293,16 @@ export class CachedStore {
       : `value:#${hash("sha256", json, "hex").slice(0, 32)}`;
   }
 
+  private static fileKey(path: string): string {
+    return `file:${path}`;
+  }
+
   private static read<Value>(cacheKey: string): CachedValue<Value> | undefined {
     const bytes = this.withCapacity(() => this.cache.get(cacheKey, this.modified), undefined);
     return bytes === undefined ? undefined : decode<Value>(bytes);
   }
 
-  // refreshing paths may have to create path entries again, which allocates
+  // writes and path refreshes allocate, without capacity the operation is skipped instead of failing the lint run
   private static withCapacity<Result>(operation: () => Result, fallback: Result): Result {
     try {
       return operation();
@@ -355,13 +321,13 @@ export class CachedStore {
       return;
     }
     const data = encode(value, asynchronous);
-    try {
-      this.cache.set(cacheKey, data, { dependencies: dependencies as CacheDependency[] });
-    } catch (error){
-      if(!(error instanceof SharedCacheCapacityError)){
-        throw error;
-      }
-      this.handleExhaustion();
+    this.withCapacity(() => this.cache.set(cacheKey, data, { dependencies: dependencies as CacheDependency[] }), undefined);
+  }
+
+  // the other side of the worker boundary may have written the entry in the meantime
+  private static writeIfMissing<Value>(cacheKey: string, value: Value, asynchronous: boolean, dependencies: (CacheDependency | undefined)[]): void {
+    if(!this.cache.has(cacheKey)){
+      this.write(cacheKey, value, asynchronous, dependencies);
     }
   }
 
@@ -418,14 +384,7 @@ export class CachedStore {
       }),
       ...paths.map(path => {
         const resolved = resolve(path);
-        try {
-          return { path: resolved, version: this.cache.recordPathUpdate(resolved, this.modified(resolved)) };
-        } catch (error){
-          if(!(error instanceof SharedCacheCapacityError)){
-            throw error;
-          }
-          this.handleExhaustion();
-        }
+        return this.withCapacity(() => ({ path: resolved, version: this.cache.recordPathUpdate(resolved, this.modified(resolved)) }), undefined);
       })
     ];
   }
@@ -452,7 +411,7 @@ export class CachedStore {
       return statSync(path);
     } catch (error){
       if(isMissingFile(error)){
-        this.cache.delete(`file:${path}`);
+        this.cache.delete(this.fileKey(path));
       }
       throw error;
     }

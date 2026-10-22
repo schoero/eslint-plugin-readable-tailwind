@@ -1,6 +1,4 @@
-import { createReadStream, createWriteStream, readFileSync, writeFileSync } from "node:fs";
-import { Readable, Writable } from "node:stream";
-import { finished, pipeline } from "node:stream/promises";
+import { readFileSync, writeFileSync } from "node:fs";
 import { Worker } from "node:worker_threads";
 
 import { ModuleKind, ScriptTarget, transpileModule } from "typescript";
@@ -102,14 +100,11 @@ describe("sharedCache core", () => {
     expect(cache.pathVersion("/missing")).toBeUndefined();
     cache.set("entry", encode("value"), { dependencies: [{ path: "/file", version }, { path: "/other", version: cache.recordPathUpdate("/other", -1) }] });
     expect(cache.has("entry")).toBe(true);
-    expect(cache.pathDependencies("entry").sort()).toEqual(["/file", "/other"]);
-    expect(cache.pathDependencies("missing")).toEqual([]);
     expect(cache.getStats().entries).toBe(1);
     expect(cache.recordPathUpdate("/file", 2)).not.toBe(version);
     expect(cache.has("entry")).toBe(false);
     cache.recordPathUpdate("/file", 1);
     expect(cache.has("entry")).toBe(false);
-    expect(cache.pathDependencies("entry").sort()).toEqual(["/file", "/other"]);
     cache.set("missing", encode("value"), { dependencies: [{ path: "/unknown", version: 1 }] });
     expect(cache.has("missing")).toBe(false);
   });
@@ -127,7 +122,7 @@ describe("sharedCache core", () => {
     }
     expect(cache.getStats().metadataCapacity).toBe(4096);
     cache.clear();
-    expect(cache.getPathLastModified("/files/999")).toBeUndefined();
+    expect(cache.pathVersion("/files/999")).toBeUndefined();
   });
 
   it("rejects clock exhaustion instead of losing version ordering", () => {
@@ -179,7 +174,6 @@ describe("sharedCache core", () => {
     cache.recordPathUpdate("/file", 2);
     expect(cache.get("dependent")).toBeUndefined();
     expect(cache.has("file")).toBe(false);
-    expect(cache.isStale("file")).toBe(true);
     cache.set("replacement", new Uint8Array(16).fill(7));
     expect(cache.getStats().dataCapacity).toBe(16);
     expect(cache.getStats().entries).toBe(1);
@@ -217,8 +211,7 @@ describe("sharedCache core", () => {
   it("skips stale dependencies and tracks absent names, exact Unicode keys, and irreversible path changes", () => {
     const cache = create();
     expect(cache.get("missing")).toBeUndefined();
-    expect(cache.isStale("missing")).toBe(false);
-    expect(cache.getPathLastModified("missing")).toBeUndefined();
+    expect(cache.pathVersion("missing")).toBeUndefined();
     cache.set("\uD800", encode("surrogate"));
     cache.set("\uFFFD", encode("replacement"));
     expect(decode(cache.get("\uD800"))).toBe("surrogate");
@@ -228,10 +221,7 @@ describe("sharedCache core", () => {
     cache.set("path", encode("value"), { path: "/file" });
     cache.recordPathUpdate("/file", 1);
     cache.recordPathUpdate("/file", 0);
-    expect(cache.isStale("path")).toBe(true);
-    cache.set("fresh", encode("value"), { path: "/file" });
-    cache.invalidatePath("/file");
-    expect(cache.isStale("fresh")).toBe(true);
+    expect(cache.has("path")).toBe(false);
     expect(() => cache.recordPathUpdate("/file", NaN)).toThrow(/finite/);
   });
 
@@ -289,20 +279,14 @@ describe("sharedCache eviction", () => {
     expect(cache.get("new")).toEqual(new Uint8Array(8).fill(2));
   });
 
-  it("never evicts pinned entries, entries being written, or paths", async () => {
+  it("never evicts paths", () => {
     const cache = create(16, 16);
     const version = cache.recordPathUpdate("/file", 1);
-    cache.set("pinned", new Uint8Array(8).fill(1));
-    const reader = cache.createReadStream("pinned");
-    const writer = cache.createWriteStream("pending", 8);
-    expect(() => cache.set("other", new Uint8Array(8))).toThrow(/capacity/);
-    expect(cache.get("pinned")).toEqual(new Uint8Array(8).fill(1));
+    cache.set("first", new Uint8Array(16).fill(1));
+    cache.set("second", new Uint8Array(16).fill(2));
+    expect(cache.has("first")).toBe(false);
+    expect(cache.get("second")).toEqual(new Uint8Array(16).fill(2));
     expect(cache.pathVersion("/file")).toBe(version);
-    reader.destroy();
-    writer.destroy();
-    await Promise.all([finished(reader).catch(() => {}), finished(writer).catch(() => {})]);
-    cache.set("other", new Uint8Array(8).fill(2));
-    expect(cache.get("other")).toEqual(new Uint8Array(8).fill(2));
   });
 
   it("makes entries stale whose dependencies were evicted", () => {
@@ -348,179 +332,25 @@ it("reuses coalesced metadata across repeated replacements", () => {
   expect(cache.getStats().usedBytes + cache.getStats().freeBytes).toBe(32);
 });
 
-describe("sharedCache streams", () => {
-  it("keeps snapshots safe and cancels pending publication when cleared", async () => {
-    const cache = create(32, 32);
-    cache.set("old", new Uint8Array(16).fill(7));
-    const reader = cache.createReadStream("old");
-    const writer = cache.createWriteStream("pending", 16);
-    writer.write(new Uint8Array(8));
-    cache.clear();
-    cache.clear();
-    expect(cache.has("old")).toBe(false);
-    expect(cache.getStats().pinnedEntries).toBe(1);
-    const completion = finished(writer);
-    writer.end(new Uint8Array(8));
-    await expect(completion).rejects.toThrow(/stale/);
-    expect(cache.has("pending")).toBe(false);
-    await pipeline(reader, new Writable({
-      write(chunk: Buffer, _encoding, callback) {
-        expect(chunk.every(byte => byte === 7)).toBe(true);
-        callback();
-      }
-    }));
-    cache.set("new", new Uint8Array(32));
-    expect(cache.getStats().usedBytes).toBe(32);
-  });
-
-  it("keeps a pending writer stale even after a newer dependent write succeeds", async () => {
-    const cache = create();
-    cache.set("dependency", encode("1"));
-    const writer = cache.createWriteStream("pending", 3, { dependencies: [dependency(cache)] });
-    cache.set("dependency", encode("2"));
-    cache.set("new", encode("new"), { dependencies: [dependency(cache)] });
-    const completion = finished(writer);
-    writer.end("old");
-    await expect(completion).rejects.toThrow(/stale/);
-    expect(cache.has("pending")).toBe(false);
-    expect(decode(cache.get("new"))).toBe("new");
-    expect(cache.getStats().writingEntries).toBe(0);
-  });
-
-  it("rejects a reservation invalidated during writing without replacing valid data", async () => {
-    const cache = create();
-    cache.set("key", encode("old"));
-    const writer = cache.createWriteStream("key", 3, { path: "/changing" });
-    writer.write("ne");
-    cache.invalidatePath("/changing");
-    const completion = finished(writer);
-    writer.end("w");
-    await expect(completion).rejects.toThrow(/stale/);
-    expect(decode(cache.get("key"))).toBe("old");
-    cache.set("changing", encode("1"));
-    const dependent = cache.createWriteStream("key", 3, { dependencies: [dependency(cache, "changing")] });
-    cache.set("changing", encode("2"));
-    const dependentCompletion = finished(dependent);
-    dependent.end("new");
-    await expect(dependentCompletion).rejects.toThrow(/stale/);
-    expect(decode(cache.get("key"))).toBe("old");
-    expect(cache.getStats().writingEntries).toBe(0);
-  });
-  it("publishes only complete writes and preserves old entries on failure", async () => {
-    const cache = create();
-    cache.set("key", encode("old"));
-    const writer = cache.createWriteStream("key", 3);
-    writer.write("ne");
-    expect(decode(cache.get("key"))).toBe("old");
-    const completion = finished(writer);
-    writer.end("w");
-    await completion;
-    expect(decode(cache.get("key"))).toBe("new");
-    await expect(pipeline(Readable.from(["oversized"]), cache.createWriteStream("key", 2))).rejects.toThrow(/exceeded/);
-    await expect(pipeline(Readable.from(["x"]), cache.createWriteStream("key", 2))).rejects.toThrow(/before/);
-    expect(decode(cache.get("key"))).toBe("new");
-    expect(cache.getStats().writingEntries).toBe(0);
-  });
-
-  it("pins retired payloads until readable cancellation", async () => {
-    const cache = create(16, 16);
-    cache.set("key", new Uint8Array(16).fill(8));
-    const reader = cache.createReadStream("key");
-    const completion = finished(reader);
-    cache.delete("key");
-    expect(cache.getStats().pinnedEntries).toBe(1);
-    expect(() => cache.set("other", new Uint8Array(16))).toThrow(/capacity/);
-    reader.destroy();
-    await expect(completion).rejects.toThrow(/close/);
-    cache.set("other", new Uint8Array(16).fill(9));
-    expect(cache.getStats().pinnedEntries).toBe(0);
-  });
-
-  it("keeps a deleted payload until both overlapping read streams close", async () => {
-    const cache = create(16, 16);
-    cache.set("key", new Uint8Array(16).fill(7));
-    const first = cache.createReadStream("key");
-    const second = cache.createReadStream("key");
-    const firstCompletion = finished(first);
-    cache.delete("key");
-    first.destroy();
-    await expect(firstCompletion).rejects.toThrow(/close/);
-    expect(() => cache.set("other", new Uint8Array(16))).toThrow(/capacity/);
-    await pipeline(second, new Writable({
-      write(chunk: Buffer, _encoding, callback) {
-        expect(chunk.every(byte => byte === 7)).toBe(true);
-        callback();
-      }
-    }));
-    cache.set("other", new Uint8Array(16));
-    expect(cache.getStats().pinnedEntries).toBe(0);
-  });
-
-  it("handles empty streams, write cancellation, and completion-order replacements", async () => {
-    const cache = create();
-    await pipeline(Readable.from([]), cache.createWriteStream("empty", 0));
-    expect(cache.get("empty")).toEqual(new Uint8Array());
-    await pipeline(cache.createReadStream("empty"), new Writable({ write(_chunk, _encoding, callback) { callback(); } }));
-    const canceled = cache.createWriteStream("key", 16);
-    const cancellation = finished(canceled);
-    canceled.destroy(new Error("canceled"));
-    await expect(cancellation).rejects.toThrow("canceled");
-    const first = cache.createWriteStream("key", 3);
-    const second = cache.createWriteStream("key", 3);
-    await pipeline(Readable.from(["two"]), second);
-    await pipeline(Readable.from(["one"]), first);
-    expect(decode(cache.get("key"))).toBe("one");
-    expect(cache.getStats().writingEntries).toBe(0);
-  });
-
-  it("pipes large files with bounded chunks and backpressure, and supports setFile", async () => {
+describe("sharedCache files", () => {
+  it("loads files in bounded chunks", () => {
     const directory = new TestDirectory({ "input.bin": "" }, true);
     try {
       const source = directory.files["input.bin"].path;
-      const target = `${directory.directory}/output.bin`;
-      const chunk = Buffer.alloc(32 * 1024, 37);
-      const chunks = 128;
-      await pipeline(Readable.from((function *() {
-        for(let index = 0; index < chunks; index++){
-          yield chunk;
-        }
-      })()), createWriteStream(source));
-      const cache = create(32, chunk.length * chunks * 3);
-      await pipeline(createReadStream(source, { highWaterMark: chunk.length }), cache.createWriteStream("file", chunk.length * chunks));
-      let total = 0;
-      await pipeline(cache.createReadStream("file"), new Writable({
-        highWaterMark: 1,
-        write(data: Buffer, _encoding, callback) {
-          expect(data.length).toBeLessThanOrEqual(64 * 1024);
-          expect(data.every(byte => byte === 37)).toBe(true);
-          total += data.length;
-          setImmediate(callback);
-        }
-      }));
-      expect(total).toBe(chunk.length * chunks);
-      await pipeline(cache.createReadStream("file"), createWriteStream(target));
-      cache.setFile("copy", target);
-      expect(cache.getStats().usedBytes).toBe(total * 2);
-      expect(cache.getStats().pinnedEntries).toBe(0);
+      const length = 4 * 1024 * 1024;
+      writeFileSync(source, Buffer.alloc(length, 37));
+      const cache = create(32, length * 2);
+      cache.setFile("file", source);
+      const data = cache.get("file")!;
+      expect(data).toHaveLength(length);
+      expect(data.every(byte => byte === 37)).toBe(true);
       writeFileSync(source, "small");
       cache.setFile("small", source);
       expect(decode(cache.get("small"))).toBe("small");
+      expect(cache.getStats().writingEntries).toBe(0);
     } finally {
       directory.cleanUp();
     }
-  });
-
-  it("releases reservations and leases on upstream and downstream errors", async () => {
-    const cache = create(32, 32);
-    const source = new Readable({ read() { this.destroy(new Error("source failed")); } });
-    await expect(pipeline(source, cache.createWriteStream("failed", 16))).rejects.toThrow("source failed");
-    expect(cache.getStats().writingEntries).toBe(0);
-    cache.set("key", new Uint8Array(16));
-    await expect(pipeline(cache.createReadStream("key"), new Writable({
-      write(_chunk, _encoding, callback) { callback(new Error("destination failed")); }
-    }))).rejects.toThrow("destination failed");
-    expect(cache.getStats().pinnedEntries).toBe(0);
-    expect(() => cache.createReadStream("absent")).toThrow(/missing/);
   });
 });
 

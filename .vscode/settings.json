@@ -29,7 +29,7 @@
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.expand": false,
   "explorer.fileNesting.patterns": {
-    "*.ts": "$(capture).ts,$(capture).test.ts,$(capture).cts,$(capture).mts,$(capture).test.snap,$(capture).test-d.ts,$(capture).v4.ts,$(capture).sync.ts,$(capture).async.ts,$(capture).v3.ts,$(capture).async.v4.ts,$(capture).async.v3.ts,$(capture).async.worker.ts,$(capture).async.worker.v4.ts,$(capture).async.worker.v3.ts",
+    "*.ts": "$(capture).ts,$(capture).test.ts,$(capture).cts,$(capture).mts,$(capture).test.snap,$(capture).test-d.ts,$(capture).v4.ts,$(capture).async.ts,$(capture).v3.ts,$(capture).async.v4.ts,$(capture).async.v3.ts,$(capture).async.worker.ts,$(capture).async.worker.v4.ts,$(capture).async.worker.v3.ts",
     "*.v3.ts": "$(capture).v4.ts",
     "*.js": "$(capture).test.js,$(capture).cjs,$(capture).mjs,$(capture).d.ts,$(capture).d.ts.map,$(capture).js.map"
   },

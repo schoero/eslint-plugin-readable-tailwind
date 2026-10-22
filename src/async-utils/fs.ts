@@ -1,4 +1,4 @@
-import { existsSync, statSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 
 
@@ -22,14 +22,5 @@ export function findPathRecursive(cwd: string, startDirectory: string, entries: 
     }
 
     resolvedPaths.push(parentPath);
-  }
-}
-
-export function getModifiedDate(filePath: string): Date | undefined {
-  try {
-    const stats = statSync(filePath);
-    return stats.mtime;
-  } catch {
-    return undefined;
   }
 }

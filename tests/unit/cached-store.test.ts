@@ -32,6 +32,10 @@ function valueKey(key: string): string {
   return `value:${JSON.stringify(key)}`;
 }
 
+function fileKey(path: string): string {
+  return `file:${path}`;
+}
+
 function createStore(cache = createCache()): typeof CachedStore {
   CachedStore.attachSharedState({ data: cache.data, metadata: cache.metadata });
   return CachedStore;
@@ -137,12 +141,13 @@ describe("module-level resolver caching", () => {
 
 describe("cachedStore values", () => {
   it("checks entry validity against entry and file dependencies without creating entries", () => {
-    const store = createStore();
+    const cache = createCache();
+    const store = createStore(cache);
     const path = fixture();
     const options = { dependencies: ["dependency"], paths: [path] };
     store.upsert("dependency", 1);
     expect(store.has("local")).toBe(false);
-    expect(store.getStats().entries).toBe(1);
+    expect(cache.getStats().entries).toBe(1);
     store.getOrCreate("local", () => true, options);
     expect(store.has("local")).toBe(true);
     store.upsert("dependency", 2);
@@ -501,7 +506,7 @@ describe("cachedStore values", () => {
     const version = cache.version(valueKey("key"));
     store.upsert("key", "value");
     expect(cache.version(valueKey("key"))).toBe(version);
-    expect(store.getStats().entries).toBe(1);
+    expect(cache.getStats().entries).toBe(1);
   });
 });
 
@@ -520,7 +525,7 @@ describe("cachedStore files", () => {
     expect(store.readFile(path)).toBe(expected);
     expect(store.readFile(path)).toBe(expected);
     expect(load).toHaveBeenCalledTimes(1);
-    expect(cache.get(`file:${path}`)).toEqual(new Uint8Array(bytes));
+    expect(cache.get(fileKey(path))).toEqual(new Uint8Array(bytes));
   });
 
   it("loads on a miss, reuses unchanged files, and normalizes relative paths", () => {
@@ -528,13 +533,12 @@ describe("cachedStore files", () => {
     const load = vi.spyOn(SharedCache.prototype, "setFile");
     const store = createStore(cache);
     const path = fixture();
-    expect(store.hasFile(path)).toBe(false);
-    expect(load).not.toHaveBeenCalled();
+    expect(cache.has(fileKey(path))).toBe(false);
     expect(store.readFile(path)).toBe("first");
     expect(store.readFile(relative(process.cwd(), path))).toBe("first");
     expect(store.readFile(path)).toBe("first");
     expect(load).toHaveBeenCalledTimes(1);
-    expect(store.hasFile(path)).toBe(true);
+    expect(cache.has(fileKey(path))).toBe(true);
   });
 
   it("refreshes newer and backdated files without writing to disk", () => {
@@ -542,42 +546,39 @@ describe("cachedStore files", () => {
     const path = fixture();
     store.readFile(path);
     changeFile(path, "newer");
-    expect(store.hasFile(path)).toBe(false);
     expect(store.readFile(path)).toBe("newer");
     changeFile(path, "backdated", 1000);
     expect(store.readFile(path)).toBe("backdated");
-    expect(store.deleteFile(path)).toBe(true);
-    expect(store.deleteFile(path)).toBe(false);
     expect(existsSync(path)).toBe(true);
     expect(readFileSync(path, "utf8")).toBe("backdated");
   });
 
   it("keeps file and value keys separate", () => {
-    const store = createStore();
+    const cache = createCache();
+    const store = createStore(cache);
     const path = fixture();
     store.upsert(path, "value");
     expect(store.readFile(path)).toBe("first");
     expect(store.get(path)).toBe("value");
-    store.deleteFile(path);
-    expect(store.hasFile(path)).toBe(false);
+    cache.delete(fileKey(path));
     expect(store.get(path)).toBe("value");
+    store.readFile(path);
     store.delete(path);
-    expect(store.hasFile(path)).toBe(false);
-    expect(store.readFile(path)).toBe("first");
+    expect(store.get(path)).toBeUndefined();
+    expect(cache.has(fileKey(path))).toBe(true);
   });
 
   it("never serves deleted files and propagates non-missing filesystem errors", () => {
-    const store = createStore();
+    const cache = createCache();
+    const store = createStore(cache);
     const path = fixture();
     store.readFile(path);
     unlinkSync(path);
     expect(() => store.readFile(path)).toThrow();
-    expect(store.hasFile(path)).toBe(false);
-    expect(store.deleteFile(path)).toBe(false);
+    expect(cache.has(fileKey(path))).toBe(false);
     writeFileSync(path, "recreated");
     expect(store.readFile(path)).toBe("recreated");
-    expect(store.hasFile(join(path, "child"))).toBe(false);
-    expect(() => store.hasFile("bad\0path")).toThrow();
+    expect(() => store.readFile(join(path, "child"))).toThrow();
     expect(() => store.readFile("bad\0path")).toThrow();
   });
 
@@ -592,13 +593,13 @@ describe("cachedStore files", () => {
     });
     expect(store.readFile(path)).toBe("changed");
     expect(load).toHaveBeenCalledTimes(2);
-    store.deleteFile(path);
+    cache.delete(fileKey(path));
     load.mockImplementation((key, filePath, options) => {
       original(key, filePath, options);
       changeFile(path, "changing");
     });
     expect(() => store.readFile(path)).toThrow(/repeatedly/);
-    expect(store.hasFile(path)).toBe(false);
+    expect(cache.has(fileKey(path))).toBe(false);
   });
 
   it("reads files directly when the cache is exhausted", () => {
@@ -606,7 +607,7 @@ describe("cachedStore files", () => {
     const store = createStore(cache);
     const path = fixture();
     expect(store.readFile(path)).toBe("first");
-    expect(store.hasFile(path)).toBe(false);
+    expect(cache.has(fileKey(path))).toBe(false);
     expect(cache.resetRequested).toBe(true);
   });
 });
@@ -618,13 +619,13 @@ it("clears values and files in place across wrapper attachments", () => {
   const path = fixture();
   store.upsert("key", { value: 42 });
   store.readFile(path);
-  const before = store.getStats();
+  const before = cache.getStats();
   attached.clear();
   expect(store.has("key")).toBe(false);
-  expect(store.hasFile(path)).toBe(false);
-  expect(store.getStats().usedBytes).toBe(0);
-  expect(store.getStats().dataCapacity).toBe(before.dataCapacity);
-  expect(store.getStats().metadataCapacity).toBe(before.metadataCapacity);
+  expect(cache.has(fileKey(path))).toBe(false);
+  expect(cache.getStats().usedBytes).toBe(0);
+  expect(cache.getStats().dataCapacity).toBe(before.dataCapacity);
+  expect(cache.getStats().metadataCapacity).toBe(before.metadataCapacity);
   store.upsert("key", "new");
   expect(attached.has(valueKey("key"))).toBe(true);
   expect(store.get("key")).toBe("new");

@@ -12,6 +12,7 @@ import { resolveCss, resolveJs } from "../async-utils/resolvers.js";
 import type { AsyncContext } from "../utils/context.js";
 
 
+// the context is not serializable, it stays in the worker and the cache entry only tracks whether it is still valid
 let tailwindContext: Awaited<ReturnType<typeof buildTailwindContext>>;
 
 export async function createTailwindContext(ctx: AsyncContext) {

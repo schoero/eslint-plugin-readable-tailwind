@@ -26,11 +26,10 @@ import { getAttributesByVueStartTag, getLiteralsByVueAttribute } from "better-ta
 import { SelectorKind } from "better-tailwindcss:types/rule.js";
 import { getLocByRange } from "better-tailwindcss:utils/ast.js";
 import { CachedStore } from "better-tailwindcss:utils/cached-store.js";
+import { getTailwindPackageJsonPath, getTailwindVersion } from "better-tailwindcss:utils/tailwindcss.js";
 import { augmentMessageWithWarnings, escapeMessage } from "better-tailwindcss:utils/utils.js";
 import { removeDefaults } from "better-tailwindcss:utils/valibot.js";
 import { warnOnce } from "better-tailwindcss:utils/warn.js";
-
-import { getTailwindPackageJsonPath, getTailwindVersion } from "../utils/tailwindcss.js";
 
 import type { TmplAstElement } from "@angular/compiler";
 import type { Atrule } from "@eslint/css-tree";

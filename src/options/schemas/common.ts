@@ -111,7 +111,7 @@ export const CACHE_SIZE_OPTION_SCHEMA = strictObject({
     pipe(
       number(),
       minValue(1),
-      description("The maximum memory in megabytes the cache may use. The least recently used entries are evicted beyond that.")
+      description("The maximum memory in megabytes the cache of each linting thread may use. The least recently used entries are evicted beyond that.")
     ),
     32
   )

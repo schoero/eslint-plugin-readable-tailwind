@@ -46,21 +46,7 @@ function getTSConfigPath({ configPath, cwd }: {
 
   return CachedStore.getOrCreate(
     CacheEntry.TSCONFIG_PATH,
-    () => {
-      const potentialPaths = [
-        ...configPath ? [configPath] : [],
-        "tsconfig.json",
-        "jsconfig.json"
-      ];
-
-      const foundConfigPath = findPathRecursive(cwd, cwd, potentialPaths);
-      const warning = getConfigPathWarning(configPath, foundConfigPath);
-
-      return {
-        path: foundConfigPath,
-        warnings: [warning]
-      };
-    },
+    () => findTSConfigPath({ configPath, cwd }),
     { dependencies: [CacheEntry.CWD, CacheEntry.TSCONFIG_OPTION], paths: getConfiguredPaths(configPath, cwd) }
   );
 }
@@ -77,54 +63,79 @@ export function getTailwindConfigPath({ configPath, cwd, version }: {
 
   return CachedStore.getOrCreate(
     CacheEntry.TAILWIND_CONFIG_PATH,
-    () => {
-      if(version.major >= 4){
-
-        const foundConfigPath = configPath && findPathRecursive(cwd, cwd, [configPath]);
-        const warning = getEntryPointWarning(configPath, foundConfigPath);
-
-        if(foundConfigPath){
-          return {
-            path: foundConfigPath,
-            warnings: [warning]
-          };
-        }
-
-        const defaultConfigPath = resolveCss("tailwindcss/theme.css", cwd);
-
-        if(!defaultConfigPath){
-          throw new Error("No default tailwind config found. Please ensure you have Tailwind CSS installed.");
-        }
-
-        return {
-          path: defaultConfigPath,
-          warnings: [warning]
-        };
-      }
-
-      if(version.major <= 3){
-        const defaultPaths = [
-          "tailwind.config.js",
-          "tailwind.config.cjs",
-          "tailwind.config.mjs",
-          "tailwind.config.ts"
-        ];
-
-        const foundConfigPath = configPath && findPathRecursive(cwd, cwd, [configPath]);
-
-        const foundDefaultPath = findPathRecursive(cwd, cwd, defaultPaths);
-        const warning = getConfigPathWarning(configPath, foundConfigPath);
-
-        return {
-          path: foundConfigPath ?? foundDefaultPath ?? "default",
-          warnings: [warning]
-        };
-      }
-
-      throw new Error(`Unsupported Tailwind CSS version: ${version.major}. Please use a version between 3 and 4.`);
-    },
+    () => findTailwindConfigPath({ configPath, cwd, version }),
     { dependencies: [CacheEntry.CWD, CacheEntry.TAILWIND_CONFIG_OPTION, CacheEntry.TAILWIND_VERSION], paths: getConfiguredPaths(configPath, cwd) }
   );
+}
+
+function findTSConfigPath({ configPath, cwd }: {
+  configPath: string | undefined;
+  cwd: string;
+}) {
+  const potentialPaths = [
+    ...configPath ? [configPath] : [],
+    "tsconfig.json",
+    "jsconfig.json"
+  ];
+
+  const foundConfigPath = findPathRecursive(cwd, cwd, potentialPaths);
+  const warning = getConfigPathWarning(configPath, foundConfigPath);
+
+  return {
+    path: foundConfigPath,
+    warnings: [warning]
+  };
+}
+
+function findTailwindConfigPath({ configPath, cwd, version }: {
+  configPath: string | undefined;
+  cwd: string;
+  version: Version;
+}) {
+  if(version.major >= 4){
+
+    const foundConfigPath = configPath && findPathRecursive(cwd, cwd, [configPath]);
+    const warning = getEntryPointWarning(configPath, foundConfigPath);
+
+    if(foundConfigPath){
+      return {
+        path: foundConfigPath,
+        warnings: [warning]
+      };
+    }
+
+    const defaultConfigPath = resolveCss("tailwindcss/theme.css", cwd);
+
+    if(!defaultConfigPath){
+      throw new Error("No default tailwind config found. Please ensure you have Tailwind CSS installed.");
+    }
+
+    return {
+      path: defaultConfigPath,
+      warnings: [warning]
+    };
+  }
+
+  if(version.major <= 3){
+    const defaultPaths = [
+      "tailwind.config.js",
+      "tailwind.config.cjs",
+      "tailwind.config.mjs",
+      "tailwind.config.ts"
+    ];
+
+    const foundConfigPath = configPath && findPathRecursive(cwd, cwd, [configPath]);
+
+    const foundDefaultPath = findPathRecursive(cwd, cwd, defaultPaths);
+    const warning = getConfigPathWarning(configPath, foundConfigPath);
+
+    return {
+      path: foundConfigPath ?? foundDefaultPath ?? "default",
+      warnings: [warning]
+    };
+  }
+
+  throw new Error(`Unsupported Tailwind CSS version: ${version.major}. Please use a version between 3 and 4.`);
 }
 
 // a configured file that does not exist yet is picked up as soon as it is created

@@ -71,6 +71,8 @@ The plugin is built around a strict separation between parsing and linting:
 
 Helpers under `src/tailwindcss/*.ts` come in `createGetX` / `getX` pairs backed by a synckit worker. Call `createGetX(ctx)` once in the rule's `initialize`, then call `getX(async(ctx), ...)` inside `lintLiterals` (`async()` from `src/utils/context.ts` builds the serializable worker context). Every getter returns `{ ..., warnings }` — forward `warnings` into `ctx.report` so misconfiguration is surfaced.
 
+Getters cache worker results in a cache shared with the worker, see `src/async-utils/shared-cache.md`. A new getter wraps its worker call in `CachedStore.getOrCreate(...)` with a dependency on `CacheEntry.TAILWIND_CONTEXT`, like the existing getters.
+
 - `createGetDissectedClasses` / `getDissectedClasses(ctx, classes)` from `src/tailwindcss/dissect-classes.ts`: dissects tailwind classes into their individual parts (variants, modifiers etc.). Returns `{ dissectedClasses }` mapping each class to a `DissectedClass` (see `src/tailwindcss/dissect-classes.ts`; `variants` is `undefined` in Tailwind v4 for non-tailwind classes).
 - `createGetClassOrder` / `getClassOrder(ctx, classes)` from `src/tailwindcss/class-order.ts`: Tailwind's internal sort weight per class.
 - `createGetVariantOrder` / `getVariantOrder(ctx, classes)` from `src/tailwindcss/variant-order.ts`: sort order index per variant.

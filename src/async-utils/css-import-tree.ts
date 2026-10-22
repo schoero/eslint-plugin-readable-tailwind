@@ -4,8 +4,8 @@ import { dirname } from "node:path";
 import { fork } from "@eslint/css-tree";
 import { tailwind4 } from "tailwind-csstree";
 
-import { resolveCss } from "../async-utils/resolvers.js";
 import { createVisitedNodes, visitNode } from "../utils/visitedNodes.js";
+import { resolveCss } from "./resolvers.js";
 
 import type { AsyncContext } from "../utils/context.js";
 

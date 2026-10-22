@@ -1,8 +1,7 @@
 import { closeSync, fstatSync, openSync, readSync } from "node:fs";
-import { Readable, Writable } from "node:stream";
 
 
-export interface CacheOptions {
+export interface SharedCacheOptions {
   initialDataCapacity: number;
   initialMetadataCapacity: number;
   maxDataCapacity: number;
@@ -32,13 +31,19 @@ export interface CacheStats {
 }
 
 const HEADER = 56;
+// every metadata block starts with its size and the next free block
+const BLOCK_HEADER = 8;
+// smaller remainders of a free block are not split off
+const MIN_BLOCK_SIZE = BLOCK_HEADER + 8;
+const INITIAL_BUCKETS = 16;
+// the header and the initial bucket table
+const MIN_METADATA_CAPACITY = HEADER + BLOCK_HEADER + INITIAL_BUCKETS * 4;
 const MAGIC = 0x53_54_41_45;
 export const MAX_BUFFER_CAPACITY = 0x7F_FF_FF_F8;
 const ENTRY_SIZE = 88;
 const DEPENDENCY_SIZE = 24;
 const MAX_DEPENDENCY_DEPTH = 32;
-const INITIAL_BUCKETS = 16;
-const STREAM_CHUNK_SIZE = 64 * 1024;
+const READ_CHUNK_SIZE = 64 * 1024;
 
 const HEADER_FIELDS = {
   bucketCount: 20,
@@ -53,6 +58,10 @@ const HEADER_FIELDS = {
   magic: 0,
   resetRequested: 4,
   tail: 48
+};
+const BLOCK_FIELDS = {
+  next: 4,
+  size: 0
 };
 const ENTRY_FIELDS = {
   capacity: 16,
@@ -133,14 +142,14 @@ export class SharedCache {
     this.metadataBytes = new Uint8Array(metadata);
   }
 
-  static create(options: CacheOptions): SharedCache {
+  static create(options: SharedCacheOptions): SharedCache {
     for(const name of ["initialDataCapacity", "maxDataCapacity", "initialMetadataCapacity", "maxMetadataCapacity"] as const){
       validateCapacity(options[name], name);
     }
-    if(options.initialMetadataCapacity < HEADER + 8 + INITIAL_BUCKETS * 4 ||
+    if(options.initialMetadataCapacity < MIN_METADATA_CAPACITY ||
       options.initialMetadataCapacity > options.maxMetadataCapacity ||
       options.initialDataCapacity > options.maxDataCapacity){
-      throw new RangeError(`Invalid initial or maximum buffer capacity (metadata requires at least ${HEADER + 8 + INITIAL_BUCKETS * 4} bytes)`);
+      throw new RangeError(`Invalid initial or maximum buffer capacity (metadata requires at least ${MIN_METADATA_CAPACITY} bytes)`);
     }
     const metadata = new SharedArrayBuffer(options.initialMetadataCapacity, { maxByteLength: options.maxMetadataCapacity });
     const data = new SharedArrayBuffer(options.initialDataCapacity, { maxByteLength: options.maxDataCapacity });
@@ -167,42 +176,23 @@ export class SharedCache {
   // passing `modified` records the current modification times of the paths the entry depends on directly
   // entries that only depend on it transitively compare the recorded versions and never access the file system
   get(key: string, modified?: ModifiedTime): Uint8Array | undefined {
-    const entry = this.lookup(key, modified);
-    if(entry && !this.stale(entry)){
-      this.touch(entry);
+    const entry = this.current(key, modified);
+    if(entry){
       return this.payload(entry).slice();
     }
   }
 
   has(key: string, modified?: ModifiedTime): boolean {
-    const entry = this.lookup(key, modified);
-    if(entry && !this.stale(entry)){
-      this.touch(entry);
-      return true;
-    }
-    return false;
+    return !!this.current(key, modified);
   }
 
   // the version of a valid entry changes whenever the entry is written with a different value
   // entries that depend on it record this version and become stale when it changes
   version(key: string, modified?: ModifiedTime): number | undefined {
-    const entry = this.lookup(key, modified);
-    if(entry && !this.stale(entry)){
-      this.touch(entry);
+    const entry = this.current(key, modified);
+    if(entry){
       return this.readFloat64(entry + ENTRY_FIELDS.version);
     }
-  }
-
-  // the paths the current entry depends on directly, regardless of whether the entry is still valid
-  pathDependencies(key: string): string[] {
-    const entry = this.find(key, KEY);
-    const paths: string[] = [];
-    for(let dependency = entry ? this.readUint32(entry + ENTRY_FIELDS.dependencies) : 0; dependency; dependency = this.readUint32(dependency + DEPENDENCY_FIELDS.next)){
-      if(this.readUint32(dependency + DEPENDENCY_FIELDS.kind) === PATH){
-        paths.push(this.text(dependency + DEPENDENCY_FIELDS.key, this.readUint32(dependency + DEPENDENCY_FIELDS.keyLength)));
-      }
-    }
-    return paths;
   }
 
   set(key: string, data: Uint8Array, options: CacheEntryOptions = {}): void {
@@ -232,92 +222,6 @@ export class SharedCache {
     }
   }
 
-  createWriteStream(key: string, expectedLength: number, options: CacheEntryOptions = {}): Writable {
-    let reservation = this.reserve(key, expectedLength, options);
-    let written = 0;
-    return new Writable({
-      destroy: (error, callback) => {
-        if(reservation){
-          this.retire(reservation);
-          reservation = 0;
-        }
-        callback(error);
-      },
-      final: callback => {
-        try {
-          if(written !== expectedLength){
-            throw new RangeError("Cache stream ended before expected length");
-          }
-          this.publish(reservation);
-          reservation = 0;
-          callback();
-        } catch (error){
-          callback(error as Error);
-        }
-      },
-      highWaterMark: STREAM_CHUNK_SIZE,
-      write: (chunk: Buffer, _encoding, callback) => {
-        try {
-          if(written + chunk.byteLength > expectedLength){
-            throw new RangeError("Cache stream exceeded expected length");
-          }
-          this.payload(reservation).set(chunk, written);
-          written += chunk.byteLength;
-          callback();
-        } catch (error){
-          callback(error as Error);
-        }
-      }
-    });
-  }
-
-  createReadStream(key: string): Readable {
-    const entry = this.find(key, KEY);
-    if(!entry || this.stale(entry)){
-      throw new Error("Cache entry is missing or stale");
-    }
-    this.payload(entry);
-    this.writeUint32(entry + ENTRY_FIELDS.readers, this.readUint32(entry + ENTRY_FIELDS.readers) + 1);
-    let position = 0;
-    let released = false;
-    const release = (): void => {
-      if(released){
-        return;
-      }
-      released = true;
-      const readers = this.readUint32(entry + ENTRY_FIELDS.readers) - 1;
-      this.writeUint32(entry + ENTRY_FIELDS.readers, readers);
-      if(!readers && this.readUint32(entry + ENTRY_FIELDS.state) === RETIRED){
-        this.release(entry);
-      }
-    };
-    const stream = new Readable({
-      destroy: (error, callback) => {
-        release();
-        callback(error);
-      },
-      highWaterMark: STREAM_CHUNK_SIZE,
-      read: size => {
-        try {
-          const payload = this.payload(entry);
-          if(position === payload.length){
-            stream.push(null);
-            return;
-          }
-          const chunkLength = Math.max(1, Math.min(size, STREAM_CHUNK_SIZE));
-          const end = Math.min(payload.length, position + chunkLength);
-          const chunk = payload.slice(position, end);
-          position = end;
-          stream.push(chunk);
-        } catch (error){
-          stream.destroy(error as Error);
-        }
-      }
-    });
-    stream.once("end", release);
-    return stream;
-  }
-
   setFile(key: string, filePath: string, options: CacheEntryOptions = {}): void {
     const descriptor = openSync(filePath, "r");
     let reservation = 0;
@@ -327,7 +231,7 @@ export class SharedCache {
       const destination = this.payload(reservation);
       let position = 0;
       while(position < length){
-        const chunkLength = Math.min(length - position, STREAM_CHUNK_SIZE);
+        const chunkLength = Math.min(length - position, READ_CHUNK_SIZE);
         const received = readSync(descriptor, destination, position, chunkLength, position);
         if(!received){
           throw new Error("File ended before expected length");
@@ -392,21 +296,6 @@ export class SharedCache {
     return entry ? this.readFloat64(entry + ENTRY_FIELDS.version) : undefined;
   }
 
-  getPathLastModified(path: string): number | undefined {
-    const entry = this.find(path, PATH);
-    return entry ? this.readFloat64(entry + ENTRY_FIELDS.timestamp) : undefined;
-  }
-
-  invalidatePath(path: string): void {
-    const entry = this.find(path, PATH) || this.createPath(path, 0);
-    const previous = this.readFloat64(entry + ENTRY_FIELDS.timestamp);
-    let timestamp = Math.max(Date.now(), previous + 1);
-    if(timestamp === previous){
-      timestamp = previous === 0 ? 1 : -previous;
-    }
-    this.updatePath(entry, timestamp);
-  }
-
   // lets an attached thread ask the owner of the buffers to replace them, for example once they are exhausted
   requestReset(): void {
     this.writeUint32(HEADER_FIELDS.resetRequested, 1);
@@ -414,11 +303,6 @@ export class SharedCache {
 
   get resetRequested(): boolean {
     return this.readUint32(HEADER_FIELDS.resetRequested) === 1;
-  }
-
-  isStale(key: string): boolean {
-    const entry = this.find(key, KEY);
-    return !!entry && this.stale(entry);
   }
 
   getStats(): CacheStats {
@@ -494,7 +378,7 @@ export class SharedCache {
   }
 
   private allocateMetadata(size: number): number {
-    const total = align(size + 8);
+    const total = align(size + BLOCK_HEADER);
     if(HEADER + total > this.metadata.maxByteLength){
       throw new SharedCacheCapacityError();
     }
@@ -508,10 +392,10 @@ export class SharedCache {
         if(end + total > this.metadata.byteLength){
           this.grow(this.metadata, end + total);
         }
-        this.writeUint32(end, total);
+        this.writeUint32(end + BLOCK_FIELDS.size, total);
         this.writeUint32(HEADER_FIELDS.end, end + total);
-        this.metadataBytes.fill(0, end + 8, end + total);
-        return end + 8;
+        this.metadataBytes.fill(0, end + BLOCK_HEADER, end + total);
+        return end + BLOCK_HEADER;
       }
       // the arena is at its maximum, stale entries go first, then the least recently used ones
       if(!reclaimed){
@@ -525,48 +409,58 @@ export class SharedCache {
   private allocateFreeBlock(total: number): number {
     let link = HEADER_FIELDS.free;
     for(let block = this.readUint32(link); block; block = this.readUint32(link)){
-      const available = this.readUint32(block);
+      const available = this.readUint32(block + BLOCK_FIELDS.size);
       if(available >= total){
-        const next = this.readUint32(block + 4);
-        if(available - total >= 16){
+        const next = this.readUint32(block + BLOCK_FIELDS.next);
+        if(available - total >= MIN_BLOCK_SIZE){
           const remainder = block + total;
-          this.writeUint32(remainder, available - total);
-          this.writeUint32(remainder + 4, next);
+          this.writeUint32(remainder + BLOCK_FIELDS.size, available - total);
+          this.writeUint32(remainder + BLOCK_FIELDS.next, next);
           this.writeUint32(link, remainder);
-          this.writeUint32(block, total);
+          this.writeUint32(block + BLOCK_FIELDS.size, total);
         } else {
           this.writeUint32(link, next);
         }
-        this.metadataBytes.fill(0, block + 8, block + this.readUint32(block));
-        return block + 8;
+        this.metadataBytes.fill(0, block + BLOCK_HEADER, block + this.readUint32(block + BLOCK_FIELDS.size));
+        return block + BLOCK_HEADER;
       }
-      link = block + 4;
+      link = block + BLOCK_FIELDS.next;
     }
     return 0;
   }
 
   private freeMetadata(offset: number): void {
-    const block = offset - 8;
+    const block = offset - BLOCK_HEADER;
     let previous = 0;
     let next = this.readUint32(HEADER_FIELDS.free);
     while(next && next < block){
       previous = next;
-      next = this.readUint32(next + 4);
+      next = this.readUint32(next + BLOCK_FIELDS.next);
     }
-    this.writeUint32(block + 4, next);
-    this.writeUint32(previous ? previous + 4 : HEADER_FIELDS.free, block);
-    if(next && block + this.readUint32(block) === next){
-      this.writeUint32(block, this.readUint32(block) + this.readUint32(next));
-      this.writeUint32(block + 4, this.readUint32(next + 4));
+    this.writeUint32(block + BLOCK_FIELDS.next, next);
+    this.writeUint32(previous ? previous + BLOCK_FIELDS.next : HEADER_FIELDS.free, block);
+    if(next && block + this.readUint32(block + BLOCK_FIELDS.size) === next){
+      this.writeUint32(block + BLOCK_FIELDS.size, this.readUint32(block + BLOCK_FIELDS.size) + this.readUint32(next + BLOCK_FIELDS.size));
+      this.writeUint32(block + BLOCK_FIELDS.next, this.readUint32(next + BLOCK_FIELDS.next));
     }
-    if(previous && previous + this.readUint32(previous) === block){
-      this.writeUint32(previous, this.readUint32(previous) + this.readUint32(block));
-      this.writeUint32(previous + 4, this.readUint32(block + 4));
+    if(previous && previous + this.readUint32(previous + BLOCK_FIELDS.size) === block){
+      this.writeUint32(previous + BLOCK_FIELDS.size, this.readUint32(previous + BLOCK_FIELDS.size) + this.readUint32(block + BLOCK_FIELDS.size));
+      this.writeUint32(previous + BLOCK_FIELDS.next, this.readUint32(block + BLOCK_FIELDS.next));
     }
   }
 
   private bucket(hash: number): number {
     return this.readUint32(HEADER_FIELDS.buckets) + hash % this.readUint32(HEADER_FIELDS.bucketCount) * 4;
+  }
+
+  // the valid entry of a key, which becomes the most recently used one
+  private current(key: string, modified: ModifiedTime | undefined): number {
+    const entry = this.lookup(key, modified);
+    if(entry && !this.stale(entry)){
+      this.touch(entry);
+      return entry;
+    }
+    return 0;
   }
 
   private lookup(key: string, modified: ModifiedTime | undefined): number {
@@ -589,12 +483,13 @@ export class SharedCache {
         continue;
       }
       const length = this.readUint32(dependency + DEPENDENCY_FIELDS.keyLength);
-      const path = this.findStored(this.readUint32(dependency + DEPENDENCY_FIELDS.hash), PATH, dependency + DEPENDENCY_FIELDS.key, length);
-      const timestamp = modified(this.text(dependency + DEPENDENCY_FIELDS.key, length));
-      if(!path){
-        this.createPath(this.text(dependency + DEPENDENCY_FIELDS.key, length), timestamp);
-      } else if(this.readFloat64(path + ENTRY_FIELDS.timestamp) !== timestamp){
-        this.updatePath(path, timestamp);
+      const entry = this.findStored(this.readUint32(dependency + DEPENDENCY_FIELDS.hash), PATH, dependency + DEPENDENCY_FIELDS.key, length);
+      const path = this.text(dependency + DEPENDENCY_FIELDS.key, length);
+      const timestamp = modified(path);
+      if(!entry){
+        this.createPath(path, timestamp);
+      } else if(this.readFloat64(entry + ENTRY_FIELDS.timestamp) !== timestamp){
+        this.updatePath(entry, timestamp);
       }
     }
   }
@@ -981,6 +876,8 @@ export class SharedCache {
     }
   }
 
+  // the record of the released entry becomes a free extent, the free extents are sorted by their offset
+  // and adjacent ones are merged, an extent that reaches the end of the used data is returned to it
   private freeDataExtent(entry: number): void {
     const offset = this.readUint32(entry + ENTRY_FIELDS.offset);
     let previous = 0;
