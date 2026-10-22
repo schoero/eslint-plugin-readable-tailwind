@@ -64,7 +64,7 @@ List of regex patterns for classes that should not report logical property sugge
 
 This can be useful for classes that intentionally use physical directions.
 
-**Type**: `string[]`
+**Type**: `string[]`  
 **Default**: `[]`
 
 <br/>
@@ -82,7 +82,7 @@ This can be useful for classes that intentionally use physical directions.
 
   Flat list of selectors that determines where Tailwind class strings are linted.
 
-  **Type**: Array of [Selectors](../configuration/advanced.md#selectors)
+  **Type**: Array of [Selectors](../configuration/advanced.md#selectors)  
   **Default**: See [defaults API](../api/defaults.md)
 
   <br/>
@@ -92,17 +92,20 @@ This can be useful for classes that intentionally use physical directions.
   The path to the entry file of the css based tailwind config (eg: `src/global.css`).
   If not specified, the plugin will fall back to the default configuration.
 
-  **Type**: `string`
+  **Type**: `string`  
   **Default**: `undefined`
 
   <br/>
 
 ### `tailwindConfig`
 
-  Tailwind config file path.
+  The path to the `tailwind.config.js` file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.  
+  This can also be set globally via the [`settings` object](../settings/settings.md#tailwindConfig).  
 
-  **Type**: string
-  **Default**: Tailwind's default config resolution
+  For Tailwind CSS v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
+
+  **Type**: `string`  
+  **Default**: `undefined`
 
   <br/>
 
@@ -113,7 +116,7 @@ This can be useful for classes that intentionally use physical directions.
 
   The tsconfig is used to resolve tsconfig [path](https://www.typescriptlang.org/tsconfig/#paths) aliases.
 
-  **Type**: `string`
+  **Type**: `string`  
   **Default**: `undefined`
 
 </details>

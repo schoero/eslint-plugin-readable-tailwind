@@ -6,7 +6,7 @@ A canonical class is a simpler representation of a less optimal way of writing t
 > [!NOTE]
 >
 > - This rule is identical to `suggestCanonicalClasses` from the [Tailwind CSS IntelliSense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss) VSCode extension.  
->   It is recommended to disable `suggestCanonicalClasses` in your projects `.vscode/settings.json` to avoid confusion:
+>   It is recommended to disable `suggestCanonicalClasses` in your project's `.vscode/settings.json` to avoid confusion:
 >
 >   ```jsonc
 >   {
