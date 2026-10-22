@@ -5,8 +5,12 @@ async function build(){
 
   console.info("Building...")
   await $(`npx tsc --project tsconfig.build.json --outDir ${outDir}`)
-  await $(`npx tsc-alias --outDir ${outDir}`)
+  await $(`npx tsc-alias --project tsconfig.build.json --outDir ${outDir}`)
   console.info("Build complete")
 }
 
-build().catch(console.error);
+build().catch(error => {
+  console.error(error)
+  process.exitCode = 1
+});
+
