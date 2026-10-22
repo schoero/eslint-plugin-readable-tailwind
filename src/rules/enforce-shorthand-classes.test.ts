@@ -3,6 +3,7 @@ import { describe, it } from "vitest";
 import { enforceShorthandClasses } from "better-tailwindcss:rules/enforce-shorthand-classes.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { css, ts } from "better-tailwindcss:tests/utils/template.js";
+import { values } from "better-tailwindcss:tests/utils/values.js";
 import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version";
 
 
@@ -596,6 +597,59 @@ describe(enforceShorthandClasses.name, () => {
             vueOutput: `<template><img class="size-4  hover:size-8 " /></template>`,
 
             errors: 4
+          }
+        ]
+      }
+    );
+  });
+
+  it("should collapse align and justify classes into their place shorthand", () => {
+    lint(
+      enforceShorthandClasses,
+      {
+        invalid: [
+          {
+            angular: `<img class="content-center justify-center" />`,
+            angularOutput: `<img class="place-content-center " />`,
+            html: `<img class="content-center justify-center" />`,
+            htmlOutput: `<img class="place-content-center " />`,
+            jsx: `() => <img class="content-center justify-center" />`,
+            jsxOutput: `() => <img class="place-content-center " />`,
+            svelte: `<img class="content-center justify-center" />`,
+            svelteOutput: `<img class="place-content-center " />`,
+            vue: `<template><img class="content-center justify-center" /></template>`,
+            vueOutput: `<template><img class="place-content-center " /></template>`,
+
+            errors: 2
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should report the removal of redundant longhand classes", () => {
+    lint(
+      enforceShorthandClasses,
+      {
+        invalid: [
+          {
+            html: `<img class="w-4 h-4" />`,
+            htmlOutput: `<img class="size-4 " />`,
+            jsx: `() => <img class="w-4 h-4" />`,
+            jsxOutput: `() => <img class="size-4 " />`,
+
+            errors: [
+              { message: values(enforceShorthandClasses.messages!.longhand, { longhands: "w-4 h-4", shorthands: "size-4" }) },
+              { message: values(enforceShorthandClasses.messages!.unnecessary, { className: "h-4", shorthands: "size-4" }) }
+            ],
+            files: {
+              "styles.css": css`
+                @import "tailwindcss";
+              `
+            },
+            options: [{
+              entryPoint: "styles.css"
+            }]
           }
         ]
       }

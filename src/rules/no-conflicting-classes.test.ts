@@ -2,6 +2,8 @@ import { describe, it } from "vitest";
 
 import { noConflictingClasses } from "better-tailwindcss:rules/no-conflicting-classes.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
+import { css } from "better-tailwindcss:tests/utils/template.js";
+import { values } from "better-tailwindcss:tests/utils/values.js";
 import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version";
 
 
@@ -37,6 +39,33 @@ describe.skipIf(getTailwindCSSVersion().major <= 3)(noConflictingClasses.name, (
             vue: `<template><div class="flex block"></div></template>`,
 
             errors: 2
+          }
+        ]
+      }
+    );
+  });
+
+  it("should quote each conflicting property only once in the message", () => {
+    lint(
+      noConflictingClasses,
+      {
+        invalid: [
+          {
+            html: `<div class="flex block"></div>`,
+            jsx: `() => <div class="flex block"></div>`,
+
+            errors: [
+              { message: values(noConflictingClasses.messages!.conflicting, { className: "flex", conflictingClassString: "block", conflictingPropertiesString: `"display"` }) },
+              { message: values(noConflictingClasses.messages!.conflicting, { className: "block", conflictingClassString: "flex", conflictingPropertiesString: `"display"` }) }
+            ],
+            files: {
+              "styles.css": css`
+                @import "tailwindcss";
+              `
+            },
+            options: [{
+              entryPoint: "styles.css"
+            }]
           }
         ]
       }

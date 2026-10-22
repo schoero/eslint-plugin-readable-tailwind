@@ -21,7 +21,7 @@ export const enforceShorthandClasses = createRule({
 
   messages: {
     longhand: "Non shorthand class detected. Expected {{ longhands }} to be {{ shorthands }}",
-    unnecessary: "Unnecessary whitespace"
+    unnecessary: "Unnecessary longhand class detected. \"{{ className }}\" is already covered by {{ shorthands }}"
   },
 
   initialize: ctx => {
@@ -113,7 +113,7 @@ export const shorthands = [
     [[/^scale-x-(.*)$/, /^scale-y-(.*)$/], ["scale-$1"]]
   ],
   [
-    [[/^content-(.*)$/, /^justify-content-(.*)$/], ["place-content-$1"]],
+    [[/^content-(.*)$/, /^justify-(.*)$/], ["place-content-$1"]],
     [[/^items-(.*)$/, /^justify-items-(.*)$/], ["place-items-$1"]],
     [[/^self-(.*)$/, /^justify-self-(.*)$/], ["place-self-$1"]]
   ],
@@ -158,8 +158,13 @@ function lintLiterals(ctx: Context<typeof enforceShorthandClasses>, literals: Li
 
           if(shorthands.every(shorthand => after.includes(shorthand))){
             return {
+              data: {
+                className,
+                shorthands: shorthands.join(" ")
+              },
               fix: "",
-              id: "unnecessary"
+              id: "unnecessary",
+              warnings
             } as const;
           }
 
