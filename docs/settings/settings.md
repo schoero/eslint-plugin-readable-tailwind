@@ -154,5 +154,17 @@ If provided, this will be used to determine if arbitrary values can be replaced 
 
   This controls what gets linted globally: only string literals matched by these selectors are treated as Tailwind class candidates.
 
-  **Type**: Array of [Selectors](../configuration/advanced.md#selectors)  
+  An array replaces the default selectors. To keep the defaults and add your own, pass an object with an `extend` array instead. This also works in configs that cannot import JavaScript, such as JSON configs.
+
+  ```jsonc
+  {
+    "selectors": {
+      "extend": [
+        { "kind": "attribute", "match": [{ "type": "objectValues" }], "name": "^classNames$" }
+      ]
+    }
+  }
+  ```
+
+  **Type**: Array of [Selectors](../configuration/advanced.md#selectors) or `{ extend: Selectors[] }`  
   **Default**: See [defaults API](../api/defaults.md)

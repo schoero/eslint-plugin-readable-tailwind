@@ -221,6 +221,28 @@ describe("descriptions", () => {
 
   });
 
+  test("selectors extend config", () => {
+
+    const selectors = {
+      selectors: {
+        extend: [
+          {
+            kind: "attribute",
+            match: [{ type: MatcherType.ObjectValue }],
+            name: "^classNames$"
+          }
+        ]
+      }
+    };
+
+    expect(
+      validate(selectors, toJsonSchema(COMMON_OPTIONS))
+    ).toStrictEqual(
+      { errors: [], valid: true }
+    );
+
+  });
+
   test("selectors targetCall and targetArgument config", () => {
 
     const selectors = {

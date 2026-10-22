@@ -12,7 +12,7 @@ The plugin already ships with defaults that support [most popular tailwind utili
 - you want to narrow down linting behavior,
 - or you want to lint additional locations.
 
-To extend defaults instead of replacing them, import and spread `getDefaultSelectors()` from `eslint-plugin-better-tailwindcss/defaults`.
+To extend defaults instead of replacing them, pass your selectors as `selectors: { extend: [...] }`. To filter or reorder the defaults, import and spread `getDefaultSelectors()` from `eslint-plugin-better-tailwindcss/defaults` into a `selectors` array instead.
 
 You can find the default selectors in the [defaults documentation](../api/defaults.md).
 
@@ -464,7 +464,7 @@ tw("keep", "ignore")("this will get linted", "this will not");
 
 #### Full example: custom Algolia attribute selector
 
-You can match custom attributes by modifying your `selectors` configuration. Here is an example on how to match the values inside the Algolia `classNames` objects:
+You can match custom attributes by extending your `selectors` configuration. Here is an example on how to match the values inside the Algolia `classNames` objects:
 
 ```tsx
 <SearchBox
@@ -480,7 +480,6 @@ You can match custom attributes by modifying your `selectors` configuration. Her
 ```js
 // eslint.config.js
 import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
-import { getDefaultSelectors } from "eslint-plugin-better-tailwindcss/defaults";
 import { SelectorKind } from "eslint-plugin-better-tailwindcss/types";
 import { defineConfig } from "eslint/config";
 
@@ -491,14 +490,15 @@ export default defineConfig({
   settings: {
     "better-tailwindcss": {
       entryPoint: "app/globals.css",
-      selectors: [
-        ...getDefaultSelectors(), // preserve default selectors
-        {
-          kind: SelectorKind.Attribute,
-          match: [{ type: "objectValues" }],
-          name: "^classNames$"
-        }
-      ]
+      selectors: {
+        extend: [ // preserve default selectors
+          {
+            kind: SelectorKind.Attribute,
+            match: [{ type: "objectValues" }],
+            name: "^classNames$"
+          }
+        ]
+      }
     }
   }
 });
