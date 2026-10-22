@@ -14,7 +14,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { CachedStore } from "../../src/async-utils/cached-store.js";
 import { resolveCss } from "../../src/async-utils/resolvers.js";
-import { SharedCache } from "../../src/async-utils/shared-cache.js";
+import { MAX_BUFFER_CAPACITY, SharedCache } from "../../src/async-utils/shared-cache.js";
 import { TestDirectory } from "../utils/tmp.js";
 
 import type { AsyncContext } from "../../src/utils/context.js";
@@ -269,6 +269,83 @@ describe("cachedStore values", () => {
       expect(create).toHaveBeenCalledTimes(2);
     } finally {
       Reflect.set(CachedStore, "capacity", capacity);
+      CachedStore.attachSharedState(original);
+    }
+  });
+
+  it("clamps the configured capacity to the size the buffers can grow to", () => {
+    const original = CachedStore.getSharedState();
+    const capacity = Reflect.get(CachedStore, "capacity");
+    const memoryLimit = Reflect.get(CachedStore, "memoryLimit");
+    const create = vi.spyOn(SharedCache, "create");
+    const megabytes = (value: number) => value * 1024 * 1024;
+    try {
+      Reflect.set(CachedStore, "_cache", undefined);
+      Reflect.set(CachedStore, "state", undefined);
+      Reflect.set(CachedStore, "capacity", undefined);
+      Reflect.set(CachedStore, "memoryLimit", Number.POSITIVE_INFINITY);
+      CachedStore.setCapacity(Number.NaN);
+      CachedStore.setCapacity(megabytes(4096));
+      expect(() => CachedStore.getSharedState()).not.toThrow();
+      expect(create).toHaveBeenLastCalledWith(expect.objectContaining({ maxDataCapacity: MAX_BUFFER_CAPACITY, maxMetadataCapacity: MAX_BUFFER_CAPACITY / 3 }));
+      Reflect.set(CachedStore, "_cache", undefined);
+      Reflect.set(CachedStore, "state", undefined);
+      Reflect.set(CachedStore, "capacity", undefined);
+      CachedStore.setCapacity(0);
+      CachedStore.getSharedState();
+      expect(create).toHaveBeenLastCalledWith(expect.objectContaining({ maxDataCapacity: megabytes(0.75), maxMetadataCapacity: megabytes(0.25) }));
+    } finally {
+      Reflect.set(CachedStore, "capacity", capacity);
+      Reflect.set(CachedStore, "memoryLimit", memoryLimit);
+      CachedStore.attachSharedState(original);
+    }
+  });
+
+  it("limits the capacity to a quarter of the memory the process may use", () => {
+    const original = CachedStore.getSharedState();
+    const capacity = Reflect.get(CachedStore, "capacity");
+    const memoryLimit = Reflect.get(CachedStore, "memoryLimit");
+    const create = vi.spyOn(SharedCache, "create");
+    const megabytes = (value: number) => value * 1024 * 1024;
+    vi.spyOn(process, "constrainedMemory").mockReturnValue(megabytes(64));
+    try {
+      Reflect.set(CachedStore, "_cache", undefined);
+      Reflect.set(CachedStore, "state", undefined);
+      Reflect.set(CachedStore, "capacity", undefined);
+      Reflect.set(CachedStore, "memoryLimit", undefined);
+      CachedStore.setCapacity(megabytes(2048));
+      CachedStore.getSharedState();
+      expect(create).toHaveBeenLastCalledWith(expect.objectContaining({ maxDataCapacity: megabytes(12), maxMetadataCapacity: megabytes(4) }));
+    } finally {
+      Reflect.set(CachedStore, "capacity", capacity);
+      Reflect.set(CachedStore, "memoryLimit", memoryLimit);
+      CachedStore.attachSharedState(original);
+    }
+  });
+
+  it("creates smaller buffers when the address space for their maximum can not be reserved", () => {
+    const original = CachedStore.getSharedState();
+    const capacity = Reflect.get(CachedStore, "capacity");
+    const memoryLimit = Reflect.get(CachedStore, "memoryLimit");
+    const create = vi.spyOn(SharedCache, "create").mockImplementationOnce(() => {
+      throw new RangeError("Array buffer allocation failed");
+    });
+    const megabytes = (value: number) => value * 1024 * 1024;
+    try {
+      Reflect.set(CachedStore, "_cache", undefined);
+      Reflect.set(CachedStore, "state", undefined);
+      Reflect.set(CachedStore, "capacity", undefined);
+      Reflect.set(CachedStore, "memoryLimit", Number.POSITIVE_INFINITY);
+      CachedStore.setCapacity(megabytes(16));
+      const state = CachedStore.getSharedState();
+      expect(create).toHaveBeenCalledTimes(2);
+      expect(create).toHaveBeenLastCalledWith(expect.objectContaining({ maxDataCapacity: megabytes(6), maxMetadataCapacity: megabytes(2) }));
+      // the configured capacity is kept, so that configuring it again does not replace the smaller buffers
+      CachedStore.setCapacity(megabytes(16));
+      expect(CachedStore.getSharedState()).toBe(state);
+    } finally {
+      Reflect.set(CachedStore, "capacity", capacity);
+      Reflect.set(CachedStore, "memoryLimit", memoryLimit);
       CachedStore.attachSharedState(original);
     }
   });

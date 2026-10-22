@@ -1,10 +1,11 @@
 import { hash } from "node:crypto";
 import { readFileSync, statSync } from "node:fs";
 import type { Stats } from "node:fs";
+import { totalmem } from "node:os";
 import { resolve } from "node:path";
 import { DefaultDeserializer, DefaultSerializer } from "node:v8";
 
-import { SharedCache, SharedCacheCapacityError } from "./shared-cache.js";
+import { MAX_BUFFER_CAPACITY, SharedCache, SharedCacheCapacityError } from "./shared-cache.js";
 
 import type { CacheDependency, CacheStats } from "./shared-cache.js";
 
@@ -46,6 +47,11 @@ const MISSING = -1;
 // default maximum memory of the cache, a quarter is used for metadata and the rest for payloads
 const DEFAULT_CAPACITY = 32 * 1024 * 1024;
 
+// the settings are not validated by eslint, so the configured capacity is clamped
+const MIN_CAPACITY = 1024 * 1024;
+// the data buffer receives three quarters of the capacity and can not grow beyond the size a buffer can address
+const MAX_CAPACITY = Math.floor(MAX_BUFFER_CAPACITY / 3 * 4);
+
 // longer keys, for example large class lists, are hashed to keep their metadata and comparisons small
 const MAX_KEY_LENGTH = 64;
 
@@ -74,11 +80,20 @@ function isMissingFile(error: unknown): boolean {
     (error.code === "ENOENT" || error.code === "ENOTDIR");
 }
 
+// the buffers grow to their maximum before evicting and never shrink, so they may use at most a quarter of the memory
+// of the system, or of the container when it limits the process further, a constrained memory of 0 means no limit
+function getMemoryLimit(): number {
+  const constrained = process.constrainedMemory();
+  const total = totalmem();
+  return Math.floor((constrained > 0 ? Math.min(constrained, total) : total) / 4);
+}
+
 export class CachedStore {
   private static _cache: SharedCache | undefined;
   private static owned: SharedArrayBuffer | undefined;
   private static state: CachedStoreState | undefined;
   private static capacity: number | undefined;
+  private static memoryLimit: number | undefined;
   private static readonly writtenInputs = new Map<string, { value: unknown; version: number | undefined; }>();
   private static readonly textDecoder = new TextDecoder("utf-8");
 
@@ -89,17 +104,7 @@ export class CachedStore {
       this.reset();
     }
     if(!this._cache){
-      const capacity = this.capacity ?? DEFAULT_CAPACITY;
-      const maxMetadataCapacity = Math.floor(capacity / 4);
-      const maxDataCapacity = capacity - maxMetadataCapacity;
-      this._cache = SharedCache.create({
-        // 1MB
-        initialDataCapacity: Math.min(1024 * 1024, maxDataCapacity),
-        // 64KB
-        initialMetadataCapacity: Math.min(64 * 1024, maxMetadataCapacity),
-        maxDataCapacity,
-        maxMetadataCapacity
-      });
+      this._cache = this.createCache(this.capacity ?? DEFAULT_CAPACITY);
       this.owned = this._cache.metadata;
     }
     return this._cache;
@@ -108,16 +113,19 @@ export class CachedStore {
   // the maximum memory of the buffers this thread creates, the first configured capacity applies and later ones
   // only when they are larger, so that different settings in one process do not replace the buffers over and over
   static setCapacity(bytes: number): void {
-    const capacity = Math.floor(bytes);
+    if(!Number.isFinite(bytes)){
+      return;
+    }
+    this.memoryLimit ??= getMemoryLimit();
+    const capacity = Math.max(MIN_CAPACITY, Math.min(Math.floor(bytes), MAX_CAPACITY, this.memoryLimit));
     if(this.capacity !== undefined && capacity <= this.capacity){
       return;
     }
-    const previous = this.capacity ?? DEFAULT_CAPACITY;
-    this.capacity = capacity;
     // buffers can not change the maximum they were created with
-    if(capacity !== previous && this.isOwner()){
+    if(capacity !== (this.capacity ?? DEFAULT_CAPACITY) && this.isOwner()){
       this.reset();
     }
+    this.capacity = capacity;
   }
 
   static attachSharedState(state: CachedStoreState): void {
@@ -377,6 +385,28 @@ export class CachedStore {
     this._cache = undefined;
     this.owned = undefined;
     this.state = undefined;
+  }
+
+  // the maximum of the buffers is reserved as address space when they are created, which fails on hosts with little
+  // address space, for example 32-bit systems or limited virtual memory, smaller buffers are created instead
+  private static createCache(capacity: number): SharedCache {
+    const maxMetadataCapacity = Math.floor(capacity / 4);
+    const maxDataCapacity = capacity - maxMetadataCapacity;
+    try {
+      return SharedCache.create({
+        // 1MB
+        initialDataCapacity: Math.min(1024 * 1024, maxDataCapacity),
+        // 64KB
+        initialMetadataCapacity: Math.min(64 * 1024, maxMetadataCapacity),
+        maxDataCapacity,
+        maxMetadataCapacity
+      });
+    } catch (error){
+      if(!(error instanceof RangeError) || capacity <= MIN_CAPACITY){
+        throw error;
+      }
+      return this.createCache(Math.max(Math.floor(capacity / 2), MIN_CAPACITY));
+    }
   }
 
   private static snapshot({ dependencies = [], paths = [] }: CacheOptions): (CacheDependency | undefined)[] {

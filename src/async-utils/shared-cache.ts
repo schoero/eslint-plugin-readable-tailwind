@@ -33,7 +33,7 @@ export interface CacheStats {
 
 const HEADER = 56;
 const MAGIC = 0x53_54_41_45;
-const LIMIT = 0x7F_FF_FF_F8;
+export const MAX_BUFFER_CAPACITY = 0x7F_FF_FF_F8;
 const ENTRY_SIZE = 88;
 const DEPENDENCY_SIZE = 24;
 const MAX_DEPENDENCY_DEPTH = 32;
@@ -101,8 +101,8 @@ function align(value: number): number {
 }
 
 function validateCapacity(value: number, name: string): void {
-  if(!Number.isSafeInteger(value) || value < 0 || value > LIMIT){
-    throw new RangeError(`${name} must be an integer between 0 and ${LIMIT}`);
+  if(!Number.isSafeInteger(value) || value < 0 || value > MAX_BUFFER_CAPACITY){
+    throw new RangeError(`${name} must be an integer between 0 and ${MAX_BUFFER_CAPACITY}`);
   }
 }
 
