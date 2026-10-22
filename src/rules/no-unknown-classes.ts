@@ -19,7 +19,7 @@ import type { AsyncContext } from "better-tailwindcss:utils/context.js";
 
 
 export const noUnknownClasses = createRule({
-  autofix: true,
+  autofix: false,
   category: "correctness",
   description: "Disallow any css classes that are not registered in tailwindcss.",
   docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-unknown-classes.md",
