@@ -1,19 +1,17 @@
-import { readFileSync } from "node:fs";
 import { cwd } from "node:process";
 
-import { resolveJson } from "better-tailwindcss:utils/resolvers.js";
+import { getTailwindPackageJsonPath, getTailwindVersion } from "better-tailwindcss:utils/tailwindcss.js";
 import { parseSemanticVersion } from "better-tailwindcss:utils/version.js";
 
 
 export function getTailwindCSSVersion() {
-  const packageJsonPath = resolveJson("tailwindcss/package.json", cwd());
+  const packageJsonPath = getTailwindPackageJsonPath(cwd());
 
   if(!packageJsonPath){
     throw new Error("Tailwind CSS is not installed.");
   }
 
-  const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
-  return parseSemanticVersion(packageJson.version);
+  return getTailwindVersion(packageJsonPath);
 }
 
 export function getNodeVersion() {

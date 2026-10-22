@@ -9,7 +9,6 @@ import { createGetUnknownClasses, getUnknownClasses } from "better-tailwindcss:t
 import { async } from "better-tailwindcss:utils/context.js";
 import { escapeForRegex } from "better-tailwindcss:utils/escape.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
-import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { isConcatenatedLeft, isConcatenatedRight, splitClasses } from "better-tailwindcss:utils/utils.js";
 
@@ -64,8 +63,9 @@ function lintLiterals(ctx: Context<typeof noUnknownClasses>, literals: Literal[]
   const asyncCtx = async(ctx);
   const { prefix, suffix } = getPrefix(asyncCtx);
 
-  const ignoredGroups = getCachedRegex(`^${escapeForRegex(`${prefix}${suffix}`)}group(?:\\/(\\S*))?$`);
-  const ignoredPeers = getCachedRegex(`^${escapeForRegex(`${prefix}${suffix}`)}peer(?:\\/(\\S*))?$`);
+  const ignoredClassRegexes = ignore.map(ignoredClass => new RegExp(ignoredClass));
+  const ignoredGroups = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}group(?:\\/(\\S*))?$`);
+  const ignoredPeers = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}peer(?:\\/(\\S*))?$`);
 
   const customComponentClassRegexes = getCustomComponentClassRegexes(ctx, asyncCtx);
 
@@ -95,7 +95,7 @@ function lintLiterals(ctx: Context<typeof noUnknownClasses>, literals: Literal[]
       }
 
       if(
-        ignore.some(ignoredClass => getCachedRegex(ignoredClass).test(className)) ||
+        ignoredClassRegexes.some(ignoredClassRegex => ignoredClassRegex.test(className)) ||
         customComponentClassRegexes?.some(customComponentClassesRegex => customComponentClassesRegex.test(className)) ||
         ignoredGroups.test(className) ||
         ignoredPeers.test(className)
@@ -125,5 +125,5 @@ function getCustomComponentClassRegexes(ctx: Context<typeof noUnknownClasses>, a
   const { customComponentClasses } = getCustomComponentClasses(asyncCtx);
   const { prefix, suffix } = getPrefix(asyncCtx);
 
-  return customComponentClasses.map(className => getCachedRegex(`^${escapeForRegex(`${prefix}${suffix}`)}(?:.*:)?${escapeForRegex(className)}$`));
+  return customComponentClasses.map(className => new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}(?:.*:)?${escapeForRegex(className)}$`));
 }

@@ -1,17 +1,48 @@
-import { readFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { pathToFileURL } from "node:url";
 
 import { createJiti } from "jiti";
 
-import { withCache } from "../async-utils/cache.js";
+import { CachedStore, CacheEntry } from "../async-utils/cached-store.js";
+import { flattenCssImportTree, getCssImportTree, parseCssFileWithTree } from "../async-utils/css-import-tree.js";
 import { normalize } from "../async-utils/path.js";
 import { resolveCss, resolveJs } from "../async-utils/resolvers.js";
 
 import type { AsyncContext } from "../utils/context.js";
 
 
-export const createTailwindContext = async (ctx: AsyncContext) => withCache("tailwind-context", ctx.tailwindConfigPath, async () => {
+// the context is not serializable, it stays in the worker and the cache entry only tracks whether it is still valid
+let tailwindContext: Awaited<ReturnType<typeof buildTailwindContext>>;
+
+export async function createTailwindContext(ctx: AsyncContext) {
+  if(tailwindContext !== undefined && CachedStore.has(CacheEntry.TAILWIND_CONTEXT)){
+    return tailwindContext;
+  }
+
+  // a new entry makes everything derived from the previous context stale
+  CachedStore.delete(CacheEntry.TAILWIND_CONTEXT);
+
+  const imports = flattenCssImportTree(getCssImportTree(ctx, ctx.tailwindConfigPath, parseCssFileWithTree));
+
+  await CachedStore.getOrCreate(
+    CacheEntry.TAILWIND_CONTEXT,
+    async () => {
+      tailwindContext = await buildTailwindContext(ctx);
+      return true;
+    },
+    {
+      dependencies: [CacheEntry.TAILWIND_CONFIG_PATH, CacheEntry.TSCONFIG_PATH, CacheEntry.TAILWIND_VERSION],
+      paths: [ctx.tailwindConfigPath, ...imports, ...ctx.tsconfigPath ? [ctx.tsconfigPath] : []]
+    }
+  );
+
+  return tailwindContext;
+}
+
+async function buildTailwindContext(ctx: AsyncContext) {
+  const css = CachedStore.readFile(ctx.tailwindConfigPath);
+
   const jiti = createJiti(getCurrentFilename(), {
     fsCache: false,
     moduleCache: false
@@ -23,11 +54,7 @@ export const createTailwindContext = async (ctx: AsyncContext) => withCache("tai
   // eslint-disable-next-line eslint-plugin-typescript/naming-convention
   const { __unstable__loadDesignSystem } = await import(normalize(tailwindPath));
 
-  const css = await readFile(ctx.tailwindConfigPath, "utf-8");
-
-  // Load the design system and set up a compatible context object that is
-  // usable by the rest of the plugin
-  const design = await __unstable__loadDesignSystem(css, {
+  return __unstable__loadDesignSystem(css, {
     base: importBasePath,
     loadModule: createLoader(ctx, jiti, {
       filepath: ctx.tailwindConfigPath,
@@ -42,14 +69,13 @@ export const createTailwindContext = async (ctx: AsyncContext) => withCache("tai
         }
       }
     }),
-
     loadStylesheet: async (id: string, base: string) => {
       try {
         const resolved = resolveCss(ctx, id, base);
 
         return {
           base: dirname(resolved),
-          content: await readFile(resolved, "utf-8")
+          content: readFileSync(resolved, "utf-8")
         };
       } catch {
         return {
@@ -59,9 +85,7 @@ export const createTailwindContext = async (ctx: AsyncContext) => withCache("tai
       }
     }
   });
-
-  return design;
-});
+}
 
 function createLoader<T>(ctx: AsyncContext, jiti: ReturnType<typeof createJiti>, {
   filepath,

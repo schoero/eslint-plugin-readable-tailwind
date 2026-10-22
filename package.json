@@ -104,7 +104,7 @@
     "astro-eslint-parser": "^2.1.0",
     "changelogen": "^0.6.2",
     "cspell": "^10.0.1",
-    "daisyui": "^5.6.7",
+    "daisyui": "5.7.4",
     "es-html-parser": "^0.3.1",
     "eslint": "^10.6.0",
     "eslint-plugin-better-tailwindcss": "file:./",

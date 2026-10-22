@@ -3,39 +3,48 @@ import fs from "node:fs";
 import enhancedResolve from "enhanced-resolve";
 import { TsconfigPathsPlugin } from "tsconfig-paths-webpack-plugin";
 
-import { withCache } from "../async-utils/cache.js";
+import { CachedStore } from "./cached-store.js";
 
 import type { AsyncContext } from "../utils/context.js";
+import type { CachedStoreState } from "./cached-store.js";
 
+
+type Resolver = ReturnType<typeof enhancedResolve.ResolverFactory.createResolver>;
 
 const fileSystem = new enhancedResolve.CachedInputFileSystem(fs, 30_000);
 
-const getESMResolver = (ctx: AsyncContext | undefined) => withCache("esm-resolver", ctx?.tsconfigPath, () => enhancedResolve.ResolverFactory.createResolver({
-  conditionNames: ["node", "import"],
-  extensions: [".mjs", ".js"],
-  fileSystem,
-  mainFields: ["module"],
-  plugins: ctx?.tsconfigPath ? [new TsconfigPathsPlugin({ configFile: ctx.tsconfigPath, mainFields: ["module"] })] : [],
-  useSyncFileSystemCalls: true
-}));
+// resolvers are not serializable, the cache entry only tracks whether the local instance is still valid
+function createCachedResolver(name: string, { conditionNames, extensions, mainFields }: { conditionNames: string[]; extensions: string[]; mainFields: string[]; }) {
+  let cached: undefined | { resolver: Resolver; state: CachedStoreState; tsconfigPath: string | undefined; };
 
-const getCJSResolver = (ctx: AsyncContext | undefined) => withCache("cjs-resolver", ctx?.tsconfigPath, () => enhancedResolve.ResolverFactory.createResolver({
-  conditionNames: ["node", "require"],
-  extensions: [".js", ".cjs"],
-  fileSystem,
-  mainFields: ["main"],
-  plugins: ctx?.tsconfigPath ? [new TsconfigPathsPlugin({ configFile: ctx.tsconfigPath, mainFields: ["main"] })] : [],
-  useSyncFileSystemCalls: true
-}));
+  return (ctx: AsyncContext | undefined): Resolver => {
+    const tsconfigPath = ctx?.tsconfigPath;
+    const key = [name, tsconfigPath];
+    const state = CachedStore.getSharedState();
 
-const getCSSResolver = (ctx: AsyncContext | undefined) => withCache("css-resolver", ctx?.tsconfigPath, () => enhancedResolve.ResolverFactory.createResolver({
-  conditionNames: ["style"],
-  extensions: [".css"],
-  fileSystem,
-  mainFields: ["style"],
-  plugins: ctx?.tsconfigPath ? [new TsconfigPathsPlugin({ configFile: ctx.tsconfigPath, mainFields: ["style"] })] : [],
-  useSyncFileSystemCalls: true
-}));
+    if(cached?.state === state && cached.tsconfigPath === tsconfigPath && CachedStore.has(key)){
+      return cached.resolver;
+    }
+
+    const resolver = enhancedResolve.ResolverFactory.createResolver({
+      conditionNames,
+      extensions,
+      fileSystem,
+      mainFields,
+      plugins: tsconfigPath ? [new TsconfigPathsPlugin({ configFile: tsconfigPath, mainFields })] : [],
+      useSyncFileSystemCalls: true
+    });
+
+    CachedStore.upsert(key, true, { paths: tsconfigPath ? [tsconfigPath] : [] });
+    cached = { resolver, state, tsconfigPath };
+
+    return resolver;
+  };
+}
+
+const getESMResolver = createCachedResolver("esm-resolver", { conditionNames: ["node", "import"], extensions: [".mjs", ".js"], mainFields: ["module"] });
+const getCJSResolver = createCachedResolver("cjs-resolver", { conditionNames: ["node", "require"], extensions: [".js", ".cjs"], mainFields: ["main"] });
+const getCSSResolver = createCachedResolver("css-resolver", { conditionNames: ["style"], extensions: [".css"], mainFields: ["style"] });
 
 const jsonResolver = enhancedResolve.ResolverFactory.createResolver({
   conditionNames: ["json"],

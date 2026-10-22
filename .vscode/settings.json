@@ -39,7 +39,7 @@
   "js/ts.preferences.importModuleSpecifierEnding": "js",
   "js/ts.preferences.useAliasesForRenames": true,
   "js/ts.preferences.autoImportFileExcludePatterns": [
-    "@types/node/test.d.ts"
+    "**/@types/node/test.d.ts"
   ],
   
   // Markdown

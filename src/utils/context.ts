@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 
-import { withCache } from "better-tailwindcss:utils/cache.js";
+import { CachedStore, CacheEntry } from "better-tailwindcss:utils/cached-store.js";
 import { findPathRecursive } from "better-tailwindcss:utils/fs.js";
 import { resolveCss } from "better-tailwindcss:utils/resolvers.js";
 
@@ -21,6 +21,10 @@ export function async(ctx: Context): AsyncContext {
   const { path: resolvedTailwindPath, warnings: tailwindConfigWarnings } = getTailwindConfigPath({ configPath: ctx.options.entryPoint ?? ctx.options.tailwindConfig, cwd: ctx.cwd, version: ctx.version });
   const { path: resolvedTSConfigPath, warnings: tsconfigWarnings } = getTSConfigPath({ configPath: ctx.options.tsconfig, cwd: ctx.cwd });
 
+  // cached results only depend on the tailwind context transitively, which never accesses the file system
+  // this records changes to the files the context was built from without a round trip to the worker
+  CachedStore.refreshPaths(CacheEntry.TAILWIND_CONTEXT);
+
   return {
     cwd: ctx.cwd,
     installation: ctx.installation,
@@ -31,78 +35,112 @@ export function async(ctx: Context): AsyncContext {
   };
 }
 
+// only one tsconfig path is cached, it is resolved again when the cwd or the option changes
+// or when the configured file is created or deleted
 function getTSConfigPath({ configPath, cwd }: {
   configPath: string | undefined;
   cwd: string;
 }) {
-  return withCache(`tsconfig-path-${cwd}`, configPath, () => {
-    const potentialPaths = [
-      ...configPath ? [configPath] : [],
-      "tsconfig.json",
-      "jsconfig.json"
-    ];
+  CachedStore.upsert(CacheEntry.CWD, cwd);
+  CachedStore.upsert(CacheEntry.TSCONFIG_OPTION, configPath);
 
-    const foundConfigPath = findPathRecursive(cwd, cwd, potentialPaths);
-    const warning = getConfigPathWarning(configPath, foundConfigPath);
-
-    return {
-      path: foundConfigPath,
-      warnings: [warning]
-    };
-  });
+  return CachedStore.getOrCreate(
+    CacheEntry.TSCONFIG_PATH,
+    () => findTSConfigPath({ configPath, cwd }),
+    { dependencies: [CacheEntry.CWD, CacheEntry.TSCONFIG_OPTION], paths: getConfiguredPaths(configPath, cwd) }
+  );
 }
 
+// only one tailwind config path is cached, it is resolved again when the cwd, the option or the tailwind version changes
+// or when the configured file is created or deleted
 export function getTailwindConfigPath({ configPath, cwd, version }: {
   configPath: string | undefined;
   cwd: string;
   version: Version;
 }) {
-  return withCache(`config-path-${cwd}`, configPath, () => {
-    if(version.major >= 4){
+  CachedStore.upsert(CacheEntry.CWD, cwd);
+  CachedStore.upsert(CacheEntry.TAILWIND_CONFIG_OPTION, configPath);
 
-      const foundConfigPath = configPath && findPathRecursive(cwd, cwd, [configPath]);
-      const warning = getEntryPointWarning(configPath, foundConfigPath);
+  return CachedStore.getOrCreate(
+    CacheEntry.TAILWIND_CONFIG_PATH,
+    () => findTailwindConfigPath({ configPath, cwd, version }),
+    { dependencies: [CacheEntry.CWD, CacheEntry.TAILWIND_CONFIG_OPTION, CacheEntry.TAILWIND_VERSION], paths: getConfiguredPaths(configPath, cwd) }
+  );
+}
 
-      if(foundConfigPath){
-        return {
-          path: foundConfigPath,
-          warnings: [warning]
-        };
-      }
+function findTSConfigPath({ configPath, cwd }: {
+  configPath: string | undefined;
+  cwd: string;
+}) {
+  const potentialPaths = [
+    ...configPath ? [configPath] : [],
+    "tsconfig.json",
+    "jsconfig.json"
+  ];
 
-      const defaultConfigPath = resolveCss("tailwindcss/theme.css", cwd);
+  const foundConfigPath = findPathRecursive(cwd, cwd, potentialPaths);
+  const warning = getConfigPathWarning(configPath, foundConfigPath);
 
-      if(!defaultConfigPath){
-        throw new Error("No default tailwind config found. Please ensure you have Tailwind CSS installed.");
-      }
+  return {
+    path: foundConfigPath,
+    warnings: [warning]
+  };
+}
 
+function findTailwindConfigPath({ configPath, cwd, version }: {
+  configPath: string | undefined;
+  cwd: string;
+  version: Version;
+}) {
+  if(version.major >= 4){
+
+    const foundConfigPath = configPath && findPathRecursive(cwd, cwd, [configPath]);
+    const warning = getEntryPointWarning(configPath, foundConfigPath);
+
+    if(foundConfigPath){
       return {
-        path: defaultConfigPath,
+        path: foundConfigPath,
         warnings: [warning]
       };
     }
 
-    if(version.major <= 3){
-      const defaultPaths = [
-        "tailwind.config.js",
-        "tailwind.config.cjs",
-        "tailwind.config.mjs",
-        "tailwind.config.ts"
-      ];
+    const defaultConfigPath = resolveCss("tailwindcss/theme.css", cwd);
 
-      const foundConfigPath = configPath && findPathRecursive(cwd, cwd, [configPath]);
-
-      const foundDefaultPath = findPathRecursive(cwd, cwd, defaultPaths);
-      const warning = getConfigPathWarning(configPath, foundConfigPath);
-
-      return {
-        path: foundConfigPath ?? foundDefaultPath ?? "default",
-        warnings: [warning]
-      };
+    if(!defaultConfigPath){
+      throw new Error("No default tailwind config found. Please ensure you have Tailwind CSS installed.");
     }
 
-    throw new Error(`Unsupported Tailwind CSS version: ${version.major}. Please use a version between 3 and 4.`);
-  });
+    return {
+      path: defaultConfigPath,
+      warnings: [warning]
+    };
+  }
+
+  if(version.major <= 3){
+    const defaultPaths = [
+      "tailwind.config.js",
+      "tailwind.config.cjs",
+      "tailwind.config.mjs",
+      "tailwind.config.ts"
+    ];
+
+    const foundConfigPath = configPath && findPathRecursive(cwd, cwd, [configPath]);
+
+    const foundDefaultPath = findPathRecursive(cwd, cwd, defaultPaths);
+    const warning = getConfigPathWarning(configPath, foundConfigPath);
+
+    return {
+      path: foundConfigPath ?? foundDefaultPath ?? "default",
+      warnings: [warning]
+    };
+  }
+
+  throw new Error(`Unsupported Tailwind CSS version: ${version.major}. Please use a version between 3 and 4.`);
+}
+
+// a configured file that does not exist yet is picked up as soon as it is created
+function getConfiguredPaths(configPath: string | undefined, cwd: string): string[] {
+  return configPath ? [resolve(cwd, configPath)] : [];
 }
 
 function getEntryPointWarning(entryPoint: string | undefined, foundEntryPoint: string | undefined): Warning | undefined {

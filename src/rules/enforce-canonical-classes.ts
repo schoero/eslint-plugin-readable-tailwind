@@ -12,7 +12,6 @@ import { createGetCanonicalClasses, getCanonicalClasses } from "better-tailwindc
 import { createGetPrefix, getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
 import { async } from "better-tailwindcss:utils/context.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
-import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { deduplicateClasses, splitClasses } from "better-tailwindcss:utils/utils.js";
 
@@ -69,7 +68,7 @@ export const enforceCanonicalClasses = createRule({
 
 function lintLiterals(ctx: Context<typeof enforceCanonicalClasses>, literals: Literal[]) {
   const { collapse, ignore, logical, rootFontSize } = ctx.options;
-  const ignoredClassRegexes = ignore.map(ignoredClass => getCachedRegex(ignoredClass));
+  const ignoredClassRegexes = ignore.map(ignoredClass => new RegExp(ignoredClass));
 
   const asyncCtx = async(ctx);
 

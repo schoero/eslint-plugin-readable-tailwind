@@ -4,6 +4,7 @@ import {
   boolean,
   description,
   literal,
+  minValue,
   number,
   optional,
   pipe,
@@ -104,3 +105,16 @@ export const CWD_OPTION_SCHEMA = strictObject({
 });
 
 export type CwdOption = InferOutput<typeof CWD_OPTION_SCHEMA>;
+
+export const CACHE_SIZE_OPTION_SCHEMA = strictObject({
+  cacheSize: optional(
+    pipe(
+      number(),
+      minValue(1),
+      description("The maximum memory in megabytes the cache of each linting thread may use. The least recently used entries are evicted beyond that.")
+    ),
+    32
+  )
+});
+
+export type CacheSizeOption = InferOutput<typeof CACHE_SIZE_OPTION_SCHEMA>;

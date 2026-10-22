@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 import { toJsonSchema } from "@valibot/to-json-schema";
@@ -26,11 +25,10 @@ import {
 import { getAttributesByVueStartTag, getLiteralsByVueAttribute } from "better-tailwindcss:parsers/vue.js";
 import { SelectorKind } from "better-tailwindcss:types/rule.js";
 import { getLocByRange } from "better-tailwindcss:utils/ast.js";
-import { withCache } from "better-tailwindcss:utils/cache.js";
-import { resolveJson } from "better-tailwindcss:utils/resolvers.js";
+import { CachedStore } from "better-tailwindcss:utils/cached-store.js";
+import { getTailwindPackageJsonPath, getTailwindVersion } from "better-tailwindcss:utils/tailwindcss.js";
 import { augmentMessageWithWarnings, escapeMessage } from "better-tailwindcss:utils/utils.js";
 import { removeDefaults } from "better-tailwindcss:utils/valibot.js";
-import { parseSemanticVersion } from "better-tailwindcss:utils/version.js";
 import { warnOnce } from "better-tailwindcss:utils/warn.js";
 
 import type { TmplAstElement } from "@angular/compiler";
@@ -66,23 +64,6 @@ import type {
   VariableSelector
 } from "better-tailwindcss:types/rule.js";
 
-
-// caching tailwind's package.json so it scales better
-// the operation is called for every rule * every linted file
-const getTailwindPackage = (cwd: string) => withCache("tailwind-package", cwd, () => {
-  const packageJsonPath = resolveJson("tailwindcss/package.json", cwd);
-
-  if(!packageJsonPath){
-    return;
-  }
-
-  const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
-
-  return {
-    installation: dirname(packageJsonPath),
-    version: parseSemanticVersion(packageJson.version)
-  };
-});
 
 export function createRule<
   const Name extends string,
@@ -187,14 +168,17 @@ export function createRule<
           ? resolve(ctx.cwd, options.cwd)
           : ctx.cwd;
 
-        const tailwindPackage = getTailwindPackage(cwd);
+        CachedStore.setCapacity(options.cacheSize * 1024 * 1024);
 
-        if(!tailwindPackage){
+        const packageJsonPath = getTailwindPackageJsonPath(cwd);
+
+        if(!packageJsonPath){
           warnOnce(`Tailwind CSS is not installed. Disabling rule ${ctx.id}.`);
           return {};
         }
 
-        const { installation, version } = tailwindPackage;
+        const version = getTailwindVersion(packageJsonPath);
+        const installation = dirname(packageJsonPath);
 
         const context = {
           cwd,

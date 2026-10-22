@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { withPerClassCache } from "better-tailwindcss:utils/cache.js";
+import { CachedStore, CacheEntry } from "better-tailwindcss:utils/cached-store.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
@@ -24,12 +24,23 @@ export function createGetUnknownClasses(ctx: Context): GetUnknownClasses {
   const workerOptions = getWorkerOptions();
   const runWorker = createSyncFn(workerPath, workerOptions);
 
-  // whether a class is unknown does not depend on the rest of the list
-  // so it is more efficient than operation cache
-  getUnknownClasses = (ctx, classes) => ({
-    unknownClasses: withPerClassCache(`unknown-class-${ctx.cwd}-${ctx.tsconfigPath}`, ctx.tailwindConfigPath, classes, uncachedClasses => runWorker("getUnknownClasses", ctx, uncachedClasses).unknownClasses),
-    warnings: ctx.warnings
-  });
+  // whether a class is unknown does not depend on the other classes, so only new classes reach the worker
+  getUnknownClasses = (ctx, classes) => {
+    const unknown = CachedStore.getOrCreateEach(
+      classes.map(className => ["unknown-class", className]),
+      missing => {
+        const missingClasses = missing.map(index => classes[index]);
+        const unknownClasses = new Set(runWorker("getUnknownClasses", CachedStore.getSharedState(), ctx, missingClasses));
+        return missingClasses.map(className => unknownClasses.has(className));
+      },
+      { dependencies: [CacheEntry.TAILWIND_CONTEXT] }
+    );
+
+    return {
+      unknownClasses: classes.filter((_, index) => unknown[index]),
+      warnings: ctx.warnings
+    };
+  };
 
   return getUnknownClasses;
 }
