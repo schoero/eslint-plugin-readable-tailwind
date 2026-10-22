@@ -36,6 +36,7 @@ export function async(ctx: Context): AsyncContext {
 }
 
 // only one tsconfig path is cached, it is resolved again when the cwd or the option changes
+// or when the configured file is created or deleted
 function getTSConfigPath({ configPath, cwd }: {
   configPath: string | undefined;
   cwd: string;
@@ -60,11 +61,12 @@ function getTSConfigPath({ configPath, cwd }: {
         warnings: [warning]
       };
     },
-    { dependencies: [CacheEntry.CWD, CacheEntry.TSCONFIG_OPTION] }
+    { dependencies: [CacheEntry.CWD, CacheEntry.TSCONFIG_OPTION], paths: getConfiguredPaths(configPath, cwd) }
   );
 }
 
 // only one tailwind config path is cached, it is resolved again when the cwd, the option or the tailwind version changes
+// or when the configured file is created or deleted
 export function getTailwindConfigPath({ configPath, cwd, version }: {
   configPath: string | undefined;
   cwd: string;
@@ -121,8 +123,13 @@ export function getTailwindConfigPath({ configPath, cwd, version }: {
 
       throw new Error(`Unsupported Tailwind CSS version: ${version.major}. Please use a version between 3 and 4.`);
     },
-    { dependencies: [CacheEntry.CWD, CacheEntry.TAILWIND_CONFIG_OPTION, CacheEntry.TAILWIND_VERSION] }
+    { dependencies: [CacheEntry.CWD, CacheEntry.TAILWIND_CONFIG_OPTION, CacheEntry.TAILWIND_VERSION], paths: getConfiguredPaths(configPath, cwd) }
   );
+}
+
+// a configured file that does not exist yet is picked up as soon as it is created
+function getConfiguredPaths(configPath: string | undefined, cwd: string): string[] {
+  return configPath ? [resolve(cwd, configPath)] : [];
 }
 
 function getEntryPointWarning(entryPoint: string | undefined, foundEntryPoint: string | undefined): Warning | undefined {

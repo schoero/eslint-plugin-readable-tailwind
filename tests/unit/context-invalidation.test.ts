@@ -124,6 +124,19 @@ describe.runIf(getTailwindCSSVersion().major >= 4)("tailwind context invalidatio
     expect(getUnknown(directory, "./a.css")).toEqual(["utility-b"]);
   });
 
+  it("should pick up a configured entry point that is created later", () => {
+    const directory = createDirectory({});
+    const entryPoint = directory.files["tailwind.css"].path;
+
+    expect(async(createContext(directory, "./tailwind.css")).warnings).toContainEqual(expect.objectContaining({ option: "entryPoint" }));
+    expect(getUnknown(directory, "./tailwind.css")).toEqual(["utility-a", "utility-b"]);
+
+    writeFileSync(entryPoint, `@import "tailwindcss";\n${utility("utility-a")}`);
+
+    expect(async(createContext(directory, "./tailwind.css")).warnings).not.toContainEqual(expect.objectContaining({ option: "entryPoint" }));
+    expect(getUnknown(directory, "./tailwind.css")).toEqual(["utility-b"]);
+  });
+
   it("should cache the prefix and custom component classes on the host until the config changes", () => {
     const directory = createDirectory({ "tailwind.css": `@import "tailwindcss";\n@layer components { .card { color: red; } }` });
 
@@ -155,6 +168,25 @@ describe.runIf(getTailwindCSSVersion().major >= 4)("tailwind context invalidatio
     getPrefix(asyncCtx);
 
     expect(isCached()).toBe(false);
+  });
+
+});
+
+describe("config path invalidation", () => {
+
+  it("should pick up a configured tsconfig that is created later", () => {
+    const directory = createDirectory({});
+    const tsconfig = directory.files["tsconfig.app.json"].path;
+    const ctx = createContext(directory, "./tailwind.css");
+    Object.assign(ctx.options, { tsconfig: "./tsconfig.app.json" });
+
+    expect(async(ctx).tsconfigPath).toBeUndefined();
+    expect(async(ctx).warnings).toContainEqual(expect.objectContaining({ option: "tsconfig" }));
+
+    writeFileSync(tsconfig, "{}");
+
+    expect(async(ctx).tsconfigPath).toBe(tsconfig);
+    expect(async(ctx).warnings).not.toContainEqual(expect.objectContaining({ option: "tsconfig" }));
   });
 
 });
